@@ -1,0 +1,57 @@
+import { defineMessages } from '#lib/i18n/index.svelte.ts';
+
+export const messages = defineMessages({
+	de: {
+		room: 'Raum',
+		wholeApartment: 'Ganze Wohnung',
+		unnamedRoom: 'Raum {n}',
+		wallMode: 'Wände',
+		wallsUp: 'Hoch',
+		wallsCutaway: 'Aufgeschnitten',
+		wallsDown: 'Niedrig',
+		ceiling: 'Decke',
+		electrical: 'Elektro',
+		lights: 'Licht',
+		walk: 'Begehen',
+		endWalk: 'Begehen beenden',
+		resetCamera: 'Kamera zurücksetzen',
+		screenshot: 'Bild speichern',
+		screenshotShare: 'Bild teilen',
+		screenshotFailed: 'Das Bild konnte nicht erstellt werden. Versuche es noch einmal.',
+		joystick: 'Steuerkreuz zum Gehen',
+		walkHint: 'Links gehen, wischen zum Umsehen',
+		walkHintDesktop: 'W A S D gehen, Pfeile oder Maus ziehen zum Umsehen, Esc beendet',
+		emptyTitle: 'Noch kein Raum',
+		emptyText: 'Lege im Plan einen Raum an, dann siehst du ihn hier in 3D.',
+		webglTitle: '3D ist hier nicht verfügbar',
+		webglText:
+			'Dein Browser kann die 3D-Grafik nicht starten. Lade die Seite neu oder probiere einen anderen Browser.',
+		canvasLabel: '3D-Ansicht der Wohnung'
+	},
+	en: {
+		room: 'Room',
+		wholeApartment: 'Whole apartment',
+		unnamedRoom: 'Room {n}',
+		wallMode: 'Walls',
+		wallsUp: 'Up',
+		wallsCutaway: 'Cutaway',
+		wallsDown: 'Low',
+		ceiling: 'Ceiling',
+		electrical: 'Electrical',
+		lights: 'Lights',
+		walk: 'Walk',
+		endWalk: 'Stop walking',
+		resetCamera: 'Reset camera',
+		screenshot: 'Save image',
+		screenshotShare: 'Share image',
+		screenshotFailed: 'The image could not be created. Please try again.',
+		joystick: 'Joystick for walking',
+		walkHint: 'Walk on the left, swipe to look around',
+		walkHintDesktop: 'W A S D to walk, arrows or mouse drag to look, Esc to stop',
+		emptyTitle: 'No room yet',
+		emptyText: 'Add a room in the plan and it will show up here in 3D.',
+		webglTitle: '3D is not available here',
+		webglText: 'Your browser could not start 3D graphics. Reload the page or try another browser.',
+		canvasLabel: '3D view of the apartment'
+	}
+});

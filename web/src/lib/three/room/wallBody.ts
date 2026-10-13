@@ -1,0 +1,247 @@
+import type { BufferGeometry } from 'three';
+import { MM } from '../coords.ts';
+import { GeometryBuilder, type V3 } from './builder.ts';
+import type { WallFrame, WallOpening } from './frames.ts';
+import { flatProfile, profileTop, type ProfilePoint } from './profile.ts';
+
+export const BUCKET_INNER = 0;
+export const BUCKET_OUTER = 1;
+export const BUCKET_CAP = 2;
+
+type Interval = readonly [number, number];
+
+const TOP = Symbol('top');
+
+interface Span {
+	lo: number;
+	hi: number | typeof TOP;
+}
+
+function spansOf(
+	openings: readonly WallOpening[],
+	from: number,
+	to: number,
+	height: number
+): Span[] {
+	const middle = (from + to) / 2;
+	const voids = openings
+		.filter((opening) => opening.from <= middle && opening.to >= middle)
+		.map((opening): Interval => [opening.bottom, opening.top])
+		.sort((a, b) => a[0] - b[0]);
+	const spans: Span[] = [];
+	let cursor = 0;
+	for (const [bottom, top] of voids) {
+		if (cursor >= height) break;
+		if (bottom > cursor) spans.push({ lo: cursor, hi: bottom < height ? bottom : TOP });
+		cursor = Math.max(cursor, top);
+	}
+	if (cursor < height) spans.push({ lo: cursor, hi: TOP });
+	return spans.filter((span) => (span.hi === TOP ? height : span.hi) - span.lo > 0.5);
+}
+
+function resolve(spans: readonly Span[], top: number): Interval[] {
+	return spans.map((span): Interval => [span.lo, span.hi === TOP ? top : span.hi]);
+}
+
+function subtract(a: readonly Interval[], b: readonly Interval[]): Interval[] {
+	const result: Interval[] = [];
+	for (const [from, to] of a) {
+		let cursor = from;
+		for (const [cutFrom, cutTo] of b) {
+			if (cutTo <= cursor || cutFrom >= to) continue;
+			if (cutFrom > cursor) result.push([cursor, cutFrom]);
+			cursor = Math.max(cursor, cutTo);
+		}
+		if (cursor < to) result.push([cursor, to]);
+	}
+	return result.filter(([x, y]) => y - x > 0.5);
+}
+
+function breakpoints(
+	frame: WallFrame,
+	openings: readonly WallOpening[],
+	profile: readonly ProfilePoint[]
+): number[] {
+	const lo = Math.max(0, frame.outerFrom);
+	const hi = Math.min(frame.length, frame.outerTo);
+	const values = [0, frame.length, frame.outerFrom, frame.outerTo, lo, hi];
+	for (const opening of openings) values.push(opening.from, opening.to);
+	for (const point of profile) values.push(point.u);
+	for (let i = 1; i < profile.length; i++) {
+		const a = profile[i - 1];
+		const b = profile[i];
+		if (Math.abs(b.h - a.h) < 0.01) continue;
+		for (const opening of openings) {
+			for (const bound of [opening.bottom, opening.top]) {
+				const t = (bound - a.h) / (b.h - a.h);
+				if (t <= 0 || t >= 1) continue;
+				const u = a.u + t * (b.u - a.u);
+				if (u > opening.from && u < opening.to) values.push(u);
+			}
+		}
+	}
+	const sorted = values.map((value) => Math.round(value * 100) / 100).sort((a, b) => a - b);
+	return sorted.filter((value, index) => index === 0 || value - sorted[index - 1] > 0.01);
+}
+
+// Local frame in metres: x along the wall, y up, z outwards; the inner face is z = 0, the outer face z = thickness.
+// The wall top follows the profile (mm along the wall); beyond the wall ends it keeps the end height.
+export function buildWallGeometry(
+	frame: WallFrame,
+	openings: readonly WallOpening[],
+	heightOrProfile: number | readonly ProfilePoint[]
+): BufferGeometry {
+	const profile =
+		typeof heightOrProfile === 'number'
+			? flatProfile(frame.length, heightOrProfile)
+			: heightOrProfile;
+	const builder = new GeometryBuilder(3);
+	const points = breakpoints(frame, openings, profile);
+	const thickness = frame.thickness * MM;
+	const strips = points.slice(0, -1).map((from, index) => ({ from, to: points[index + 1] }));
+	const point = (u: number, h: number, z: number): V3 => [u * MM, h * MM, z];
+	const topAt = (u: number) => profileTop(profile, u);
+
+	const inner = strips.filter((strip) => strip.from >= -0.01 && strip.to <= frame.length + 0.01);
+	const outer = strips.filter(
+		(strip) => strip.from >= frame.outerFrom - 0.01 && strip.to <= frame.outerTo + 0.01
+	);
+	const spansFor = (strip: { from: number; to: number }) =>
+		spansOf(openings, strip.from, strip.to, (topAt(strip.from) + topAt(strip.to)) / 2);
+
+	for (const strip of inner) {
+		const t0 = topAt(strip.from);
+		const t1 = topAt(strip.to);
+		for (const span of spansFor(strip)) {
+			builder.quad(
+				BUCKET_INNER,
+				point(strip.from, span.lo, 0),
+				point(strip.to, span.lo, 0),
+				point(strip.to, span.hi === TOP ? t1 : span.hi, 0),
+				point(strip.from, span.hi === TOP ? t0 : span.hi, 0),
+				[0, 0, -1]
+			);
+		}
+	}
+	for (const strip of outer) {
+		const t0 = topAt(strip.from);
+		const t1 = topAt(strip.to);
+		const spans = spansFor(strip);
+		for (const span of spans) {
+			builder.quad(
+				BUCKET_OUTER,
+				point(strip.from, span.lo, thickness),
+				point(strip.to, span.lo, thickness),
+				point(strip.to, span.hi === TOP ? t1 : span.hi, thickness),
+				point(strip.from, span.hi === TOP ? t0 : span.hi, thickness),
+				[0, 0, 1]
+			);
+		}
+		const middleTop = (t0 + t1) / 2;
+		for (const { lo, hi } of spans) {
+			if (lo > 0.5) {
+				builder.quad(
+					BUCKET_INNER,
+					point(strip.from, lo, 0),
+					point(strip.to, lo, 0),
+					point(strip.to, lo, thickness),
+					point(strip.from, lo, thickness),
+					[0, -1, 0]
+				);
+			}
+			if (hi !== TOP && hi < middleTop - 0.5) {
+				builder.quad(
+					BUCKET_INNER,
+					point(strip.from, hi, 0),
+					point(strip.to, hi, 0),
+					point(strip.to, hi, thickness),
+					point(strip.from, hi, thickness),
+					[0, 1, 0]
+				);
+			}
+		}
+	}
+
+	for (let index = 0; index < outer.length - 1; index++) {
+		const u = outer[index].to;
+		const top = topAt(u);
+		const left = resolve(spansFor(outer[index]), top);
+		const right = resolve(spansFor(outer[index + 1]), top);
+		for (const [y0, y1] of subtract(left, right)) {
+			builder.quad(
+				BUCKET_INNER,
+				point(u, y0, 0),
+				point(u, y0, thickness),
+				point(u, y1, thickness),
+				point(u, y1, 0),
+				[1, 0, 0]
+			);
+		}
+		for (const [y0, y1] of subtract(right, left)) {
+			builder.quad(
+				BUCKET_INNER,
+				point(u, y0, 0),
+				point(u, y0, thickness),
+				point(u, y1, thickness),
+				point(u, y1, 0),
+				[-1, 0, 0]
+			);
+		}
+	}
+
+	const mapStart = (u: number) => (Math.abs(u) < 0.01 ? frame.outerFrom : u);
+	const mapEnd = (u: number) => (Math.abs(u - frame.length) < 0.01 ? frame.outerTo : u);
+	let run: { start: number; gradient: number } | undefined;
+	const closeRun = (end: number) => {
+		if (!run) return;
+		builder.quad(
+			BUCKET_CAP,
+			point(run.start, topAt(run.start), 0),
+			point(end, topAt(end), 0),
+			point(mapEnd(end), topAt(end), thickness),
+			point(mapStart(run.start), topAt(run.start), thickness),
+			[0, 1, 0]
+		);
+		run = undefined;
+	};
+	for (const strip of inner) {
+		const reachesTop = spansFor(strip).some((span) => span.hi === TOP);
+		const gradient = (topAt(strip.to) - topAt(strip.from)) / (strip.to - strip.from);
+		if (reachesTop) {
+			if (run && Math.abs(run.gradient - gradient) > 1e-6) closeRun(strip.from);
+			run ??= { start: strip.from, gradient };
+		} else closeRun(strip.from);
+	}
+	closeRun(inner.at(-1)?.to ?? frame.length);
+
+	const first = inner[0];
+	const last = inner.at(-1);
+	if (first) {
+		for (const [y0, y1] of resolve(spansFor(first), topAt(first.from))) {
+			builder.quad(
+				BUCKET_OUTER,
+				point(0, y0, 0),
+				point(frame.outerFrom, y0, thickness),
+				point(frame.outerFrom, y1, thickness),
+				point(0, y1, 0),
+				[-1, 0, 0]
+			);
+		}
+	}
+	if (last) {
+		for (const [y0, y1] of resolve(spansFor(last), topAt(last.to))) {
+			builder.quad(
+				BUCKET_OUTER,
+				point(frame.length, y0, 0),
+				point(frame.outerTo, y0, thickness),
+				point(frame.outerTo, y1, thickness),
+				point(frame.length, y1, 0),
+				[1, 0, 0]
+			);
+		}
+	}
+
+	const geometry = builder.build();
+	if (!geometry) throw new Error('empty wall');
+	return geometry;
+}
