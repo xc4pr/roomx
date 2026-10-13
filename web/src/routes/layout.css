@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+@import '../lib/ui/tokens.css';
+
+html,
+body {
+	height: 100%;
+	overscroll-behavior: none;
+}
