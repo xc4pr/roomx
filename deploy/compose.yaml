@@ -1,9 +1,12 @@
+name: roomx
+
 services:
   roomx:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
     image: roomx:latest
+    container_name: roomx
     env_file: .env
     environment:
       ROOMX_TOKEN: ${ROOMX_TOKEN:?Set ROOMX_TOKEN in deploy/.env}
