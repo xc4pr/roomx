@@ -1,0 +1,153 @@
+import { defineMessages } from './index.svelte.ts';
+
+export const common = defineMessages({
+	de: {
+		appName: 'roomx',
+		projects: 'Projekte',
+		plan: 'Plan',
+		view3d: '3D',
+		furnish: 'Einrichten',
+		share: 'Export / Import',
+		settings: 'Einstellungen',
+		create: 'Erstellen',
+		back: 'Zurück',
+		undo: 'Rückgängig',
+		redo: 'Wiederholen',
+		cancel: 'Abbrechen',
+		confirm: 'OK',
+		delete: 'Löschen',
+		close: 'Schliessen',
+		notFound: 'Projekt nicht gefunden',
+		updateReady: 'Neue Version verfügbar',
+		reload: 'Neu laden',
+		mainNavigation: 'Hauptnavigation'
+	},
+	en: {
+		appName: 'roomx',
+		projects: 'Projects',
+		plan: 'Plan',
+		view3d: '3D',
+		furnish: 'Furnish',
+		share: 'Export / Import',
+		settings: 'Settings',
+		create: 'Build',
+		back: 'Back',
+		undo: 'Undo',
+		redo: 'Redo',
+		cancel: 'Cancel',
+		confirm: 'OK',
+		delete: 'Delete',
+		close: 'Close',
+		notFound: 'Project not found',
+		updateReady: 'New version available',
+		reload: 'Reload',
+		mainNavigation: 'Main navigation'
+	}
+});
+
+export const roomTypeNames = defineMessages({
+	de: {
+		living: 'Wohnzimmer',
+		bedroom: 'Schlafzimmer',
+		office: 'Büro',
+		kitchen: 'Küche',
+		bath: 'Bad',
+		kids: 'Kinderzimmer',
+		hall: 'Flur',
+		dining: 'Esszimmer',
+		storage: 'Abstellraum',
+		other: 'Andere'
+	},
+	en: {
+		living: 'Living room',
+		bedroom: 'Bedroom',
+		office: 'Office',
+		kitchen: 'Kitchen',
+		bath: 'Bathroom',
+		kids: 'Children’s room',
+		hall: 'Hallway',
+		dining: 'Dining room',
+		storage: 'Storage room',
+		other: 'Other'
+	}
+});
+
+export const elementKindNames = defineMessages({
+	de: {
+		door: 'Tür',
+		window: 'Fenster',
+		builtin: 'Einbauschrank',
+		obstacle: 'Hindernis / Vorsprung',
+		socket: 'Steckdose',
+		switch: 'Schalter',
+		wallLamp: 'Wandlampe',
+		dataPort: 'Netzwerk / TV',
+		radiator: 'Heizkörper',
+		ceilingLamp: 'Deckenlampe'
+	},
+	en: {
+		door: 'Door',
+		window: 'Window',
+		builtin: 'Built-in wardrobe',
+		obstacle: 'Obstacle / projection',
+		socket: 'Socket',
+		switch: 'Switch',
+		wallLamp: 'Wall lamp',
+		dataPort: 'Network / TV',
+		radiator: 'Radiator',
+		ceilingLamp: 'Ceiling lamp'
+	}
+});
+
+export const categoryNames = defineMessages({
+	de: {
+		bed: 'Betten',
+		sofa: 'Sofas',
+		armchair: 'Sessel',
+		chair: 'Stühle',
+		officeChair: 'Bürostühle',
+		table: 'Tische',
+		desk: 'Schreibtische',
+		wardrobe: 'Kleiderschränke',
+		shelf: 'Regale',
+		dresser: 'Kommoden',
+		sideboard: 'Sideboards',
+		tvUnit: 'TV-Möbel',
+		nightstand: 'Nachttische',
+		lamp: 'Leuchten',
+		rug: 'Teppiche',
+		plant: 'Pflanzen',
+		picture: 'Bilder',
+		mirror: 'Spiegel',
+		curtain: 'Vorhänge',
+		textile: 'Textilien',
+		decor: 'Deko',
+		electronics: 'Geräte',
+		other: 'Anderes'
+	},
+	en: {
+		bed: 'Beds',
+		sofa: 'Sofas',
+		armchair: 'Armchairs',
+		chair: 'Chairs',
+		officeChair: 'Office chairs',
+		table: 'Tables',
+		desk: 'Desks',
+		wardrobe: 'Wardrobes',
+		shelf: 'Shelves',
+		dresser: 'Chests of drawers',
+		sideboard: 'Sideboards',
+		tvUnit: 'TV units',
+		nightstand: 'Bedside tables',
+		lamp: 'Lighting',
+		rug: 'Rugs',
+		plant: 'Plants',
+		picture: 'Pictures',
+		mirror: 'Mirrors',
+		curtain: 'Curtains',
+		textile: 'Textiles',
+		decor: 'Decor',
+		electronics: 'Devices',
+		other: 'Other'
+	}
+});
