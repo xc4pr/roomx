@@ -1,0 +1,17 @@
+services:
+  roomx:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: roomx:latest
+    env_file: .env
+    environment:
+      ROOMX_TOKEN: ${ROOMX_TOKEN:?Set ROOMX_TOKEN in deploy/.env}
+    ports:
+      - "${ROOMX_PORT:-8422}:8000"
+    volumes:
+      - roomx-data:/data
+    restart: unless-stopped
+
+volumes:
+  roomx-data:

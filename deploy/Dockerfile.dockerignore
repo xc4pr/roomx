@@ -1,0 +1,14 @@
+**/node_modules
+**/.svelte-kit
+**/build
+**/test-results
+**/playwright-report
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/*.egg-info
+**/.git
+**/.env
+deploy
+web/tests
