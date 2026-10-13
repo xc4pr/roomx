@@ -1,0 +1,93 @@
+import { PDFDocument } from 'pdf-lib';
+import { describe, expect, it } from 'vitest';
+import { buildPdf } from './pdf.ts';
+import { furnishedProject, loadTestFonts, testPng } from './testing.ts';
+
+const fonts = loadTestFonts();
+
+describe('buildPdf', () => {
+	it('creates a valid document with title, room, wall and furnishing pages', async () => {
+		const project = furnishedProject();
+		const result = await buildPdf({
+			project,
+			language: 'de',
+			fonts,
+			date: new Date(2026, 9, 13),
+			loadPhoto: async () => testPng()
+		});
+		const doc = await PDFDocument.load(result.bytes);
+		expect(doc.getPageCount()).toBe(result.pageCount);
+		expect(result.pageCount).toBeGreaterThanOrEqual(7);
+		expect(result.photoPages['photo-1']).toBe(result.pageCount);
+		expect(doc.getTitle()).toContain('Wohnung');
+	});
+
+	it('draws sloped ceilings in plans and wall views and lists them in the room data', async () => {
+		const project = furnishedProject();
+		const flat = await buildPdf({ project, roomIds: ['room-rect'], language: 'de', fonts });
+		const room = project.rooms.find((candidate) => candidate.id === 'room-rect')!;
+		room.slopes = [
+			{ wall: 1, kneeHeight: 1000, angle: 45 },
+			{ wall: 3, kneeHeight: 800, angle: 30 }
+		];
+		for (const language of ['de', 'en'] as const) {
+			const sloped = await buildPdf({ project, roomIds: ['room-rect'], language, fonts });
+			const doc = await PDFDocument.load(sloped.bytes);
+			expect(doc.getPageCount()).toBe(sloped.pageCount);
+			expect(sloped.bytes.length).toBeGreaterThan(flat.bytes.length);
+		}
+	});
+
+	it('limits the document to the requested rooms and counts photo pages', async () => {
+		const project = furnishedProject();
+		const only = await buildPdf({ project, roomIds: ['room-l'], language: 'en', fonts });
+		const both = await buildPdf({ project, language: 'en', fonts });
+		expect(only.pageCount).toBeLessThan(both.pageCount);
+		expect(only.photoPages).toEqual({});
+	});
+
+	it('embeds images returned by the view renderer', async () => {
+		const project = furnishedProject();
+		const without = await buildPdf({ project, roomIds: ['room-rect'], language: 'de', fonts });
+		const png = testPng(300, 300);
+		const withViews = await buildPdf({
+			project,
+			roomIds: ['room-rect'],
+			language: 'de',
+			fonts,
+			renderViews: async () => ({ top: png, iso: [png, png, png, png] })
+		});
+		expect(withViews.pageCount).toBe(without.pageCount + 1);
+		expect(withViews.bytes.length).toBeGreaterThan(without.bytes.length);
+	});
+
+	it('marks missing photos without a page number', async () => {
+		const project = furnishedProject();
+		const result = await buildPdf({
+			project,
+			roomIds: ['room-rect'],
+			language: 'de',
+			fonts,
+			loadPhoto: async () => undefined
+		});
+		expect(result.photoPages).toEqual({});
+	});
+
+	it('reports progress and honours cancellation', async () => {
+		const project = furnishedProject();
+		const steps: number[] = [];
+		await buildPdf({
+			project,
+			language: 'de',
+			fonts,
+			onProgress: ({ done }) => steps.push(done)
+		});
+		expect(steps[0]).toBe(0);
+		expect(steps.at(-1)).toBeGreaterThan(3);
+		const controller = new AbortController();
+		controller.abort();
+		await expect(
+			buildPdf({ project, language: 'de', fonts, signal: controller.signal })
+		).rejects.toThrow();
+	});
+});
