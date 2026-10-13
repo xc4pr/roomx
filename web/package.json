@@ -1,0 +1,56 @@
+{
+	"name": "roomx-web",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc -p src/service-worker",
+		"lint": "prettier --check .",
+		"format": "prettier --write .",
+		"test": "vitest run",
+		"test:e2e": "vite build && playwright test --project=desktop --project=ipad-chromium",
+		"test:e2e:all": "vite build && playwright test",
+		"test:e2e:webkit": "bash tests/webkit.sh",
+		"test:e2e:visual": "vite build && PW_VISUAL=1 playwright test --project=desktop --project=ipad-chromium",
+		"emit-contract": "node scripts/emit-contract.ts"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.60.0",
+		"@sveltejs/adapter-static": "^4.0.0",
+		"@sveltejs/kit": "^3.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@tailwindcss/vite": "^4.3.0",
+		"@types/node": "^26.6.5",
+		"@types/three": "^0.186.0",
+		"@vite-pwa/assets-generator": "^2.0.0",
+		"fake-indexeddb": "^6.2.5",
+		"prettier": "^3.8.3",
+		"prettier-plugin-svelte": "^4.1.0",
+		"prettier-plugin-tailwindcss": "^0.8.0",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"tailwindcss": "^4.3.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0",
+		"vitest": "^4.1.8"
+	},
+	"imports": {
+		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"@fontsource-variable/figtree": "^5.3.0",
+		"@fontsource/figtree": "^5.3.0",
+		"@lucide/svelte": "^1.55.0",
+		"@pdf-lib/fontkit": "^1.1.1",
+		"bits-ui": "^2.19.5",
+		"dexie": "^4.4.6",
+		"fflate": "^0.8.3",
+		"pdf-lib": "^1.17.1",
+		"three": "^0.186.1",
+		"zod": "^4.6.6"
+	}
+}
