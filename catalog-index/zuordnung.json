@@ -1,0 +1,6323 @@
+{
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Einzelteile & Zubehör > BESTÅ Deckplatten & TV-Platten": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Einzelteile & Zubehör > BESTÅ Einlegeböden & Schubladen": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Einzelteile & Zubehör > BESTÅ Korpusse": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Einzelteile & Zubehör > BESTÅ Möbelfüsse & Schrankbeine": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Einzelteile & Zubehör > BESTÅ Türen & Schrankfronten": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Einzelteile & Zubehör > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Korpusse mit Türen > BESTÅ Bodenregale & Standschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Korpusse mit Türen > BESTÅ Wandschränke": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Schränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Sideboards": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ TV-Lowboards": {
+  "category": "tvUnit",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ TV-Wände & Schrankwände": {
+  "category": "tvUnit",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > BESTÅ Vitrinen & Vitrinenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BESTÅ Aufbewahrungssystem > LED-Leisten & Möbelleuchten für BESTÅ": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BOAXEL Kleiderregal-System zur Wandmontage > BOAXEL Einzelteile für Kleiderregale": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BOAXEL Kleiderregal-System zur Wandmontage > BOAXEL Kleiderregale zur Wandmontage": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BROR Schwerlast-Regalsystem > BROR Einzelteile für Schwerlastregale": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > BROR Schwerlast-Regalsystem > BROR Schwerlastregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > EKET Modul-Aufbewahrungssystem > EKET Regalfüsse & Zubehör": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > EKET Modul-Aufbewahrungssystem > EKET Würfelregale & Schränke": {
+  "category": "shelf",
+  "model": "cubeShelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > EKET Modul-Aufbewahrungssystem > Vorgefertigte EKET Kombinationen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > ELVARLI System - Offener Kleiderschrank > ELVARLI Einzelteile & Kleiderschrankzubehör": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > ELVARLI System - Offener Kleiderschrank > ELVARLI Kleiderregale mit Pfosten": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > ELVARLI System - Offener Kleiderschrank > ELVARLI Kleiderregale mit Seitenteilen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > GULDDRAGARE-Aufbewahrungssystem > GULDDRAGARE Aufbewahrungskombinationen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > GULDDRAGARE-Aufbewahrungssystem > GULDDRAGARE Inneneinrichtung & Zubehör": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > GULDDRAGARE-Aufbewahrungssystem > GULDDRAGARE Regale & Einzelteile": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > IVAR Holzregal-System > IVAR Holzregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > IVAR Holzregal-System > IVAR Regalelemente aus Holz": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > JONAXEL System - Offene Kleideraufbewahrung > JONAXEL Regalteile": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > JONAXEL System - Offene Kleideraufbewahrung > JONAXEL Standregal-Kombinationen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > Beleuchtung für LASTARE": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE  Zubehör & Einzelteile > Boxen & Zubehör für LASTARE Kombinationen": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE  Zubehör & Einzelteile > Boxen für LASTARE": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE  Zubehör & Einzelteile > Griffe & Knöpfe für LASTARE": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE  Zubehör & Einzelteile > Inneneinrichtung für LASTARE": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE  Zubehör & Einzelteile > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE  Zubehör & Einzelteile > LASTARE Basisteile": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE Kombinationen für Kinder": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE Kombinationen für den Flur": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE Mehrzweck Kombinationen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LASTARE Aufbewahrungssystem > LASTARE Schlafzimmer-Kombinationen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LÅDMAKARE System > LÅDMARKARE Einzelteile": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > LÅDMAKARE System > LÅDMARKARE Kombinationen": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > OMAR Regalsystem aus Metall > OMAR Metallregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > OMAR Regalsystem aus Metall > OMAR Regalelemente aus Metall": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > Einrichtung für PAX": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Kleiderschränke mit Türen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Kleiderschränke ohne Türen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Korpusse für Scharniertüren": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Schiebetüren": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Schrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Schrankkorpusse für Schiebetüren": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Schranktüren mit Scharnieren": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PAX Kleiderschrank-System > PAX Türen ohne Scharniere": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > Beleuchtung für PLATSA": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > PLATSA Korpusse & Grundelemente": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > PLATSA Schranktüren mit Scharnieren": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > PLATSA Schrankzubehör & Einrichtung": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > PLATSA Schränke & Kombinationen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > PLATSA Schubladen": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > PLATSA Schranksystem > PLATSA Türen ohne Scharniere": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SKYTTA Schiebetürsystem > SKYTTA Schiebetür-Kombinationen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SKYTTA Schiebetürsystem > SKYTTA Schiebetür-Paneele": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SKYTTA Schiebetürsystem > SKYTTA Schiebetür-Schienen & Zubehör": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SMÅSTAD System > Einrichtung für SMÅSTAD": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SMÅSTAD System > SMÅSTAD Griffe, Knöpfe & Zubehör": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SMÅSTAD System > SMÅSTAD Kombinationen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SMÅSTAD System > SMÅSTAD Korpusse": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > SMÅSTAD System > SMÅSTAD Türen & Schubladenfronten": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Regalrahmen & Regalböden": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugboxen & Deckel": "aus",
+ "ikea|Aufbewahrungsmöbel > Aufbewahrungssysteme > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Büroschränke & Rollcontainer > Büroaufbewahrung & Schubladenelemente": "aus",
+ "ikea|Aufbewahrungsmöbel > Büroschränke & Rollcontainer > Home Office-Aufbewahrung & Schubladenelemente": "aus",
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > Aufbewahrungsboxen": "aus",
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > BROR Schwerlast-Regalsystem > BROR Einzelteile für Schwerlastregale": "aus",
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > BROR Schwerlast-Regalsystem > BROR Schwerlastregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > IVAR Holzregal-System > IVAR Holzregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > IVAR Holzregal-System > IVAR Regalelemente aus Holz": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > Kellerregale & Aufbewahrungsregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > OMAR Regalsystem aus Metall > OMAR Metallregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > OMAR Regalsystem aus Metall > OMAR Regalelemente aus Metall": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Garagenschränke & -regale > Wandboards": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Garderobenmöbel im Set": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Hängeaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Kinderkleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Kinderkommoden": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > LASTARE Kombinationen für Kinder": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > SMÅSTAD System > Einrichtung für SMÅSTAD": "aus",
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Griffe, Knöpfe & Zubehör": "aus",
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Kombinationen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Korpusse": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Türen & Schubladenfronten": "aus",
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > Spielzeugtruhen & -regale": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Regalrahmen & Regalböden": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugboxen & Deckel": "aus",
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Spielzeugkisten & -körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kinderzimmer-Aufbewahrung > Wandaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Begehbare Kleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Dachschrägenschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Eckkleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Einbaukleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Garderoben- & Flurschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kinderkleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschrank-Schiebetüren": "aus",
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschrankbeleuchtung > Batteriebetriebene LED-Beleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschrankbeleuchtung > LED-Streifen für Kleiderschränke": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschrankbeleuchtung > Schrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschränke mit Scharniertüren": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschränke mit Schiebetüren": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Kleiderschränke mit Spiegel": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Offene Kleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Regalsysteme für Kleidung & Schuhe": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kleiderschränke > Schmale Kleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe"
+ },
+ "ikea|Aufbewahrungsmöbel > Kommoden & Nachttische > Aufbewahrung mit Drahtkörben": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kommoden & Nachttische > Kinderkommoden": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kommoden & Nachttische > Kommoden": {
+  "category": "dresser",
+  "model": "dresser"
+ },
+ "ikea|Aufbewahrungsmöbel > Kommoden & Nachttische > Nachttische & Beistelltische": {
+  "category": "nightstand",
+  "model": "nightstand",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Kommoden & Nachttische > Schminktische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Outdoor-Schränke & Outdoor-Regale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Bücherregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Kellerregale & Aufbewahrungsregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Komplettregale & Lagerregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Regalsysteme": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > BOAXEL Kleiderregal-System zur Wandmontage > BOAXEL Einzelteile für Kleiderregale": "aus",
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > BOAXEL Kleiderregal-System zur Wandmontage > BOAXEL Kleiderregale zur Wandmontage": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > Bilderleisten": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > Regalböden": "aus",
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > Regalkonsolen & Wandkonsolen": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > Wandboards": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > Wandboards & Schweberegale": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Wandregale > Würfel-Wandregale": {
+  "category": "shelf",
+  "model": "cubeShelf",
+  "mount": "wall"
+ },
+ "ikea|Aufbewahrungsmöbel > Regale > Würfelregale": {
+  "category": "shelf",
+  "model": "cubeShelf",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Rollregale & Servierwagen > Badrollregale & Kosmetikwagen": "aus",
+ "ikea|Aufbewahrungsmöbel > Rollregale & Servierwagen > Kücheninseln & Küchenwagen": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Schränke, Vitrinen, Geschirrschränke > Schränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Schränke, Vitrinen, Geschirrschränke > Sideboards, Highboards & Anrichten": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Schränke, Vitrinen, Geschirrschränke > Vitrinen": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Schuhschränke": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Sichtschutz & Raumteiler": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Sideboards & Konsolentische > Konsolentische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > Sideboards & Konsolentische > Sideboards, Highboards & Anrichten": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > TV-Möbel & Mediamöbel > TV-Bänke": {
+  "category": "tvUnit",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Aufbewahrungsmöbel > TV-Möbel & Mediamöbel > Wohnwände": {
+  "category": "tvUnit",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babybetten & -matratzen > Babybetten & Stubenwagen": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Babybetten & Stubenwagen": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Babyzimmer-Sets": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Hochstühle für Babys & Kleinkinder": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Kinderkleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Kinderkommoden": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Spielzeug-Aufbewahrung > Spielzeugtruhen & -regale": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Regalrahmen & Regalböden": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugboxen & Deckel": "aus",
+ "ikea|Babys & Kinder > Baby > Babymöbel > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babymöbel > Wickelkommoden & Wickeltische": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babypflege > Wickelkommoden & Wickeltische": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Babytextilien > Teppiche & Vorhänge fürs Babyzimmer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderlampen & Nachtlichter": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Hängeaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Kinderkleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Kinderkommoden": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > LASTARE Kombinationen für Kinder": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > SMÅSTAD System > Einrichtung für SMÅSTAD": "aus",
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Griffe, Knöpfe & Zubehör": "aus",
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Kombinationen": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Korpusse": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Türen & Schubladenfronten": "aus",
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > Spielzeugtruhen & -regale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Regalrahmen & Regalböden": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugboxen & Deckel": "aus",
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Spielzeugkisten & -körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Baby > Kinderzimmer-Aufbewahrung > Wandaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderbetten > Einzelbetten für Kinder": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderbetten > Etagenbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderbetten > Himmel & Baldachine für Kinderbetten": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "ceiling"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderbetten > Hochbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderbetten > Mitwachsende Kinderbetten & Jugendbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderlampen & Nachtlichter": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindermöbel > Hohe Kinderstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindermöbel > Kinder-Gartenmöbel": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindermöbel > Kinderhocker & Kinderbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindermöbel > Kindersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindermöbel > Kinderstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindermöbel > Kindertische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindertextilien > Himmel & Baldachine für Kinderbetten": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "ceiling"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindertextilien > Kinderdecken & Kinderkissen": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Babys & Kinder > Kinder > Kindertextilien > Teppiche & Vorhänge fürs Kinderzimmer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Hängeaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Kinderkleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Kinderkommoden": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > LASTARE Kombinationen für Kinder": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > SMÅSTAD System > Einrichtung für SMÅSTAD": "aus",
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Griffe, Knöpfe & Zubehör": "aus",
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Kombinationen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Korpusse": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > SMÅSTAD System > SMÅSTAD Türen & Schubladenfronten": "aus",
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > Spielzeugtruhen & -regale": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Regalrahmen & Regalböden": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugboxen & Deckel": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugregale": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Spielzeugkisten & -körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Kinderzimmer-Aufbewahrung > Wandaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Babys & Kinder > Kinder > Lernmöbel & Zubehör > Kinder-Schreibtischstühle": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Lernmöbel & Zubehör > Kinderschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Lernmöbel & Zubehör > RELATERA Schreibtischsystem für Kinder > RELATERA Kinderschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Lernmöbel & Zubehör > RELATERA Schreibtischsystem für Kinder > RELATERA Kinderschreibtischplatten & Gestelle": "aus",
+ "ikea|Babys & Kinder > Kinder > Lernmöbel & Zubehör > RELATERA Schreibtischsystem für Kinder > RELATERA Zubehör für Pulte & Kinderschreibtische": "aus",
+ "ikea|Babys & Kinder > Kinder > Lernmöbel & Zubehör > Schreibtischzubehör für Kinder": "aus",
+ "ikea|Babys & Kinder > Kinder > Spielzeug > Spielzeug-Aufbewahrung > Spielzeugtruhen & -regale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Spielzeug > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Regalrahmen & Regalböden": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Babys & Kinder > Kinder > Spielzeug > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugboxen & Deckel": "aus",
+ "ikea|Babys & Kinder > Kinder > Spielzeug > Spielzeug-Aufbewahrung > TROFAST Serie zur Spielzeugaufbewahrung > TROFAST Spielzeugregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Badaccessoires": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Badezimmerschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Badmöbel-Sets": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Ordnungssysteme für Waschküchen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Spiegel & Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Waschtische mit Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > ENHET Waschtische ohne Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ENHET Badezimmermöbel & Badzubehör > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HAVBÄCK Badezimmermöbel & Badzubehör > HAVBÄCK Badezimmerschränke & Möbelfüsse": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HAVBÄCK Badezimmermöbel & Badzubehör > HAVBÄCK Lavabos": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HAVBÄCK Badezimmermöbel & Badzubehör > HAVBÄCK Spiegel & Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HAVBÄCK Badezimmermöbel & Badzubehör > HAVBÄCK Waschtische mit Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HAVBÄCK Badezimmermöbel & Badzubehör > HAVBÄCK Waschtische ohne Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HAVBÄCK Badezimmermöbel & Badzubehör > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HEMNES Badezimmermöbel & Badzubehör > HEMNES Lavabos": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HEMNES Badezimmermöbel & Badzubehör > HEMNES Spiegel und Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HEMNES Badezimmermöbel & Badzubehör > HEMNES Waschbeckenunterschränke mit Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > HEMNES Badezimmermöbel & Badzubehör > HEMNES Waschbeckenunterschränke ohne Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > NYSJÖN Schmale Badezimmermöbel & Badzubehör > NYSJÖN Badezimmer Aufbewahrung & Spiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > NYSJÖN Schmale Badezimmermöbel & Badzubehör > NYSJÖN Kleine Waschbeckenunterschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > TÄNNFORSEN Badezimmermöbel & Badzubehör > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > TÄNNFORSEN Badezimmermöbel & Badzubehör > TÄNNFORSEN Badezimmerschränke & Möbelfüsse": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > TÄNNFORSEN Badezimmermöbel & Badzubehör > TÄNNFORSEN Lavabos": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > TÄNNFORSEN Badezimmermöbel & Badzubehör > TÄNNFORSEN Spiegel und Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > TÄNNFORSEN Badezimmermöbel & Badzubehör > TÄNNFORSEN Waschtische mit Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > TÄNNFORSEN Badezimmermöbel & Badzubehör > TÄNNFORSEN Waschtische ohne Lavabo": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > VIDVESSEL Badezimmermöbel & Badzubehör > VIDVESSEL Lavabos": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ÄNGSJÖN Badezimmermöbel & Badzubehör > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ÄNGSJÖN Badezimmermöbel & Badzubehör > ÄNGSJÖN Badezimmerschränke & Möbelfüsse": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ÄNGSJÖN Badezimmermöbel & Badzubehör > ÄNGSJÖN Lavabos": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ÄNGSJÖN Badezimmermöbel & Badzubehör > ÄNGSJÖN Spiegel und Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ÄNGSJÖN Badezimmermöbel & Badzubehör > ÄNGSJÖN Waschtische mit Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer Ordnungssysteme > ÄNGSJÖN Badezimmermöbel & Badzubehör > ÄNGSJÖN Waschtische ohne Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmer-Oberschränke": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmeraufbewahrung & Schminkboxen": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerhocker und Badbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerlampen > Badezimmer-Deckenleuchten": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerlampen > Badezimmer-Wandleuchten": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerlampen > Badschrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerlampen > Spiegel mit Beleuchtung": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerregale & -schränke": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerspiegel > Badezimmer-Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerspiegel > Schminkspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "on-top"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerspiegel > Spiegel mit Beleuchtung": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerspiegel > Vergrösserungsspiegel & Tischspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "on-top"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Badezimmerwandregale & -handtuchhalter": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Badrollregale & Kosmetikwagen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Waschbeckenschränke & Waschkommoden > Waschbeckenunterschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Waschbeckenschränke & Waschkommoden > Waschtische mit Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Waschbeckenschränke & Waschkommoden > Waschtische ohne Lavabo": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Waschküchenmöbel & Wäschezubehör > Bügelbretter": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Waschküchenmöbel & Wäschezubehör > Waschmaschinen & Tumbler": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Waschküchenmöbel & Wäschezubehör > Wäscheklammern & Wäschenetze": "aus",
+ "ikea|Badezimmermöbel & Badzubehör > Waschküchenmöbel & Wäschezubehör > Wäschekörbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Waschküchenmöbel & Wäschezubehör > Wäscheschränke & Wäscheregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Badezimmermöbel & Badzubehör > Waschküchenmöbel & Wäschezubehör > Wäscheständer": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Beleuchtung > Aussenleuchten > Gartenlaternen & Balkonlaternen": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "ikea|Beleuchtung > Aussenleuchten > Outdoor-Hängelampen": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Aussenleuchten > Outdoor-Lichterketten": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Aussenleuchten > Outdoor-Tischlampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Badezimmerlampen > Badezimmer-Deckenleuchten": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Badezimmerlampen > Badezimmer-Wandleuchten": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Badezimmerlampen > Badschrankbeleuchtung": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Badezimmerlampen > Spiegel mit Beleuchtung": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Dekobeleuchtung > Dekorative Leuchtenschirme": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Dekobeleuchtung > Dekorative Tischlichter": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Dekobeleuchtung > LED-Kerzen": "aus",
+ "ikea|Beleuchtung > Dekobeleuchtung > LED-Lichtleisten": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Dekobeleuchtung > Lampions & Dekolichter": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Dekobeleuchtung > Lichterketten": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Badschrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Kleiderschrankbeleuchtung > Batteriebetriebene LED-Beleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Kleiderschrankbeleuchtung > LED-Streifen für Kleiderschränke": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Kleiderschrankbeleuchtung > Schrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Küchenbeleuchtung > Arbeitsplattenbeleuchtung": "aus",
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Küchenbeleuchtung > Batteriebetriebene LED-Beleuchtung": "aus",
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Küchenbeleuchtung > Küchenschrankbeleuchtung": "aus",
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Küchenbeleuchtung > Schubladenbeleuchtung": "aus",
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Regallampen & Schrankbeleuchtung > Batteriebetriebene LED-Beleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Regallampen & Schrankbeleuchtung > LED-Streifen für Bücherregale": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Integrierte Beleuchtung > Regallampen & Schrankbeleuchtung > Schrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Lampen > Deckenbeleuchtung > Deckenlampen": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Lampen > Deckenbeleuchtung > Deckenspots": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Lampen > Deckenbeleuchtung > Hängelampen": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Lampen > Deckenbeleuchtung > Kronleuchter": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Lampen > Kinderlampen & Nachtlichter": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Lampen > LED-Lampen > LED-Lichtleisten": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Lampen > LED-Lampen > LED-Strahler": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Lampen > Lampenschirme & Lampenfüsse > Lampenfüsse": "aus",
+ "ikea|Beleuchtung > Lampen > Lampenschirme & Lampenfüsse > Lampenschirme": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Lampen > Schreibtischlampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Lampen > Smart Home Lampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Lampen > Spots > Deckenspots": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Beleuchtung > Lampen > Spots > Klemmleuchten & Wandspots": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Lampen > Spots > Schienensysteme": "aus",
+ "ikea|Beleuchtung > Lampen > Stehlampen": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "ikea|Beleuchtung > Lampen > Tischlampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Lampen > Tragbare Lampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Beleuchtung > Lampen > Wandlampen & Wandleuchten > Klemmleuchten & Wandspots": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Lampen > Wandlampen & Wandleuchten > LED-Wandlampen & LED-Wandfluter": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "ikea|Beleuchtung > Smart Home Beleuchtung > Smart Home Lampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Betten & Matratzen > Betten > Babybetten & -matratzen > Babybetten & Stubenwagen": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Betten mit Aufbewahrung": {
+  "category": "bed",
+  "model": "bed"
+ },
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > 2er-Schlafsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > 3er-Schlafsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > Eckschlafsofas": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > Futonmatratzen & Gästematratzen": "aus",
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > Gästebetten & Tagesbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > Schlafsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Bettsofas & Schlafsofas > Schlafsofas mit Récamiere": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Boxspringbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Doppelbetten": {
+  "category": "bed",
+  "model": "bed"
+ },
+ "ikea|Betten & Matratzen > Betten > Einzelbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Gästebetten & Tagesbetten": {
+  "category": "bed",
+  "model": "bed"
+ },
+ "ikea|Betten & Matratzen > Betten > Hochbetten & Etagenbetten > Etagenbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Hochbetten & Etagenbetten > Hochbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Kinderbetten > Einzelbetten für Kinder": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Kinderbetten > Etagenbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Kinderbetten > Himmel & Baldachine für Kinderbetten": {
+  "category": "textile",
+  "model": "curtain",
+  "mount": "ceiling"
+ },
+ "ikea|Betten & Matratzen > Betten > Kinderbetten > Hochbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Kinderbetten > Mitwachsende Kinderbetten & Jugendbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Betten > Polsterbetten": {
+  "category": "bed",
+  "model": "bed"
+ },
+ "ikea|Betten & Matratzen > Betten mit Matratze": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Bettkästen": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Boxbetten & Boxsprings": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Komplett-Schlafzimmer": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Kopfteile & Rückwände für Betten": {
+  "category": "other",
+  "model": "box",
+  "mount": "wall"
+ },
+ "ikea|Betten & Matratzen > Lattenroste & Federholzrahmen": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Nachttische & Beistelltische": {
+  "category": "nightstand",
+  "model": "nightstand",
+  "mount": "floor"
+ },
+ "ikea|Betten & Matratzen > Schlafzimmertextilien > Kissen & Kissenbezüge > Kinderdecken & Kinderkissen": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Betten & Matratzen > Schlafzimmertextilien > Kissen & Kissenbezüge > Kissenfüllungen & Innenkissen": "aus",
+ "ikea|Betten & Matratzen > Schlafzimmertextilien > Kissen & Kissenbezüge > Outdoor-Kissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Betten & Matratzen > Schlafzimmertextilien > Kissen & Kissenbezüge > Zierkissen & Dekokissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Betten & Matratzen > Schlafzimmertextilien > Kissen & Kissenbezüge > Zierkissenbezüge & - hüllen": "aus",
+ "ikea|Betten & Matratzen > Schlafzimmertextilien > Kuscheldecken & Plaids": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Blumentöpfe & Übertöpfe > Blumentöpfe & Blumenkästen für draussen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Blumentöpfe & Übertöpfe > Blumentöpfe für drinnen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Blumentöpfe & Übertöpfe > Hängetöpfe & Blumenampeln": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Dekoration > Blumentöpfe & Übertöpfe > Pflanzenständer & Blumenständer": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Blumentöpfe & Übertöpfe > Selbstbewässerungstöpfe": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Boxen & Körbe > Aufbewahrungsboxen": "aus",
+ "ikea|Dekoration > Boxen & Körbe > Badezimmeraufbewahrung & Schminkboxen": "aus",
+ "ikea|Dekoration > Boxen & Körbe > Körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Boxen & Körbe > Schreibtisch-Organizer": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Boxen & Körbe > Schuhboxen & Kleiderboxen": "aus",
+ "ikea|Dekoration > Boxen & Körbe > Spielzeugkisten & -körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > Dekosteine & Kerzenzubehör": "aus",
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > Duftkerzen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > Kerzen, unparfümiert": "aus",
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > Kerzenständer": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > LED-Kerzen": "aus",
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > Laternen > Gartenlaternen & Balkonlaternen": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Kerzen, Teelichter & Kerzenhalter > Laternen > Indoor-Laternen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Magnettafeln & Pinnwände": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kleine Gewächshäuser": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Kunstblumensträusse": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Blumenkränze & -girlanden": {
+  "category": "decor",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Büropflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Hängepflanzen": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Pflanzen für Wände": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Topfpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Zweige, Gräser & Schnittblumen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Trockenblumen & Trockenpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Blühende Zimmerpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Büropflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Hänge- & Kletterpflanzen": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Dekoration > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Topfpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Raumdüfte > Duftkerzen": "aus",
+ "ikea|Dekoration > Spiegel > Badezimmer-Spiegelschränke": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Spiegel > Grosse Spiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Spiegel > Kleine Spiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Spiegel > Runde Spiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Spiegel > Schminkspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Spiegel > Spiegel mit Beleuchtung": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Spiegel > Standspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "floor"
+ },
+ "ikea|Dekoration > Spiegel > Vergrösserungsspiegel & Tischspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Spiegel > Wandspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Uhren > Wanduhren & Tischuhren": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Uhren > Wecker": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Vasen & Schalen > Blumenvasen & Dekovasen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Vasen & Schalen > Schüsseln & Schalen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Wanddeko > Bilder & Drucke": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Wanddeko > Bilderleisten": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Wanddeko > Bilderrahmen & Fotorahmen": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Wanddeko > Bilderrahmen-Collagen": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Wanddeko > Karten": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Wanddeko > Poster & Plakate": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Wanddeko > Wandschmuck": {
+  "category": "decor",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Dekoration > Weihnachtsdekoration > Tischdeko für Weihnachten": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Weihnachtsdekoration > Weihnachtskerzen & Weihnachtskerzenhalter": "aus",
+ "ikea|Dekoration > Weihnachtsdekoration > Weihnachtskugeln & Baumschmuck": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Dekoration > Wohnaccessoires": {
+  "category": "decor",
+  "model": "books",
+  "mount": "on-top"
+ },
+ "ikea|Garten & Balkon > Aussenleuchten > Gartenlaternen & Balkonlaternen": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Aussenleuchten > Outdoor-Hängelampen": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Garten & Balkon > Aussenleuchten > Outdoor-Lichterketten": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "ceiling"
+ },
+ "ikea|Garten & Balkon > Aussenleuchten > Outdoor-Tischlampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Abdeckung für Gartenmöbel": "aus",
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Outdoor-Teppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Picknick & Camping-Zubehör > Lunch- & Vorratsboxen": "aus",
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Picknick & Camping-Zubehör > Picknick-Zubehör": "aus",
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Picknick & Camping-Zubehör > Trinkflaschen & Isolierbecher": "aus",
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Sitzkissen für Garten & Balkon > Gartenmöbel-Polster": "aus",
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Sitzkissen für Garten & Balkon > Outdoor-Kissen": "aus",
+ "ikea|Garten & Balkon > Gartenaccessoires & Schutzhüllen für Gartenmöbel > Öl, Lasur & Möbelpflege": "aus",
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Abdeckung für Gartenmöbel": "aus",
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Kinder-Gartenmöbel": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Essmöbel > Bistro-Sets für Garten & Balkon": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Essmöbel > Gartenmöbel-Sets": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Essmöbel > Outdoor-Essstühle": {
+  "category": "chair",
+  "model": "chair"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Essmöbel > Outdoor-Tische > Gartentische & Balkontische": {
+  "category": "table",
+  "model": "table"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Essmöbel > Outdoor-Tische > Sofatische & Beistelltische für den Garten": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Garten-Sitzelemente": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Gartenbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Gartenmöbel-Polster": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Gartensofas": {
+  "category": "sofa",
+  "model": "sofa"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Gartenstühle & Balkonstühle > Loungesessel für Garten & Balkon": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Gartenstühle & Balkonstühle > Outdoor-Essstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Outdoor-Sitzmöbel > Sitzgruppen für Garten & Balkon": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Sofatische & Beistelltische für den Garten": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Sonnenliegen & Hängematten": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Öl, Lasur & Möbelpflege": "aus",
+ "ikea|Garten & Balkon > Outdoor-Bodenbelag": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Outdoor-Schränke & Outdoor-Regale": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Outdoor-Teppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pergolen, Sonnenschirme & Pavillons > Outdoor Sicht- & Sonnenschutz": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pergolen, Sonnenschirme & Pavillons > Pergolen, Pavillons & Gartenzelte": "aus",
+ "ikea|Garten & Balkon > Pergolen, Sonnenschirme & Pavillons > Sonnenschirme & Sonnenschirmständer": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Blumentöpfe & Blumenkästen für draussen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Gartengeräte": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Kleine Gewächshäuser": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Zimmerpflanzen & Gartenpflanzen > Blühende Zimmerpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Zimmerpflanzen & Gartenpflanzen > Büropflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Zimmerpflanzen & Gartenpflanzen > Hänge- & Kletterpflanzen": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Garten & Balkon > Pflanzen & Blumentöpfe für draussen > Zimmerpflanzen & Gartenpflanzen > Topfpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Haushaltswaren für Wäsche & Reinigung > Bügelbretter": "aus",
+ "ikea|Haushaltswaren für Wäsche & Reinigung > Waschmaschinen & Tumbler": "aus",
+ "ikea|Haushaltswaren für Wäsche & Reinigung > Wäscheklammern & Wäschenetze": "aus",
+ "ikea|Haushaltswaren für Wäsche & Reinigung > Wäschekörbe": "aus",
+ "ikea|Haushaltswaren für Wäsche & Reinigung > Wäscheschränke & Wäscheregale": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Haushaltswaren für Wäsche & Reinigung > Wäscheständer": "aus",
+ "ikea|Haustierbedarf > Hundezubehör": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Haustierbedarf > Katzenzubehör": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Heimelektronik > Elektrogeräte > Waschmaschinen & Tumbler": "aus",
+ "ikea|Heimelektronik > Smart Home Beleuchtung > Smart Home Lampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Heimwerkern > Akustikpaneele & Schalldämmung": "aus",
+ "ikea|Heimwerkern > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Heimwerkern > Outdoor-Bodenbelag": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Heimwerkern > SKYTTA Schiebetürsystem > SKYTTA Schiebetür-Kombinationen": "aus",
+ "ikea|Heimwerkern > SKYTTA Schiebetürsystem > SKYTTA Schiebetür-Paneele": "aus",
+ "ikea|Heimwerkern > SKYTTA Schiebetürsystem > SKYTTA Schiebetür-Schienen & Zubehör": "aus",
+ "ikea|Heimwerkern > Öl, Lasur & Möbelpflege": "aus",
+ "ikea|Kleinaufbewahrung > Boxen & Körbe > Aufbewahrungsboxen": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Boxen & Körbe > Badezimmeraufbewahrung & Schminkboxen": "aus",
+ "ikea|Kleinaufbewahrung > Boxen & Körbe > Körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Boxen & Körbe > Schreibtisch-Organizer": "aus",
+ "ikea|Kleinaufbewahrung > Boxen & Körbe > Schuhboxen & Kleiderboxen": "aus",
+ "ikea|Kleinaufbewahrung > Boxen & Körbe > Spielzeugkisten & -körbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Bürozubehör & Medienaufbewahrung > Magnettafeln & Pinnwände": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Bürozubehör & Medienaufbewahrung > Schreibtisch-Organizer": "aus",
+ "ikea|Kleinaufbewahrung > Bürozubehör & Medienaufbewahrung > Zeitschriftensammler & Stehsammler": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Kleiderhaken & Bügel > Kleiderbügel": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Kleiderhaken & Bügel > Wandhaken & Hakenleisten": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Lochplatten und Werkzeugtafeln": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandaufbewahrung für Kinderzimmer": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandhaken & Hakenleisten": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > BOAXEL Kleiderregal-System zur Wandmontage > BOAXEL Einzelteile für Kleiderregale": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > BOAXEL Kleiderregal-System zur Wandmontage > BOAXEL Kleiderregale zur Wandmontage": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > Bilderleisten": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > Regalböden": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > Regalkonsolen & Wandkonsolen": "aus",
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > Wandboards": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > Wandboards & Schweberegale": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Haken & Wandorganisation > Wandregale > Würfel-Wandregale": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Hängeaufbewahrung für Kinderzimmer": "aus",
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Hängeaufbewahrung für Kleidung": "aus",
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Kleider- & Garderobenständer": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Kleiderbügel": "aus",
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Schuhaufbewahrung & Schuhlöffel": "aus",
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Schuhboxen & Kleiderboxen": "aus",
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Schuhregale & Schuhbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Schuhschränke": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Kleideraufbewahrung - & organisation > Wäschekörbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "ikea|Kleinaufbewahrung > Schreibtischzubehör": "aus",
+ "ikea|Kleinaufbewahrung > Vorratshaltung > Lunch- & Vorratsboxen": "aus",
+ "ikea|Kleinaufbewahrung > Vorratshaltung > Trinkflaschen & Isolierbecher": "aus",
+ "ikea|Küchen & Elektrogeräte > Elektrogeräte > Waschmaschinen & Tumbler": {
+  "category": "electronics",
+  "model": "smallDevice",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Küchen & Elektrogeräte > Komplettregale & Lagerregale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenbeleuchtung > Arbeitsplattenbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenbeleuchtung > Batteriebetriebene LED-Beleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenbeleuchtung > Küchenschrankbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenbeleuchtung > Schubladenbeleuchtung": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Küchen & Elektrogeräte > Kücheninseln & Küchenwagen": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > ENHET Küchenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > KNOXHULT Küchenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Einbauschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Hochschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Hängeschränke": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Küchenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Spülenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > ENHET Küchen > ENHET Küchensystem > ENHET Küchenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > ENHET Küchen > ENHET Küchensystem > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > KNOXHULT Küchen > KNOXHULT Küchenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > KNOXHULT Küchen > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > Knöpfe & Möbelgriffe": "aus",
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Einbauschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Hochschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Hängeschränke": "aus",
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Küchenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Spülenschränke": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Küchenzubehör & Geschirr > Picknick & Camping-Zubehör > Lunch- & Vorratsboxen": "aus",
+ "ikea|Küchenzubehör & Geschirr > Picknick & Camping-Zubehör > Picknick-Zubehör": "aus",
+ "ikea|Küchenzubehör & Geschirr > Picknick & Camping-Zubehör > Trinkflaschen & Isolierbecher": "aus",
+ "ikea|Küchenzubehör & Geschirr > Servietten & Serviettenhalter > Servietten": "aus",
+ "ikea|Küchenzubehör & Geschirr > Vorratshaltung > Lunch- & Vorratsboxen": "aus",
+ "ikea|Küchenzubehör & Geschirr > Vorratshaltung > Trinkflaschen & Isolierbecher": "aus",
+ "ikea|Schreibtische & Bürostühle > Bürostühle > Gaming Stühle": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Bürostühle > Kinder-Schreibtischstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Bürostühle > Schreibtischstühle fürs Büro": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Bürostühle > Schreibtischstühle fürs Homeoffice": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Gaming Möbel > Gaming Möbel Zubehör": "aus",
+ "ikea|Schreibtische & Bürostühle > Gaming Möbel > Gaming Stühle": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Gaming Möbel > Gaming Tisch & Gaming Stuhl-Set": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Gaming Möbel > Gaming Tische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Konferenzstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Konferenztische & Besprechungstische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Büroschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Computertische & Eckschreibtische": {
+  "category": "desk",
+  "model": "desk"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Gaming Tische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Kinderschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Laptophalter": "aus",
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Schreibtischtrennwände": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Stehpulte & Höhenverstellbare Schreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > IDÅSEN Büro-Systemmöbel > IDÅSEN Metallgestelle & Tischplatten": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > IDÅSEN Büro-Systemmöbel > IDÅSEN Metallschränke & Büroaufbewahrung": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > IDÅSEN Büro-Systemmöbel > IDÅSEN Sitz- & Stehschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > IDÅSEN Büro-Systemmöbel > Schreibtischtrennwände": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > MITTZON Büromöbel & - einrichtung > MITTZON Konferenz- & Besprechungstische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > MITTZON Büromöbel & - einrichtung > MITTZON Raumteiler, -trenner & Whiteboards": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > MITTZON Büromöbel & - einrichtung > MITTZON Schallabsorber & Akustikelemente für Büros": "aus",
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > MITTZON Büromöbel & - einrichtung > MITTZON Schreib- & Bürotische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > RELATERA Schreibtischsystem für Kinder > RELATERA Kinderschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > RELATERA Schreibtischsystem für Kinder > RELATERA Kinderschreibtischplatten & Gestelle": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > RELATERA Schreibtischsystem für Kinder > RELATERA Zubehör für Pulte & Kinderschreibtische": "aus",
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > Schreibtisch selbst zusammenstellen > Schreibtischkombinationen": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > Schreibtisch selbst zusammenstellen > Tischbeine & Tischböcke": "aus",
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > Schreibtisch selbst zusammenstellen > Tischplatten": "aus",
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > TROTTEN Bürosystem > Schreibtischtrennwände": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > TROTTEN Bürosystem > TROTTEN Büro-Aufbewahrung": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > TROTTEN Bürosystem > TROTTEN Büroschreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > TROTTEN Bürosystem > TROTTEN Bürozubehör": "aus",
+ "ikea|Schreibtische & Bürostühle > Schreibtische & Arbeitsplätze > Tisch- & Schreibtischsysteme > TROTTEN Bürosystem > TROTTEN Sitzungstische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Schreibtische & Bürostühle > Schreibtische mit Stuhl": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "ikea|Smart Home > Smart Home Beleuchtung > Smart Home Lampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > 2er-Schlafsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > 3er-Schlafsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > Eckschlafsofas": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > Futonmatratzen & Gästematratzen": "aus",
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > Gästebetten & Tagesbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > Schlafsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Bettsofas & Schlafsofas > Schlafsofas mit Récamiere": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Chaiselongues & Récamieren": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Poufs & Sitzhocker > Bezüge für Fusshocker & Ottomanen": "aus",
+ "ikea|Sofas & Sessel > Poufs & Sitzhocker > Hocker aus Leder & Kunstleder": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Poufs & Sitzhocker > Rattanhocker": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Poufs & Sitzhocker > Stoffhocker": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Kindersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Korbsessel & Rattansessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Ledersessel & Kunstledersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Loungesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Relaxsessel & Liegesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Schlafsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sessel > Stoffsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sofa-Module & Modulare Sofas": {
+  "category": "sofa",
+  "model": "sofa"
+ },
+ "ikea|Sofas & Sessel > Sofas > 2er-Sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sofas > 3er-Sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sofas > Ecksofas": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sofas > Elektrisch verstellbare Sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sofas > Sofa-Module & Modulare Sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "ikea|Sofas & Sessel > Sofas > Sofas mit Récamiere": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Babytextilien > Teppiche & Vorhänge fürs Babyzimmer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Kindertextilien > Himmel & Baldachine für Kinderbetten": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "ceiling"
+ },
+ "ikea|Teppiche & Textilien > Kindertextilien > Kinderdecken & Kinderkissen": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Kindertextilien > Teppiche & Vorhänge fürs Kinderzimmer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Kissen & Kissenbezüge > Kinderdecken & Kinderkissen": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Kissen & Kissenbezüge > Kissenfüllungen & Innenkissen": "aus",
+ "ikea|Teppiche & Textilien > Kissen & Kissenbezüge > Outdoor-Kissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Kissen & Kissenbezüge > Zierkissen & Dekokissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Kissen & Kissenbezüge > Zierkissenbezüge & - hüllen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Kuscheldecken & Plaids": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Schlafzimmertextilien > Kissen & Kissenbezüge > Kinderdecken & Kinderkissen": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Schlafzimmertextilien > Kissen & Kissenbezüge > Kissenfüllungen & Innenkissen": "aus",
+ "ikea|Teppiche & Textilien > Schlafzimmertextilien > Kissen & Kissenbezüge > Outdoor-Kissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Schlafzimmertextilien > Kissen & Kissenbezüge > Zierkissen & Dekokissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Schlafzimmertextilien > Kissen & Kissenbezüge > Zierkissenbezüge & - hüllen": "aus",
+ "ikea|Teppiche & Textilien > Schlafzimmertextilien > Kuscheldecken & Plaids": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Sitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Sitzkissen für Garten & Balkon > Gartenmöbel-Polster": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Sitzkissen für Garten & Balkon > Outdoor-Kissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Antirutschmatten & Teppichunterlagen": "aus",
+ "ikea|Teppiche & Textilien > Teppiche > Fussmatten": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Kleine Teppiche & Teppichläufer": {
+  "category": "rug",
+  "model": "rug"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Mittelgrosse & grosse Teppiche": {
+  "category": "rug",
+  "model": "rug"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Outdoor-Teppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Runde Teppiche": {
+  "category": "rug",
+  "model": "roundRug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Schaffelle, Kuhfelle & Kunstfell-Teppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Teppiche & Vorhänge fürs Babyzimmer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > Teppiche & Vorhänge fürs Kinderzimmer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Teppiche & Textilien > Teppiche > handgearbeitete Teppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bartische & Barstühle > Barhocker & -stühle": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bartische & Barstühle > Theken": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bistromöbel > Bistrostühle & Caféhausstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bistromöbel > Bistrotische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bänke & Truhen > Bettbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bänke & Truhen > Esszimmerbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bänke & Truhen > Garderobenbänke & Flurbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bänke & Truhen > Gartenbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bänke & Truhen > Kinderhocker & Kinderbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Bänke & Truhen > Sitzbänke mit Stauraum": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Couchtische & Beistelltische > Beistelltische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Couchtische & Beistelltische > Couchtische & Salontische": {
+  "category": "table",
+  "model": "table"
+ },
+ "ikea|Tische & Stühle > Couchtische & Beistelltische > Konsolentische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Couchtische & Beistelltische > Satztische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Essgruppen > Essgruppen max. 10 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Essgruppen > Essgruppen max. 2 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Essgruppen > Essgruppen max. 4 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Essgruppen > Essgruppen max. 6 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esstische > Esstische für 10 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esstische > Esstische für 2 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esstische > Esstische für 4 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esstische > Esstische für 6 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esstische > Esstische für 8 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esstische > Esstischplatten & Esstischgestelle": {
+  "category": "table",
+  "model": "roundTable",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esszimmerbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esszimmerstühle > Küchenstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esszimmerstühle > Polsterstühle": {
+  "category": "chair",
+  "model": "chair"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esszimmerstühle > Sitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Esszimmerstühle > Stuhlbezüge & Stuhlhussen": "aus",
+ "ikea|Tische & Stühle > Esszimmermöbel > Esszimmerstühle > Stuhlgestelle & Sitzschalen": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Hocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Esszimmermöbel > Sideboards, Highboards & Anrichten": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Hochstühle für Babys & Kleinkinder": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Hocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Kinder-Sitzmöbel > Hohe Kinderstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Kinder-Sitzmöbel > Kinder-Schreibtischstühle": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Kinder-Sitzmöbel > Kinderhocker & Kinderbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Kinder-Sitzmöbel > Kindersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Kinder-Sitzmöbel > Kinderstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Kindertische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Schminkstühle": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Barhocker & -stühle": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Bistrostühle & Caféhausstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Esszimmerstühle > Küchenstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Esszimmerstühle > Polsterstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Esszimmerstühle > Sitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Tische & Stühle > Stühle > Esszimmerstühle > Stuhlbezüge & Stuhlhussen": "aus",
+ "ikea|Tische & Stühle > Stühle > Esszimmerstühle > Stuhlgestelle & Sitzschalen": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Klappstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Kindersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Korbsessel & Rattansessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Ledersessel & Kunstledersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Loungesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Relaxsessel & Liegesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Schlafsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sessel > Stoffsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Stühle > Sitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "ikea|Tische & Stühle > Tische > Bistrotische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Couchtische & Beistelltische > Beistelltische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Couchtische & Beistelltische > Couchtische & Salontische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Couchtische & Beistelltische > Konsolentische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Couchtische & Beistelltische > Satztische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Esstische > Esstische für 10 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Esstische > Esstische für 2 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Esstische > Esstische für 4 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Esstische > Esstische für 6 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Esstische > Esstische für 8 Personen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Esstische > Esstischplatten & Esstischgestelle": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Klapptische & Ausziehtische": {
+  "category": "table",
+  "model": "table"
+ },
+ "ikea|Tische & Stühle > Tische > Multifunktionstische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Runde Tische": {
+  "category": "table",
+  "model": "roundTable",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tische > Theken": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "ikea|Tische & Stühle > Tritthocker & Leitern": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Blumentöpfe & Übertöpfe > Blumentöpfe & Blumenkästen für draussen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Blumentöpfe & Übertöpfe > Blumentöpfe für drinnen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Blumentöpfe & Übertöpfe > Hängetöpfe & Blumenampeln": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Blumentöpfe & Übertöpfe > Pflanzenständer & Blumenständer": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Blumentöpfe & Übertöpfe > Selbstbewässerungstöpfe": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Kleine Gewächshäuser": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kleine Gewächshäuser": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Kunstblumensträusse": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Blumenkränze & -girlanden": {
+  "category": "decor",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Büropflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Hängepflanzen": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Pflanzen für Wände": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "wall"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Topfpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Kunstpflanzen & Kunstblumen > Künstliche Zweige, Gräser & Schnittblumen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Trockenblumen & Trockenpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "on-top"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Blühende Zimmerpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Büropflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Hänge- & Kletterpflanzen": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Topfpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Topfpflanzen & Pflanzgefässe > Pflanzenständer & Blumenständer": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "ikea|Vorhänge & Jalousien > Fensterfolien & Zubehör": "aus",
+ "ikea|Vorhänge & Jalousien > Jalousien & Rollos ohne Bohren > Faltrollos": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Jalousien & Rollos ohne Bohren > Jalousien": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Jalousien & Rollos ohne Bohren > Jalousien & Rollos ohne Bohren": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Jalousien & Rollos ohne Bohren > Plissee-Rollos & Lamellen-Rollos": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Jalousien & Rollos ohne Bohren > Rollrollos": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Jalousien & Rollos ohne Bohren > Verdunklungsrollos": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Vorhangstangen & Vorhangschienen > Vorhanggleiter & Gardinenhaken": "aus",
+ "ikea|Vorhänge & Jalousien > Vorhangstangen & Vorhangschienen > Vorhangschienen": "aus",
+ "ikea|Vorhänge & Jalousien > Vorhangstangen & Vorhangschienen > Vorhangstangen & Gardinenstangen": "aus",
+ "ikea|Vorhänge & Jalousien > Vorhangstangen & Vorhangschienen > Vorhangzubehör": "aus",
+ "ikea|Vorhänge & Jalousien > Vorhänge & Gardinen > Blackout-Vorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Vorhänge & Gardinen > Leichte Vorhänge & Gardinen": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Vorhänge & Gardinen > Transparente, Voile- und Netzvorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Vorhänge & Jalousien > Vorhänge & Gardinen > Verdunklungsvorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "ikea|Weihnachten & Winter > Weihnachtsbeleuchtung > Dekorative Leuchtenschirme": "aus",
+ "ikea|Weihnachten & Winter > Weihnachtsbeleuchtung > Dekorative Tischlichter": "aus",
+ "ikea|Weihnachten & Winter > Weihnachtsbeleuchtung > LED-Kerzen": "aus",
+ "ikea|Weihnachten & Winter > Weihnachtsbeleuchtung > Lampions & Dekolichter": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "ikea|Weihnachten & Winter > Weihnachtsbeleuchtung > Lichterketten": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "ikea|Weihnachten & Winter > Weihnachtsdekoration > Tischdeko für Weihnachten": "aus",
+ "ikea|Weihnachten & Winter > Weihnachtsdekoration > Weihnachtskerzen & Weihnachtskerzenhalter": "aus",
+ "ikea|Weihnachten & Winter > Weihnachtsdekoration > Weihnachtskugeln & Baumschmuck": "aus",
+ "ikea|Weihnachten & Winter > Winterpflanzen & Weihnachtspflanzen > Adventskränze & Weihnachtsgirlanden": "aus",
+ "ikea|Weihnachten & Winter > Winterpflanzen & Weihnachtspflanzen > Weihnachtliche Topfpflanzen & Vasen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "ikea|Weihnachten & Winter > Winterpflanzen & Weihnachtspflanzen > Weihnachtsbäume & Tannenbäume": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "jysk|Aufbewahrung > Bücherregale und Raumteiler": {
+  "category": "shelf",
+  "model": "shelf"
+ },
+ "jysk|Aufbewahrung > Divers": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "jysk|Aufbewahrung > Kleiderschränke": {
+  "category": "wardrobe",
+  "model": "wardrobe"
+ },
+ "jysk|Aufbewahrung > Kleiderständer": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "jysk|Aufbewahrung > Kommoden": {
+  "category": "dresser",
+  "model": "dresser"
+ },
+ "jysk|Aufbewahrung > Körbe > Kunststoff-Boxen": "aus",
+ "jysk|Aufbewahrung > Körbe > Körbe und Boxen": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "jysk|Aufbewahrung > Schuhschränke": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "jysk|Aufbewahrung > Wandregale": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "jysk|Büro > Bürostühle": {
+  "category": "officeChair",
+  "model": "officeChair"
+ },
+ "jysk|Büro > Gaming-Stühle": {
+  "category": "officeChair",
+  "model": "officeChair"
+ },
+ "jysk|Büro > Höhenverstellbare Schreibtische": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "jysk|Büro > Schreibtische": {
+  "category": "desk",
+  "model": "desk"
+ },
+ "jysk|Esszimmer > Bartische und Barstühle": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Esszimmer > Esstische": {
+  "category": "table",
+  "model": "table"
+ },
+ "jysk|Esszimmer > Esszimmer-Sets": "aus",
+ "jysk|Esszimmer > Esszimmerstühle": {
+  "category": "chair",
+  "model": "chair"
+ },
+ "jysk|Esszimmer > Klappstühle und Hocker": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "jysk|Esszimmer > Konsolentische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Esszimmer > Sideboards": {
+  "category": "sideboard",
+  "model": "sideboard"
+ },
+ "jysk|Esszimmer > Tischverlängerung": "aus",
+ "jysk|Esszimmer > Vitrinen": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "jysk|Garderobe > Garderobenmöbel > Garderobe mit Schuhaufbewahrung": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "jysk|Garderobe > Garderobenmöbel > Garderobenbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "jysk|Garderobe > Garderobenmöbel > Garderobenhaken": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "wall"
+ },
+ "jysk|Garderobe > Garderobenmöbel > Garderobenständer": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenbeleuchtung > Gartenlampen und Gartenlaternen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenbeleuchtung > Solarlampen": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Garten-Essgruppen > Bistro-Sets": "aus",
+ "jysk|Garten > Gartenmöbel > Garten-Essgruppen > Garten-Essgruppen Holz": "aus",
+ "jysk|Garten > Gartenmöbel > Garten-Essgruppen > Garten-Essgruppen Kunstholz": "aus",
+ "jysk|Garten > Gartenmöbel > Garten-Essgruppen > Garten-Essgruppen Metall": "aus",
+ "jysk|Garten > Gartenmöbel > Gartenbänke": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartenstühle > Campingstühle": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartenstühle > Gartenstühle aus Holz": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartenstühle > Gartenstühle aus Kunststoff": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartenstühle > Gartenstühle aus Rattan & Metall": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartentische > Bistrotische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartentische > Campingtische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartentische > Gartentische aus Holz": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartentische > Gartentische aus Kunstholz": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Gartentische > Gartentische aus Metall": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Loungemöbel > Hängesessel & Hängematten": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "ceiling"
+ },
+ "jysk|Garten > Gartenmöbel > Loungemöbel > Lounge-Sets": "aus",
+ "jysk|Garten > Gartenmöbel > Loungemöbel > Lounge-Sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Loungemöbel > Loungesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Loungemöbel > Loungetische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenmöbel > Sonnenliegen": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenstuhlauflagen > Auflagen für Hochlehner": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Garten > Gartenstuhlauflagen > Auflagen für Sonnenliegen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Garten > Gartenstuhlauflagen > Garten Sitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Garten > Gartenstuhlauflagen > Gartenstuhlauflagen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Garten > Gartenzubehör > Gartendekoration": "aus",
+ "jysk|Garten > Gartenzubehör > Gartenmöbel Abdeckung": "aus",
+ "jysk|Garten > Gartenzubehör > Kunstpflanzen Outdoor": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "jysk|Garten > Gartenzubehör > Pflanzentöpfe": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "floor"
+ },
+ "jysk|Garten > Outdoor-Aufbewahrung": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "jysk|Garten > Sonnenschutz > Pavillon-Seitenteile und -Dächer": "aus",
+ "jysk|Garten > Sonnenschutz > Pavillons und Pergolas": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "jysk|Garten > Sonnenschutz > Sonnenschirme": "aus",
+ "jysk|Garten > Sonnenschutz > Sonnenschirmfüsse": "aus",
+ "jysk|Schlafzimmer > Betten > Bettfüsse": "aus",
+ "jysk|Schlafzimmer > Betten > Bettgestelle & Lattenroste > Betten": {
+  "category": "bed",
+  "model": "bed"
+ },
+ "jysk|Schlafzimmer > Betten > Bettgestelle & Lattenroste > Boxbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Bettgestelle & Lattenroste > Lattenroste > Lattenroste elektrisch": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Bettgestelle & Lattenroste > Lattenroste > Lattenroste nicht verstellbar": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Bettgestelle & Lattenroste > Lattenroste > Lattenroste verstellbar": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Boxspringbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Boxspringbetten > Boxspringbetten mit Stauraum": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Gästebetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Kinderbetten": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Kopfteile": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "jysk|Schlafzimmer > Betten > Matratzenzubehör": "aus",
+ "jysk|Schlafzimmer > Nachttische": {
+  "category": "nightstand",
+  "model": "nightstand"
+ },
+ "jysk|Schlafzimmer > Tagesdecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Vorhänge & Jalousien > Fensterfolie": "aus",
+ "jysk|Vorhänge & Jalousien > Fertigvorhänge > Schwere Vorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Fertigvorhänge > String Vorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Fertigvorhänge > Transparente Vorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Fertigvorhänge > Verdunkelungsvorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Fertigvorhänge > Voile-Dekoschals": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Jalousien > Alu Jalousien": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Plissees > Lichtdurchlässige Plissees": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Plissees > Verdunkelnde Plissees": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Rollos > Doppel-Rollos": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Rollos > Verdunkelungsrollos": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "jysk|Vorhänge & Jalousien > Vorhangstangen & Zubehör > Ringe, Haken & Halterungen für Vorhänge": "aus",
+ "jysk|Vorhänge & Jalousien > Vorhangstangen & Zubehör > Vorhangstangen & Vorhangschienen": "aus",
+ "jysk|Vorhänge & Jalousien > Vorhangstangen & Zubehör > Vorhangzubehör": "aus",
+ "jysk|Vorhänge & Jalousien > Vorhangstangen & Zubehör > Zubehör für Plissees, Rollos & Jalousien": "aus",
+ "jysk|Weihnachten > Baumschmuck": "aus",
+ "jysk|Weihnachten > Tischdecken": "aus",
+ "jysk|Weihnachten > Weihnachtsartikel divers": "aus",
+ "jysk|Weihnachten > Weihnachtsbeleuchtung > Weihnachtsbeleuchtung Indoor": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "jysk|Weihnachten > Weihnachtsbeleuchtung > Weihnachtsbeleuchtung Outdoor": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "jysk|Weihnachten > Weihnachtsbäume & Zweige": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "jysk|Weihnachten > Weihnachtsdekoration": "aus",
+ "jysk|Weihnachten > Weihnachtsfiguren": "aus",
+ "jysk|Weihnachten > Weihnachtskerzen & Weihnachtsservietten": "aus",
+ "jysk|Weihnachten > Weihnachtskerzenständer": "aus",
+ "jysk|Weihnachten > Weihnachtstextilien": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Beleuchtung > Batterien": "aus",
+ "jysk|Wohnaccessoires > Beleuchtung > Glühbirnen": "aus",
+ "jysk|Wohnaccessoires > Beleuchtung > Lampen": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Beleuchtung > Lampen mit Batterie": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Decken > Divers": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Decken > Fleecedecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Decken > Kunstfell": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Decken > Steppdecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Decken > Wolldecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Deko > Bilderrahmen": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "jysk|Wohnaccessoires > Deko > Blumentöpfe": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "jysk|Wohnaccessoires > Deko > Deko-Accessoires": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Deko > Duftkerzen": "aus",
+ "jysk|Wohnaccessoires > Deko > Kerzen und Servietten": "aus",
+ "jysk|Wohnaccessoires > Deko > Kerzenständer": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Deko > Kunstblumen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Deko > Kunstpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "jysk|Wohnaccessoires > Deko > LED Kerzen": "aus",
+ "jysk|Wohnaccessoires > Deko > Laternen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Deko > Uhren": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "wall"
+ },
+ "jysk|Wohnaccessoires > Deko > Vasen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Felle": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "jysk|Wohnaccessoires > Fussmatten": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "jysk|Wohnaccessoires > Kindermöbel": "aus",
+ "jysk|Wohnaccessoires > Kinderprodukte > Kinderteppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "jysk|Wohnaccessoires > Kissen und Kissenbezüge > Innenkissen": "aus",
+ "jysk|Wohnaccessoires > Kissen und Kissenbezüge > Rückenkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Kissen und Kissenbezüge > Zierkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Kissen und Kissenbezüge > Zierkissenbezüge": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Sitzpolster": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Spiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "jysk|Wohnaccessoires > Teppiche > Grosse Teppiche": {
+  "category": "rug",
+  "model": "rug"
+ },
+ "jysk|Wohnaccessoires > Teppiche > Indoor Teppiche und Outdoor Teppiche": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "jysk|Wohnaccessoires > Teppiche > Kleine Teppiche": {
+  "category": "rug",
+  "model": "rug"
+ },
+ "jysk|Wohnaccessoires > Teppiche > Teppichunterlagen": "aus",
+ "jysk|Wohnaccessoires > Tischtextilien > Acryl Tischdecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Tischtextilien > Stoffservietten": "aus",
+ "jysk|Wohnaccessoires > Tischtextilien > Tischdecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Tischtextilien > Tischläufer": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Tischtextilien > Tischsets": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnaccessoires > Tischtextilien > Vinyl Tischdecken": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "jysk|Wohnzimmer > Couchtische & Beistelltische": {
+  "category": "table",
+  "model": "table"
+ },
+ "jysk|Wohnzimmer > Hocker": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "jysk|Wohnzimmer > Modulare Sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "jysk|Wohnzimmer > Schlafsofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "jysk|Wohnzimmer > Sessel": {
+  "category": "armchair",
+  "model": "armchair"
+ },
+ "jysk|Wohnzimmer > Sofas": {
+  "category": "sofa",
+  "model": "sofa"
+ },
+ "jysk|Wohnzimmer > TV-Möbel": {
+  "category": "tvUnit",
+  "model": "sideboard"
+ },
+ "tchibo|": "aus",
+ "tchibo|'weinkiste'": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|abdeckhaube": "aus",
+ "tchibo|ablagebox": "aus",
+ "tchibo|accessoires": "aus",
+ "tchibo|adventskalenderkerze": "aus",
+ "tchibo|akkuleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|akustische": "aus",
+ "tchibo|allzweckschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|alu": "aus",
+ "tchibo|anhänger": "aus",
+ "tchibo|anrichte": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|anstelltisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|antischlingnapf": "aus",
+ "tchibo|anzuchtbox": "aus",
+ "tchibo|apothekerschrank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|arbeitsleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|armband": "aus",
+ "tchibo|armnadelkissen": "aus",
+ "tchibo|astronaut": "aus",
+ "tchibo|aufbewahrung": "aus",
+ "tchibo|aufbewahrungsbeutel": "aus",
+ "tchibo|aufbewahrungsbox": "aus",
+ "tchibo|aufbewahrungsboxen": "aus",
+ "tchibo|aufbewahrungsdose": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|aufbewahrungsdosen": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|aufbewahrungskasten": "aus",
+ "tchibo|aufbewahrungskiste": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungskisten": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungskorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungskörbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungsnetz": "aus",
+ "tchibo|aufbewahrungsregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungsschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungstopf": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungstruhe": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|aufbewahrungstäschchen": "aus",
+ "tchibo|aufbewahrungswagen": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|aufhängehaken": "aus",
+ "tchibo|auflagenbox": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|aufziehwal": "aus",
+ "tchibo|ausklapptisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|ausziehbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|ausziehhocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|ausziehliege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|ausziehsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|ausziehtisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|automatische": "aus",
+ "tchibo|babybett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|bademantel": "aus",
+ "tchibo|badematte": "aus",
+ "tchibo|badetuch": "aus",
+ "tchibo|badewannenkissen": "aus",
+ "tchibo|badewannenspielfiguren": "aus",
+ "tchibo|badhochschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|badkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|badschrank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|badwanduhr": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "wall"
+ },
+ "tchibo|badwischer": "aus",
+ "tchibo|balkonsichtschutzbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|balkontisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|bank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|barhocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|bartisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|barwagen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|basketballkorb": "aus",
+ "tchibo|bastelset": "aus",
+ "tchibo|basteltisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|bauchschläferkissen": "aus",
+ "tchibo|baumwollbett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|bausteine": "aus",
+ "tchibo|beistellschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|beistelltisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|beistelltische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|beistellwagen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|besteckkorb": "aus",
+ "tchibo|bestecktaschen": "aus",
+ "tchibo|bestelltisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|bestelltische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|bett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|bettbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|bettenset": "aus",
+ "tchibo|bettflasche": "aus",
+ "tchibo|bettsitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|betttisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|bettwäsche": "aus",
+ "tchibo|bettüberwurf": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|bezug": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|bezüge": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|bienen": "aus",
+ "tchibo|bild": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "tchibo|bilderrahmen": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "tchibo|bistrogardine": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|bistrotisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|bistrovorhang": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|blumen": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|blumenampel": {
+  "category": "plant",
+  "model": "hangingPlant",
+  "mount": "ceiling"
+ },
+ "tchibo|blumenkasten": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|blumentopf": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|blumenzwiebelpflanzer": "aus",
+ "tchibo|board": "aus",
+ "tchibo|boden": "aus",
+ "tchibo|bodenlichterkette": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "floor"
+ },
+ "tchibo|bogenleuchte": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|boombox": {
+  "category": "electronics",
+  "model": "speaker",
+  "mount": "floor"
+ },
+ "tchibo|box": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|boxen": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|boxspringbett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|brotbackrahmen": "aus",
+ "tchibo|brotkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|buch": {
+  "category": "decor",
+  "model": "books",
+  "mount": "on-top"
+ },
+ "tchibo|buffetschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|bär": "aus",
+ "tchibo|bücherbox": "aus",
+ "tchibo|bücherregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|bücherturm": {
+  "category": "decor",
+  "model": "books",
+  "mount": "floor"
+ },
+ "tchibo|büroschrank": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|bürste": "aus",
+ "tchibo|cabinetschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|chaiselongue": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|citronellakerze": "aus",
+ "tchibo|clips": "aus",
+ "tchibo|coolbar": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|coolbox": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|cordsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|couchtisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|couchtische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|dachrinnenleuchten": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|datenkabel": "aus",
+ "tchibo|daunenbett": "aus",
+ "tchibo|daunendecke": "aus",
+ "tchibo|deckchair": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|decke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|deckenleuchte": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|deckenspot": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|deckplatte": "aus",
+ "tchibo|dekoband": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|dekobaum": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|dekobäume": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|dekodose": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|dekoeier": "aus",
+ "tchibo|dekofigur": {
+  "category": "other",
+  "model": "box",
+  "mount": "on-top"
+ },
+ "tchibo|dekoflasche": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|dekoglas": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|dekoglasleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|dekohase": "aus",
+ "tchibo|dekohasen": "aus",
+ "tchibo|dekokissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|dekokissenbezug": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|dekokissenbezüge": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|dekokranz": {
+  "category": "other",
+  "model": "box",
+  "mount": "wall"
+ },
+ "tchibo|dekokugel": "aus",
+ "tchibo|dekolampe": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|dekolaterne": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|dekoleiter": {
+  "category": "decor",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|dekoleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|dekolicht": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|dekomuschel": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|dekopilz": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|dekorierflasche": "aus",
+ "tchibo|dekorierstift": "aus",
+ "tchibo|dekoschriftzug": {
+  "category": "decor",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "tchibo|dekostein": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "floor"
+ },
+ "tchibo|dekosteine": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "floor"
+ },
+ "tchibo|dekostern": "aus",
+ "tchibo|dekosterne": "aus",
+ "tchibo|dekotablett": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|dekotabletts": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|dekozweige": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|designstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|designtisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|desinfektionsspender": "aus",
+ "tchibo|diener": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|discokugel": "aus",
+ "tchibo|doppelhaken": "aus",
+ "tchibo|doppelliege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|doppelroman": {
+  "category": "decor",
+  "model": "books",
+  "mount": "on-top"
+ },
+ "tchibo|doppelwaschtisch": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|drahtkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|drehhocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|drehkorbsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|drehstuhl": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "tchibo|duftkerze": "aus",
+ "tchibo|duftlampe": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|duschhängeregal": "aus",
+ "tchibo|duschregal": "aus",
+ "tchibo|duschvorleger": "aus",
+ "tchibo|echtwachskerze": {
+  "category": "other",
+  "model": "box",
+  "mount": "on-top"
+ },
+ "tchibo|echtwachskerzen": {
+  "category": "other",
+  "model": "box",
+  "mount": "on-top"
+ },
+ "tchibo|echtwachstanne": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|echtwachstannen": "aus",
+ "tchibo|echtwachsteelichter": "aus",
+ "tchibo|eckbank": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "tchibo|ecke": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "tchibo|eckregal": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|eckschlafsofa": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "tchibo|eckschreibtisch": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|ecksofa": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "tchibo|eckvitrine": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|eiche": "aus",
+ "tchibo|einkaufskorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|einlegesohlen": "aus",
+ "tchibo|einzelliege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|einzelsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|elastische": "aus",
+ "tchibo|engel": "aus",
+ "tchibo|esstisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|esszimmerstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|etagere": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|faltbarer": "aus",
+ "tchibo|faltbox": "aus",
+ "tchibo|fensterbild": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|fensterbilder": "aus",
+ "tchibo|fernrohr": "aus",
+ "tchibo|feuerwerksleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|filamentleuchte": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|filzkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|fixleintuch": "aus",
+ "tchibo|fixleintuchn": "aus",
+ "tchibo|fixleintücher": "aus",
+ "tchibo|flanellbettwäsche": "aus",
+ "tchibo|flaschenhalter": "aus",
+ "tchibo|flaschenleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|flaschenverschluss": "aus",
+ "tchibo|flechtteppich": {
+  "category": "rug",
+  "model": "roundRug",
+  "mount": "floor"
+ },
+ "tchibo|fliegengitter": "aus",
+ "tchibo|fliegenwedler": "aus",
+ "tchibo|fliesenaufkleber": "aus",
+ "tchibo|flummi": "aus",
+ "tchibo|flummis": "aus",
+ "tchibo|flurschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|fotovorhang": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|funktionsleuchte": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|funkuhr": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "wall"
+ },
+ "tchibo|fussball": "aus",
+ "tchibo|fussmatte": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|gangschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|ganzkörperspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|garderobe": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|garderobenregal": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|garderobenschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|garderobenständer": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|gardine": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|gartenarbeitstisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|gartenbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|gartenfackeln": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|gartenliege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|gartenregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|gartenschild": "aus",
+ "tchibo|gartenschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|gartensessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|gartensofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|gartenstecker": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|gartenstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|gartentisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|gartenzwerg": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "floor"
+ },
+ "tchibo|geschenkset": "aus",
+ "tchibo|geschirrtücher": "aus",
+ "tchibo|gewächslampe": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|gewürzaufbewahrung": "aus",
+ "tchibo|gewürzaufbewahrungsbox": "aus",
+ "tchibo|glaskugel": "aus",
+ "tchibo|glaskugeln": "aus",
+ "tchibo|glasschreibtisch": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|glasuntersetzer": "aus",
+ "tchibo|glitzerwasserkerze": "aus",
+ "tchibo|glosche": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|glücksbringer": "aus",
+ "tchibo|glücksfrosch": "aus",
+ "tchibo|glücksschwein": "aus",
+ "tchibo|glühbirnen": "aus",
+ "tchibo|gänsedaunenbett": "aus",
+ "tchibo|gästehandtücher": "aus",
+ "tchibo|gästewaschbecken": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|haken": "aus",
+ "tchibo|handarbeitslampe": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|handtuchhalter": "aus",
+ "tchibo|handtuchleiter": "aus",
+ "tchibo|handtücher": "aus",
+ "tchibo|hase": "aus",
+ "tchibo|hasenohren": "aus",
+ "tchibo|haus": "aus",
+ "tchibo|haushaltsschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|highboard": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|himmelbett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|hochbeet": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|hochflorteppich": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|hochkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|hochlehner": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|hochlehnerauflage": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|hochschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|hocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|hohes": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|holzfigur": "aus",
+ "tchibo|holzkiste": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|holzstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|hundebett": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|häkelset": "aus",
+ "tchibo|hängegarderobe": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "wall"
+ },
+ "tchibo|hängeleuchte": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|hängematte": "aus",
+ "tchibo|hänger": "aus",
+ "tchibo|hängeschrank": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|hängesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "ceiling"
+ },
+ "tchibo|hörspielbox": "aus",
+ "tchibo|jahreszeiten": "aus",
+ "tchibo|kabelmanager": "aus",
+ "tchibo|kaleidoskop": "aus",
+ "tchibo|kalender": "aus",
+ "tchibo|kamelhaarbett": "aus",
+ "tchibo|kaminholzbank": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|kaminholzkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|kaminholzregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|kassettenbett": "aus",
+ "tchibo|kegelkerzen": "aus",
+ "tchibo|keilkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|kerze": "aus",
+ "tchibo|kerzen": "aus",
+ "tchibo|kerzenhalter": "aus",
+ "tchibo|kerzenleuchter": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|kerzenpyramide": "aus",
+ "tchibo|kerzentablett": "aus",
+ "tchibo|kette": "aus",
+ "tchibo|kinderbücherregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|kindergarderobe": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|kinderkleiderschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|kinderkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|kinderschreibtisch": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|kindersideboard": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|kinderstauraumbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|kindertisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|kipper": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|kissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|kissenbezug": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|kissenrolle": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|klangspiel": "aus",
+ "tchibo|klapphocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|klappliegestuhl": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|klappstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|klapptisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|klapptritt": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|klebebänder": "aus",
+ "tchibo|kleiderbügel": "aus",
+ "tchibo|kleiderleiter": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|kleiderschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|kleiderständer": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|klemmleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|knautschball": "aus",
+ "tchibo|koffergurt": "aus",
+ "tchibo|kommode": {
+  "category": "dresser",
+  "model": "dresser"
+ },
+ "tchibo|kompressionstasche": "aus",
+ "tchibo|konsole": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|konsolenltisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|konsolentisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|konsolentische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|kopfkissen": "aus",
+ "tchibo|kopfkissenbezug": "aus",
+ "tchibo|kopfkissenbezüge": "aus",
+ "tchibo|korb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|korbtablett": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|korken": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|kosmetikspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|kosmetikspiegelbox": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "on-top"
+ },
+ "tchibo|kosmetiktuchspender": "aus",
+ "tchibo|kranz": {
+  "category": "decor",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "tchibo|kreis": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|kronleuchter": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|kräuterschilder": "aus",
+ "tchibo|kuchentransporttasche": "aus",
+ "tchibo|kugel": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|kugelleuchte": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|kugelleuchten": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|kunstfell": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|kunstpflanze": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|kunstpflanzen": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "on-top"
+ },
+ "tchibo|kuscheldecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|küchenbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|küchenhandtücher": "aus",
+ "tchibo|küchenkomposter": "aus",
+ "tchibo|küchenläufer": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|küchenschürze": "aus",
+ "tchibo|küchentisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|kühlkorb": "aus",
+ "tchibo|kühlschrankkörbe": "aus",
+ "tchibo|kühlschrankmagnete": "aus",
+ "tchibo|kühlschrankordnungsboxen": "aus",
+ "tchibo|ladekabel": "aus",
+ "tchibo|lampe": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|laptoptisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|laterne": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|laternen": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|leiterregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|lesekissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|leselampe": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|leseleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|leuchte": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|leuchten": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|leuchtflummis": "aus",
+ "tchibo|leuchtkieselsteine": "aus",
+ "tchibo|leuchtmurmeln": "aus",
+ "tchibo|leuchtobjekte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|leuchtsteine": "aus",
+ "tchibo|leuchtstäbe": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "floor"
+ },
+ "tchibo|leuchtzweig": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|lichtbox": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|lichter": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|lichterkette": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|lichterkettenaufbewahrung": "aus",
+ "tchibo|lichterkranz": "aus",
+ "tchibo|lichtervorhang": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|lichtnetz": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|lichtvorhang": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|lichtwecker": {
+  "category": "electronics",
+  "model": "smallDevice",
+  "mount": "on-top"
+ },
+ "tchibo|liege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|liegestuhl": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|liegestützgriffe": "aus",
+ "tchibo|lockenstyler": "aus",
+ "tchibo|lounge": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|loungeecke": {
+  "category": "sofa",
+  "model": "cornerSofa",
+  "mount": "floor"
+ },
+ "tchibo|loungesessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|loungesofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|lowboard": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|magnetische": "aus",
+ "tchibo|malbuch": "aus",
+ "tchibo|markierungsclips": "aus",
+ "tchibo|massivholzbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|massivholzregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|matratzenauflage": "aus",
+ "tchibo|matratzenbezug": "aus",
+ "tchibo|matratzenschoner": "aus",
+ "tchibo|matratzenspannauflage": "aus",
+ "tchibo|meditationskerze": "aus",
+ "tchibo|mehrzweckschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|messerblock": "aus",
+ "tchibo|metall": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|metallkonsole": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|metallregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|metallspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|metallstern": "aus",
+ "tchibo|microlichterkette": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|mitteldecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|mobilé": "aus",
+ "tchibo|modul": "aus",
+ "tchibo|mond": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|muffinformen": "aus",
+ "tchibo|multifunktionskissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|multifunktionsleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|multifunktionsleuchten": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|multifunktionsschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|multifunktionstisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|möbeltresor": "aus",
+ "tchibo|mülleimer": "aus",
+ "tchibo|mülltonnenbox": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|nachtlicht": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|nachttisch": {
+  "category": "nightstand",
+  "model": "nightstand",
+  "mount": "floor"
+ },
+ "tchibo|nackenkissen": "aus",
+ "tchibo|nackenkissenbezüge": "aus",
+ "tchibo|nadelkissen": "aus",
+ "tchibo|netz": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|notizbücher": "aus",
+ "tchibo|nähkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|obstkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|offen": {
+  "category": "tvUnit",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|officeschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|officetisch": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|ordnungsbox": "aus",
+ "tchibo|ordnungsboxen": "aus",
+ "tchibo|ordnungshüllen": "aus",
+ "tchibo|ordnungskiste": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|ordnungskisten": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|ordnungskörbe": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|ordnungsregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|ordnungsschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|ordnungswagen": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|organizer": "aus",
+ "tchibo|ostereieranhänger": "aus",
+ "tchibo|outdoorkerze": "aus",
+ "tchibo|outdoorleuchte": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|outdoorsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|outdoorteppich": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|outdoortisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|pad": "aus",
+ "tchibo|pads": "aus",
+ "tchibo|paket": "aus",
+ "tchibo|papierbaum": "aus",
+ "tchibo|papierstern": "aus",
+ "tchibo|paravent": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|pavillon": "aus",
+ "tchibo|pendelleuchte": {
+  "category": "lamp",
+  "model": "pendantLamp",
+  "mount": "ceiling"
+ },
+ "tchibo|pflanzbox": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|pflanzenbox": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|pflanzenbürste": "aus",
+ "tchibo|pflanzenclips": "aus",
+ "tchibo|pflanzenschutzzelt": "aus",
+ "tchibo|pflanzensprüher": "aus",
+ "tchibo|pflanzkasten": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|pflanzkiste": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|pflanzkübel": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|pflanztisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|pflanztreppe": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|pflanzwand": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|pillenbox": "aus",
+ "tchibo|pilz": "aus",
+ "tchibo|pilze": "aus",
+ "tchibo|pinguin": "aus",
+ "tchibo|plaid": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|plantbox": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|platzsets": "aus",
+ "tchibo|plüschkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|plüschtier": "aus",
+ "tchibo|poi": "aus",
+ "tchibo|polarfuchs": "aus",
+ "tchibo|polsterbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|polsterbürste": "aus",
+ "tchibo|polstersessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|polstersitzbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|polsterstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|pouf": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|powerbank": "aus",
+ "tchibo|puzzle": "aus",
+ "tchibo|puzzlefigur": "aus",
+ "tchibo|quarzuhr": "aus",
+ "tchibo|rankhilfen": "aus",
+ "tchibo|raumteiler": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|regal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|regalboden": "aus",
+ "tchibo|regale": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|regalmodul": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|regalorganizer": "aus",
+ "tchibo|regalsystem": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|regalturm": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|reinigungstücher": "aus",
+ "tchibo|reiseadapter": "aus",
+ "tchibo|reisebügeleisen": "aus",
+ "tchibo|reisewecker": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "on-top"
+ },
+ "tchibo|relaxkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|relaxliege": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|relaxsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|relaxstuhl": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|rentier": "aus",
+ "tchibo|rettungsring": "aus",
+ "tchibo|rollcontainer": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|rollen": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|rucksack": "aus",
+ "tchibo|runder": {
+  "category": "table",
+  "model": "roundTable",
+  "mount": "floor"
+ },
+ "tchibo|saatteppich": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|salontisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|salontische": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|sandformen": "aus",
+ "tchibo|sanduhr": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "on-top"
+ },
+ "tchibo|scapa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|schalenstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|schallplattenschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|schalterleuchten": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|schaukelbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|schaukelliege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|schaukelsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|schaukelstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|schlafsessel": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|schlafsofa": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|schleim": "aus",
+ "tchibo|schloss": "aus",
+ "tchibo|schlüsselversteck": "aus",
+ "tchibo|schmetterlinge": "aus",
+ "tchibo|schminkschrank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|schminktisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|schmuckkästchen": "aus",
+ "tchibo|schmuckteller": "aus",
+ "tchibo|schneebrille": "aus",
+ "tchibo|schneekugel": "aus",
+ "tchibo|schrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|schrankauszug": "aus",
+ "tchibo|schrankkorb": "aus",
+ "tchibo|schrankkörbe": "aus",
+ "tchibo|schranklichter": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "wall"
+ },
+ "tchibo|schrankorganizer": "aus",
+ "tchibo|schraubendreher": "aus",
+ "tchibo|schreibtisch": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|schreibtischaufsatz": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "on-top"
+ },
+ "tchibo|schreibtischkonsole": {
+  "category": "desk",
+  "model": "desk",
+  "mount": "floor"
+ },
+ "tchibo|schreibtischstuhl": {
+  "category": "officeChair",
+  "model": "officeChair",
+  "mount": "floor"
+ },
+ "tchibo|schrittzähler": "aus",
+ "tchibo|schubladenkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|schubladenturm": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|schuhbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|schuhkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|schuhregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|schuhschrank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|schuhtasche": "aus",
+ "tchibo|schutzbezüge": "aus",
+ "tchibo|schutzhülle": "aus",
+ "tchibo|schwimmring": "aus",
+ "tchibo|seitenschläferkissen": "aus",
+ "tchibo|seitenspiegelreiniger": "aus",
+ "tchibo|servierwagen": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|servietten": "aus",
+ "tchibo|sessel": {
+  "category": "armchair",
+  "model": "armchair"
+ },
+ "tchibo|set": "aus",
+ "tchibo|sets": "aus",
+ "tchibo|sichtschutzbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|sideboard": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|sitzbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|sitzhocker": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|sitzkissen": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "floor"
+ },
+ "tchibo|sitzpouf": {
+  "category": "armchair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|sitztruhe": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|skibrille": "aus",
+ "tchibo|skulptur": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|smileyworld®": "aus",
+ "tchibo|sofa": {
+  "category": "sofa",
+  "model": "sofa"
+ },
+ "tchibo|sofaorganizer": "aus",
+ "tchibo|sofas": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|sofatablett": "aus",
+ "tchibo|solarleuchte": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|sonnenfänger": "aus",
+ "tchibo|sonnenschirm": "aus",
+ "tchibo|sonnenschirm*": "aus",
+ "tchibo|sonnenschirmhalter": "aus",
+ "tchibo|sonnensegel": "aus",
+ "tchibo|spannbettlaken": "aus",
+ "tchibo|spiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|spiegelabzieher": "aus",
+ "tchibo|spiegelschrank": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|spiegelsticker": {
+  "category": "other",
+  "model": "box",
+  "mount": "wall"
+ },
+ "tchibo|spiel": "aus",
+ "tchibo|spielbuch": "aus",
+ "tchibo|spieluhr": "aus",
+ "tchibo|spiesse": "aus",
+ "tchibo|spindelhocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|spots": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|springbrunnen": "aus",
+ "tchibo|spritzset": "aus",
+ "tchibo|sprossenregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|spülkorb": "aus",
+ "tchibo|stabkerzen": {
+  "category": "other",
+  "model": "box",
+  "mount": "on-top"
+ },
+ "tchibo|stabkerzenhalter": "aus",
+ "tchibo|standgarderobe": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|standregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|standspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "floor"
+ },
+ "tchibo|stapelbox": "aus",
+ "tchibo|starterset": "aus",
+ "tchibo|stauraumbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|stauraumbett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|stauraumregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|stauraumsitzbank": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|stauraumtruhe": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|steckleuchten": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|stehlampe": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|stehleuchte": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|steppbett": "aus",
+ "tchibo|stern": "aus",
+ "tchibo|sternenvorhang": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|sternschnuppe": "aus",
+ "tchibo|stickerbuch": "aus",
+ "tchibo|stiefelaufbewahrungsboxen": "aus",
+ "tchibo|stimmungsleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|stirnlampe": "aus",
+ "tchibo|strahler": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|strandkorb": {
+  "category": "armchair",
+  "model": "armchair",
+  "mount": "floor"
+ },
+ "tchibo|streudeko": "aus",
+ "tchibo|strickhocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|stufenregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|stuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|systemschrank": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "floor"
+ },
+ "tchibo|table": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|tablett": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|tablettisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|tabletts": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "on-top"
+ },
+ "tchibo|tabletttisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|tagesdecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|tageslichtlampe": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|tanne": "aus",
+ "tchibo|tannenbaum": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|tannenbaumdecke": "aus",
+ "tchibo|tannengirlande": "aus",
+ "tchibo|tannenkranz": "aus",
+ "tchibo|tannenzapfen": "aus",
+ "tchibo|tannenzweige": "aus",
+ "tchibo|taschendrachen": "aus",
+ "tchibo|taschenlampe": "aus",
+ "tchibo|teakstuhl": {
+  "category": "chair",
+  "model": "chair",
+  "mount": "floor"
+ },
+ "tchibo|teelichter": "aus",
+ "tchibo|teelichthalter": "aus",
+ "tchibo|teilig": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|teleskopregal": "aus",
+ "tchibo|teppich": {
+  "category": "rug",
+  "model": "rug"
+ },
+ "tchibo|terrassentisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|thermobett": "aus",
+ "tchibo|thermovorhang": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|thermovorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|tierchen": "aus",
+ "tchibo|tiere": "aus",
+ "tchibo|tierkorb": {
+  "category": "decor",
+  "model": "basket",
+  "mount": "floor"
+ },
+ "tchibo|tinus": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|tisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|tischdecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|tischdeckenbeschwerer": "aus",
+ "tchibo|tischdeckenhalter": "aus",
+ "tchibo|tischgestell": "aus",
+ "tchibo|tischlampe": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|tischleuchte": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|tischleuchten": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|tischlicht": {
+  "category": "lamp",
+  "model": "tableLamp",
+  "mount": "on-top"
+ },
+ "tchibo|tischläufer": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|tischsets": "aus",
+ "tchibo|tischstange": {
+  "category": "lamp",
+  "model": "ledStrip",
+  "mount": "on-top"
+ },
+ "tchibo|tischstaubsauger": "aus",
+ "tchibo|tischuhr": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "on-top"
+ },
+ "tchibo|toilettenbürste": "aus",
+ "tchibo|toilettenhocker": "aus",
+ "tchibo|tool": "aus",
+ "tchibo|tracker": "aus",
+ "tchibo|transparentgardinen": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|traumfänger": "aus",
+ "tchibo|trenner": "aus",
+ "tchibo|tritthocker": {
+  "category": "chair",
+  "model": "stool",
+  "mount": "floor"
+ },
+ "tchibo|trittleiter": "aus",
+ "tchibo|truhe": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|tubenpresser": "aus",
+ "tchibo|turban": "aus",
+ "tchibo|türdeko": "aus",
+ "tchibo|türhaken": "aus",
+ "tchibo|türregal": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|uhr": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "wall"
+ },
+ "tchibo|universalkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|universalschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|unterbettkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|unterlagen": "aus",
+ "tchibo|unterschrank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|utensilienbox": "aus",
+ "tchibo|vase": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|vasen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|velokiste": {
+  "category": "other",
+  "model": "box",
+  "mount": "floor"
+ },
+ "tchibo|velokorb": "aus",
+ "tchibo|velospiegel": "aus",
+ "tchibo|viskoelastische": "aus",
+ "tchibo|vitrine": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|vitrinenschrank": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|vogeltränke": "aus",
+ "tchibo|vorhang": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|vorhänge": {
+  "category": "curtain",
+  "model": "curtain",
+  "mount": "wall"
+ },
+ "tchibo|wandelbarer": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|wandgarderobe": {
+  "category": "wardrobe",
+  "model": "wardrobe",
+  "mount": "wall"
+ },
+ "tchibo|wandhaken": "aus",
+ "tchibo|wandhängeschrank": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|wandkosmetikspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|wandleuchte": {
+  "category": "lamp",
+  "model": "wallLamp",
+  "mount": "wall"
+ },
+ "tchibo|wandregal": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|wandregale": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|wandschrank": {
+  "category": "shelf",
+  "model": "wallShelf",
+  "mount": "wall"
+ },
+ "tchibo|wandspiegel": {
+  "category": "mirror",
+  "model": "mirror",
+  "mount": "wall"
+ },
+ "tchibo|wandsticker": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "tchibo|wandteppich": {
+  "category": "picture",
+  "model": "picture",
+  "mount": "wall"
+ },
+ "tchibo|wanduhr": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "wall"
+ },
+ "tchibo|waschbeckenunterschank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|waschbeckenunterschrank": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|waschlappen": "aus",
+ "tchibo|waschmachinenregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|waschmachinenschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|waschmaschinenregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|waschmaschinenschrank": {
+  "category": "sideboard",
+  "model": "sideboard",
+  "mount": "floor"
+ },
+ "tchibo|waschtisch": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|wasserball": "aus",
+ "tchibo|wasserbälle": "aus",
+ "tchibo|wassermalbuch": "aus",
+ "tchibo|wasserspritztiere": "aus",
+ "tchibo|wecker": {
+  "category": "decor",
+  "model": "clock",
+  "mount": "on-top"
+ },
+ "tchibo|wegeleuchten": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|wegleuchten": {
+  "category": "lamp",
+  "model": "floorLamp",
+  "mount": "floor"
+ },
+ "tchibo|weihnachtsbaum": "aus",
+ "tchibo|weihnachtsbaumkerzen": {
+  "category": "other",
+  "model": "box",
+  "mount": "on-top"
+ },
+ "tchibo|weihnachtsordnungsbox": "aus",
+ "tchibo|weihnachtsstrumpf": "aus",
+ "tchibo|weihnachtswichtel": "aus",
+ "tchibo|weinkiste": {
+  "category": "plant",
+  "model": "plant",
+  "mount": "floor"
+ },
+ "tchibo|weinregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|wellenliege": {
+  "category": "sofa",
+  "model": "sofa",
+  "mount": "floor"
+ },
+ "tchibo|wendedecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|wendedekokissenbezug": {
+  "category": "textile",
+  "model": "cushion",
+  "mount": "on-top"
+ },
+ "tchibo|wendeteppich": {
+  "category": "rug",
+  "model": "rug",
+  "mount": "floor"
+ },
+ "tchibo|wichteln": "aus",
+ "tchibo|wickelkommode": {
+  "category": "dresser",
+  "model": "dresser",
+  "mount": "floor"
+ },
+ "tchibo|windlicht": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|windlichter": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|winterkranz": "aus",
+ "tchibo|wohndecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|wolldecke": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|wollplaid": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|wunderland": "aus",
+ "tchibo|wurfscheibe": "aus",
+ "tchibo|wärmeunterbett": "aus",
+ "tchibo|wäschekorb": "aus",
+ "tchibo|wäschekorbregal": {
+  "category": "shelf",
+  "model": "shelf",
+  "mount": "floor"
+ },
+ "tchibo|zaubertuch": "aus",
+ "tchibo|zimmerbrunnen": {
+  "category": "decor",
+  "model": "vase",
+  "mount": "on-top"
+ },
+ "tchibo|äpfel": "aus",
+ "tchibo|überraschungstüte": "aus",
+ "tchibo|überwurf": {
+  "category": "textile",
+  "model": "throw",
+  "mount": "on-top"
+ },
+ "tchibo|–": "aus",
+ "tchibo|kleinkindbett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|arbeitstisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|textilbürste": "aus",
+ "tchibo|couchorganizer": "aus",
+ "tchibo|m": "aus"
+}
