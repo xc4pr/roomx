@@ -16,6 +16,8 @@
 		"test:e2e": "vite build && playwright test --project=desktop --project=ipad-chromium",
 		"test:e2e:all": "vite build && playwright test",
 		"test:e2e:webkit": "bash tests/webkit.sh",
+		"test:e2e:pages": "LOCAL_ONLY=1 BASE_PATH=/roomx vite build && cp build/index.html build/404.html && playwright test -c playwright.pages.config.ts --project=pages-chromium",
+		"test:e2e:pages:webkit": "bash tests/pages/webkit.sh",
 		"test:e2e:visual": "vite build && PW_VISUAL=1 playwright test --project=desktop --project=ipad-chromium",
 		"emit-contract": "node scripts/emit-contract.ts"
 	},

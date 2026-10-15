@@ -34,7 +34,7 @@ jobs:
       - run: pnpm -C web build
       - run: pnpm -C web build
         env:
-          LOCAL_ONLY: '1'
+          LOCAL_ONLY: "1"
           BASE_PATH: /roomx
 
   server:
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - run: python -m venv server/.venv
       - run: server/.venv/bin/pip install -e 'server[dev]'
       - run: .venv/bin/pytest
@@ -65,7 +65,7 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - run: python -m venv server/.venv
       - run: server/.venv/bin/pip install -e 'server[dev]'
       - run: pnpm -C web install --frozen-lockfile
@@ -94,7 +94,7 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - run: python -m venv server/.venv
       - run: server/.venv/bin/pip install -e 'server[dev]'
       - run: pnpm -C web install --frozen-lockfile
@@ -107,4 +107,29 @@ jobs:
           path: |
             web/playwright-report
             web/test-results
+          retention-days: 7
+
+  e2e-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm -C web install --frozen-lockfile
+      - run: pnpm -C web exec playwright install --with-deps chromium webkit
+      - run: LOCAL_ONLY=1 BASE_PATH=/roomx pnpm -C web exec vite build && cp web/build/index.html web/build/404.html
+      - run: pnpm -C web exec playwright test -c playwright.pages.config.ts
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-pages-report
+          path: |
+            web/playwright-report-pages
+            web/test-results-pages
           retention-days: 7

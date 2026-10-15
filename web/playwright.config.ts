@@ -8,7 +8,7 @@ const external = process.env.PW_EXTERNAL_SERVER === '1';
 export default defineConfig({
 	testDir: 'tests',
 	testMatch: process.env.PW_VISUAL ? '**/visual.spec.ts' : '**/*.spec.ts',
-	testIgnore: process.env.PW_VISUAL ? [] : ['**/visual.spec.ts'],
+	testIgnore: process.env.PW_VISUAL ? ['**/pages/**'] : ['**/visual.spec.ts', '**/pages/**'],
 	outputDir: process.env.PW_OUTPUT_DIR ?? 'test-results',
 	fullyParallel: true,
 	workers: process.env.CI ? 2 : 3,

@@ -15,3 +15,5 @@ __pycache__
 .tmp-*
 *.bak
 web/src/lib/features/legal/licenses.generated.json
+test-results-pages
+playwright-report-pages
