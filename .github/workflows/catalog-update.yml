@@ -75,6 +75,8 @@ jobs:
       BUDGET_MIN: ${{ inputs.budget_min || '270' }}
       MAX_URLS: ${{ inputs.max_urls }}
       DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+      ROOMX_MIRROR_RELAYS: ws://127.0.0.1:4275
+      ROOMX_MIRROR_STUN: none
     steps:
       - uses: actions/checkout@v4
         with:
