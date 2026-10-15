@@ -11,7 +11,9 @@ function basePath(value: string | undefined): '' | `/${string}` {
 
 export default defineConfig({
 	define: {
-		__ROOMX_LOCAL_ONLY__: JSON.stringify(process.env.LOCAL_ONLY === '1')
+		__ROOMX_LOCAL_ONLY__: JSON.stringify(process.env.LOCAL_ONLY === '1'),
+		__ROOMX_VERSION__: JSON.stringify(process.env.ROOMX_VERSION ?? 'dev'),
+		__ROOMX_BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10))
 	},
 	plugins: [
 		tailwindcss(),
