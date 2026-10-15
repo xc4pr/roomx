@@ -64,6 +64,12 @@ describe('compact catalog', () => {
 			if (row.priceChf === undefined) expect('priceChf' in row).toBe(false);
 		}
 	});
+
+	it('marks discontinued articles and leaves the field out otherwise', () => {
+		const [entry] = syntheticCatalog(1);
+		expect(compactEntry({ ...entry, discontinued: true }, 'de').discontinued).toBe(true);
+		expect('discontinued' in compactEntry(entry, 'de')).toBe(false);
+	});
 });
 
 describe('catalogJson', () => {
@@ -78,7 +84,7 @@ describe('catalogJson', () => {
 			expect(parsed.currency).toBe('CHF');
 			expect(parsed.pricesAsOf).toBe(CATALOG_PRICES_AS_OF);
 			expect(parsed.count).toBe(catalog.length);
-			expect(parsed.notes).toHaveLength(4);
+			expect(parsed.notes).toHaveLength(5);
 			expect(parsed.items).toEqual(JSON.parse(JSON.stringify(compactCatalog(catalog, language))));
 			expect(text.split('\n').filter((line) => line.startsWith('{"id"'))).toHaveLength(
 				catalog.length

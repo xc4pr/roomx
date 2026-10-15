@@ -28,7 +28,8 @@ export const ikeaBeds: CatalogEntry[] = [
 		dims: cm(156, 209, 100),
 		colors: [C.white, C.blackBrown, C.birch],
 		front: 700,
-		side: 600
+		side: 600,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-malm-bed-160x200',
@@ -71,7 +72,8 @@ export const ikeaBeds: CatalogEntry[] = [
 		model: 'nightstand',
 		dims: cm(40, 55, 55),
 		colors: [C.white, C.blackBrown, C.birch],
-		front: 500
+		front: 500,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-brimnes-nightstand-39x41x41',

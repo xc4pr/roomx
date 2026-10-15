@@ -127,7 +127,8 @@ export const ikeaOffice: CatalogEntry[] = [
 		model: 'desk',
 		dims: cm(200, 60, 73),
 		colors: [C.white, C.black, C.darkGrey],
-		front: 900
+		front: 900,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-trotten-sit-stand-desk-120x70',

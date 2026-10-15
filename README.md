@@ -326,15 +326,16 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
   <img src=".github/assets/screenshots/en/furnish.webp" alt="Furnish: plan with furnished rooms, the furniture catalogue with search and brand filter on the right" width="860">
 </p>
 
-**Catalogue.** It holds over 450 items from the brands **IKEA**, **JYSK**, **Tchibo** (series CN3, all variants: shelves, chests of drawers, sideboards, low boards, cabinets, tables and desks) and **Generic** (neutral furniture, appliances, decor, lamps). The IKEA, JYSK and Tchibo items are **checked**: dimensions, article number and regular price come from the Swiss online shop (as of October 2026). Beds come in the Swiss sizes 90, 140, 160 and 180 × 200 cm, and PAX combinations include doors. The full catalogue with several thousand items loads as a separate file (also offline); search and the filters for brand, category and width cover all of it. The AI package contains an excerpt for the retailers named in your needs.
+**Catalogue.** It holds over 450 items from the brands **IKEA**, **JYSK**, **Tchibo** (series CN3, all variants: shelves, chests of drawers, sideboards, low boards, cabinets, tables and desks) and **Generic** (neutral furniture, appliances, decor, lamps). The IKEA, JYSK and Tchibo items are **checked**: dimensions, article number and regular price come from the Swiss online shop (as of October 2026). Beds come in the Swiss sizes 90, 140, 160 and 180 × 200 cm, and PAX combinations include doors. Besides these curated items there is a **large catalogue** with several thousand items from the three retailers. It loads as a separate file the first time you need it and is then available offline. The list stays fast however long it is. Search and the filters for brand, category and width cover all items. Storage furniture (chests of drawers, bedside tables, shelves, cabinets, sideboards, TV units and the CN3 series) is drawn like the original in the plan and in 3D, with plinth, feet or legs, handles, door and drawer layout, frame fronts, top panel and books. Tables and desks show their frame and drawers, sofas and armchairs their arms, back and seat cushions, beds their headboard and storage drawers, mirrors their shape and frame, lamps their shade and stand. The catalogue picture is the same 3D model.
 
-- Search at the top, for example “Billy” or “desk”.
-- Categories as chips: the most common ones (for example Beds, Shelves, Tables, Sofas) come first, and “+ n more” shows the rest (“Less” folds them again). The “Brand” filter narrows the list by retailer or manufacturer.
+- Search at the top by name, series or article number, for example “Billy”, “desk” or an article number from the retailer.
+- Categories as chips: the most common ones (for example Beds, Shelves, Tables, Sofas) come first, and “+ n more” shows the rest (“Less” folds them again). The “Brand” filter narrows the list by retailer or manufacturer, and the “Width” filter by the width of the piece.
 - **Drag** or **tap** furniture: tapping puts it into the room.
+- **No longer available:** a card with the note “No longer available” marks an item the retailer no longer sells online. It stays in the catalogue so that older projects still load.
 - **View at retailer:** every catalogue card of a checked item has a “View at retailer” link. It opens the retailer’s page in a new tab; RoomX itself makes no requests when you do so.
 
 > [!NOTE]
-> Catalogue dimensions are **guide values**. Items that are no longer sold stay in the catalogue as unchecked, so that older projects still load; they are marked **“Dimensions unverified”**, and older catalogue IDs are redirected to the new item automatically. Prices are **guide prices in Swiss francs (CHF)** from the Swiss market, shown as “Guide price, as of October 2026”. Always check dimensions and price with the retailer before you buy.
+> Catalogue dimensions are **guide values**. Items that are no longer sold stay in the catalogue, so that older projects still load; they are marked **“No longer available”**, and unchecked items carry the note **“Dimensions unverified”**. Older catalogue IDs are redirected to the new item automatically. Prices are **guide prices in Swiss francs (CHF)** from the Swiss market, shown as “Guide price, as of October 2026”. Always check dimensions and price with the retailer before you buy.
 
 **Move furniture.** Drag a piece into place. The rotation handle turns it freely, the buttons in the panel turn it by 90° or 15°, or you type in the angle. On the plan, dotted lines show the distance to walls and other furniture. “Lock” protects a piece from being moved by accident. Duplicate and Delete are in the bar under the selected piece.
 
@@ -397,7 +398,7 @@ You can have an AI assistant furnish your rooms. For this, RoomX prepares an **A
 | **PDF** (`roomx-….pdf`) | Floor plans with dimensions, wall views, 3D views, furniture, your photos and a reading guide. |
 | **Room data** (`roomx-….json`) | The same information, exact and machine-readable: rooms, walls, elements, neighbouring rooms, sloped ceilings, furniture, variants and needs. |
 | **Plan schema** (`roomx-plan.schema.json`) | Describes the `roomx-plan` format in which the answer has to come back. |
-| **Furniture catalogue** (`roomx-katalog.json`) | The items the assistant can use. |
+| **Furniture catalogue** (`roomx-katalog.json`) | The items the assistant can use: the curated catalogue plus the items of the retailers named in your needs. If that is too large for the package, it contains a marked excerpt. |
 
 **Step by step:**
 
@@ -483,7 +484,7 @@ You reach them with the gear icon at the top right of the project list.
 | **Reset everything** | “Delete all local data” removes all projects, photos and settings from this device. Beforehand RoomX offers to back up first. This cannot be undone. |
 
 <p align="center">
-  <img src=".github/assets/screenshots/en/settings-about.webp" alt="Settings, section About RoomX: logo, version v1.0.1, build date, the line Everything stays on your device, the links Privacy &amp; liability and Open-source licences, the two ways to give feedback and the button Copy diagnostics" width="760">
+  <img src=".github/assets/screenshots/en/settings-about.webp" alt="Settings, section About RoomX: logo, version v1.1.0, build date, the line Everything stays on your device, the links Privacy &amp; liability and Open-source licences, the two ways to give feedback and the button Copy diagnostics" width="760">
 </p>
 
 ### Keyboard shortcuts

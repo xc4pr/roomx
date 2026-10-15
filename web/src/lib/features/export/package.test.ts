@@ -1,8 +1,9 @@
 import { unzipSync } from 'fflate';
 import { PDFDocument } from 'pdf-lib';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { syntheticCatalog } from '../../../../tests/helpers/syntheticCatalog.ts';
 import { CATALOG_MAX_BYTES } from './catalogFile.ts';
+import { ensureFullCatalog } from '#lib/catalog/full.svelte.ts';
 import { catalog, clearRegistered, registerEntries } from '#lib/catalog/index.ts';
 import { ExportSchema } from '#lib/core/export.ts';
 import { PlanSchema, planJsonSchema } from '#lib/core/plan.ts';
@@ -15,6 +16,8 @@ const deps = {
 	loadFonts: async () => loadTestFonts(),
 	loadPhoto: async () => testPng()
 };
+
+beforeAll(() => ensureFullCatalog(async () => []));
 
 describe('buildPackage', () => {
 	it('produces a PDF and a JSON that validates against the export schema', async () => {

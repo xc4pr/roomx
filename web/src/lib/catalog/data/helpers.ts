@@ -51,6 +51,7 @@ export interface Spec {
 	url?: string;
 	articleNo?: string;
 	verified?: boolean;
+	discontinued?: boolean;
 }
 
 function define(brand: string, spec: Spec): CatalogEntry {

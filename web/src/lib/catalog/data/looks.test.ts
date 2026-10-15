@@ -47,6 +47,29 @@ describe('look', () => {
 		expect(LookSchema.safeParse({ frameColor: 'chrome' }).success).toBe(false);
 	});
 
+	it('describes tables, seating, beds, mirrors and lamps', () => {
+		expect(
+			LookSchema.safeParse({
+				legs: 'cantilever',
+				drawers: 2,
+				shelf: true,
+				arms: 'rolled',
+				back: 'wing',
+				cushions: 3,
+				headboard: 'upholstered',
+				footboard: false,
+				shape: 'round',
+				border: 'thin',
+				shade: 'drum',
+				shadeColor: '#efe6d2',
+				stem: 'arc'
+			}).success
+		).toBe(true);
+		expect(LookSchema.safeParse({ legs: 'six' }).success).toBe(false);
+		expect(LookSchema.safeParse({ drawers: 9 }).success).toBe(false);
+		expect(LookSchema.safeParse({ cushions: 0 }).success).toBe(false);
+	});
+
 	it('merges series look, own look and override in that order', () => {
 		const series = { [lookKey(entry())]: { base: 'plinth', handle: 'bar', top: 'flush' } as const };
 		const overrides = { 'test-dresser-80x48x100': { handle: 'recessTop' } as const };

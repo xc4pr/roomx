@@ -326,15 +326,16 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
   <img src=".github/assets/screenshots/de/furnish.webp" alt="Einrichten: Plan mit eingerichteten Räumen, rechts der Möbelkatalog mit Suche und Markenfilter" width="860">
 </p>
 
-**Katalog.** Er enthält über 450 Artikel in den Marken **IKEA**, **JYSK**, **Tchibo** (Serie CN3, alle Varianten: Regale, Kommoden, Sideboards, Lowboards, Schränke, Tische und Schreibtische) und **Allgemein** (neutrale Möbel, Geräte, Deko, Lampen). Die Artikel von IKEA, JYSK und Tchibo sind **geprüft**: Masse, Artikelnummer und regulärer Preis stammen vom Schweizer Online-Shop (Stand Oktober 2026). Betten gibt es in den Schweizer Grössen 90, 140, 160 und 180 × 200 cm, PAX-Kombinationen enthalten Türen. Der vollständige Katalog mit mehreren tausend Artikeln wird als eigene Datei geladen (auch offline); Suche und Filter für Marke, Kategorie und Breite gelten für alle Artikel. Das KI-Paket enthält einen Auszug für die Händler aus deinem Bedarf.
+**Katalog.** Er enthält über 450 Artikel in den Marken **IKEA**, **JYSK**, **Tchibo** (Serie CN3, alle Varianten: Regale, Kommoden, Sideboards, Lowboards, Schränke, Tische und Schreibtische) und **Allgemein** (neutrale Möbel, Geräte, Deko, Lampen). Die Artikel von IKEA, JYSK und Tchibo sind **geprüft**: Masse, Artikelnummer und regulärer Preis stammen vom Schweizer Online-Shop (Stand Oktober 2026). Betten gibt es in den Schweizer Grössen 90, 140, 160 und 180 × 200 cm, PAX-Kombinationen enthalten Türen. Neben diesen kuratierten Artikeln gibt es einen **grossen Katalog** mit mehreren tausend Artikeln der drei Händler. Er wird beim ersten Bedarf als eigene Datei geladen und ist danach auch offline verfügbar. Die Liste bleibt auch bei dieser Länge flott. Suche und Filter für Marke, Kategorie und Breite gelten für alle Artikel. Stauraummöbel (Kommoden, Nachttische, Regale, Schränke, Sideboards, TV-Möbel und die Serie CN3) sehen in Plan und 3D aus wie das Original, mit Sockel, Füssen oder Beinen, Griffen, Tür- und Schubladenraster, Rahmenfronten, Deckplatte und Büchern. Tische und Schreibtische zeigen ihr Gestell und ihre Schubladen, Sofas und Sessel Armlehnen, Rücken und Sitzkissen, Betten Kopfteil und Bettkästen, Spiegel Form und Rahmen, Lampen Schirm und Fuss. Das Katalogbild ist dasselbe 3D-Modell.
 
-- Suche oben, zum Beispiel «Billy» oder «Schreibtisch».
-- Kategorien als Chips: Die häufigsten (zum Beispiel Betten, Regale, Tische, Sofas) stehen vorne, «+ n weitere» zeigt den Rest («Weniger» klappt sie wieder ein). Der Filter «Marke» grenzt die Liste nach Händler oder Hersteller ein.
+- Suche oben nach Name, Serie oder Artikelnummer, zum Beispiel «Billy», «Schreibtisch» oder eine Artikelnummer des Händlers.
+- Kategorien als Chips: Die häufigsten (zum Beispiel Betten, Regale, Tische, Sofas) stehen vorne, «+ n weitere» zeigt den Rest («Weniger» klappt sie wieder ein). Der Filter «Marke» grenzt die Liste nach Händler oder Hersteller ein, der Filter «Breite» nach der Breite des Möbels.
 - Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
+- **Nicht mehr im Sortiment:** Eine Karte mit diesem Vermerk zeigt einen Artikel, den der Händler online nicht mehr führt. Er bleibt im Katalog, damit ältere Projekte weiter laden.
 - **Beim Händler ansehen:** Jede Katalogkarte eines geprüften Artikels hat den Link «Beim Händler ansehen». Er öffnet die Seite des Händlers in einem neuen Tab; RoomX selbst macht dabei keine Anfragen.
 
 > [!NOTE]
-> Die Masse im Katalog sind **Richtwerte**. Artikel, die es nicht mehr gibt, bleiben als ungeprüft im Katalog, damit alte Projekte weiter laden; sie tragen den Vermerk **«Masse ungeprüft»**, und ältere Katalog-IDs werden automatisch auf den neuen Artikel umgeleitet. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen als «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
+> Die Masse im Katalog sind **Richtwerte**. Artikel, die es nicht mehr gibt, bleiben im Katalog, damit alte Projekte weiter laden; sie tragen den Vermerk **«Nicht mehr im Sortiment»**, ungeprüfte Artikel den Vermerk **«Masse ungeprüft»**. Ältere Katalog-IDs werden automatisch auf den neuen Artikel umgeleitet. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen als «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
 
 **Möbel bewegen.** Zieh ein Möbel an seinen Platz. Der Drehgriff dreht frei, die Knöpfe im Panel drehen um 90° oder 15°, oder du tippst die Gradzahl ein. Im Plan zeigen gepunktete Linien den Abstand zu Wänden und anderen Möbeln. Mit «Fixieren» sperrst du ein Möbel gegen versehentliches Verschieben. Duplizieren und Löschen findest du in der Leiste unter dem gewählten Möbel.
 
@@ -397,7 +398,7 @@ Du kannst deine Räume von einem KI-Assistenten einrichten lassen. RoomX bereite
 | **PDF** (`roomx-….pdf`) | Grundrisse mit Massen, Wandansichten, 3D-Ansichten, Möbel, deine Fotos und eine Lesehilfe. |
 | **Raumdaten** (`roomx-….json`) | Dieselben Angaben exakt und maschinenlesbar: Räume, Wände, Elemente, Nachbarräume, Dachschrägen, Möbel, Varianten und Bedarf. |
 | **Plan-Schema** (`roomx-plan.schema.json`) | Beschreibt das Format `roomx-plan`, in dem die Antwort zurückkommen muss. |
-| **Möbelkatalog** (`roomx-katalog.json`) | Die Artikel, die der Assistent verwenden kann. |
+| **Möbelkatalog** (`roomx-katalog.json`) | Die Artikel, die der Assistent verwenden kann: der kuratierte Katalog plus die Artikel der Händler aus deinem Bedarf. Ist das fürs Paket zu gross, enthält es einen gekennzeichneten Auszug. |
 
 **Schritt für Schritt:**
 
@@ -483,7 +484,7 @@ Du erreichst sie über das Zahnrad oben rechts in der Projektliste.
 | **Alles zurücksetzen** | «Alle lokalen Daten löschen» entfernt alle Projekte, Fotos und Einstellungen von diesem Gerät. RoomX bietet vorher an, zuerst zu sichern. Das lässt sich nicht rückgängig machen. |
 
 <p align="center">
-  <img src=".github/assets/screenshots/de/settings-about.webp" alt="Einstellungen, Abschnitt Über RoomX: Logo, Version v1.0.1, Build-Datum, die Zeile Alles bleibt auf deinem Gerät, die Links Datenschutz &amp; Haftung und Open-Source-Lizenzen, die zwei Wege für Rückmeldungen und der Knopf Diagnose kopieren" width="760">
+  <img src=".github/assets/screenshots/de/settings-about.webp" alt="Einstellungen, Abschnitt Über RoomX: Logo, Version v1.1.0, Build-Datum, die Zeile Alles bleibt auf deinem Gerät, die Links Datenschutz &amp; Haftung und Open-Source-Lizenzen, die zwei Wege für Rückmeldungen und der Knopf Diagnose kopieren" width="760">
 </p>
 
 ### Tastaturkürzel

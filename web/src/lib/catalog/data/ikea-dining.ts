@@ -28,7 +28,8 @@ export const ikeaDining: CatalogEntry[] = [
 		dims: cm(125, 75, 74),
 		colors: [C.white, C.black],
 		front: 800,
-		side: 800
+		side: 800,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-lerhamn-table-118x74x75',
@@ -40,7 +41,8 @@ export const ikeaDining: CatalogEntry[] = [
 		dims: cm(118, 74, 75),
 		colors: [C.walnut, C.oak],
 		front: 800,
-		side: 800
+		side: 800,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-ekedalen-table-120x80x75',
@@ -52,7 +54,8 @@ export const ikeaDining: CatalogEntry[] = [
 		dims: cm(120, 80, 75),
 		colors: [C.walnut, C.white],
 		front: 800,
-		side: 800
+		side: 800,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-adde-chair-39x47x77',
@@ -63,7 +66,8 @@ export const ikeaDining: CatalogEntry[] = [
 		model: 'chair',
 		dims: cm(39, 47, 77),
 		colors: [C.white, C.black],
-		front: 400
+		front: 400,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-ingolf-chair-43x52x91',
@@ -74,7 +78,8 @@ export const ikeaDining: CatalogEntry[] = [
 		model: 'chair',
 		dims: cm(43, 52, 91),
 		colors: [C.white, C.birch, C.black],
-		front: 400
+		front: 400,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-hovet-mirror-78x196',
