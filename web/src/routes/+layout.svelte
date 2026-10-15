@@ -39,7 +39,7 @@
 		const outcome = await consumePairFragment();
 		if (!outcome) return;
 		if ('jobId' in outcome) {
-			await goto(resolve('/m/[job]', { job: outcome.jobId }), { replaceState: true });
+			await goto(resolve('/m/[job]', { job: outcome.jobId }), { replace: true });
 		} else {
 			toasts.show({ message: pairErrorMessage(outcome.error), kind: 'error' });
 		}

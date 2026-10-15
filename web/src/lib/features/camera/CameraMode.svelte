@@ -276,7 +276,11 @@
 			{#if phase === 'ask' && jobState !== 'ended'}
 				<section class="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
 					<p class="text-lg font-bold">{t(messages, 'askTitle')}</p>
-					<p class="text-muted">{t(messages, 'askText', { rooms: job.rooms.length })}</p>
+					<p class="text-muted">
+						{t(messages, job.rooms.length === 1 ? 'askTextOne' : 'askText', {
+							rooms: job.rooms.length
+						})}
+					</p>
 					<Button
 						variant="primary"
 						size="lg"
@@ -351,6 +355,7 @@
 						{#if canShare}
 							<Button
 								variant="primary"
+								full={jobState !== 'ended'}
 								icon={Send}
 								loading={sharing || !filesReady}
 								disabled={!filesReady}

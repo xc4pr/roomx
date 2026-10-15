@@ -21,7 +21,7 @@ import {
 	showTarget,
 	stepAt
 } from './logic.ts';
-import { parseRoute, type ParsedRoute } from './route.ts';
+import { onPhoneRoute, parseRoute, type ParsedRoute } from './route.ts';
 import { buildSampleProject } from './sample.ts';
 import type { TourPrepare, TourScreen, TourStep } from './steps.ts';
 
@@ -247,10 +247,9 @@ export function startTour(options: { resume?: boolean } = {}): void {
 	}
 }
 
-function onPhonePage(): boolean {
+export function onPhonePage(): boolean {
 	const base = resolve('/').replace(/\/+$/, '');
-	const path = page.url.pathname;
-	return (base && path.startsWith(base) ? path.slice(base.length) : path).startsWith('/m/');
+	return onPhoneRoute(page.url.pathname, base, page.url.hash || location.hash);
 }
 
 export function autostartTour(): void {

@@ -244,7 +244,10 @@
 	const fallback = $derived(camera === 'denied' || camera === 'missing');
 </script>
 
-<div class="fixed inset-0 z-40 flex flex-col overflow-hidden bg-scrim" data-testid="camera-capture">
+<div
+	class="capture fixed inset-0 z-40 flex flex-col overflow-hidden bg-scrim"
+	data-testid="camera-capture"
+>
 	<!-- svelte-ignore a11y_media_has_caption -->
 	<video
 		bind:this={video}
@@ -256,7 +259,7 @@
 
 	{#if step && room}
 		<div
-			class="relative flex items-start gap-3 px-4 pt-[max(0.75rem,var(--safe-top))] pr-[max(1rem,var(--safe-right))] pl-[max(1rem,var(--safe-left))]"
+			class="capture-top relative flex items-start gap-3 px-4 pt-[max(0.75rem,var(--safe-top))] pr-[max(1rem,var(--safe-right))] pl-[max(1rem,var(--safe-left))]"
 		>
 			<IconButton
 				icon={X}
@@ -266,21 +269,29 @@
 				data-testid="camera-exit"
 			/>
 			<div class="min-w-0 grow rounded-lg p-3 text-text surface-glass">
-				<p class="text-sm font-semibold text-muted" data-testid="camera-step">
-					{t(messages, 'stepOf', { n: pos + 1, total: order.length })}
+				<p
+					class="truncate text-sm font-semibold whitespace-nowrap text-muted"
+					data-testid="camera-step"
+				>
+					<span class="max-[420px]:hidden">
+						{t(messages, 'stepOf', { n: pos + 1, total: order.length })}
+					</span>
+					<span class="min-[421px]:hidden">
+						{t(messages, 'stepShort', { n: pos + 1, total: order.length })}
+					</span>
 					{#if step.optional}· {t(messages, 'optional')}{/if}
 				</p>
-				<p class="mt-0.5 text-lg leading-snug font-bold" data-testid="camera-caption">
+				<p class="mt-0.5 line-clamp-2 text-lg leading-snug font-bold" data-testid="camera-caption">
 					{pick(step.perspective.caption)}
 				</p>
 			</div>
-			<div class="w-36 shrink-0 rounded-lg p-1.5 surface-glass">
+			<div class="w-28 shrink-0 rounded-lg p-1.5 surface-glass min-[420px]:w-36">
 				<MiniPlan {room} {step} />
 			</div>
 		</div>
 	{/if}
 
-	<div class="relative flex grow items-center justify-center p-6">
+	<div class="capture-mid relative flex grow items-center justify-center p-6">
 		{#if camera === 'starting'}
 			<p class="rounded-lg px-4 py-2 text-text surface-glass" role="status">
 				{t(messages, 'cameraStarting')}
@@ -326,7 +337,7 @@
 	</div>
 
 	<div
-		class="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 pt-3 pr-[max(1rem,var(--safe-right))] pb-[max(0.75rem,var(--safe-bottom))] pl-[max(1rem,var(--safe-left))] surface-glass"
+		class="capture-bar relative grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 pt-3 pr-[max(1rem,var(--safe-right))] pb-[max(0.75rem,var(--safe-bottom))] pl-[max(1rem,var(--safe-left))] surface-glass"
 	>
 		<div class="flex items-center gap-1">
 			<IconButton
@@ -415,3 +426,33 @@
 		data-testid="camera-library-input"
 	/>
 </div>
+
+<style>
+	/* Querformat auf dem Handy: Bedienleiste seitlich rechts, die Kamera nutzt die volle Höhe. */
+	@media (orientation: landscape) and (max-height: 500px) {
+		.capture {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-rows: auto minmax(0, 1fr);
+		}
+		.capture-top {
+			grid-column: 1;
+			grid-row: 1;
+			padding-right: 1rem;
+		}
+		.capture-mid {
+			grid-column: 1;
+			grid-row: 2;
+			padding: 0.5rem;
+		}
+		.capture-bar {
+			grid-column: 2;
+			grid-row: 1 / span 2;
+			grid-template-columns: auto;
+			grid-template-rows: 1fr auto 1fr;
+			justify-items: center;
+			padding: max(0.75rem, var(--safe-top)) max(0.75rem, var(--safe-right))
+				max(0.75rem, var(--safe-bottom)) 0.75rem;
+		}
+	}
+</style>

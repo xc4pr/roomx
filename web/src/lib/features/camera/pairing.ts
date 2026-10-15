@@ -1,3 +1,4 @@
+import { goto } from '$app/navigation';
 import { parsePair, type PairError } from '#lib/mirror/job.ts';
 import { saveCameraPart } from '#lib/mirror/jobs.ts';
 import { t } from '#lib/i18n/index.svelte.ts';
@@ -24,7 +25,10 @@ export async function consumePairFragment(
 		}
 	}
 	try {
-		history.replaceState(history.state, '', location.pathname + location.search);
+		await goto(location.pathname + location.search, {
+			replace: true,
+			reset: false
+		});
 	} catch {
 		location.hash = '';
 	}

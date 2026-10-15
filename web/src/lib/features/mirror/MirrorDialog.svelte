@@ -232,7 +232,8 @@
 	{#snippet actions()}
 		{#if job}
 			<Button
-				variant="danger"
+				variant="ghost"
+				class="mr-auto text-danger! hover:bg-danger-soft!"
 				icon={XCircle}
 				onclick={() => (confirmOpen = true)}
 				data-testid="mirror-revoke"

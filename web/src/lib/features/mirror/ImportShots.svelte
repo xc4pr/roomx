@@ -253,6 +253,11 @@
 				{/each}
 			</ul>
 		{/if}
+		{#if entries.length && !ready.length && !importing}
+			<p class="text-sm text-muted" data-testid="mirror-import-hint">
+				{t(messages, 'importNoneReady')}
+			</p>
+		{/if}
 	</div>
 
 	{#snippet actions()}

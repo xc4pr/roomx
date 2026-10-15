@@ -90,6 +90,7 @@
 						<Button
 							size="sm"
 							variant="ghost"
+							class="text-danger! hover:bg-danger-soft!"
 							icon={XCircle}
 							onclick={() => {
 								revokeId = job.id;
