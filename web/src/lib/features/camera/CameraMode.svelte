@@ -262,7 +262,9 @@
 							class="inline-flex min-h-8 items-center rounded-full bg-surface-2 px-3 text-sm font-semibold"
 							data-testid="camera-server"
 						>
-							{t(messages, 'serverUploaded', { n: status.uploaded })}
+							{t(messages, status.uploaded === 1 ? 'serverUploadedOne' : 'serverUploaded', {
+								n: status.uploaded
+							})}
 						</span>
 					{/if}
 					{#if jobState !== 'ended'}
@@ -323,7 +325,17 @@
 						</p>
 						<p class="text-sm">
 							{unsent > 0
-								? t(messages, lapsed ? 'expiredText' : 'endedText', { n: unsent })
+								? t(
+										messages,
+										lapsed
+											? unsent === 1
+												? 'expiredTextOne'
+												: 'expiredText'
+											: unsent === 1
+												? 'endedTextOne'
+												: 'endedText',
+										{ n: unsent }
+									)
 								: t(messages, 'endedNone')}
 						</p>
 					</section>
@@ -337,7 +349,10 @@
 							{t(messages, 'soonTitle')}
 						</p>
 						<p class="text-sm">
-							{t(messages, 'soonText', { hours: hoursLeft(job.expiresAt, now), n: unsent })}
+							{t(messages, unsent === 1 ? 'soonTextOne' : 'soonText', {
+								hours: hoursLeft(job.expiresAt, now),
+								n: unsent
+							})}
 						</p>
 					</section>
 				{:else if showFallback}
@@ -438,7 +453,7 @@
 	<ConfirmDialog
 		bind:open={confirmingDelete}
 		title={t(messages, 'deleteTitle')}
-		message={t(messages, 'deleteMessage', { n: unsent })}
+		message={t(messages, unsent === 1 ? 'deleteMessageOne' : 'deleteMessage', { n: unsent })}
 		confirmLabel={t(messages, 'deleteConfirm')}
 		cancelLabel={t(messages, 'cancel')}
 		closeLabel={t(messages, 'close')}
