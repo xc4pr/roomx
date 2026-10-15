@@ -1,6 +1,14 @@
 import { dot, signedArea, walls, type Vec } from '#lib/core/geometry.ts';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
+import type { WallSection } from '../types.ts';
 import { isWallElement, type Door, type Point, type Room, type Window } from '#lib/core/schema.ts';
+
+export interface FrameSection {
+	from: number;
+	to: number;
+	full: number;
+	body: number;
+}
 
 export interface WallFrame {
 	number: number;
@@ -10,6 +18,7 @@ export interface WallFrame {
 	inward: Vec;
 	length: number;
 	thickness: number;
+	sections: FrameSection[];
 	outerStart: Vec;
 	outerEnd: Vec;
 	outerFrom: number;
@@ -27,9 +36,34 @@ export interface WallOpening {
 
 const MIN_MITRE_DENOMINATOR = 0.15;
 
+function sectionsOf(wall: number, sections: readonly WallSection[]): FrameSection[] {
+	const result: FrameSection[] = [];
+	let reached = -Infinity;
+	for (const section of sections
+		.filter((entry) => entry.wall === wall)
+		.sort((a, b) => a.from - b.from)) {
+		const from = Math.max(section.from, reached);
+		if (section.to - from < 1) continue;
+		result.push({ from, to: section.to, full: section.thickness, body: section.thickness / 2 });
+		reached = section.to;
+	}
+	return result;
+}
+
+export function thicknessAt(frame: WallFrame, u: number): number {
+	const section = frame.sections.find((entry) => u > entry.from && u < entry.to);
+	return section ? section.body : frame.thickness;
+}
+
+export function fullThicknessAt(frame: WallFrame, u: number): number {
+	const section = frame.sections.find((entry) => u > entry.from && u < entry.to);
+	return section ? section.full : frame.thickness;
+}
+
 export function wallFrames(
 	polygon: readonly Point[],
-	thickness: number = WALL_THICKNESS
+	thickness: number = WALL_THICKNESS,
+	sections: readonly WallSection[] = []
 ): WallFrame[] {
 	const orientation = signedArea(polygon) < 0 ? -1 : 1;
 	const base = walls(polygon).map((wall) => ({
@@ -58,6 +92,7 @@ export function wallFrames(
 			inward: wall.inward,
 			length: wall.length,
 			thickness,
+			sections: sectionsOf(wall.number, sections),
 			outerStart,
 			outerEnd,
 			outerFrom: along(outerStart),

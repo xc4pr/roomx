@@ -106,9 +106,19 @@ export interface SharedOpenings {
 	covered: ReadonlySet<string>;
 }
 
+// Part of a wall (mm along the wall, from `from` to `to`) that a neighbour room shares. `thickness` is the whole
+// distance between the two interior faces; each of the two rooms builds half of it.
+export interface WallSection {
+	wall: number;
+	from: number;
+	to: number;
+	thickness: number;
+}
+
 export interface RoomBuildOptions extends SceneOptions {
 	wallHeightFactor: number;
 	shared?: SharedOpenings;
+	sections?: readonly WallSection[];
 }
 
 export type RoomBuilder = (room: Room, options: RoomBuildOptions) => Object3D;

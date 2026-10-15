@@ -1,7 +1,7 @@
 import type { BufferGeometry } from 'three';
 import { MM } from '../coords.ts';
 import { GeometryBuilder, type V3 } from './builder.ts';
-import type { WallFrame, WallOpening } from './frames.ts';
+import { thicknessAt, type WallFrame, type WallOpening } from './frames.ts';
 import { flatProfile, profileTop, type ProfilePoint } from './profile.ts';
 
 export const BUCKET_INNER = 0;
@@ -68,6 +68,7 @@ function breakpoints(
 	const hi = Math.min(frame.length, frame.outerTo);
 	const values = [0, frame.length, frame.outerFrom, frame.outerTo, lo, hi];
 	for (const opening of openings) values.push(opening.from, opening.to);
+	for (const section of frame.sections) values.push(section.from, section.to);
 	for (const point of profile) values.push(point.u);
 	for (let i = 1; i < profile.length; i++) {
 		const a = profile[i - 1];
@@ -99,10 +100,12 @@ export function buildWallGeometry(
 			: heightOrProfile;
 	const builder = new GeometryBuilder(5);
 	const points = breakpoints(frame, openings, profile);
-	const thickness = frame.thickness * MM;
+	const baseThickness = frame.thickness * MM;
 	const strips = points.slice(0, -1).map((from, index) => ({ from, to: points[index + 1] }));
 	const point = (u: number, h: number, z: number): V3 => [u * MM, h * MM, z];
 	const topAt = (u: number) => profileTop(profile, u);
+	const thicknessOf = (strip: { from: number; to: number }) =>
+		thicknessAt(frame, (strip.from + strip.to) / 2) * MM;
 
 	const allPushed = (list: readonly WallOpening[]) =>
 		list.length > 0 && list.every((opening) => opening.pushed === true);
@@ -143,6 +146,7 @@ export function buildWallGeometry(
 		}
 	}
 	for (const strip of outer) {
+		const thickness = thicknessOf(strip);
 		const t0 = topAt(strip.from);
 		const t1 = topAt(strip.to);
 		const spans = spansFor(strip);
@@ -186,12 +190,14 @@ export function buildWallGeometry(
 		const top = topAt(u);
 		const left = resolve(spansFor(outer[index]), top);
 		const right = resolve(spansFor(outer[index + 1]), top);
+		const leftThickness = thicknessOf(outer[index]);
+		const rightThickness = thicknessOf(outer[index + 1]);
 		for (const [y0, y1] of subtract(left, right)) {
 			builder.quad(
 				jambOf(u),
 				point(u, y0, 0),
-				point(u, y0, thickness),
-				point(u, y1, thickness),
+				point(u, y0, leftThickness),
+				point(u, y1, leftThickness),
 				point(u, y1, 0),
 				[1, 0, 0]
 			);
@@ -200,35 +206,80 @@ export function buildWallGeometry(
 			builder.quad(
 				jambOf(u),
 				point(u, y0, 0),
-				point(u, y0, thickness),
-				point(u, y1, thickness),
+				point(u, y0, rightThickness),
+				point(u, y1, rightThickness),
 				point(u, y1, 0),
 				[-1, 0, 0]
 			);
+		}
+		if (Math.abs(leftThickness - rightThickness) > 1e-6) {
+			const leftThicker = leftThickness > rightThickness;
+			const z0 = Math.min(leftThickness, rightThickness);
+			const z1 = Math.max(leftThickness, rightThickness);
+			const thicker = leftThicker ? left : right;
+			const both = subtract(thicker, subtract(thicker, leftThicker ? right : left));
+			for (const [y0, y1] of both) {
+				builder.quad(
+					BUCKET_OUTER,
+					point(u, y0, z0),
+					point(u, y0, z1),
+					point(u, y1, z1),
+					point(u, y1, z0),
+					[leftThicker ? 1 : -1, 0, 0]
+				);
+			}
 		}
 	}
 
 	const mapStart = (u: number) => (Math.abs(u) < 0.01 ? frame.outerFrom : u);
 	const mapEnd = (u: number) => (Math.abs(u - frame.length) < 0.01 ? frame.outerTo : u);
-	let run: { start: number; gradient: number } | undefined;
+	let run: { start: number; gradient: number; thickness: number } | undefined;
 	const closeRun = (end: number) => {
 		if (!run) return;
+		const { thickness } = run;
+		const matches = Math.abs(thickness - baseThickness) < 1e-6;
+		const startsAtEnd = Math.abs(run.start) < 0.01;
+		const endsAtEnd = Math.abs(end - frame.length) < 0.01;
 		builder.quad(
 			BUCKET_CAP,
 			point(run.start, topAt(run.start), 0),
 			point(end, topAt(end), 0),
-			point(mapEnd(end), topAt(end), thickness),
-			point(mapStart(run.start), topAt(run.start), thickness),
+			point(matches ? mapEnd(end) : end, topAt(end), thickness),
+			point(matches ? mapStart(run.start) : run.start, topAt(run.start), thickness),
 			[0, 1, 0]
 		);
+		if (!matches && startsAtEnd && frame.outerFrom < -0.01) {
+			builder.triangle(
+				BUCKET_CAP,
+				point(0, topAt(0), 0),
+				point(0, topAt(0), baseThickness),
+				point(frame.outerFrom, topAt(0), baseThickness),
+				[0, 1, 0]
+			);
+		}
+		if (!matches && endsAtEnd && frame.outerTo > frame.length + 0.01) {
+			builder.triangle(
+				BUCKET_CAP,
+				point(frame.length, topAt(end), 0),
+				point(frame.outerTo, topAt(end), baseThickness),
+				point(frame.length, topAt(end), baseThickness),
+				[0, 1, 0]
+			);
+		}
 		run = undefined;
 	};
 	for (const strip of inner) {
 		const reachesTop = spansFor(strip).some((span) => span.hi === TOP);
 		const gradient = (topAt(strip.to) - topAt(strip.from)) / (strip.to - strip.from);
+		const thickness = thicknessOf(strip);
 		if (reachesTop) {
-			if (run && Math.abs(run.gradient - gradient) > 1e-6) closeRun(strip.from);
-			run ??= { start: strip.from, gradient };
+			if (
+				run &&
+				(Math.abs(run.gradient - gradient) > 1e-6 || Math.abs(run.thickness - thickness) > 1e-6)
+			) {
+				closeRun(strip.from);
+			}
+			run ??= { start: strip.from, gradient, thickness };
 		} else closeRun(strip.from);
 	}
 	closeRun(inner.at(-1)?.to ?? frame.length);
@@ -240,8 +291,8 @@ export function buildWallGeometry(
 			builder.quad(
 				BUCKET_OUTER,
 				point(0, y0, 0),
-				point(frame.outerFrom, y0, thickness),
-				point(frame.outerFrom, y1, thickness),
+				point(frame.outerFrom, y0, baseThickness),
+				point(frame.outerFrom, y1, baseThickness),
 				point(0, y1, 0),
 				[-1, 0, 0]
 			);
@@ -252,8 +303,8 @@ export function buildWallGeometry(
 			builder.quad(
 				BUCKET_OUTER,
 				point(frame.length, y0, 0),
-				point(frame.outerTo, y0, thickness),
-				point(frame.outerTo, y1, thickness),
+				point(frame.outerTo, y0, baseThickness),
+				point(frame.outerTo, y1, baseThickness),
 				point(frame.length, y1, 0),
 				[1, 0, 0]
 			);

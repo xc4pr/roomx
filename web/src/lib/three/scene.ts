@@ -7,7 +7,7 @@ import { buildRoom } from './room/index.ts';
 import type { RoomInfo } from './room/index.ts';
 import { furnitureSpec, type SceneContent, type SceneOptions } from './types.ts';
 import { disposeObject } from './viewer/dispose.ts';
-import { roomFrames, sceneVariant, sharedOpenings } from './viewer/layout.ts';
+import { roomFrames, sceneVariant, sharedOpenings, sharedSections } from './viewer/layout.ts';
 
 export interface BuiltScene {
 	root: Group;
@@ -72,6 +72,7 @@ export function buildScene(
 	const lamps: SceneLamp[] = [];
 	const variant = sceneVariant(content);
 	const shared = sharedOpenings(content);
+	const sections = sharedSections(content);
 
 	for (const frame of roomFrames(content)) {
 		const { room } = frame;
@@ -82,7 +83,8 @@ export function buildScene(
 		const roomObject = buildRoom(room, {
 			...options,
 			wallHeightFactor,
-			shared: shared.get(room.id)
+			shared: shared.get(room.id),
+			sections: sections.get(room.id)
 		});
 		group.add(roomObject);
 		root.add(group);

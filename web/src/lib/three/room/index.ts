@@ -32,7 +32,7 @@ import {
 	addWindow,
 	type WallContext
 } from './fixtures.ts';
-import { wallFrames, wallOpenings, type WallFrame } from './frames.ts';
+import { fullThicknessAt, wallFrames, wallOpenings, type WallFrame } from './frames.ts';
 import { MaterialSet, PALETTE } from './materials.ts';
 import { Parts } from './parts.ts';
 import { profileMax, roomHasSlopes, wallProfile } from './profile.ts';
@@ -159,7 +159,7 @@ function buildWall(
 	const fixtures = new Group();
 	fixtures.name = 'fixtures';
 	const parts = new Parts(materials);
-	const ctx: WallContext = {
+	const wallCtx: WallContext = {
 		parts,
 		length: frame.length,
 		thickness: frame.thickness * MM,
@@ -178,6 +178,10 @@ function buildWall(
 	};
 	for (const element of wallElements(room, frame.number)) {
 		if (options.shared?.silent.has(element.id)) continue;
+		const ctx: WallContext = {
+			...wallCtx,
+			thickness: fullThicknessAt(frame, element.offset + element.width / 2) * MM
+		};
 		switch (element.kind) {
 			case 'door':
 				addDoor(ctx, element);
@@ -350,7 +354,7 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	floor.receiveShadow = true;
 	root.add(floor);
 
-	const frames = wallFrames(room.polygon);
+	const frames = wallFrames(room.polygon, undefined, options.sections);
 	const outerShape = polygonShape(frames.map((frame) => frame.outerStart));
 	const baseGeometry = new ExtrudeGeometry(outerShape, { depth: BASE_DEPTH, bevelEnabled: false });
 	baseGeometry.rotateX(-Math.PI / 2);

@@ -1,5 +1,5 @@
 import { Box3, Vector3 } from 'three';
-import { mirroredOpenings, withMirroredOpenings } from '#lib/core/adjacency.ts';
+import { mirroredOpenings, wallLinks, withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 import {
 	add,
@@ -12,7 +12,7 @@ import {
 } from '#lib/core/geometry.ts';
 import type { Room, Variant } from '#lib/core/schema.ts';
 import { MM, roomOrigin, toWorld } from '../coords.ts';
-import type { FloorHit, SceneContent, SharedOpenings } from '../types.ts';
+import type { FloorHit, SceneContent, SharedOpenings, WallSection } from '../types.ts';
 
 export interface RoomFrame {
 	room: Room;
@@ -68,6 +68,20 @@ export function sharedOpenings(content: SceneContent): Map<string, SharedOpening
 		const opensIntoNeighbour = original.kind === 'door' && original.swing === 'out';
 		if (opensIntoNeighbour) entry(mirrored.sourceRoomId).silent.add(original.id);
 		else entry(mirrored.roomId).silent.add(mirrored.element.id);
+	}
+	return result;
+}
+
+// Where two rooms of the scene share a wall, each builds half of the gap between the interior faces.
+export function sharedSections(content: SceneContent): Map<string, WallSection[]> {
+	const present = new Set(content.roomIds);
+	const result = new Map<string, WallSection[]>();
+	if (present.size < 2) return result;
+	for (const link of wallLinks(content.project.rooms)) {
+		if (!present.has(link.roomId) || !present.has(link.otherRoomId)) continue;
+		const list = result.get(link.roomId) ?? [];
+		list.push({ wall: link.wall, from: link.from, to: link.to, thickness: link.thickness });
+		result.set(link.roomId, list);
 	}
 	return result;
 }
