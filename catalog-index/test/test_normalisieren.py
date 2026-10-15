@@ -139,6 +139,16 @@ class Namen(unittest.TestCase):
         self.assertEqual(n.tchibo_art('Ovaler Ausziehtisch'), 'ausziehtisch')
         self.assertEqual(n.tchibo_art('LED-Akku-Outdoor-Stehleuchte, salbei'), 'stehleuchte')
         self.assertEqual(n.tchibo_art('Duschregal zum Aufhängen, blau'), 'duschregal')
+        self.assertEqual(n.tchibo_art('2,5-Sitzer-Sofa, anthrazit'), 'sofa')
+        self.assertEqual(n.tchibo_art('LED-Decken- und Wandleuchte mit Glasschirm'), 'wandleuchte')
+        self.assertEqual(n.tchibo_art('Bett- und Couchorganizer'), 'couchorganizer')
+
+    def test_tchibo_leere_art(self):
+        r = zeile('t1', '«CN3»', None, 10, masse(), shop='tchibo')
+        self.assertEqual(n.tchibo_art(r['name']), '')
+        z = {'tchibo|': {'category': 'lamp', 'model': 'wallLamp', 'mount': 'wall'}}
+        e, *_ = n.normalisiere({'tchibo': {r['url']: r}}, z, FARBEN, {}, set(), set())
+        self.assertEqual(e, [])
 
     def test_jysk_farbreste(self):
         self.assertEqual(n.jysk_name('Couchtisch ROLSTED 58x58 Eiche natur 2 Stk', 'Natürliche Eiche', FARBEN),

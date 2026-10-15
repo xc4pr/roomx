@@ -262,7 +262,8 @@ def jysk_name(name, farbfeld, tabelle):
 def tchibo_art(name):
     """Produktart (Hauptwort) aus dem Tchibo-Namen, kleingeschrieben."""
     kern = re.sub(r'[»«\u201e\u201c"].*?[»«\u201e\u201c"]', ' ', name or '')
-    kern = re.split(r',|\(|\s+(?:mit|für|aus|und|im|in|zum|zur|von|inkl\.?)\s+', kern, maxsplit=1)[0]
+    # Kein Schnitt im Dezimalkomma («2,5-Sitzer») und nicht nach «Decken- und Wandleuchte».
+    kern = re.split(r',(?!\d)|\(|(?<!-)\s+(?:mit|für|aus|und|im|in|zum|zur|von|inkl\.?)\s+', kern, maxsplit=1)[0]
     tokens = []
     for t in kern.split():
         t = t.split('-')[-1].lower().strip('.:;!?')
@@ -414,7 +415,7 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
                 quellen = [r.get('farbe') or '']
             art_zaehler[art_text(basis, serie)] += 1
             key = kategorie_schluessel(shop, r)
-            z = zuordnung.get(key)
+            z = 'aus' if key.endswith('|') else zuordnung.get(key)
             if z is None:
                 b['verworfen']['zuordnung_offen'] += 1
                 o = offen_z.setdefault(key, {'anzahl': 0, 'beispiele': []})

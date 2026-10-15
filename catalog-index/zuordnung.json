@@ -3604,11 +3604,7 @@
   "category": "tvUnit",
   "model": "sideboard"
  },
- "tchibo|": {
-  "category": "lamp",
-  "model": "wallLamp",
-  "mount": "wall"
- },
+ "tchibo|": "aus",
  "tchibo|'weinkiste'": {
   "category": "plant",
   "model": "plant",
@@ -5145,11 +5141,7 @@
   "mount": "on-top"
  },
  "tchibo|mobilé": "aus",
- "tchibo|modul": {
-  "category": "shelf",
-  "model": "shelf",
-  "mount": "floor"
- },
+ "tchibo|modul": "aus",
  "tchibo|mond": {
   "category": "lamp",
   "model": "tableLamp",
@@ -5651,11 +5643,7 @@
   "category": "armchair",
   "model": "armchair"
  },
- "tchibo|set": {
-  "category": "other",
-  "model": "box",
-  "mount": "floor"
- },
+ "tchibo|set": "aus",
  "tchibo|sets": "aus",
  "tchibo|sichtschutzbank": {
   "category": "chair",
