@@ -8,6 +8,7 @@ import {
 	type LegalDocument,
 	type LegalEdition
 } from './content.ts';
+import { DEFAULT_MIRROR_RELAYS } from '#lib/mirror/config.ts';
 import { messages } from './i18n.ts';
 import { currentEdition, formatUpdated, parseInline, visibleDocument } from './logic.ts';
 import {
@@ -163,6 +164,19 @@ describe('legal content', () => {
 			}
 		}
 	});
+
+	it('names every phone-mirror relay host on the privacy page', () => {
+		for (const language of LANGUAGES) {
+			const section = legalContent[language].parts[0].sections.find(
+				(entry) => entry.id === 'handyfotos'
+			);
+			expect(section, language).toBeDefined();
+			const text = section!.blocks.flatMap(texts).join(' ');
+			for (const relay of DEFAULT_MIRROR_RELAYS) {
+				expect(text, `${language} ${relay}`).toContain(relay.replace('wss://', ''));
+			}
+		}
+	});
 });
 
 describe('required statements', () => {
@@ -191,7 +205,7 @@ describe('required statements', () => {
 	it('keeps the privacy part short', () => {
 		for (const language of LANGUAGES) {
 			const part = legalContent[language].parts[0]!;
-			expect(part.sections.length, language).toBeLessThanOrEqual(7);
+			expect(part.sections.length, language).toBeLessThanOrEqual(8);
 		}
 	});
 

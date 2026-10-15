@@ -1,4 +1,5 @@
 import type { Language } from '#lib/core/units.ts';
+import { DEFAULT_MIRROR_RELAYS } from '#lib/mirror/config.ts';
 import {
 	COPYRIGHT_YEAR,
 	LICENSE_URL,
@@ -45,6 +46,8 @@ export const GITHUB_PRIVACY_URL: Record<Language, string> = {
 	en: 'https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement'
 };
 export const SUPERVISORY_URL = 'https://www.edoeb.admin.ch';
+
+const MIRROR_HOSTS = DEFAULT_MIRROR_RELAYS.map((relay) => relay.replace('wss://', '')).join(', ');
 
 export const LEGAL_UPDATED = '2026-10-15';
 
@@ -122,6 +125,21 @@ const de: LegalDocument = {
 							'**Fotos** werden lokal verkleinert; Standortdaten (GPS) und weitere Metadaten werden entfernt'
 						]),
 						p('Der Betreiber hat keinen Zugriff auf diese Daten.', 'public')
+					]
+				},
+				{
+					id: 'handyfotos',
+					title: 'Mit dem Handy fotografieren',
+					blocks: [
+						p(
+							`Nur für die Funktion «Mit dem Handy fotografieren» verbinden sich PC und Handy über öffentliche Vermittlungsdienste: Nostr-Relays (${MIRROR_HOSTS}) und öffentliche STUN-Server (Cloudflare, Google). Das geschieht nur, solange ein Foto-Auftrag offen ist und RoomX auf dem Gerät offen ist. Sonst geht keine Anfrage nach aussen.`
+						),
+						p(
+							'Diese Dienste sehen IP-Adressen und verschlüsselte Verbindungsdaten, nie Fotos, Raumdaten oder Projekte. Die Fotos gehen direkt zwischen deinen eigenen Geräten (WebRTC) und sind zusätzlich Ende-zu-Ende verschlüsselt (AES-256-GCM). Der Schlüssel steht nur im QR-Code und im Link.'
+						),
+						p(
+							'Der Link enthält die Namen und Grundrisse der gewählten Räume. Teile ihn nur mit Personen, denen du diese anvertraust. Ein Auftrag gilt 7 Tage; «Auftrag beenden» macht ihn sofort ungültig. Schickst du Fotos stattdessen über das Teilen-Menü (AirDrop, Quick Share, E-Mail, Cloud), laufen sie über den Dienst, den du wählst.'
+						)
 					]
 				},
 				{
@@ -375,6 +393,21 @@ const en: LegalDocument = {
 							'**Photos** are downsized locally; location data (GPS) and other metadata are removed'
 						]),
 						p('The operator has no access to this data.', 'public')
+					]
+				},
+				{
+					id: 'handyfotos',
+					title: 'Taking photos with your phone',
+					blocks: [
+						p(
+							`Only for the “Take photos with your phone” feature, the PC and the phone connect through public relay services: Nostr relays (${MIRROR_HOSTS}) and public STUN servers (Cloudflare, Google). This happens only while a photo job is open and RoomX is open on the device. Otherwise no request goes out.`
+						),
+						p(
+							'These services see IP addresses and encrypted connection data, never photos, room data or projects. Photos travel directly between your own devices (WebRTC) and are additionally end-to-end encrypted (AES-256-GCM). The key is only in the QR code and the link.'
+						),
+						p(
+							'The link contains the names and floor plans of the chosen rooms. Share it only with people you trust with them. A job is valid for 7 days; “End job” makes it invalid at once. If you send photos through the share menu instead (AirDrop, Quick Share, email, cloud), they travel through the service you choose.'
+						)
 					]
 				},
 				{
