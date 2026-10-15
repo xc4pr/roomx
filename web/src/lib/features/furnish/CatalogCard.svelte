@@ -1,8 +1,10 @@
 <script lang="ts">
+	import ExternalLink from '@lucide/svelte/icons/external-link';
 	import Sofa from '@lucide/svelte/icons/sofa';
 	import type { CatalogEntry } from '#lib/core/catalog.ts';
 	import { formatChf, lengthValue } from '#lib/core/units.ts';
 	import { locale, pick, t } from '#lib/i18n/index.svelte.ts';
+	import { externalLink } from '#lib/security/url.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
 	import { WIDE_QUERY } from '#lib/ui/layout.ts';
 	import { messages } from './i18n.ts';
@@ -36,6 +38,7 @@
 			.map((mm) => lengthValue(mm, settings.unit, locale.language))
 			.join(' × ') + ` ${settings.unit}`
 	);
+	const link = $derived(externalLink(entry.url));
 	const price = $derived(
 		entry.priceChf === undefined
 			? t(messages, 'priceOpen')
@@ -139,60 +142,77 @@
 	}
 </script>
 
-<button
-	type="button"
-	class="group flex min-w-0 flex-col gap-1.5 rounded-lg border border-border bg-surface p-2 text-start transition duration-(--duration-fast) ease-soft select-none hover:bg-surface-2 active:scale-[0.97] {session
+<div
+	class="flex min-w-0 flex-col rounded-lg border border-border bg-surface transition duration-(--duration-fast) ease-soft hover:bg-surface-2 {session
 		.drag?.entry.id === entry.id
 		? 'opacity-50'
 		: ''}"
-	style="touch-action: pan-y; -webkit-touch-callout: none; user-select: none"
-	data-catalog-id={entry.id}
-	onpointerdown={down}
-	onpointermove={move}
-	onpointerup={up}
-	onpointercancel={up}
-	oncontextmenu={(event) => event.preventDefault()}
-	onclick={click}
 >
-	<span
-		class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md bg-surface-2"
-		use:lazyThumbnail={{ entry, onload: (next) => (url = next) }}
+	<button
+		type="button"
+		class="group flex min-w-0 flex-col gap-1.5 rounded-lg p-2 text-start select-none active:scale-[0.97]"
+		style="touch-action: pan-y; -webkit-touch-callout: none; user-select: none"
+		data-catalog-id={entry.id}
+		onpointerdown={down}
+		onpointermove={move}
+		onpointerup={up}
+		onpointercancel={up}
+		oncontextmenu={(event) => event.preventDefault()}
+		onclick={click}
 	>
-		{#if url}
-			<img
-				src={url}
-				alt=""
-				draggable="false"
-				class="size-full animate-fade-in object-contain p-1"
-				style="-webkit-user-drag: none"
-			/>
-		{:else}
-			<Sofa class="size-7 animate-pulse text-border" />
-		{/if}
-	</span>
-	<span
-		class="line-clamp-2 min-h-[2.5em] text-[13px] leading-tight font-semibold pointer-coarse:text-sm"
-	>
-		{pick(entry.name)}
-	</span>
-	<span class="truncate text-[11px] text-muted tabular-nums pointer-coarse:text-sm">{dims}</span>
-	{#if !entry.verified}
 		<span
-			class="flex items-center gap-1.5 text-[11px] text-muted pointer-coarse:text-sm"
-			title={t(messages, 'unverifiedHint')}
-			data-testid="unverified"
+			class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md bg-surface-2"
+			use:lazyThumbnail={{ entry, onload: (next) => (url = next) }}
 		>
-			<span class="size-1.5 shrink-0 rounded-full bg-warning" aria-hidden="true"></span>
-			<span class="truncate">{t(messages, 'unverified')}</span>
+			{#if url}
+				<img
+					src={url}
+					alt=""
+					draggable="false"
+					class="size-full animate-fade-in object-contain p-1"
+					style="-webkit-user-drag: none"
+				/>
+			{:else}
+				<Sofa class="size-7 animate-pulse text-border" />
+			{/if}
 		</span>
-	{/if}
-	<span class="flex items-center justify-between gap-1 text-xs pointer-coarse:text-sm">
 		<span
-			class="truncate font-bold tabular-nums"
-			title={t(messages, 'priceDate', { date: pricesAsOf() })}>{price}</span
+			class="line-clamp-2 min-h-[2.5em] text-[13px] leading-tight font-semibold pointer-coarse:text-sm"
 		>
-		<span class="truncate text-[10px] text-muted pointer-coarse:text-sm"
-			>{entry.series ?? entry.brand}</span
+			{pick(entry.name)}
+		</span>
+		<span class="truncate text-[11px] text-muted tabular-nums pointer-coarse:text-sm">{dims}</span>
+		{#if !entry.verified}
+			<span
+				class="flex items-center gap-1.5 text-[11px] text-muted pointer-coarse:text-sm"
+				title={t(messages, 'unverifiedHint')}
+				data-testid="unverified"
+			>
+				<span class="size-1.5 shrink-0 rounded-full bg-warning" aria-hidden="true"></span>
+				<span class="truncate">{t(messages, 'unverified')}</span>
+			</span>
+		{/if}
+		<span class="flex items-center justify-between gap-1 text-xs pointer-coarse:text-sm">
+			<span
+				class="truncate font-bold tabular-nums"
+				title={t(messages, 'priceDate', { date: pricesAsOf() })}>{price}</span
+			>
+			<span class="truncate text-[10px] text-muted pointer-coarse:text-sm"
+				>{entry.series ?? entry.brand}</span
+			>
+		</span>
+	</button>
+	{#if link}
+		<a
+			{...link}
+			class="inline-flex min-h-11 items-center gap-1 px-2 text-xs font-semibold text-accent pointer-coarse:text-sm"
+			data-testid="catalog-link"
+			onpointerdown={(event) => event.stopPropagation()}
+			onpointerup={(event) => event.stopPropagation()}
+			onclick={(event) => event.stopPropagation()}
 		>
-	</span>
-</button>
+			<span class="truncate">{t(messages, 'viewAtRetailer')}</span>
+			<ExternalLink class="size-3.5 shrink-0" />
+		</a>
+	{/if}
+</div>

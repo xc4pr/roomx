@@ -173,7 +173,8 @@ describe('required statements', () => {
 	it('names the brands and the missing connection to the manufacturers', () => {
 		for (const language of LANGUAGES) {
 			const text = everything(language);
-			for (const brand of ['IKEA', 'PAX', 'Tchibo', 'CN3']) expect(text, brand).toContain(brand);
+			for (const brand of ['IKEA', 'PAX', 'Tchibo', 'JYSK', 'CN3'])
+				expect(text, brand).toContain(brand);
 		}
 	});
 

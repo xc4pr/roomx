@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { catalog } from '#lib/catalog/index.ts';
+import { catalogLookup, type CatalogEntry } from '#lib/core/catalog.ts';
 import { sampleCatalog } from '#lib/core/fixtures.ts';
+import { groupShopping } from './shopping.ts';
 import {
 	brandsOf,
 	categoriesOf,
@@ -49,6 +51,45 @@ describe('filterCatalog', () => {
 
 	it('works on the real catalogue', () => {
 		expect(filterCatalog(catalog, { ...all, query: 'billy' }, 'de').length).toBeGreaterThan(0);
+	});
+});
+
+describe('retailer brand JYSK', () => {
+	const jysk: CatalogEntry = {
+		...sampleCatalog[1],
+		id: 'jysk-test-desk',
+		brand: 'JYSK',
+		url: 'https://jysk.ch/test'
+	};
+	const withJysk = [...sampleCatalog, jysk];
+
+	it('appears in the brand filter and can be filtered', () => {
+		expect(brandsOf(withJysk)).toEqual(['Generic', 'IKEA', 'JYSK']);
+		expect(
+			filterCatalog(withJysk, { ...all, query: '', brand: 'JYSK' }, 'de').map((e) => e.id)
+		).toEqual(['jysk-test-desk']);
+	});
+
+	it('shows the link in the shopping list', () => {
+		const rows = groupShopping(
+			[
+				{
+					id: 'i',
+					roomId: 'r',
+					name: 'Tisch',
+					category: 'desk',
+					dims: { w: 1, d: 1, h: 1 },
+					x: 0,
+					y: 0,
+					rotation: 0,
+					elevation: 0,
+					catalogId: 'jysk-test-desk'
+				}
+			],
+			catalogLookup(withJysk),
+			(i) => i.name
+		);
+		expect(rows[0]).toMatchObject({ brand: 'JYSK', url: 'https://jysk.ch/test' });
 	});
 });
 

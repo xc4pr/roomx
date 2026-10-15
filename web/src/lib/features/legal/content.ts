@@ -259,7 +259,7 @@ const de: LegalDocument = {
 					title: 'Marken',
 					blocks: [
 						p(
-							'Namen wie IKEA, PAX, Tchibo, CN3 und weitere Marken-, Firmen- und Produktnamen gehören ihren jeweiligen Inhabern. RoomX nennt sie nur, um Möbel zu beschreiben. Es besteht keine Verbindung zu diesen Unternehmen oder zu den Herstellern, und sie unterstützen oder empfehlen RoomX nicht.'
+							'Namen wie IKEA, PAX, Tchibo, JYSK, CN3 und weitere Marken-, Firmen- und Produktnamen gehören ihren jeweiligen Inhabern. RoomX nennt sie nur, um Möbel zu beschreiben. Es besteht keine Verbindung zu diesen Unternehmen oder zu den Herstellern, und sie unterstützen oder empfehlen RoomX nicht.'
 						)
 					]
 				},
@@ -512,7 +512,7 @@ const en: LegalDocument = {
 					title: 'Trademarks',
 					blocks: [
 						p(
-							'Names such as IKEA, PAX, Tchibo, CN3 and other trademarks, company names and product names belong to their respective owners. RoomX mentions them only to describe furniture. There is no connection to these companies or to the manufacturers, and they neither support nor endorse RoomX.'
+							'Names such as IKEA, PAX, Tchibo, JYSK, CN3 and other trademarks, company names and product names belong to their respective owners. RoomX mentions them only to describe furniture. There is no connection to these companies or to the manufacturers, and they neither support nor endorse RoomX.'
 						)
 					]
 				},

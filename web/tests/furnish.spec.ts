@@ -127,3 +127,20 @@ test('Möbel einrichten, bewegen, drehen, löschen, Budget und Variante kopieren
 	const final = (await readProject(page, id))!;
 	expect(final.variants).toHaveLength(2);
 });
+
+test('Katalogkarte zeigt den Händler-Link sicher an', async ({ page }) => {
+	await createProject(page, 'Händler-Link');
+	await addRoom(page);
+	await page.getByTestId('seg-furnish').click();
+	const panel = page.getByTestId('catalog-panel');
+	const fab = page.getByTestId('catalog-fab');
+	await expect(panel.or(fab)).toHaveCount(1);
+	if (!(await panel.isVisible())) await fab.click();
+	const card = page.locator('[data-catalog-id="ikea-billy-80x28x202"]');
+	const link = card.locator('xpath=..').getByTestId('catalog-link');
+	await link.scrollIntoViewIfNeeded();
+	await expect(link).toHaveAttribute('href', /^https:\/\/www\.ikea\.com\/ch\//);
+	await expect(link).toHaveAttribute('target', '_blank');
+	await expect(link).toHaveAttribute('rel', /noopener/);
+	await expect(link).toHaveAttribute('rel', /noreferrer/);
+});
