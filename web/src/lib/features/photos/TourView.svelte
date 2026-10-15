@@ -152,7 +152,9 @@
 				</div>
 			</div>
 			{#if step.optional}
-				<span class="rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold text-muted">
+				<span
+					class="rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold text-muted pointer-coarse:text-sm"
+				>
 					{t(messages, 'optional')}
 				</span>
 			{/if}
@@ -201,7 +203,7 @@
 			</div>
 		{/if}
 
-		<div class="flex flex-col gap-2.5">
+		<div class="sticky -bottom-6 z-10 -mx-5 -mb-2 bg-surface/95 px-5 py-2 backdrop-blur">
 			<Button
 				variant="primary"
 				size="lg"
@@ -213,6 +215,8 @@
 			>
 				{stepPhotos.length ? t(messages, 'recapture') : t(messages, 'capture')}
 			</Button>
+		</div>
+		<div class="flex flex-col gap-2.5">
 			<Button
 				variant="secondary"
 				full

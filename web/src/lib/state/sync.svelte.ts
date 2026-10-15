@@ -2,6 +2,7 @@ import { untrack } from 'svelte';
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { newId } from '#lib/core/ids.ts';
+import { LOCAL_ONLY } from '#lib/edition.ts';
 import { t } from '#lib/i18n/index.svelte.ts';
 import { toasts } from '#lib/ui/toast.svelte.ts';
 import { db } from './db.ts';
@@ -188,6 +189,7 @@ function onReport(snapshot: SyncSnapshot): void {
 }
 
 export async function syncNow(): Promise<void> {
+	if (LOCAL_ONLY) return;
 	await controller?.syncNow();
 }
 
@@ -197,6 +199,10 @@ export function testServerConnection(url: string, token: string): Promise<Connec
 
 export function startSync(): () => void {
 	if (typeof window === 'undefined') return () => {};
+	if (LOCAL_ONLY) {
+		void checkReminder();
+		return () => {};
+	}
 	controller?.dispose();
 	originChecker.reset();
 	const active = new SyncController<Target>({

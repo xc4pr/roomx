@@ -81,7 +81,9 @@
 			{#if item.icon}<item.icon class="size-5 shrink-0" />{/if}
 			{item.label}
 			{#if item.badge !== undefined}
-				<span class="rounded-full bg-surface-2 px-1.5 text-xs text-muted">{item.badge}</span>
+				<span class="rounded-full bg-surface-2 px-1.5 text-xs text-muted pointer-coarse:text-sm"
+					>{item.badge}</span
+				>
 			{/if}
 		</button>
 	{/each}

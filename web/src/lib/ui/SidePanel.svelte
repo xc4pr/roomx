@@ -2,6 +2,11 @@
 	import X from '@lucide/svelte/icons/x';
 	import { untrack, type Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
+	import { common } from '#lib/i18n/common.ts';
+	import { t } from '#lib/i18n/index.svelte.ts';
+	import { WIDE_QUERY } from './layout.ts';
+	import { dragPanelWidth, stepPanelWidth } from './panelWidth.ts';
+	import { panelLayout } from './panelWidth.svelte.ts';
 	import {
 		SHEET_FRACTIONS,
 		clampFraction,
@@ -16,6 +21,7 @@
 		title?: string;
 		closeLabel?: string;
 		closable?: boolean;
+		resizeLabel?: string;
 		scrollKey?: string | number;
 		class?: string;
 		onclose?: () => void;
@@ -29,14 +35,13 @@
 		title,
 		closeLabel = '×',
 		closable = true,
+		resizeLabel,
 		scrollKey,
 		class: extra = '',
 		onclose,
 		children,
 		actions
 	}: Props = $props();
-
-	const WIDE_QUERY = '(min-width: 900px) and (orientation: landscape)';
 
 	let wide = $state(typeof matchMedia === 'undefined' ? false : matchMedia(WIDE_QUERY).matches);
 	let scroller: HTMLElement | undefined = $state();
@@ -51,6 +56,73 @@
 		velocity: number;
 		moved: boolean;
 	} | null = null;
+
+	const DOUBLE_TAP_MS = 400;
+	const RESIZE_SLOP = 3;
+
+	let resize: { pointerId: number; startX: number; startWidth: number; moved: boolean } | null =
+		null;
+	let lastTap = 0;
+
+	function finishResize(): void {
+		resize = null;
+		panelLayout.end();
+	}
+
+	function onresizedown(event: PointerEvent): void {
+		if (event.pointerType === 'mouse' && event.button !== 0) return;
+		(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+		resize = {
+			pointerId: event.pointerId,
+			startX: event.clientX,
+			startWidth: panelLayout.width,
+			moved: false
+		};
+	}
+
+	function onresizemove(event: PointerEvent): void {
+		if (!resize || event.pointerId !== resize.pointerId) return;
+		const dx = event.clientX - resize.startX;
+		if (!resize.moved) {
+			if (Math.abs(dx) < RESIZE_SLOP) return;
+			resize.moved = true;
+			panelLayout.begin();
+		}
+		panelLayout.drag(dragPanelWidth(resize.startWidth, dx, innerWidth));
+	}
+
+	function onresizeup(event: PointerEvent): void {
+		if (!resize || event.pointerId !== resize.pointerId) return;
+		const state = resize;
+		resize = null;
+		if (state.moved) {
+			lastTap = 0;
+			panelLayout.end();
+			return;
+		}
+		if (event.type !== 'pointerup') return;
+		const now = performance.now();
+		if (now - lastTap < DOUBLE_TAP_MS) {
+			lastTap = 0;
+			panelLayout.reset();
+		} else {
+			lastTap = now;
+		}
+	}
+
+	function onresizekey(event: KeyboardEvent): void {
+		const next = stepPanelWidth(panelLayout.width, event.key, event.shiftKey, innerWidth);
+		if (next === null) return;
+		event.preventDefault();
+		panelLayout.set(next);
+	}
+
+	$effect(() => {
+		if (!wide && resize) finishResize();
+		return () => {
+			if (resize) finishResize();
+		};
+	});
 
 	$effect(() => {
 		const query = matchMedia(WIDE_QUERY);
@@ -125,6 +197,8 @@
 	}
 
 	const height = $derived((dragFraction ?? SHEET_FRACTIONS[snap]) * 100);
+	const width = $derived(panelLayout.width);
+	const bounds = $derived(panelLayout.bounds);
 </script>
 
 {#snippet headerContent(draggable: boolean)}
@@ -167,7 +241,9 @@
 			{@render headerContent(true)}
 		</div>
 	{:else}
-		<div class="relative flex min-h-14 shrink-0 items-center gap-2 ps-5 pe-2">
+		<div
+			class="relative flex min-h-14 shrink-0 items-center gap-2 ps-5 pe-2 [@media(max-height:520px)]:min-h-12"
+		>
 			{@render headerContent(false)}
 		</div>
 	{/if}
@@ -183,15 +259,48 @@
 	</div>
 {/snippet}
 
+{#snippet resizer()}
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+	<div
+		class="group absolute inset-y-0 -left-5.5 z-10 flex w-11 cursor-col-resize touch-none items-center justify-center select-none focus-visible:outline-none"
+		role="separator"
+		tabindex="0"
+		aria-orientation="vertical"
+		aria-label={resizeLabel ?? t(common, 'resizePanel')}
+		aria-valuenow={width}
+		aria-valuemin={bounds.min}
+		aria-valuemax={bounds.max}
+		data-testid="panel-resize"
+		onpointerdown={onresizedown}
+		onpointermove={onresizemove}
+		onpointerup={onresizeup}
+		onpointercancel={onresizeup}
+		onlostpointercapture={onresizeup}
+		onkeydown={onresizekey}
+	>
+		<span
+			class="pointer-events-none h-14 w-1.5 rounded-full transition duration-(--duration-fast) ease-soft {panelLayout.dragging
+				? 'bg-accent opacity-100'
+				: 'bg-muted opacity-0 group-hover:opacity-100 group-focus-visible:bg-accent group-focus-visible:opacity-100 pointer-coarse:opacity-60'}"
+		></span>
+	</div>
+{/snippet}
+
 {#if open}
 	{#if wide}
 		<aside
 			data-sidepanel
 			transition:fly={{ x: 28, duration: 220 }}
-			class="absolute top-3 right-3 bottom-3 z-20 flex w-[380px] max-w-[46%] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-lift {extra}"
+			style:width="{width}px"
+			class="absolute top-3 right-[max(0.75rem,var(--safe-right))] bottom-3 z-20 max-w-[calc(100%-1.5rem)] [@media(max-height:520px)]:top-1.5 [@media(max-height:520px)]:bottom-1.5 {extra}"
 		>
-			{@render header(false)}
-			{@render body()}
+			<div
+				class="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-lift"
+			>
+				{@render header(false)}
+				{@render body()}
+			</div>
+			{@render resizer()}
 		</aside>
 	{:else}
 		<section

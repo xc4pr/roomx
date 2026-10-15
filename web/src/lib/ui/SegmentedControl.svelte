@@ -55,7 +55,7 @@
 	}
 
 	const base = $derived(
-		`inline-flex select-none items-center justify-center gap-2 rounded-full ${full ? 'px-2 sm:px-4' : 'px-4'} font-semibold whitespace-nowrap transition duration-(--duration-base) ease-soft ${size === 'lg' ? 'min-h-12 text-base' : 'min-h-11 text-sm'}`
+		`inline-flex min-w-11 select-none items-center justify-center gap-2 rounded-full ${full ? 'px-2 sm:px-4' : 'px-4'} font-semibold whitespace-nowrap transition duration-(--duration-base) ease-soft ${size === 'lg' ? 'min-h-12 text-base' : 'min-h-11 text-sm'}`
 	);
 	const on = 'bg-surface text-text shadow-soft';
 	const off = 'text-muted hover:text-text';

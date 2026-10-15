@@ -18,7 +18,9 @@
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import Fab from '#lib/ui/Fab.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
+	import { WIDE_QUERY } from '#lib/ui/layout.ts';
 	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
+	import { panelLayout } from '#lib/ui/panelWidth.svelte.ts';
 	import { SHEET_FRACTIONS } from '#lib/ui/sheet.ts';
 	import SidePanel from '#lib/ui/SidePanel.svelte';
 	import Tabs from '#lib/ui/Tabs.svelte';
@@ -51,8 +53,8 @@
 	let wide = $state(false);
 	let walking = $state(false);
 	let panelBody: HTMLElement | undefined = $state();
-	let areaWidth = $state(0);
 	let areaHeight = $state(0);
+	let areaWidth = $state(0);
 
 	const rooms = $derived(store.project?.rooms ?? []);
 	const itemCount = $derived(store.activeVariant?.items.length ?? 0);
@@ -78,7 +80,7 @@
 	);
 
 	$effect(() => {
-		const query = matchMedia('(min-width: 900px) and (orientation: landscape)');
+		const query = matchMedia(WIDE_QUERY);
 		wide = query.matches;
 		if (!wide && session.snap === 'half') session.snap = 'peek';
 		const listener = (event: MediaQueryListEvent) => (wide = event.matches);
@@ -101,10 +103,12 @@
 	});
 
 	const BAR_RESERVE = 68;
+	const BAR_MIN_WIDTH = 620;
+	const BAR_FAB_SPACE = 380;
 	const FAB_RESERVE = 88;
 	const insets = $derived<ViewInsets>(
 		wide
-			? { bottom: BAR_RESERVE, right: session.panelOpen ? Math.min(380, areaWidth * 0.46) + 12 : 0 }
+			? { bottom: BAR_RESERVE, right: session.panelOpen ? panelLayout.settledWidth + 12 : 0 }
 			: {
 					bottom:
 						BAR_RESERVE +
@@ -113,10 +117,14 @@
 	);
 	const barStyle = $derived(
 		wide
-			? `bottom:1rem;${session.panelOpen ? `padding-right:calc(min(380px,46%) + 1.5rem)` : ''}`
+			? `bottom:1rem;${session.panelOpen ? `padding-right:${panelLayout.width + 24}px` : ''}`
 			: session.panelOpen
 				? `bottom:calc(${SHEET_FRACTIONS[session.snap] * 100}% + 0.75rem)`
 				: 'bottom:calc(max(1.25rem, var(--safe-bottom)) + 4rem + 0.75rem)'
+	);
+	const barCompact = $derived(
+		!wide ||
+			areaWidth - (session.panelOpen ? panelLayout.width + 24 : BAR_FAB_SPACE) < BAR_MIN_WIDTH
 	);
 	const showBar = $derived(!walking && (wide || !session.panelOpen || session.snap !== 'full'));
 
@@ -260,7 +268,7 @@
 
 <div class="absolute inset-0 flex flex-col bg-bg" data-testid="furnish-screen">
 	<header
-		class="z-20 shrink-0 border-b border-border bg-surface px-[max(0.5rem,var(--safe-left))] py-1.5 pr-[max(0.5rem,var(--safe-right))]"
+		class="z-20 shrink-0 border-b border-border bg-surface px-[max(0.5rem,var(--safe-left))] py-1.5 pr-[max(0.5rem,var(--safe-right))] [@media(max-height:520px)]:py-0.5"
 	>
 		<div class="flex flex-wrap items-center gap-x-2 gap-y-1.5 md:flex-nowrap">
 			<div class="flex w-full min-w-0 items-center gap-2 md:w-auto md:min-w-0 md:flex-1">
@@ -306,8 +314,8 @@
 
 	<div
 		class="relative min-h-0 grow overflow-hidden"
-		bind:clientWidth={areaWidth}
 		bind:clientHeight={areaHeight}
+		bind:clientWidth={areaWidth}
 	>
 		{#if session.view === '2d'}
 			<div class="absolute inset-0" data-furnish-board>
@@ -339,7 +347,7 @@
 				class="pointer-events-none absolute inset-x-0 z-10 flex justify-center px-3 transition-[bottom] duration-(--duration-slow) ease-soft"
 				style={barStyle}
 			>
-				<SelectionBar compact={!wide} fine={session.view === '3d'} />
+				<SelectionBar compact={barCompact} fine={session.view === '3d'} />
 			</div>
 		{/if}
 
@@ -360,7 +368,7 @@
 			{title}
 			closeLabel={t(common, 'close')}
 		>
-			<div class="sticky top-0 z-10 -mx-5 -mt-1 mb-3 bg-surface px-5 pt-1 pb-2">
+			<div class="sticky -top-1 z-10 -mx-5 -mt-1 mb-3 bg-surface px-5 pt-2 pb-2">
 				<Tabs
 					items={tabs}
 					value={session.tab}

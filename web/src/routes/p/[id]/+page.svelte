@@ -1,5 +1,4 @@
 <script lang="ts">
-	import CoachHost from '#lib/features/projects/CoachHost.svelte';
 	import Board from '#lib/features/board/Board.svelte';
 	import { panel } from '#lib/features/board/panel.svelte.ts';
 	import RoomPanel from '#lib/features/room/RoomPanel.svelte';
@@ -27,5 +26,3 @@
 		</SidePanel>
 	{/if}
 </div>
-
-<CoachHost page="plan" />

@@ -8,7 +8,9 @@
 	import { startSync } from '#lib/state/sync.svelte.ts';
 	import { appUpdate, applyUpdate, watchForUpdates } from '#lib/state/update.svelte.ts';
 	import ShortcutsDialog from '#lib/features/settings/ShortcutsDialog.svelte';
+	import TourHost from '#lib/features/tour/TourHost.svelte';
 	import ToastHost from '#lib/ui/ToastHost.svelte';
+	import { watchKeyboard } from '#lib/ui/keyboard.ts';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
 	import type { LayoutProps } from './$types';
 
@@ -17,7 +19,12 @@
 	onMount(() => {
 		watchForUpdates();
 		void pruneOrphanPhotos();
-		return startSync();
+		const stopKeyboard = watchKeyboard();
+		const stopSync = startSync();
+		return () => {
+			stopKeyboard();
+			stopSync();
+		};
 	});
 
 	$effect(() => {
@@ -32,4 +39,5 @@
 
 {@render children()}
 <ShortcutsDialog />
+<TourHost />
 <ToastHost closeLabel={t(common, 'close')} />

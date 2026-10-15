@@ -10,6 +10,8 @@ export interface Settings {
 	token: string;
 	deviceName: string;
 	coachMarksSeen: boolean;
+	tourStep: number | null;
+	tourSampleId: string | null;
 	installHintSeen: boolean;
 	lastBackupAt: string | null;
 }
@@ -22,6 +24,8 @@ function defaults(): Settings {
 		token: '',
 		deviceName: '',
 		coachMarksSeen: false,
+		tourStep: null,
+		tourSampleId: null,
 		installHintSeen: false,
 		lastBackupAt: null
 	};

@@ -57,13 +57,15 @@
 				{/each}
 				<span class="min-w-0 truncate text-sm font-semibold">{entry.name}</span>
 			</div>
-			<p class="text-xs text-muted tabular-nums">
+			<p class="text-xs text-muted tabular-nums pointer-coarse:text-sm">
 				{entry.qty} ×
 				{entry.unitPrice === undefined ? t(messages, 'priceOpen') : money(entry.unitPrice)}
 				{#if entry.brand}· {entry.brand}{/if}
 			</p>
 			{#if entry.estimated}
-				<p class="text-xs font-semibold text-warning">{t(messages, 'estimateBadge')}</p>
+				<p class="text-xs font-semibold text-warning pointer-coarse:text-sm">
+					{t(messages, 'estimateBadge')}
+				</p>
 			{/if}
 		</div>
 		<div class="flex shrink-0 flex-col items-end gap-1">
@@ -75,7 +77,7 @@
 					{href}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-accent"
+					class="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-accent pointer-coarse:text-sm"
 				>
 					{t(messages, 'open')}
 					<ExternalLink class="size-3.5" />
@@ -94,7 +96,7 @@
 {:else}
 	<div class="flex flex-col gap-4" data-testid="shopping-list">
 		<div class="flex flex-col gap-2 rounded-lg bg-surface-2 p-4">
-			<p class="text-xs font-semibold tracking-wide text-muted uppercase">
+			<p class="text-xs font-semibold tracking-wide text-muted uppercase pointer-coarse:text-sm">
 				{t(messages, 'variantTotal', { name: variant?.name ?? 'A' })}
 			</p>
 			<p class="text-3xl font-black tracking-tight tabular-nums" data-testid="list-total">
@@ -108,7 +110,7 @@
 				</p>
 			{/if}
 			{#if total.unpriced > 0}
-				<p class="text-xs text-muted">
+				<p class="text-xs text-muted pointer-coarse:text-sm">
 					{t(messages, total.unpriced === 1 ? 'unpricedOne' : 'unpriced', { n: total.unpriced })}
 				</p>
 			{/if}
@@ -125,7 +127,7 @@
 		{#if plan.length > 0}
 			<section class="flex flex-col gap-2">
 				<h3 class="text-sm font-bold">{t(messages, 'planList')}</h3>
-				<p class="text-xs text-muted">{t(messages, 'planListHint')}</p>
+				<p class="text-xs text-muted pointer-coarse:text-sm">{t(messages, 'planListHint')}</p>
 				<ul class="flex flex-col gap-2">
 					{#each plan as entry (entry.key)}
 						{@render row(entry)}

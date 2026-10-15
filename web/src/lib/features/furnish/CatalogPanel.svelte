@@ -97,7 +97,7 @@
 	{#if results.length === 0}
 		<EmptyState title={t(messages, 'noResults')} description={t(messages, 'noResultsText')} />
 	{:else}
-		<p class="text-xs text-muted" aria-live="polite">
+		<p class="text-xs text-muted pointer-coarse:text-sm" aria-live="polite">
 			{t(messages, results.length === 1 ? 'resultCountOne' : 'resultCount', { n: results.length })} ·
 			{t(messages, 'dragHint')}
 		</p>

@@ -2,10 +2,11 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import HardDrive from '@lucide/svelte/icons/hard-drive';
 	import Keyboard from '@lucide/svelte/icons/keyboard';
+	import ShieldCheck from '@lucide/svelte/icons/shield-check';
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import type { Snippet } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { LOCAL_ONLY } from '#lib/edition.ts';
 	import type { Language, LengthUnit } from '#lib/core/units.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -20,13 +21,18 @@
 	} from '#lib/state/sync.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
+	import { keyboardLikely } from '#lib/ui/device.ts';
 	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
-	import { restartCoach } from '#lib/features/projects/coach.svelte.ts';
+	import { isInterrupted, resumeStep } from '#lib/features/tour/logic.ts';
+	import { TOUR_TOTAL } from '#lib/features/tour/steps.ts';
+	import { startTour } from '#lib/features/tour/tour.svelte.ts';
 	import { messages } from './i18n.ts';
 	import { openShortcuts } from './shortcuts.svelte.ts';
 	import { formatBytes, readStorage, type StorageInfo } from './storage.ts';
+
+	const keyboard = keyboardLikely();
 
 	let deviceName = $state(settings.deviceName);
 	let serverUrl = $state(settings.serverUrl);
@@ -152,7 +158,24 @@
 				onchange={(value) => updateSettings({ deviceName: value.trim() })}
 			/>
 		{/snippet}
-		{@render section(t(messages, 'device'), device)}
+		{#snippet localData()}
+			<p class="text-base" data-testid="local-data">{t(messages, 'localDataText')}</p>
+			<div>
+				<Button
+					variant="secondary"
+					icon={ShieldCheck}
+					href={resolve('/rechtliches')}
+					data-testid="open-legal"
+				>
+					{t(messages, 'legalLink')}
+				</Button>
+			</div>
+		{/snippet}
+		{#if LOCAL_ONLY}
+			{@render section(t(messages, 'localData'), localData)}
+		{:else}
+			{@render section(t(messages, 'device'), device)}
+		{/if}
 
 		{#snippet server()}
 			<TextField
@@ -235,7 +258,9 @@
 				</Button>
 			</div>
 		{/snippet}
-		{@render section(t(messages, 'server'), server)}
+		{#if !LOCAL_ONLY}
+			{@render section(t(messages, 'server'), server)}
+		{/if}
 
 		{#snippet storageBody()}
 			{#if storage === null}
@@ -300,29 +325,59 @@
 					variant="secondary"
 					icon={Sparkles}
 					full
-					onclick={() => {
-						restartCoach();
-						void goto(resolve('/'));
-					}}
+					onclick={() => startTour()}
 					data-testid="replay-intro"
 				>
 					{t(messages, 'replayIntro')}
 				</Button>
+				{#if isInterrupted(settings.tourStep) && settings.tourStep > 0}
+					<Button
+						variant="ghost"
+						full
+						onclick={() => startTour({ resume: true })}
+						data-testid="resume-tour"
+					>
+						{t(messages, 'resumeTour', {
+							n: resumeStep(settings.tourStep) + 1,
+							total: TOUR_TOTAL
+						})}
+					</Button>
+				{/if}
 				<p class="px-1 text-sm text-muted">{t(messages, 'replayIntroHint')}</p>
 			</div>
+			{#if keyboard}
+				<div class="flex flex-col gap-2">
+					<Button
+						variant="secondary"
+						icon={Keyboard}
+						full
+						onclick={openShortcuts}
+						data-testid="show-shortcuts"
+					>
+						{t(messages, 'showShortcuts')}
+					</Button>
+					<p class="px-1 text-sm text-muted">{t(messages, 'showShortcutsHint')}</p>
+				</div>
+			{/if}
+		{/snippet}
+		{@render section(t(messages, 'help'), helpBody)}
+
+		{#snippet aboutBody()}
 			<div class="flex flex-col gap-2">
 				<Button
 					variant="secondary"
-					icon={Keyboard}
+					icon={ShieldCheck}
 					full
-					onclick={openShortcuts}
-					data-testid="show-shortcuts"
+					href={resolve('/rechtliches')}
+					data-testid="open-legal"
 				>
-					{t(messages, 'showShortcuts')}
+					{t(messages, 'legalLink')}
 				</Button>
-				<p class="px-1 text-sm text-muted">{t(messages, 'showShortcutsHint')}</p>
+				<p class="px-1 text-sm text-muted">{t(messages, 'legalHint')}</p>
 			</div>
 		{/snippet}
-		{@render section(t(messages, 'help'), helpBody)}
+		{#if !LOCAL_ONLY}
+			{@render section(t(messages, 'about'), aboutBody)}
+		{/if}
 	</div>
 </div>

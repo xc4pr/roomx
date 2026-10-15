@@ -8,8 +8,9 @@ export const common = defineMessages({
 		view3d: '3D',
 		furnish: 'Einrichten',
 		share: 'Export / Import',
+		shareShort: 'Export',
 		settings: 'Einstellungen',
-		create: 'Erstellen',
+		create: '3D erstellen',
 		back: 'Zurück',
 		undo: 'Rückgängig',
 		redo: 'Wiederholen',
@@ -20,7 +21,8 @@ export const common = defineMessages({
 		notFound: 'Projekt nicht gefunden',
 		updateReady: 'Neue Version verfügbar',
 		reload: 'Neu laden',
-		mainNavigation: 'Hauptnavigation'
+		mainNavigation: 'Hauptnavigation',
+		resizePanel: 'Breite des Seitenpanels'
 	},
 	en: {
 		appName: 'roomx',
@@ -29,8 +31,9 @@ export const common = defineMessages({
 		view3d: '3D',
 		furnish: 'Furnish',
 		share: 'Export / Import',
+		shareShort: 'Export',
 		settings: 'Settings',
-		create: 'Build',
+		create: 'Build 3D',
 		back: 'Back',
 		undo: 'Undo',
 		redo: 'Redo',
@@ -41,7 +44,8 @@ export const common = defineMessages({
 		notFound: 'Project not found',
 		updateReady: 'New version available',
 		reload: 'Reload',
-		mainNavigation: 'Main navigation'
+		mainNavigation: 'Main navigation',
+		resizePanel: 'Side panel width'
 	}
 });
 

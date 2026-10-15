@@ -4,6 +4,7 @@
 	import { formatChf, lengthValue } from '#lib/core/units.ts';
 	import { locale, pick, t } from '#lib/i18n/index.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
+	import { WIDE_QUERY } from '#lib/ui/layout.ts';
 	import { messages } from './i18n.ts';
 	import { session } from './session.svelte.ts';
 	import { lazyThumbnail } from './thumbs.ts';
@@ -67,7 +68,7 @@
 		clearTimeout(press.timer);
 		session.drag = { entry, x, y, px: x, py: y, over: null };
 		track(x, y);
-		if (!matchMedia('(min-width: 900px) and (orientation: landscape)').matches) {
+		if (!matchMedia(WIDE_QUERY).matches) {
 			session.snap = 'peek';
 		}
 		navigator.vibrate?.(12);
@@ -168,12 +169,16 @@
 			<Sofa class="size-7 animate-pulse text-border" />
 		{/if}
 	</span>
-	<span class="line-clamp-2 min-h-[2.5em] text-[13px] leading-tight font-semibold">
+	<span
+		class="line-clamp-2 min-h-[2.5em] text-[13px] leading-tight font-semibold pointer-coarse:text-sm"
+	>
 		{pick(entry.name)}
 	</span>
-	<span class="truncate text-[11px] text-muted tabular-nums">{dims}</span>
-	<span class="flex items-center justify-between gap-1 text-xs">
+	<span class="truncate text-[11px] text-muted tabular-nums pointer-coarse:text-sm">{dims}</span>
+	<span class="flex items-center justify-between gap-1 text-xs pointer-coarse:text-sm">
 		<span class="truncate font-bold tabular-nums">{price}</span>
-		<span class="truncate text-[10px] text-muted">{entry.series ?? entry.brand}</span>
+		<span class="truncate text-[10px] text-muted pointer-coarse:text-sm"
+			>{entry.series ?? entry.brand}</span
+		>
 	</span>
 </button>

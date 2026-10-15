@@ -45,7 +45,9 @@
 				{total.estimated ? `${t(messages, 'approx')} ` : ''}{money(total.sum)}
 			</span>
 			<span
-				class="min-w-0 truncate text-xs font-semibold {state.over ? 'text-danger' : 'text-muted'}"
+				class="min-w-0 truncate text-xs font-semibold pointer-coarse:text-sm {state.over
+					? 'text-danger'
+					: 'text-muted'}"
 			>
 				{#if state.budget === undefined}
 					{t(messages, 'noBudget')}

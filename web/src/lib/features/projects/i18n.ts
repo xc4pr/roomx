@@ -42,18 +42,7 @@ export const messages = defineMessages({
 		errorText:
 			'Die Seite konnte nicht angezeigt werden. Deine Projekte sind auf diesem Gerät sicher.',
 		errorHome: 'Zu den Projekten',
-		errorReload: 'Neu laden',
-		coachNext: 'Weiter',
-		coachDone: 'Los geht’s',
-		coachSkip: 'Überspringen',
-		coachProjectTitle: 'Lege dein erstes Projekt an',
-		coachProjectText: 'Ein Projekt ist deine Wohnung oder dein Haus. Tippe auf das Plus.',
-		coachRoomTitle: 'Füge einen Raum hinzu',
-		coachRoomText: 'Tippe auf das Plus. Du bekommst gleich einen Raum zum Anpassen.',
-		coachDimsTitle: 'Tippe die Masse ein',
-		coachDimsText: 'Länge und Breite in Zentimetern. Die Ecken lassen sich auch im Plan ziehen.',
-		coachBuildTitle: 'Dein Raum in 3D',
-		coachBuildText: 'Tippe auf «Erstellen», um den Raum zu bauen und von innen zu betrachten.'
+		errorReload: 'Neu laden'
 	},
 	en: {
 		title: 'Projects',
@@ -94,17 +83,6 @@ export const messages = defineMessages({
 		errorTitle: 'Oops, something went wrong',
 		errorText: 'The page could not be displayed. Your projects are safe on this device.',
 		errorHome: 'Go to projects',
-		errorReload: 'Reload',
-		coachNext: 'Next',
-		coachDone: 'Let’s go',
-		coachSkip: 'Skip',
-		coachProjectTitle: 'Create your first project',
-		coachProjectText: 'A project is your apartment or house. Tap the plus.',
-		coachRoomTitle: 'Add a room',
-		coachRoomText: 'Tap the plus. You get a room right away that you can adjust.',
-		coachDimsTitle: 'Enter the dimensions',
-		coachDimsText: 'Length and width in centimetres. You can also drag the corners on the plan.',
-		coachBuildTitle: 'Your room in 3D',
-		coachBuildText: 'Tap “Build” to build the room and see it from the inside.'
+		errorReload: 'Reload'
 	}
 });

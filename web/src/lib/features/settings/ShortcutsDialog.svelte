@@ -1,6 +1,9 @@
 <script lang="ts">
+	import Compass from '@lucide/svelte/icons/compass';
+	import { startTour } from '#lib/features/tour/tour.svelte.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
+	import Button from '#lib/ui/Button.svelte';
 	import Dialog from '#lib/ui/Dialog.svelte';
 	import { messages } from './i18n.ts';
 	import { SHORTCUT_GROUPS, isApplePlatform, isTypingTarget, type KeyToken } from './shortcuts.ts';
@@ -26,6 +29,11 @@
 			default:
 				return token;
 		}
+	}
+
+	function beginTour(): void {
+		shortcuts.open = false;
+		startTour();
 	}
 
 	function onkeydown(event: KeyboardEvent): void {
@@ -79,4 +87,9 @@
 			</section>
 		{/each}
 	</div>
+	{#snippet actions()}
+		<Button variant="secondary" icon={Compass} onclick={beginTour} data-testid="shortcuts-tour">
+			{t(messages, 'startTour')}
+		</Button>
+	{/snippet}
 </Dialog>

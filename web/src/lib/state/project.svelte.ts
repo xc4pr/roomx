@@ -26,7 +26,7 @@ export interface MutateOptions {
 }
 
 export type RoomPatch = Partial<
-	Pick<Room, 'name' | 'type' | 'height' | 'notes' | 'floorColor' | 'wallColor'>
+	Pick<Room, 'name' | 'type' | 'height' | 'notes' | 'floorColor' | 'wallColor' | 'separate'>
 >;
 export type ItemPatch = Partial<Omit<Item, 'id'>>;
 
@@ -36,6 +36,7 @@ export class ProjectStore {
 	#redoStack = $state.raw<Project[]>([]);
 	#openKey: string | null = null;
 	#saveTimer: ReturnType<typeof setTimeout> | null = null;
+	#saving: Promise<void> = Promise.resolve();
 
 	canUndo = $derived(this.#undoStack.length > 0);
 	canRedo = $derived(this.#redoStack.length > 0);
@@ -83,11 +84,12 @@ export class ProjectStore {
 		this.#openKey = options.coalesce ?? null;
 		this.#redoStack = [];
 		recipe(project);
-		this.#touch();
+		this.#touch(options.coalesce ? SAVE_DELAY : 0);
 	}
 
 	sealHistory(): void {
 		this.#openKey = null;
+		if (this.#saveTimer !== null) this.#schedule(0);
 	}
 
 	undo(): void {
@@ -108,25 +110,35 @@ export class ProjectStore {
 		this.#restore(next);
 	}
 
+	// Saves run one after another, so a later state never gets overwritten by an earlier one.
 	async flush(): Promise<void> {
-		if (this.#saveTimer === null) return;
-		clearTimeout(this.#saveTimer);
-		this.#saveTimer = null;
-		const project = this.snapshot();
-		if (project) await saveProject(project);
+		if (this.#saveTimer !== null) {
+			clearTimeout(this.#saveTimer);
+			this.#saveTimer = null;
+			const project = this.snapshot();
+			if (project) {
+				this.#saving = this.#saving.then(() => saveProject(project)).catch(() => undefined);
+			}
+		}
+		await this.#saving;
 	}
 
 	#restore(project: Project): void {
 		this.project = project;
 		this.#openKey = null;
-		this.#touch();
+		this.#touch(0);
 	}
 
-	#touch(): void {
+	// Single changes are saved right away; only continuous gestures (coalesced) are batched.
+	#touch(delay: number): void {
 		if (!this.project) return;
 		this.project.updatedAt = new Date().toISOString();
+		this.#schedule(delay);
+	}
+
+	#schedule(delay: number): void {
 		if (this.#saveTimer !== null) clearTimeout(this.#saveTimer);
-		this.#saveTimer = setTimeout(() => void this.flush(), SAVE_DELAY);
+		this.#saveTimer = setTimeout(() => void this.flush(), delay);
 	}
 
 	room(roomId: string): Room | undefined {
@@ -455,6 +467,14 @@ export class ProjectStore {
 }
 
 export const store = new ProjectStore();
+
+if (typeof window !== 'undefined') {
+	const saveNow = () => void store.flush();
+	window.addEventListener('pagehide', saveNow);
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') saveNow();
+	});
+}
 
 export async function createProject(name: string): Promise<string> {
 	const project = emptyProject(newId(), name);

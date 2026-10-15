@@ -45,7 +45,7 @@
 		<Dialog.Content
 			interactOutsideBehavior={dismissible ? 'close' : 'ignore'}
 			escapeKeydownBehavior={dismissible ? 'close' : 'ignore'}
-			class="fixed top-1/2 left-1/2 z-50 flex max-h-[min(88dvh,46rem)] w-[min(calc(100vw-2rem),100%)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl bg-surface p-6 shadow-lift outline-none data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in {widths[
+			class="fixed top-[calc((100dvh-var(--kb,0px))/2)] left-1/2 z-50 flex max-h-[min(88dvh,46rem,calc(100dvh-var(--kb,0px)-1rem))] w-[min(calc(100vw-2rem),100%)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl bg-surface p-5 shadow-lift outline-none data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in sm:p-6 [@media(max-height:520px)]:p-4 {widths[
 				size
 			]} {extra}"
 		>
@@ -68,12 +68,12 @@
 				{/if}
 			</div>
 			{#if children}
-				<div class="mt-5 min-h-0 overflow-y-auto">
+				<div class="mt-4 min-h-0 overflow-y-auto sm:mt-5">
 					{@render children()}
 				</div>
 			{/if}
 			{#if actions}
-				<div class="mt-6 flex flex-wrap justify-end gap-2">
+				<div class="mt-5 flex flex-wrap justify-end gap-2 sm:mt-6">
 					{@render actions()}
 				</div>
 			{/if}

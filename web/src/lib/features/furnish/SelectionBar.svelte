@@ -67,7 +67,7 @@
 					data-testid="sel-turn-left"
 				>
 					<RotateCcw class="size-3.5" />
-					<span class="text-[11px] leading-none font-bold">15°</span>
+					<span class="text-[11px] leading-none font-bold pointer-coarse:text-sm">15°</span>
 				</button>
 				<button
 					type="button"
@@ -79,7 +79,7 @@
 					data-testid="sel-turn-right"
 				>
 					<RotateCw class="size-3.5" />
-					<span class="text-[11px] leading-none font-bold">15°</span>
+					<span class="text-[11px] leading-none font-bold pointer-coarse:text-sm">15°</span>
 				</button>
 			{/if}
 			<IconButton

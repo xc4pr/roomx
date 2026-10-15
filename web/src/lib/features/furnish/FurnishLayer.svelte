@@ -14,6 +14,7 @@
 	} from '#lib/core/geometry.ts';
 	import { isWallElement, type Item } from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
+	import { connections } from '#lib/features/board/connections.svelte.ts';
 	import { getViewport, type RoomLayerProps } from '#lib/features/board/viewport.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
@@ -63,7 +64,8 @@
 			.filter((suggestion) => suggestion.roomId === room.id)
 			.map((suggestion) => suggestion.element)
 	);
-	const issues = $derived(checkRoomItems(room, items, suggestionElements));
+	const connected = $derived(connections.withNeighbourOpenings(room));
+	const issues = $derived(checkRoomItems(connected, items, suggestionElements));
 	const issueMap = $derived.by(() => {
 		const map = new Map<string, ItemIssue[]>();
 		for (const issue of issues) {
@@ -191,7 +193,7 @@
 
 	function zoneFor(issue: ItemIssue): Vec[] | null {
 		if (!issue.elementId) return null;
-		const element = room.elements.find((candidate) => candidate.id === issue.elementId);
+		const element = connected.elements.find((candidate) => candidate.id === issue.elementId);
 		if (!element || !isWallElement(element)) return null;
 		if (element.kind === 'door' && element.swing === 'in') {
 			return doorSwing(room.polygon, element)?.polygon ?? null;
@@ -283,7 +285,7 @@
 			elevation: placement.elevation,
 			...(placement.onItemId ? { onItemId: placement.onItemId } : {})
 		};
-		const blocked = checkRoomItems(room, [...items, probe], suggestionElements).some(
+		const blocked = checkRoomItems(connected, [...items, probe], suggestionElements).some(
 			(issue) => issue.itemIds.includes('__ghost') && issue.severity === 'error'
 		);
 		return { placement, probe, valid: placement.inside && !blocked };

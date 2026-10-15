@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createElement } from '#lib/core/defaults.ts';
 import { sequentialIds } from '#lib/core/ids.ts';
 import type { Item } from '#lib/core/schema.ts';
@@ -17,12 +17,19 @@ const desk: Omit<Item, 'id' | 'roomId'> = {
 	elevation: 0
 };
 
+const opened: ProjectStore[] = [];
+
 async function openStore() {
 	const store = new ProjectStore();
+	opened.push(store);
 	const id = await createProject('Wohnung');
 	await store.open(id);
 	return { store, id };
 }
+
+afterEach(async () => {
+	await Promise.all(opened.splice(0).map((store) => store.flush()));
+});
 
 beforeEach(async () => {
 	await Promise.all(db.tables.map((table) => table.clear()));

@@ -9,6 +9,7 @@
 	import { lookup } from '#lib/catalog/index.ts';
 	import { checkRoomItems, type ItemIssue } from '#lib/core/checks.ts';
 	import type { Item } from '#lib/core/schema.ts';
+	import { connections } from '#lib/features/board/connections.svelte.ts';
 	import { formatLength } from '#lib/core/units.ts';
 	import { categoryNames } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -41,9 +42,11 @@
 		const suggestions = (store.activeVariant?.suggestions ?? [])
 			.filter((suggestion) => suggestion.roomId === room.id)
 			.map((suggestion) => suggestion.element);
-		const issues = checkRoomItems(room, items, suggestions).filter((issue) =>
-			issue.itemIds.includes(item.id)
-		);
+		const issues = checkRoomItems(
+			connections.withNeighbourOpenings(room),
+			items,
+			suggestions
+		).filter((issue) => issue.itemIds.includes(item.id));
 		const lines = issues.map((issue) => ({
 			text: describe(issue, item),
 			severity: issue.severity
@@ -142,7 +145,7 @@
 					onchange={seal}
 					data-testid="item-name"
 				/>
-				<p class="px-1 text-xs text-muted">
+				<p class="px-1 text-xs text-muted pointer-coarse:text-sm">
 					{room.name} · {t(categoryNames, item.category)}{entry
 						? ` · ${entry.series ?? entry.brand}`
 						: ` · ${t(messages, 'custom')}`}
@@ -300,7 +303,7 @@
 					/>
 				</div>
 				{#if !custom}
-					<p class="px-1 text-xs text-muted">{t(messages, 'catalogSize')}</p>
+					<p class="px-1 text-xs text-muted pointer-coarse:text-sm">{t(messages, 'catalogSize')}</p>
 				{/if}
 			</section>
 

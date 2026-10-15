@@ -137,7 +137,9 @@
 					{#if thumbs.missing[photo.hash] && !thumbs.fetching[photo.hash]}
 						<span title={t(messages, 'imageMissing')} class="flex flex-col items-center gap-1">
 							<ImageOff class="size-6" />
-							<span class="px-1 text-center text-[11px] leading-tight font-medium">
+							<span
+								class="px-1 text-center text-[11px] leading-tight font-medium pointer-coarse:text-sm"
+							>
 								{t(messages, 'imageMissingShort')}
 							</span>
 						</span>
@@ -147,7 +149,7 @@
 				</span>
 			{/if}
 		</span>
-		<span class="line-clamp-2 text-xs leading-tight font-medium text-muted">
+		<span class="line-clamp-2 text-xs leading-tight font-medium text-muted pointer-coarse:text-sm">
 			{pick(photo.perspective.caption)}
 		</span>
 	</button>
@@ -229,7 +231,9 @@
 									>
 										<Camera class="size-6" />
 									</span>
-									<span class="line-clamp-2 text-xs leading-tight font-medium text-muted">
+									<span
+										class="line-clamp-2 text-xs leading-tight font-medium text-muted pointer-coarse:text-sm"
+									>
 										{pick(step.perspective.caption)}
 									</span>
 								</button>

@@ -22,8 +22,12 @@
 	import { putPreview } from '#lib/state/persistence.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { resetUi, ui } from '#lib/state/ui.svelte.ts';
+	import BottomNav from '#lib/ui/BottomNav.svelte';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
+	import { keyboardLikely } from '#lib/ui/device.ts';
+	import { PHONE_PORTRAIT_QUERY } from '#lib/ui/layout.ts';
+	import { media } from '#lib/ui/media.svelte.ts';
 	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
 	import type { LayoutProps } from './$types';
@@ -32,6 +36,8 @@
 
 	let status = $state<'loading' | 'ready' | 'missing' | 'failed'>('loading');
 	let checking = $state(false);
+	const phone = media(PHONE_PORTRAIT_QUERY);
+	const keyboard = keyboardLikely();
 
 	$effect(() => {
 		const id = params.id;
@@ -92,6 +98,12 @@
 			icon: Share2
 		}
 	]);
+	const navItems = $derived(
+		sections.map((section) => ({
+			...section,
+			short: section.value === 'share' ? t(common, 'shareShort') : undefined
+		}))
+	);
 	const current = $derived(sections.find((section) => section.href === page.url.pathname)?.value);
 
 	function openBuilt(): void {
@@ -135,27 +147,29 @@
 	<div class="flex h-full flex-col">
 		<header
 			data-app-header
-			class="z-30 flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b border-border px-2 pt-[max(0.25rem,var(--safe-top))] pr-[max(0.5rem,var(--safe-right))] pb-1 pl-[max(0.5rem,var(--safe-left))] surface-glass md:flex-nowrap"
+			class="z-30 flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b border-border px-2 pt-[max(0.25rem,var(--safe-top))] pr-[max(0.5rem,var(--safe-right))] pb-1 pl-[max(0.5rem,var(--safe-left))] surface-glass md:flex-nowrap [@media(max-height:520px)]:pt-[max(0.125rem,var(--safe-top))] [@media(max-height:520px)]:pb-0.5"
 		>
 			<IconButton href={resolve('/')} icon={ChevronLeft} label={t(common, 'projects')} />
 			<h1
-				class="min-w-0 grow basis-0 truncate text-lg font-bold tracking-tight md:max-w-[22ch] md:grow-0 md:basis-auto"
+				class="min-w-0 grow basis-0 truncate text-base font-bold tracking-tight sm:text-lg md:max-w-[22ch] md:grow-0 md:basis-auto"
 			>
 				{store.project.name}
 			</h1>
-			<nav
-				aria-label={t(common, 'mainNavigation')}
-				class="order-last flex w-full justify-center md:order-none md:w-auto md:grow"
-			>
-				<SegmentedControl
-					items={sections}
-					value={current}
-					label={store.project.name}
-					collapse
-					full
-					class="w-full md:w-auto"
-				/>
-			</nav>
+			{#if !phone.matches}
+				<nav
+					aria-label={t(common, 'mainNavigation')}
+					class="order-last flex w-full justify-center md:order-none md:w-auto md:grow"
+				>
+					<SegmentedControl
+						items={sections}
+						value={current}
+						label={store.project.name}
+						collapse
+						full
+						class="w-full md:w-auto"
+					/>
+				</nav>
+			{/if}
 			<div class="flex items-center gap-0.5">
 				<IconButton
 					icon={Undo2}
@@ -171,28 +185,37 @@
 					onclick={() => store.redo()}
 					data-testid="redo"
 				/>
-				<span class="hidden lg:contents">
-					<IconButton
-						icon={Keyboard}
-						label={t(settingsMessages, 'shortcutsTitle')}
-						onclick={openShortcuts}
-						data-testid="open-shortcuts"
-					/>
-				</span>
+				{#if keyboard}
+					<span class="hidden lg:contents">
+						<IconButton
+							icon={Keyboard}
+							label={t(settingsMessages, 'shortcutsTitle')}
+							onclick={openShortcuts}
+							data-testid="open-shortcuts"
+						/>
+					</span>
+				{/if}
 			</div>
 			<Button
 				variant="primary"
 				size="sm"
-				icon={Hammer}
+				icon={phone.matches ? undefined : Hammer}
+				class="max-sm:px-3"
 				data-testid="build"
 				onclick={() => (checking = true)}
 			>
 				{t(common, 'create')}
 			</Button>
 		</header>
-		<main class="relative min-h-0 grow overflow-y-auto">
+		<main
+			class="relative min-h-0 grow overflow-y-auto"
+			style:--safe-bottom={phone.matches ? '0px' : undefined}
+		>
 			{@render children()}
 		</main>
+		{#if phone.matches}
+			<BottomNav items={navItems} value={current} label={t(common, 'mainNavigation')} />
+		{/if}
 	</div>
 	<BuildCheck bind:open={checking} onproceed={openBuilt} />
 {:else}

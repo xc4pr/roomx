@@ -9,7 +9,9 @@
 	import Share from '@lucide/svelte/icons/share';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
+	import { LOCAL_ONLY } from '#lib/edition.ts';
+	import { messages as legalMessages } from '#lib/features/legal/i18n.ts';
 	import { requestPersistence } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -34,8 +36,6 @@
 	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
-	import CoachHost from './CoachHost.svelte';
-	import { advanceCoach } from './coach.svelte.ts';
 	import { messages } from './i18n.ts';
 	import { readEnvironment, shouldShowInstallHint } from './install.ts';
 	import ProjectCard from './ProjectCard.svelte';
@@ -143,7 +143,6 @@
 			const id = await createProject(newName.trim() || t(messages, 'defaultName'));
 			creating = false;
 			if (first) void requestPersistence();
-			advanceCoach(0);
 			await goto(resolve('/p/[id]', { id }));
 		} catch {
 			toasts.show({
@@ -206,23 +205,34 @@
 		class="mx-auto flex min-h-full w-full max-w-6xl flex-col px-5 pt-[max(1rem,var(--safe-top))] pr-[max(1.25rem,var(--safe-right))] pb-32 pl-[max(1.25rem,var(--safe-left))]"
 	>
 		<header class="flex items-center justify-between gap-3 py-2">
-			<span class="text-3xl font-extrabold tracking-tight" aria-label={t(common, 'appName')}>
-				room<span class="text-accent">x</span>
-			</span>
+			<div class="flex items-center">
+				<img
+					src={asset('brand/wordmark-light.png')}
+					alt={t(common, 'appName')}
+					class="h-9 w-auto dark:hidden"
+				/>
+				<img
+					src={asset('brand/wordmark-dark.png')}
+					alt={t(common, 'appName')}
+					class="hidden h-9 w-auto dark:block"
+				/>
+			</div>
 			<div class="flex items-center gap-1">
-				<span
-					role="img"
-					aria-label={t(messages, syncLabels[syncState.status])}
-					title={t(messages, syncLabels[syncState.status])}
-					class="inline-flex size-11 items-center justify-center {syncTones[syncState.status]}"
-					data-testid="sync-status"
-				>
-					{#if syncState.status === 'pending'}
-						<ProgressRing size={22} stroke={3} />
-					{:else}
-						<SyncIcon class="size-6" />
-					{/if}
-				</span>
+				{#if !LOCAL_ONLY}
+					<span
+						role="img"
+						aria-label={t(messages, syncLabels[syncState.status])}
+						title={t(messages, syncLabels[syncState.status])}
+						class="inline-flex size-11 items-center justify-center {syncTones[syncState.status]}"
+						data-testid="sync-status"
+					>
+						{#if syncState.status === 'pending'}
+							<ProgressRing size={22} stroke={3} />
+						{:else}
+							<SyncIcon class="size-6" />
+						{/if}
+					</span>
+				{/if}
 				<IconButton
 					href={resolve('/settings')}
 					icon={Settings}
@@ -276,10 +286,18 @@
 				{/each}
 			</div>
 		{/if}
+
+		<footer class="mt-auto flex justify-center pt-8">
+			<a
+				href={resolve('/rechtliches')}
+				class="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-muted underline-offset-4 hover:text-text hover:underline"
+				data-testid="open-legal"
+			>
+				{t(legalMessages, 'footerLink')}
+			</a>
+		</footer>
 	</div>
 </div>
-
-<CoachHost page="projects" hasProjects={(projects?.length ?? 0) > 0} />
 
 {#if projects && projects.length > 0}
 	<Fab label={t(messages, 'newProject')} extended onclick={startCreate} data-testid="new-project" />
