@@ -39,8 +39,11 @@
 	const phone = media(PHONE_PORTRAIT_QUERY);
 	const keyboard = keyboardLikely();
 
+	// A derived string only changes when the id does; reading params directly re-runs on every navigation.
+	const projectId = $derived(params.id);
+
 	$effect(() => {
-		const id = params.id;
+		const id = projectId;
 		untrack(() => {
 			status = 'loading';
 			resetUi();
