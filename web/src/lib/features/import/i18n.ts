@@ -12,18 +12,32 @@ export const messages = defineMessages({
 		fromClipboard: 'Aus Zwischenablage',
 		clipboardFailed: 'Die Zwischenablage ist nicht lesbar. Füge den Text von Hand ein.',
 		clear: 'Leeren',
-		fileTooBig: 'Die Datei ist zu gross für einen Plan. Wähle eine kleinere Datei.',
+		fileTooBig:
+			'Die Datei ist zu gross für einen Plan (höchstens 2 MB). Wähle eine kleinere Datei.',
 		fileUnreadable: 'Die Datei konnte nicht gelesen werden. Wähle eine andere Datei.',
 		unreadableNoJson: 'Im Text steht kein JSON. Füge die ganze Antwort mit dem Plan ein.',
 		unreadableBroken:
 			'Das JSON ist fehlerhaft und lässt sich nicht lesen. Bitte den Assistenten, den Plan noch einmal vollständig auszugeben.',
 		unreadableTruncated:
 			'Der Text bricht mitten im JSON ab. Bitte den Assistenten, den Plan noch einmal vollständig auszugeben.',
+		unreadableTooLarge:
+			'Der Text ist zu lang für einen Plan (mehr als 2 MB). Bitte den Assistenten um einen kürzeren Plan, zum Beispiel einen Raum pro Antwort.',
 		invalidTitle: 'Der Plan ist nicht gültig',
 		invalidText:
-			'An diesen Stellen stimmt etwas nicht. Kopiere die Liste in den Chat und bitte um eine Korrektur.',
-		copyErrors: 'Fehlerliste kopieren',
+			'An diesen Stellen stimmt etwas nicht. Kopiere die Korrekturen und gib sie dem Assistenten zurück.',
+		copyCorrections: 'Korrekturen kopieren',
+		correctionsHint:
+			'Stimmt etwas nicht? Kopiere die Prüfergebnisse und gib sie dem Assistenten zurück, damit er den Plan verbessert.',
+		listMore: '+ {n} weitere',
 		copied: 'Kopiert',
+		fixIntro: 'Bitte korrigiere den Plan:',
+		fixInvalid: 'Der Plan ist nicht gültig:',
+		fixBroken: 'Das JSON ist fehlerhaft und lässt sich nicht lesen.',
+		fixTruncated: 'Die Antwort bricht mitten im JSON ab.',
+		fixTooLarge: 'Der Plan ist zu lang (mehr als 2 MB). Gib weniger auf einmal aus.',
+		fixMore: '… und {n} weitere',
+		fixOutro:
+			'Gib den ganzen korrigierten Plan noch einmal als JSON im Format roomx-plan aus. Lass projectId und alles, was stimmt, unverändert.',
 		previewTitle: 'Vorschau',
 		variantTitle: 'Variante {n}: {name}',
 		variantTotal: 'Summe {amount}',
@@ -75,6 +89,8 @@ export const messages = defineMessages({
 		issueMinChars: 'darf nicht kürzer als {min} Zeichen sein',
 		issueMaxChars: 'darf nicht länger als {max} Zeichen sein',
 		issueFormat: 'hat ein ungültiges Format',
+		issueUrl: 'muss ein Link sein, der mit http:// oder https:// beginnt (erhalten: {received})',
+		issuesMore: '… und {n} weitere Probleme',
 		issueFormatField: 'ist nicht «roomx-plan»: Das ist kein Einrichtungsplan',
 		issueVersionField: 'Version {received} wird nicht unterstützt (erwartet: {expected})',
 		issueGeneric: 'ist ungültig: {message}',
@@ -90,8 +106,10 @@ export const messages = defineMessages({
 			'Der Plan gehört zu einem anderen Projekt. Räume werden über ihre ID zugeordnet.',
 		planUnknownRoom: 'Raum «{id}» gibt es in diesem Projekt nicht. Der Raum wird übersprungen.',
 		planUnknownCatalogId:
-			'Katalog-Eintrag unbekannt und keine Masse angegeben. Das Möbel wird übersprungen.',
-		planMissingDescription: 'Name, Kategorie oder Masse fehlen. Das Möbel wird übersprungen.',
+			'Katalog-ID «{detail}» ist unbekannt. Als eigener Artikel fehlen: {missing}. Das Möbel wird übersprungen.',
+		planUnknownCatalogIdKept:
+			'Katalog-ID «{detail}» ist unbekannt. Das Möbel wird als eigener Artikel mit den angegebenen Massen übernommen.',
+		planMissingDescription: 'Angaben fehlen: {missing}. Das Möbel wird übersprungen.',
 		planMissingPosition: 'Die Position fehlt (anchor oder x und y). Das Möbel wird übersprungen.',
 		planUnknownWall: 'Diese Wand gibt es im Raum nicht. Der Eintrag wird übersprungen.',
 		planUnknownCarrier:
@@ -122,17 +140,31 @@ export const messages = defineMessages({
 		fromClipboard: 'From clipboard',
 		clipboardFailed: 'The clipboard cannot be read. Paste the text by hand.',
 		clear: 'Clear',
-		fileTooBig: 'The file is too large for a plan. Choose a smaller file.',
+		fileTooBig: 'The file is too large for a plan (2 MB at most). Choose a smaller file.',
 		fileUnreadable: 'The file could not be read. Choose another file.',
 		unreadableNoJson: 'The text contains no JSON. Paste the whole reply with the plan.',
 		unreadableBroken:
 			'The JSON is broken and cannot be read. Ask the assistant to output the whole plan again.',
 		unreadableTruncated:
 			'The text stops in the middle of the JSON. Ask the assistant to output the whole plan again.',
+		unreadableTooLarge:
+			'The text is too long for a plan (more than 2 MB). Ask the assistant for a shorter plan, for example one room per reply.',
 		invalidTitle: 'The plan is not valid',
-		invalidText: 'These parts are invalid. Copy the list into the chat and ask for a correction.',
-		copyErrors: 'Copy error list',
+		invalidText:
+			'These parts are invalid. Copy the corrections and give them back to the assistant.',
+		copyCorrections: 'Copy corrections',
+		correctionsHint:
+			'Something not right? Copy the check results and give them back to the assistant so it can improve the plan.',
+		listMore: '+ {n} more',
 		copied: 'Copied',
+		fixIntro: 'Please correct the plan:',
+		fixInvalid: 'The plan is not valid:',
+		fixBroken: 'The JSON is broken and cannot be read.',
+		fixTruncated: 'The reply stops in the middle of the JSON.',
+		fixTooLarge: 'The plan is too long (more than 2 MB). Output less at once.',
+		fixMore: '… and {n} more',
+		fixOutro:
+			'Output the whole corrected plan again as JSON in the roomx-plan format. Keep projectId and everything that is right unchanged.',
 		previewTitle: 'Preview',
 		variantTitle: 'Variant {n}: {name}',
 		variantTotal: 'Total {amount}',
@@ -184,6 +216,8 @@ export const messages = defineMessages({
 		issueMinChars: 'must not be shorter than {min} characters',
 		issueMaxChars: 'must not be longer than {max} characters',
 		issueFormat: 'has an invalid format',
+		issueUrl: 'must be a link starting with http:// or https:// (received: {received})',
+		issuesMore: '… and {n} more problems',
 		issueFormatField: 'is not “roomx-plan”: this is not a furnishing plan',
 		issueVersionField: 'version {received} is not supported (expected: {expected})',
 		issueGeneric: 'is invalid: {message}',
@@ -198,8 +232,10 @@ export const messages = defineMessages({
 		planWrongProject: 'The plan belongs to a different project. Rooms are matched by their ID.',
 		planUnknownRoom: 'Room “{id}” does not exist in this project. The room is skipped.',
 		planUnknownCatalogId:
-			'Unknown catalogue entry and no dimensions given. The furniture is skipped.',
-		planMissingDescription: 'Name, category or dimensions are missing. The furniture is skipped.',
+			'Catalogue ID “{detail}” is unknown. As a custom item these are missing: {missing}. The furniture is skipped.',
+		planUnknownCatalogIdKept:
+			'Catalogue ID “{detail}” is unknown. The furniture is imported as a custom item with the given dimensions.',
+		planMissingDescription: 'Details are missing: {missing}. The furniture is skipped.',
 		planMissingPosition: 'The position is missing (anchor or x and y). The furniture is skipped.',
 		planUnknownWall: 'This wall does not exist in the room. The entry is skipped.',
 		planUnknownCarrier: 'The furniture it should stand on was not found. The entry is skipped.',

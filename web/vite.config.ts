@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { cspDirectives } from './src/lib/security/csp.ts';
 
 function basePath(value: string | undefined): '' | `/${string}` {
 	if (!value) return '';
@@ -23,7 +24,14 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter({ fallback: 'index.html' }),
-			paths: { base: basePath(process.env.BASE_PATH), relative: false }
+			paths: { base: basePath(process.env.BASE_PATH), relative: false },
+			csp: {
+				mode: 'hash',
+				directives: cspDirectives({
+					localOnly: process.env.LOCAL_ONLY === '1',
+					connectSrc: process.env.ROOMX_CONNECT_SRC
+				})
+			}
 		})
 	],
 	test: {

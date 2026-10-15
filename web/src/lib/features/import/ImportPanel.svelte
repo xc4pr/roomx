@@ -15,6 +15,7 @@
 	import { formatChf } from '#lib/core/units.ts';
 	import SectionCard from '#lib/features/export/SectionCard.svelte';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
+	import { LIMITS } from '#lib/security/limits.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
@@ -27,9 +28,10 @@
 		pickVariants,
 		type Analysis
 	} from './analyze.ts';
+	import { correctionText } from './feedback.ts';
 	import { messages } from './i18n.ts';
 
-	const MAX_FILE_BYTES = 8 * 1024 * 1024;
+	const SHOWN = LIMITS.reportedIssues;
 
 	let text = $state('');
 	let dragging = $state(false);
@@ -47,6 +49,8 @@
 			unit: settings.unit
 		});
 	});
+
+	const corrections = $derived(correctionText(analysis, locale.language));
 
 	const briefChoice = $derived(
 		analysis.status === 'ready' &&
@@ -66,7 +70,7 @@
 	});
 
 	async function readFile(file: File): Promise<void> {
-		if (file.size > MAX_FILE_BYTES) {
+		if (file.size > LIMITS.planText) {
 			toasts.show({ message: t(messages, 'fileTooBig'), kind: 'error' });
 			return;
 		}
@@ -93,15 +97,20 @@
 
 	async function pasteFromClipboard(): Promise<void> {
 		try {
-			text = await navigator.clipboard.readText();
+			const pasted = await navigator.clipboard.readText();
+			if (pasted.length > LIMITS.planText) {
+				toasts.show({ message: t(messages, 'fileTooBig'), kind: 'error' });
+				return;
+			}
+			text = pasted;
 		} catch {
 			toasts.show({ message: t(messages, 'clipboardFailed'), kind: 'error' });
 		}
 	}
 
-	async function copyErrors(lines: string[]): Promise<void> {
+	async function copyCorrections(content: string): Promise<void> {
 		try {
-			await navigator.clipboard.writeText(lines.join('\n'));
+			await navigator.clipboard.writeText(content);
 			toasts.show({ message: t(messages, 'copied'), kind: 'success' });
 		} catch {
 			toasts.show({ message: t(messages, 'clipboardFailed'), kind: 'error' });
@@ -133,6 +142,25 @@
 		});
 	}
 </script>
+
+{#snippet copyButton(content: string)}
+	<div>
+		<Button
+			variant="secondary"
+			icon={ClipboardCopy}
+			onclick={() => void copyCorrections(content)}
+			data-testid="import-copy-corrections"
+		>
+			{t(messages, 'copyCorrections')}
+		</Button>
+	</div>
+{/snippet}
+
+{#snippet more(total: number)}
+	{#if total > SHOWN}
+		<p class="px-1 text-sm text-muted">{t(messages, 'listMore', { n: total - SHOWN })}</p>
+	{/if}
+{/snippet}
 
 <div
 	class="mx-auto flex w-full max-w-2xl flex-col gap-5 px-5 pt-5 pr-[max(1.25rem,var(--safe-right))] pb-[max(3rem,var(--safe-bottom))] pl-[max(1.25rem,var(--safe-left))]"
@@ -200,21 +228,28 @@
 
 		{#if analysis.status === 'unreadable'}
 			<div
-				class="flex items-start gap-3 rounded-md bg-danger-soft p-4 text-danger"
+				class="flex flex-col gap-3 rounded-md bg-danger-soft p-4"
 				role="alert"
 				data-testid="import-unreadable"
 			>
-				<OctagonAlert class="mt-0.5 size-5 shrink-0" />
-				<p class="text-sm font-medium">
-					{t(
-						messages,
-						analysis.reason === 'noJson'
-							? 'unreadableNoJson'
-							: analysis.reason === 'truncated'
-								? 'unreadableTruncated'
-								: 'unreadableBroken'
-					)}
-				</p>
+				<div class="flex items-start gap-3 text-danger">
+					<OctagonAlert class="mt-0.5 size-5 shrink-0" />
+					<p class="text-sm font-medium">
+						{t(
+							messages,
+							analysis.reason === 'noJson'
+								? 'unreadableNoJson'
+								: analysis.reason === 'truncated'
+									? 'unreadableTruncated'
+									: analysis.reason === 'tooLarge'
+										? 'unreadableTooLarge'
+										: 'unreadableBroken'
+						)}
+					</p>
+				</div>
+				{#if corrections}
+					{@render copyButton(corrections)}
+				{/if}
 			</div>
 		{:else if analysis.status === 'invalid'}
 			{@const errors = analysis.errors}
@@ -231,16 +266,9 @@
 						<li class="rounded-sm bg-surface px-3 py-2 break-words">{line}</li>
 					{/each}
 				</ul>
-				<div>
-					<Button
-						variant="secondary"
-						icon={ClipboardCopy}
-						onclick={() => void copyErrors(errors)}
-						data-testid="import-copy-errors"
-					>
-						{t(messages, 'copyErrors')}
-					</Button>
-				</div>
+				{#if corrections}
+					{@render copyButton(corrections)}
+				{/if}
 			</div>
 		{/if}
 	</SectionCard>
@@ -310,7 +338,7 @@
 									>
 										{t(messages, 'conflictsTitle')}
 									</p>
-									{#each room.errors as conflict (conflict.text)}
+									{#each room.errors.slice(0, SHOWN) as conflict, index (index)}
 										<p
 											class="flex items-start gap-2 rounded-sm bg-danger-soft px-3 py-2 text-sm text-danger"
 										>
@@ -318,6 +346,7 @@
 											<span>{conflict.text}</span>
 										</p>
 									{/each}
+									{@render more(room.errors.length)}
 								</div>
 							{/if}
 							{#if room.warnings.length > 0}
@@ -327,7 +356,7 @@
 									>
 										{t(messages, 'warningsTitle')}
 									</p>
-									{#each room.warnings as conflict (conflict.text)}
+									{#each room.warnings.slice(0, SHOWN) as conflict, index (index)}
 										<p
 											class="flex items-start gap-2 rounded-sm bg-warning-soft px-3 py-2 text-sm text-warning"
 										>
@@ -335,6 +364,7 @@
 											<span>{conflict.text}</span>
 										</p>
 									{/each}
+									{@render more(room.warnings.length)}
 								</div>
 							{/if}
 						</div>
@@ -350,12 +380,15 @@
 							>
 								{t(messages, 'skippedTitle')}
 							</p>
-							{#each variant.issues.filter((issue) => issue.severity === 'error') as issue (issue.where + issue.message)}
+							{#each variant.issues
+								.filter((issue) => issue.severity === 'error')
+								.slice(0, SHOWN) as issue, index (index)}
 								<p class="rounded-sm bg-danger-soft px-3 py-2 text-sm text-text">
 									<span class="font-semibold">{issue.where}</span><br />
 									<span class="text-danger">{issue.message}</span>
 								</p>
 							{/each}
+							{@render more(variant.issues.filter((issue) => issue.severity === 'error').length)}
 						</div>
 					{/if}
 					{#if variant.issues.some((issue) => issue.severity !== 'error')}
@@ -365,7 +398,9 @@
 							>
 								{t(messages, 'planNotesTitle')}
 							</p>
-							{#each variant.issues.filter((issue) => issue.severity !== 'error') as issue (issue.where + issue.message)}
+							{#each variant.issues
+								.filter((issue) => issue.severity !== 'error')
+								.slice(0, SHOWN) as issue, index (index)}
 								<p class="flex items-start gap-2 rounded-sm bg-surface-2 px-3 py-2 text-sm">
 									<Info class="mt-0.5 size-4 shrink-0 text-muted" />
 									<span>
@@ -373,6 +408,7 @@
 									</span>
 								</p>
 							{/each}
+							{@render more(variant.issues.filter((issue) => issue.severity !== 'error').length)}
 						</div>
 					{/if}
 				</article>
@@ -386,6 +422,15 @@
 				/>
 			{/if}
 
+			{#if corrections}
+				<div
+					class="flex flex-col gap-2 rounded-md bg-surface-2 p-3"
+					data-testid="import-corrections"
+				>
+					<p class="text-sm text-muted">{t(messages, 'correctionsHint')}</p>
+					{@render copyButton(corrections)}
+				</div>
+			{/if}
 			{#if picked.variants.length === 0}
 				<p class="rounded-md bg-surface-2 p-3 text-sm text-muted">
 					{t(messages, 'nothingToImport')}

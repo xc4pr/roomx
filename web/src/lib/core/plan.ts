@@ -1,11 +1,18 @@
 import { z } from 'zod';
+import { LIMITS } from '../security/limits.ts';
 import {
 	BriefSchema,
 	DimsSchema,
+	HttpUrlSchema,
+	IdSchema,
 	ItemCategorySchema,
+	LabelTextSchema,
+	LongTextSchema,
 	Mm,
 	ModelTypeSchema,
-	ShoppingEntrySchema
+	NameTextSchema,
+	ShoppingEntrySchema,
+	StoredColorSchema
 } from './schema.ts';
 
 export const PLAN_FORMAT = 'roomx-plan';
@@ -20,23 +27,31 @@ export const AnchorSchema = z.object({
 	side: z.enum(ANCHOR_SIDES).optional()
 });
 
+// An empty link counts as no link; anything else must be a real http(s) link.
+export const PlanUrlSchema = z.preprocess(
+	(value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+	HttpUrlSchema.optional()
+);
+
+export const PlanShoppingEntrySchema = ShoppingEntrySchema.extend({ url: PlanUrlSchema });
+
 export const PlanItemSchema = z.object({
-	id: z.string().min(1).optional(),
-	catalogId: z.string().optional(),
-	name: z.string().optional(),
+	id: IdSchema.optional(),
+	catalogId: LabelTextSchema.optional(),
+	name: NameTextSchema.optional(),
 	category: ItemCategorySchema.optional(),
 	model: ModelTypeSchema.optional(),
 	dims: DimsSchema.optional(),
-	color: z.string().optional(),
+	color: StoredColorSchema,
 	anchor: AnchorSchema.optional(),
 	x: Mm.optional(),
 	y: Mm.optional(),
 	rotation: z.number().optional(),
-	on: z.string().optional(),
+	on: IdSchema.optional(),
 	elevation: Mm.min(0).optional(),
 	priceChf: z.number().min(0).optional(),
-	url: z.string().optional(),
-	note: z.string().optional(),
+	url: PlanUrlSchema,
+	note: LongTextSchema.optional(),
 	locked: z.boolean().optional()
 });
 
@@ -58,28 +73,28 @@ export const PlanElectricalSchema = z.object({
 	portType: z.enum(['lan', 'tv', 'both']).optional(),
 	x: Mm.optional(),
 	y: Mm.optional(),
-	reason: z.string().optional()
+	reason: LongTextSchema.optional()
 });
 
 export const PlanRoomSchema = z.object({
-	roomId: z.string().min(1),
-	items: z.array(PlanItemSchema).default([]),
-	electrical: z.array(PlanElectricalSchema).default([]),
-	notes: z.string().optional()
+	roomId: IdSchema,
+	items: z.array(PlanItemSchema).max(LIMITS.planItemsPerRoom).default([]),
+	electrical: z.array(PlanElectricalSchema).max(LIMITS.planElectricalPerRoom).default([]),
+	notes: LongTextSchema.optional()
 });
 
 export const PlanVariantSchema = z.object({
-	name: z.string().min(1),
-	rooms: z.array(PlanRoomSchema).min(1),
-	shoppingList: z.array(ShoppingEntrySchema).optional()
+	name: NameTextSchema.min(1),
+	rooms: z.array(PlanRoomSchema).min(1).max(LIMITS.planRooms),
+	shoppingList: z.array(PlanShoppingEntrySchema).max(LIMITS.shoppingEntries).optional()
 });
 
 export const PlanSchema = z.object({
 	format: z.literal(PLAN_FORMAT),
 	schemaVersion: z.literal(PLAN_SCHEMA_VERSION),
-	projectId: z.string().min(1),
+	projectId: IdSchema,
 	brief: BriefSchema.optional(),
-	variants: z.array(PlanVariantSchema).min(1)
+	variants: z.array(PlanVariantSchema).min(1).max(LIMITS.planVariants)
 });
 
 export type Anchor = z.infer<typeof AnchorSchema>;

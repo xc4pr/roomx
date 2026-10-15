@@ -53,10 +53,12 @@ def test_config_reads_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ROOMX_TOKEN", " abc ")
     monkeypatch.delenv("ROOMX_DATA", raising=False)
     monkeypatch.delenv("ROOMX_STATIC", raising=False)
+    monkeypatch.delenv("ROOMX_ALLOWED_ORIGINS", raising=False)
     config = Config.from_env()
     assert config.token == "abc"
     assert config.data == Path("/data")
     assert config.static is None
+    assert config.allowed_origins == ()
     monkeypatch.setenv("ROOMX_DATA", "/x")
     monkeypatch.setenv("ROOMX_STATIC", "/y")
     config = Config.from_env()
@@ -66,17 +68,3 @@ def test_config_reads_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_app_factory_fixture(make_client: Callable[..., TestClient]) -> None:
     assert make_client().get("/api/health").status_code == 200
-
-
-def test_cors_preflight_for_cross_origin_clients(client: TestClient) -> None:
-    response = client.options(
-        "/api/projects/p1",
-        headers={
-            "Origin": "https://app.example",
-            "Access-Control-Request-Method": "PUT",
-            "Access-Control-Request-Headers": "authorization,content-type",
-        },
-    )
-    assert response.status_code == 200
-    assert response.headers["access-control-allow-origin"] == "*"
-    assert "authorization" in response.headers["access-control-allow-headers"].lower()

@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { sequentialIds } from '#lib/core/ids.ts';
+import { LIMITS } from '#lib/security/limits.ts';
 import { sampleLookup, samplePlan, sampleProject } from '#lib/core/fixtures.ts';
 import { ProjectStore } from '#lib/state/project.svelte.ts';
 import {
@@ -167,5 +168,132 @@ describe('roomSummary', () => {
 				translator(messages, 'en')
 			)
 		).toBe('No furniture');
+	});
+});
+
+describe('analyzePlanText on messy answers', () => {
+	it('reads comments, trailing commas, a code block and surrounding text', () => {
+		const json = planJson().replace(
+			'"format": "roomx-plan",',
+			'"format": "roomx-plan", // Pflicht'
+		);
+		const messy = json.replace(/\n(\s*)\}/g, ',\n$1}');
+		const result = analyzePlanText(
+			`Hier ist dein Plan:\n\n\`\`\`json\n${messy}\n\`\`\`\nViel Freude!`,
+			options()
+		);
+		if (result.status !== 'ready') throw new Error(result.status);
+		expect(result.preview[0].itemCount).toBe(5);
+		expect(result.skipped).toBe(0);
+	});
+
+	it('imports an unknown catalogue id as custom article and says so', () => {
+		const result = analyzePlanText(
+			planJson((plan) => {
+				plan.variants[0].rooms[0].items.push({
+					catalogId: 'gibt-es-nicht',
+					name: 'Eigenes Regal',
+					category: 'shelf',
+					dims: { w: 600, d: 300, h: 1200 },
+					anchor: { wall: 1, offset: 100 }
+				});
+			}),
+			options()
+		);
+		if (result.status !== 'ready') throw new Error(result.status);
+		expect(result.preview[0].itemCount).toBe(6);
+		expect(result.skipped).toBe(0);
+		const note = result.preview[0].issues.find((issue) => issue.severity === 'info');
+		expect(note?.message).toContain('«gibt-es-nicht»');
+		expect(note?.message).toContain('eigener Artikel');
+	});
+
+	it('tells which fields an unknown catalogue id still needs', () => {
+		const result = analyzePlanText(
+			planJson((plan) => {
+				plan.variants[0].rooms[0].items.push({
+					catalogId: 'gibt-es-nicht',
+					dims: { w: 600, d: 300, h: 1200 },
+					anchor: { wall: 1, offset: 100 }
+				});
+			}),
+			options()
+		);
+		if (result.status !== 'ready') throw new Error(result.status);
+		const error = result.preview[0].issues.find((issue) => issue.severity === 'error');
+		expect(error?.message).toBe(
+			'Katalog-ID «gibt-es-nicht» ist unbekannt. Als eigener Artikel fehlen: name, category. Das Möbel wird übersprungen.'
+		);
+		expect(error?.where).toBe('Variante 1 › Schlafzimmer › gibt-es-nicht (catalogId)');
+	});
+
+	it('rejects links that are not http or https with a readable message', () => {
+		const result = analyzePlanText(
+			planJson((plan) => {
+				plan.variants[0].rooms[0].items[0].url = 'javascript:alert(1)';
+				plan.variants[0].shoppingList[0].url = 'data:text/html,hi';
+			}),
+			options()
+		);
+		if (result.status !== 'invalid') throw new Error(result.status);
+		expect(result.errors).toContain(
+			'Variante 1 › Schlafzimmer › MALM Bettgestell 160×200 › url: muss ein Link sein, der mit http:// oder https:// beginnt (erhalten: "javascript:alert(1)")'
+		);
+		expect(result.errors.some((line) => line.includes('Einkaufsliste 1 › url'))).toBe(true);
+	});
+
+	it('names the list and the maximum when a plan has too many items', () => {
+		const result = analyzePlanText(
+			planJson((plan) => {
+				const items = plan.variants[0].rooms[0].items;
+				plan.variants[0].rooms[0].items = Array.from(
+					{ length: LIMITS.planItemsPerRoom + 1 },
+					() => items[3]
+				);
+			}),
+			options()
+		);
+		if (result.status !== 'invalid') throw new Error(result.status);
+		expect(result.errors).toEqual([
+			`Variante 1 › Schlafzimmer › items: darf höchstens ${LIMITS.planItemsPerRoom} Einträge haben`
+		]);
+	});
+
+	it('names the field and the maximum for over-long text', () => {
+		const result = analyzePlanText(
+			planJson((plan) => {
+				plan.variants[0].rooms[0].notes = 'x'.repeat(LIMITS.text + 1);
+			}),
+			options('en')
+		);
+		if (result.status !== 'invalid') throw new Error(result.status);
+		expect(result.errors).toEqual([
+			`Variant 1 › Schlafzimmer › notes: must not be longer than ${LIMITS.text} characters`
+		]);
+	});
+
+	it('caps the error list and counts the rest', () => {
+		const result = analyzePlanText(
+			planJson((plan) => {
+				plan.variants[0].rooms[0].items = Array.from({ length: 120 }, (_, index) => ({
+					name: `Ding ${index}`,
+					category: 'sofaa',
+					dims: { w: 1, d: 1, h: 1 },
+					x: 0,
+					y: 0
+				}));
+			}),
+			options()
+		);
+		if (result.status !== 'invalid') throw new Error(result.status);
+		expect(result.errors).toHaveLength(LIMITS.reportedIssues + 1);
+		expect(result.errors.at(-1)).toBe(`… und ${120 - LIMITS.reportedIssues} weitere Probleme`);
+	});
+
+	it('refuses pasted text above the limit', () => {
+		expect(analyzePlanText('x'.repeat(LIMITS.planText + 1), options())).toEqual({
+			status: 'unreadable',
+			reason: 'tooLarge'
+		});
 	});
 });

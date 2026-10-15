@@ -45,13 +45,14 @@ def create_app(config: Config) -> FastAPI:
     store = Store(config.data)
     token = config.token.encode()
     app = FastAPI(title="roomx", docs_url=None, redoc_url=None, openapi_url=None)
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["GET", "HEAD", "PUT"],
-        allow_headers=["Authorization", "Content-Type"],
-        max_age=600,
-    )
+    if config.allowed_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=list(config.allowed_origins),
+            allow_methods=["GET", "HEAD", "PUT"],
+            allow_headers=["Authorization", "Content-Type"],
+            max_age=600,
+        )
 
     def authorize(request: Request) -> None:
         header = request.headers.get("authorization", "")

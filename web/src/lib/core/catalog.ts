@@ -1,16 +1,22 @@
 import { z } from 'zod';
+import { LIMITS } from '../security/limits.ts';
 import {
 	DimsSchema,
+	HttpUrlSchema,
 	ItemCategorySchema,
+	LabelTextSchema,
 	LocalizedSchema,
 	ModelTypeSchema,
 	MountSchema
 } from './schema.ts';
 
 export const CatalogEntrySchema = z.object({
-	id: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
-	brand: z.string(),
-	series: z.string().optional(),
+	id: z
+		.string()
+		.max(LIMITS.id)
+		.regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
+	brand: LabelTextSchema,
+	series: LabelTextSchema.optional(),
 	name: LocalizedSchema,
 	category: ItemCategorySchema,
 	model: ModelTypeSchema,
@@ -20,8 +26,8 @@ export const CatalogEntrySchema = z.object({
 	power: z.number().int().min(0),
 	clearance: z.object({ front: z.number().int().min(0), side: z.number().int().min(0) }),
 	priceChf: z.number().min(0).optional(),
-	url: z.string().url().optional(),
-	articleNo: z.string().optional(),
+	url: HttpUrlSchema.optional(),
+	articleNo: LabelTextSchema.optional(),
 	verified: z.boolean()
 });
 

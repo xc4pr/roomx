@@ -13,6 +13,7 @@ export type PlanIssueCode =
 	| 'wrongProject'
 	| 'unknownRoom'
 	| 'unknownCatalogId'
+	| 'unknownCatalogIdKept'
 	| 'missingDescription'
 	| 'missingPosition'
 	| 'unknownWall'
@@ -27,6 +28,8 @@ export interface PlanIssue {
 	roomId?: string;
 	itemRef?: string;
 	field?: string;
+	detail?: string;
+	missing?: string[];
 }
 
 export interface ResolvedPlan {
@@ -52,6 +55,14 @@ interface Described {
 	url?: string;
 }
 
+function missingDescription(planItem: PlanItem): string[] {
+	const missing: string[] = [];
+	if (!planItem.name) missing.push('name');
+	if (!planItem.category) missing.push('category');
+	if (!planItem.dims) missing.push('dims');
+	return missing;
+}
+
 function describe(
 	planItem: PlanItem,
 	entry: CatalogEntry | undefined,
@@ -70,12 +81,13 @@ function describe(
 			url: planItem.url ?? entry.url
 		};
 	}
-	if (!planItem.name || !planItem.category || !planItem.dims) return undefined;
+	const { name, category, dims } = planItem;
+	if (!name || !category || !dims) return undefined;
 	return {
-		name: planItem.name,
-		category: planItem.category,
+		name,
+		category,
 		model: planItem.model,
-		dims: planItem.dims,
+		dims,
 		color: planItem.color,
 		priceChf: planItem.priceChf,
 		url: planItem.url
@@ -116,15 +128,31 @@ function resolveRoomItems(
 			return 'done';
 		}
 		const entry = planItem.catalogId ? lookup(planItem.catalogId) : undefined;
-		if (planItem.catalogId && !entry && !planItem.dims) {
-			report({ severity: 'error', code: 'unknownCatalogId', itemRef: ref, field: 'catalogId' });
+		const ownArticle = planItem.catalogId !== undefined && !entry;
+		const missing = entry ? [] : missingDescription(planItem);
+		if (missing.length > 0) {
+			report(
+				ownArticle
+					? {
+							severity: 'error',
+							code: 'unknownCatalogId',
+							itemRef: ref,
+							field: 'catalogId',
+							detail: planItem.catalogId,
+							missing
+						}
+					: {
+							severity: 'error',
+							code: 'missingDescription',
+							itemRef: ref,
+							field: missing[0],
+							missing
+						}
+			);
 			return 'done';
 		}
 		const described = describe(planItem, entry, language);
-		if (!described) {
-			report({ severity: 'error', code: 'missingDescription', itemRef: ref, field: 'dims' });
-			return 'done';
-		}
+		if (!described) return 'done';
 		let carrier: Item | undefined;
 		if (planItem.on) {
 			carrier = byPlanId.get(planItem.on);
@@ -181,6 +209,15 @@ function resolveRoomItems(
 		};
 		resolved.push(item);
 		if (planItem.id) byPlanId.set(planItem.id, item);
+		if (ownArticle) {
+			report({
+				severity: 'info',
+				code: 'unknownCatalogIdKept',
+				itemRef: ref,
+				field: 'catalogId',
+				detail: planItem.catalogId
+			});
+		}
 		return 'done';
 	};
 

@@ -1,13 +1,39 @@
 import { z } from 'zod';
+import '../security/zod.ts';
+import { COLOR_PATTERN, safeColor } from '../security/color.ts';
+import { LIMITS } from '../security/limits.ts';
+import { normalizeLinkInput } from '../security/url.ts';
 
 export const SCHEMA_VERSION = 1;
 
 export const Mm = z.number().int();
 export const PositiveMm = Mm.positive();
 
+export const IdSchema = z.string().min(1).max(LIMITS.id);
+export const NameTextSchema = z.string().max(LIMITS.name);
+export const LabelTextSchema = z.string().max(LIMITS.label);
+export const LongTextSchema = z.string().max(LIMITS.text);
+export const TimestampSchema = z.string().max(LIMITS.timestamp);
+
+export const HttpUrlSchema = z.url({ protocol: /^https?$/ }).max(LIMITS.url);
+export const ColorTextSchema = z.string().max(LIMITS.color).regex(COLOR_PATTERN);
+
+// Stored and backed-up projects drop an unusable link or colour instead of failing to load, so one bad value never locks a project.
+const StoredLinkSchema = z.preprocess(
+	(value) => (value === undefined ? undefined : normalizeLinkInput(value)),
+	HttpUrlSchema.optional()
+);
+export const StoredColorSchema = z.preprocess(
+	(value) => (value === undefined ? undefined : safeColor(value)),
+	ColorTextSchema.optional()
+);
+
 export const PointSchema = z.object({ x: Mm, y: Mm });
 
-export const LocalizedSchema = z.object({ de: z.string(), en: z.string() });
+export const LocalizedSchema = z.object({
+	de: z.string().max(LIMITS.caption),
+	en: z.string().max(LIMITS.caption)
+});
 
 export const ROOM_TYPES = [
 	'living',
@@ -47,10 +73,10 @@ export const ELECTRICAL_KINDS = [
 ] as const;
 
 const elementBase = {
-	id: z.string().min(1),
+	id: IdSchema,
 	status: ElementStatusSchema,
-	note: z.string().optional(),
-	reason: z.string().optional()
+	note: LongTextSchema.optional(),
+	reason: LongTextSchema.optional()
 };
 
 const wallPlacement = {
@@ -160,19 +186,19 @@ export const PERSPECTIVE_KINDS = ['corner', 'wall', 'ceiling', 'floor', 'element
 
 export const PerspectiveSchema = z.object({
 	kind: z.enum(PERSPECTIVE_KINDS),
-	ref: z.string().optional(),
-	stepKey: z.string().optional(),
+	ref: LabelTextSchema.optional(),
+	stepKey: LabelTextSchema.optional(),
 	caption: LocalizedSchema
 });
 
 export const PhotoSchema = z.object({
-	id: z.string().min(1),
+	id: IdSchema,
 	hash: z.string().regex(/^[0-9a-f]{64}$/),
 	perspective: PerspectiveSchema,
 	w: z.number().int().positive(),
 	h: z.number().int().positive(),
-	takenAt: z.string(),
-	note: z.string().optional()
+	takenAt: TimestampSchema,
+	note: LongTextSchema.optional()
 });
 
 export const ITEM_CATEGORIES = [
@@ -256,10 +282,10 @@ export const MountSchema = z.enum(MOUNTS);
 export const DimsSchema = z.object({ w: PositiveMm, d: PositiveMm, h: PositiveMm });
 
 export const ItemSchema = z.object({
-	id: z.string().min(1),
-	roomId: z.string().min(1),
-	catalogId: z.string().optional(),
-	name: z.string(),
+	id: IdSchema,
+	roomId: IdSchema,
+	catalogId: LabelTextSchema.optional(),
+	name: NameTextSchema,
 	category: ItemCategorySchema,
 	model: ModelTypeSchema.optional(),
 	mount: MountSchema.optional(),
@@ -268,36 +294,36 @@ export const ItemSchema = z.object({
 	y: Mm,
 	rotation: z.number(),
 	elevation: Mm,
-	onItemId: z.string().optional(),
-	color: z.string().optional(),
+	onItemId: IdSchema.optional(),
+	color: StoredColorSchema,
 	power: z.number().int().min(0).optional(),
 	priceChf: z.number().min(0).optional(),
-	url: z.string().optional(),
-	note: z.string().optional(),
+	url: StoredLinkSchema,
+	note: LongTextSchema.optional(),
 	locked: z.boolean().optional()
 });
 
 export const SuggestionSchema = z.object({
-	roomId: z.string().min(1),
+	roomId: IdSchema,
 	element: ElementSchema
 });
 
 export const ShoppingEntrySchema = z.object({
-	catalogId: z.string().optional(),
-	name: z.string(),
+	catalogId: LabelTextSchema.optional(),
+	name: NameTextSchema,
 	qty: z.number().int().min(1),
 	priceChf: z.number().min(0).optional(),
-	url: z.string().optional()
+	url: StoredLinkSchema
 });
 
 export const VariantSchema = z.object({
-	id: z.string().min(1),
-	name: z.string(),
+	id: IdSchema,
+	name: NameTextSchema,
 	source: z.enum(['user', 'ai']),
-	items: z.array(ItemSchema),
-	suggestions: z.array(SuggestionSchema),
-	roomNotes: z.record(z.string(), z.string()).optional(),
-	shoppingList: z.array(ShoppingEntrySchema).optional()
+	items: z.array(ItemSchema).max(LIMITS.itemsPerVariant),
+	suggestions: z.array(SuggestionSchema).max(LIMITS.suggestionsPerVariant),
+	roomNotes: z.record(IdSchema, LongTextSchema).optional(),
+	shoppingList: z.array(ShoppingEntrySchema).max(LIMITS.shoppingEntries).optional()
 });
 
 export const WorkstationSchema = z.object({
@@ -305,11 +331,11 @@ export const WorkstationSchema = z.object({
 	monitorInch: z.number().positive().optional(),
 	computer: z.enum(['laptop', 'pc', 'both']).optional(),
 	sitStand: z.boolean().optional(),
-	devices: z.array(z.string()).optional()
+	devices: z.array(LabelTextSchema).max(LIMITS.briefList).optional()
 });
 
 export const KeepItemSchema = z.object({
-	name: z.string(),
+	name: NameTextSchema,
 	dims: DimsSchema.optional()
 });
 
@@ -317,16 +343,16 @@ export const BriefSchema = z.object({
 	persons: z.object({
 		adults: z.number().int().min(0),
 		children: z.number().int().min(0),
-		childAges: z.array(z.number().min(0)).optional(),
-		pets: z.string().optional()
+		childAges: z.array(z.number().min(0)).max(LIMITS.briefList).optional(),
+		pets: NameTextSchema.optional()
 	}),
-	bedSizes: z.array(z.string()).default([]),
-	workstations: z.array(WorkstationSchema).default([]),
-	style: z.string().optional(),
+	bedSizes: z.array(LabelTextSchema).max(LIMITS.briefList).default([]),
+	workstations: z.array(WorkstationSchema).max(LIMITS.briefList).default([]),
+	style: LongTextSchema.optional(),
 	budgetChf: z.number().min(0).optional(),
-	retailers: z.array(z.string()).optional(),
-	keep: z.array(KeepItemSchema).optional(),
-	wishes: z.string().optional()
+	retailers: z.array(LabelTextSchema).max(LIMITS.briefList).optional(),
+	keep: z.array(KeepItemSchema).max(LIMITS.briefKeep).optional(),
+	wishes: LongTextSchema.optional()
 });
 
 export const BoardPosSchema = z.object({ x: Mm, y: Mm, rot: z.number() });
@@ -338,33 +364,33 @@ export const SlopeSchema = z.object({
 });
 
 export const RoomSchema = z.object({
-	id: z.string().min(1),
-	name: z.string(),
+	id: IdSchema,
+	name: NameTextSchema,
 	type: RoomTypeSchema,
-	polygon: z.array(PointSchema).min(3),
+	polygon: z.array(PointSchema).min(3).max(LIMITS.polygonPoints),
 	height: PositiveMm,
 	boardPos: BoardPosSchema,
-	elements: z.array(ElementSchema),
-	photos: z.array(PhotoSchema),
-	slopes: z.array(SlopeSchema).optional(),
+	elements: z.array(ElementSchema).max(LIMITS.elementsPerRoom),
+	photos: z.array(PhotoSchema).max(LIMITS.photosPerRoom),
+	slopes: z.array(SlopeSchema).max(LIMITS.polygonPoints).optional(),
 	separate: z.boolean().optional(),
-	floorColor: z.string().optional(),
-	wallColor: z.string().optional(),
-	notes: z.string().optional()
+	floorColor: StoredColorSchema,
+	wallColor: StoredColorSchema,
+	notes: LongTextSchema.optional()
 });
 
 export const ProjectSchema = z.object({
-	id: z.string().min(1),
-	name: z.string(),
+	id: IdSchema,
+	name: NameTextSchema,
 	schemaVersion: z.literal(SCHEMA_VERSION),
 	rev: z.number().int().min(0),
-	createdAt: z.string(),
-	updatedAt: z.string(),
+	createdAt: TimestampSchema,
+	updatedAt: TimestampSchema,
 	deleted: z.boolean().optional(),
 	brief: BriefSchema.optional(),
-	rooms: z.array(RoomSchema),
-	variants: z.array(VariantSchema),
-	activeVariantId: z.string().optional()
+	rooms: z.array(RoomSchema).max(LIMITS.rooms),
+	variants: z.array(VariantSchema).max(LIMITS.variants),
+	activeVariantId: IdSchema.optional()
 });
 
 export type Point = z.infer<typeof PointSchema>;

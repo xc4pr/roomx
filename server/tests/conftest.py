@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -23,7 +24,7 @@ def make_static(root: Path) -> Path:
 
 @pytest.fixture
 def make_client(tmp_path: Path) -> Callable[..., TestClient]:
-    def build(static: Path | None = None, **overrides: int) -> TestClient:
+    def build(static: Path | None = None, **overrides: Any) -> TestClient:
         config = Config(token=TOKEN, data=tmp_path / "data", static=static, **overrides)
         return TestClient(create_app(config))
 

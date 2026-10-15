@@ -5,6 +5,7 @@ import { itemRef, type PlanIssue } from '#lib/core/planResolve.ts';
 import type { Project } from '#lib/core/schema.ts';
 import type { Language } from '#lib/core/units.ts';
 import { elementKindNames } from '#lib/i18n/common.ts';
+import { LIMITS } from '#lib/security/limits.ts';
 import { translator, type Translate } from '#lib/features/export/text.ts';
 import { messages } from './i18n.ts';
 
@@ -211,11 +212,15 @@ export function describeIssueMessage(
 			return tr(issue.inclusive === false ? 'issueMaxExclusive' : 'issueMax', { max });
 		}
 		case 'invalid_format':
-			return tr('issueFormat');
+			return issue.format === 'url'
+				? tr('issueUrl', { received: shown(received) })
+				: tr('issueFormat');
 		default:
 			return tr('issueGeneric', { message: issue.message });
 	}
 }
+
+const MAX_DESCRIBED_ISSUES = 500;
 
 export function describeZodError(
 	error: ZodError,
@@ -223,7 +228,7 @@ export function describeZodError(
 	context: DescribeContext
 ): string[] {
 	const tr = translator(messages, context.language);
-	const lines = error.issues.map((issue) => {
+	const lines = error.issues.slice(0, MAX_DESCRIBED_ISSUES).map((issue) => {
 		const where = describePath(
 			issue.path.filter((segment): segment is Segment => typeof segment !== 'symbol'),
 			raw,
@@ -232,13 +237,16 @@ export function describeZodError(
 		);
 		return `${where}: ${describeIssueMessage(issue as IssueLike, raw, tr)}`;
 	});
-	return [...new Set(lines)];
+	const visible = [...new Set(lines)].slice(0, LIMITS.reportedIssues);
+	const hidden = error.issues.length - visible.length;
+	return hidden > 0 ? [...visible, tr('issuesMore', { n: hidden })] : visible;
 }
 
 const ISSUE_KEYS = {
 	wrongProject: 'planWrongProject',
 	unknownRoom: 'planUnknownRoom',
 	unknownCatalogId: 'planUnknownCatalogId',
+	unknownCatalogIdKept: 'planUnknownCatalogIdKept',
 	missingDescription: 'planMissingDescription',
 	missingPosition: 'planMissingPosition',
 	unknownWall: 'planUnknownWall',
@@ -252,6 +260,7 @@ export interface ReadableIssue {
 	variantIndex: number;
 	where: string;
 	message: string;
+	ref?: string;
 }
 
 function issueItemLabel(
@@ -295,6 +304,11 @@ export function describePlanIssue(
 		severity: issue.severity,
 		variantIndex: issue.variantIndex,
 		where: parts.join(' › '),
-		message: tr(ISSUE_KEYS[issue.code], { id: issue.roomId ?? '' })
+		message: tr(ISSUE_KEYS[issue.code], {
+			id: issue.roomId ?? '',
+			detail: issue.detail ?? '',
+			missing: issue.missing?.join(', ') ?? ''
+		}),
+		...(issue.itemRef ? { ref: issue.itemRef } : {})
 	};
 }
