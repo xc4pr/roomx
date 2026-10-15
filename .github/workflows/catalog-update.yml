@@ -1,0 +1,285 @@
+name: Catalog update
+
+# Weekly catalog update: Monday 04:17 Swiss time.
+# GitHub cron only knows UTC: 04:17 is 02:17 UTC in summer (CEST) and 03:17 UTC
+# in winter (CET). Both lines fire every Monday; the gate job lets only the one
+# through whose cron line matches today's Zurich offset. It compares the cron
+# line (github.event.schedule), not the clock, because GitHub may start
+# scheduled runs late and a late run must not be skipped.
+on:
+  schedule:
+    - cron: "17 2 * * 1"
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      shops:
+        description: "Shops, comma separated"
+        default: "ikea,jysk,tchibo"
+        type: string
+      budget_min:
+        description: "Time budget per shop in minutes"
+        default: "270"
+        type: string
+      max_urls:
+        description: "Maximum URLs per shop (empty = all)"
+        default: ""
+        type: string
+      dry_run:
+        description: "Run everything but do not commit or push"
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: catalog-update
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT" != schedule ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          offset=$(TZ=Europe/Zurich date +%z)
+          case "$offset" in
+            +0200) want="17 2 * * 1" ;;
+            +0100) want="17 3 * * 1" ;;
+            *) echo "::error::Unexpected Zurich offset $offset"; exit 1 ;;
+          esac
+          if [ "$SCHEDULE" = "$want" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Cron line '$SCHEDULE' is not 04:17 Zurich today (offset $offset), skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  update:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SHOPS_IN: ${{ inputs.shops || 'ikea,jysk,tchibo' }}
+      SKIP_SHOPS: ${{ vars.CATALOG_SKIP_SHOPS }}
+      BUDGET_MIN: ${{ inputs.budget_min || '270' }}
+      MAX_URLS: ${{ inputs.max_urls }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare
+        run: |
+          echo "TODAY=$(TZ=Europe/Zurich date +%F)" >> "$GITHUB_ENV"
+          mkdir -p catalog-index/out
+          if [ -f catalog-index/requirements.txt ]; then
+            python3 -m pip install -r catalog-index/requirements.txt
+          fi
+          python -m venv server/.venv
+          server/.venv/bin/pip install -e 'server[dev]'
+          pnpm -C web install --frozen-lockfile
+          pnpm -C web exec playwright install --with-deps chromium
+          gh label create catalog-update --color 0e8a16 \
+            --description "Weekly catalog update" 2>/dev/null || true
+
+      - name: Python unit tests
+        run: python3 -m unittest discover -s catalog-index/test
+
+      - name: Index runs (shops in parallel)
+        run: |
+          set -u
+          # Selected shops minus those switched off by repository variable CATALOG_SKIP_SHOPS.
+          shops=()
+          IFS=, read -ra want <<< "${SHOPS_IN// /}"
+          IFS=, read -ra skip <<< "${SKIP_SHOPS// /}"
+          for s in "${want[@]}"; do
+            case "$s" in ikea|jysk|tchibo) ;; *) echo "::error::Unknown shop: $s"; exit 1 ;; esac
+            drop=0
+            for k in "${skip[@]:-}"; do [ "$k" = "$s" ] && drop=1; done
+            if [ "$drop" = 1 ]; then echo "Shop $s skipped (CATALOG_SKIP_SHOPS)"; else shops+=("$s"); fi
+          done
+          [[ "$BUDGET_MIN" =~ ^[0-9]+$ ]] || { echo "::error::budget_min must be a number"; exit 1; }
+          extra=()
+          if [ -n "$MAX_URLS" ]; then
+            [[ "$MAX_URLS" =~ ^[0-9]+$ ]] || { echo "::error::max_urls must be a number"; exit 1; }
+            extra=(--max-urls "$MAX_URLS")
+          fi
+
+          declare -A pids
+          for s in "${shops[@]}"; do
+            python3 catalog-index/update.py index --shop "$s" \
+              --budget-min "$BUDGET_MIN" "${extra[@]}" \
+              > "catalog-index/out/$s.log" 2>&1 &
+            pids[$s]=$!
+          done
+
+          blocked=""; failed=""
+          for s in "${shops[@]}"; do
+            rc=0
+            wait "${pids[$s]}" || rc=$?
+            echo "::group::$s (exit $rc)"; tail -n 40 "catalog-index/out/$s.log"; echo "::endgroup::"
+            case "$rc" in
+              0) ;;
+              2) blocked="$blocked $s" ;;
+              *) failed="$failed $s" ;;
+            esac
+          done
+          echo "BLOCKED=${blocked# }" >> "$GITHUB_ENV"
+
+          # One issue (or comment) per blocked shop; the other shops still get published.
+          for s in $blocked; do
+            title="Catalog update: $s blocks requests from GitHub"
+            body="$s blocks requests from GitHub; fallback via server, see the instructions. (Run $TODAY: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
+            n=$(gh issue list --label catalog-update --state open --json number,title \
+                --jq "map(select(.title == \"$title\"))[0].number // empty")
+            if [ -n "$n" ]; then gh issue comment "$n" --body "$body"
+            else gh issue create --label catalog-update --title "$title" --body "$body"; fi
+          done
+
+          if [ -n "$failed" ]; then
+            echo "::error::Index run failed for:$failed"
+            exit 1
+          fi
+
+      - name: Normalize
+        run: |
+          rc=0
+          python3 catalog-index/update.py normalize || rc=$?
+          case "$rc" in
+            0) ;;
+            3) echo "GUARD=1" >> "$GITHUB_ENV" ;;
+            *) exit "$rc" ;;
+          esac
+
+      - name: Protection rule triggered, open issue
+        if: env.GUARD == '1'
+        run: |
+          title="Catalog update $TODAY: protection rule triggered"
+          n=$(gh issue list --label catalog-update --state open --json number,title \
+              --jq 'map(select(.title | endswith("protection rule triggered")))[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --body-file catalog-index/out/report.md
+          else
+            gh issue create --label catalog-update --title "$title" \
+              --body-file catalog-index/out/report.md
+          fi
+
+      - name: Curated entries differ, open issue
+        if: env.GUARD != '1' && hashFiles('catalog-index/out/curated.md') != ''
+        run: |
+          n=$(gh issue list --label catalog-update --state open --json number,title \
+              --jq 'map(select(.title | endswith("curated entries differ")))[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --body-file catalog-index/out/curated.md
+          else
+            gh issue create --label catalog-update --title "Catalog update $TODAY: curated entries differ" \
+              --body-file catalog-index/out/curated.md
+          fi
+
+      - name: Set price date
+        if: env.GUARD != '1'
+        run: python3 catalog-index/update.py stand --datum "$TODAY"
+
+      - name: Lint, check, test
+        if: env.GUARD != '1'
+        run: |
+          pnpm -C web lint
+          pnpm -C web check
+          pnpm -C web test
+
+      - name: E2E Chromium
+        if: env.GUARD != '1'
+        run: pnpm -C web test:e2e
+
+      - name: Detect changes
+        if: env.GUARD != '1'
+        run: |
+          if [ -n "$(git status --porcelain -- web/src/lib/catalog/data/full.json catalog-index/state)" ]; then
+            echo "CHANGED=1" >> "$GITHUB_ENV"
+          else
+            echo "No changes in full.json or state."
+          fi
+
+      - name: Commit and push to main
+        if: env.GUARD != '1' && env.CHANGED == '1' && env.DRY_RUN != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- web/src/lib/catalog/data/full.json web/src/lib/catalog/index.ts catalog-index/state
+          git commit -m "catalog: weekly update $TODAY"
+          # No tag on purpose: pages.yml shows the version from git describe --tags.
+          git push origin HEAD:main
+          echo "PUSHED=1" >> "$GITHUB_ENV"
+
+      - name: Start Pages build
+        # A push with GITHUB_TOKEN does not trigger other workflows.
+        if: env.PUSHED == '1'
+        run: gh workflow run pages.yml --ref main
+
+      - name: Bring dev up to date
+        if: env.PUSHED == '1'
+        run: |
+          git fetch origin dev
+          git checkout -B dev origin/dev
+          if git merge --no-edit origin/main; then
+            git push origin dev
+          else
+            git merge --abort
+            title="Catalog update $TODAY: merge main into dev by hand"
+            body="Automatic merge of main into dev failed (conflict). Please merge main into dev by hand."
+            n=$(gh issue list --label catalog-update --state open --json number,title \
+                --jq "map(select(.title == \"$title\"))[0].number // empty")
+            if [ -n "$n" ]; then gh issue comment "$n" --body "$body"
+            else gh issue create --label catalog-update --title "$title" --body "$body"; fi
+          fi
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Catalog update $TODAY"
+            echo
+            echo "Dry run: $DRY_RUN, protection rule: ${GUARD:-0}, changed: ${CHANGED:-0}, pushed: ${PUSHED:-0}, blocked: ${BLOCKED:-none}"
+            echo
+            if [ -f catalog-index/out/report.md ]; then cat catalog-index/out/report.md; else echo "No report.md present."; fi
+            for f in catalog-index/out/*-index.json; do
+              [ -f "$f" ] || continue
+              echo
+              echo "### $(basename "$f")"
+              jq -r 'to_entries | map(select(.value | type != "array" and type != "object")) | map("- \(.key): \(.value)") | .[]' "$f" || true
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-index-out
+          path: catalog-index/out/
+          retention-days: 7
+          if-no-files-found: ignore

@@ -1,0 +1,42 @@
+{
+  "hinweis": "Filter nach den ersten zwei Pfadteilen der URL (/de/<kategorie>/<unterkategorie>/<slug>). Der laengste passende Praefix gewinnt. Ohne Treffer: aufnehmen (im Zweifel aufnehmen). Kategorieseiten (URLs, unter denen weitere URLs liegen) sind keine Produkte und werden nie abgerufen.",
+  "ausschliessen": {
+    "filialen": "Filialseiten, keine Produkte",
+    "inspiration": "Inhaltsseiten",
+    "b2b": "Inhaltsseiten",
+    "badezimmer": "Badzubehoer, Badtextilien, Hausschuhe, Duschvorhaenge",
+    "aufbewahrung/kleiderbugel": "Kleinteile",
+    "aufbewahrung/schrankzubehor": "Zubehoer",
+    "buro/burozubehor": "Buerozubehoer",
+    "garten/camping": "Campingausruestung",
+    "garten/trampoline": "Sportgeraete",
+    "schlafzimmer/bettwasche": "Bettwaesche",
+    "schlafzimmer/duvets": "Bettdecken",
+    "schlafzimmer/fixleintucher-bettlaken": "Bettwaesche",
+    "schlafzimmer/kopfkissen": "Kissen-Inlets",
+    "schlafzimmer/kopfkissenbezuge": "Bettwaesche",
+    "schlafzimmer/matratzen": "Matratzen",
+    "vorhange-jalousien/insektenschutzgitter": "Zubehoer",
+    "vorhange-jalousien/nahzubehor": "Naehzubehoer",
+    "weihnachten/weihnachtsbettwasche": "Bettwaesche",
+    "wohnaccessoires/geschirrtucher": "Geschirr/Kueche",
+    "wohnaccessoires/haushaltsartikel": "Haushaltswaren",
+    "wohnaccessoires/kuchenaccessoires": "Kuechenzubehoer",
+    "wohnaccessoires/waschen-und-bugeln": "Haushaltswaren",
+    "wohnzimmer/mobelpflege-und-zubehor": "Pflegemittel"
+  },
+  "einschliessen": {
+    "aufbewahrung": "Regale, Schraenke, Kommoden, Koerbe",
+    "buro": "Bueromoebel",
+    "esszimmer": "Esstische, Stuehle, Sideboards",
+    "garderobe": "Garderobenmoebel",
+    "garten": "Gartenmoebel, Gartenbeleuchtung, Sonnenschutz, Auflagen, Gartenzubehoer (im Zweifel)",
+    "schlafzimmer/betten": "Betten und Bettgestelle",
+    "schlafzimmer/nachttische": "Nachttische",
+    "schlafzimmer/tagesdecken": "Tagesdecken (Deko)",
+    "vorhange-jalousien": "Vorhaenge, Rollos, Plissees, Stangen",
+    "weihnachten": "Weihnachtsdeko und -beleuchtung (im Zweifel)",
+    "wohnaccessoires": "Deko, Spiegel, Teppiche, Decken, Kissen, Beleuchtung",
+    "wohnzimmer": "Sofas, Sessel, Tische, TV-Moebel"
+  }
+}
