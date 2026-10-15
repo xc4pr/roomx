@@ -14,7 +14,7 @@ const HexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/);
 
 export const LOOK_BASES = ['none', 'plinth', 'feet', 'legs', 'frame'] as const;
 export const LOOK_HANDLES = ['none', 'bar', 'knob', 'recessTop', 'hole'] as const;
-export const LOOK_ROWS = ['drawer', 'door', 'flap', 'open', 'glass'] as const;
+export const LOOK_ROWS = ['drawer', 'door', 'flap', 'open', 'glass', 'slide'] as const;
 
 // One horizontal band of the front, listed from top to bottom; `weight` is its share of the front height.
 export const LookRowSchema = z
@@ -27,7 +27,7 @@ export const LookRowSchema = z
 
 // How a catalog article is built, so that the generic model of its type resembles the original.
 // `base`: none = body on the floor, plinth = recessed toe kick, feet = short feet, legs = tall legs,
-// frame = metal tube frame carrying the body. Heights in mm.
+// frame = metal tube frame carrying the body. `sides`: ladder = open frame sides (IVAR). Heights in mm.
 export const LookSchema = z
 	.object({
 		base: z.enum(LOOK_BASES).optional(),
@@ -36,6 +36,8 @@ export const LookSchema = z
 		handle: z.enum(LOOK_HANDLES).optional(),
 		rows: z.array(LookRowSchema).min(1).max(12).optional(),
 		frontStyle: z.enum(['flat', 'frame']).optional(),
+		sides: z.enum(['panel', 'ladder']).optional(),
+		wheels: z.boolean().optional(),
 		top: z.enum(['flush', 'overhang']).optional(),
 		books: z.boolean().optional(),
 		frameColor: HexColorSchema.optional(),
