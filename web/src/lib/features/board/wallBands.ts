@@ -117,3 +117,58 @@ export function thicknessAt(
 	);
 	return link?.thickness ?? base;
 }
+
+export interface BadgePlacement {
+	along: number;
+	inside: boolean;
+}
+
+export interface BadgeLabel {
+	along: number;
+	half: number;
+}
+
+export function wallBadgePlacement(
+	length: number,
+	shared: readonly { from: number; to: number }[],
+	badgeSize: number,
+	label: BadgeLabel | null
+): BadgePlacement {
+	const spans = shared
+		.map((span) => ({ from: Math.max(0, span.from), to: Math.min(length, span.to) }))
+		.filter((span) => span.to > span.from)
+		.sort((a, b) => a.from - b.from);
+	const free: { from: number; to: number }[] = [];
+	let at = 0;
+	for (const span of spans) {
+		if (span.from > at) free.push({ from: at, to: span.from });
+		at = Math.max(at, span.to);
+	}
+	if (at < length) free.push({ from: at, to: length });
+	const mid = length / 2;
+	const fits = free.filter((stretch) => stretch.to - stretch.from >= badgeSize);
+	if (fits.length > 0) {
+		const half = badgeSize / 2;
+		const here = fits.find((stretch) => mid >= stretch.from + half && mid <= stretch.to - half);
+		if (here) return { along: mid, inside: false };
+		const centre = (stretch: { from: number; to: number }): number =>
+			(stretch.from + stretch.to) / 2;
+		const nearest = fits.reduce((best, stretch) =>
+			Math.abs(centre(stretch) - mid) < Math.abs(centre(best) - mid) ? stretch : best
+		);
+		return { along: centre(nearest), inside: false };
+	}
+	if (!label) return { along: mid, inside: true };
+	const reach = label.half + badgeSize / 2 + badgeSize / 8;
+	const lo = badgeSize / 2;
+	const hi = length - badgeSize / 2;
+	const after = label.along + reach;
+	const before = label.along - reach;
+	const along =
+		after <= hi && (after - mid <= mid - before || before < lo)
+			? after
+			: before >= lo
+				? before
+				: Math.min(hi, Math.max(lo, mid));
+	return { along, inside: true };
+}

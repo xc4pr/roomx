@@ -33,9 +33,11 @@
 		return () => clearTimeout(timer);
 	});
 
+	let positionedFor: string | null = null;
 	$effect(() => {
-		void roomId;
+		const id = roomId;
 		void room?.type;
+		const behavior: ScrollBehavior = positionedFor === id ? 'smooth' : 'auto';
 		requestAnimationFrame(() => {
 			if (document.querySelector('[role="menu"]')) return;
 			const row = document.querySelector<HTMLElement>('[data-type-row]');
@@ -43,8 +45,9 @@
 			if (!row || !chip) return;
 			const left = chip.offsetLeft - row.offsetLeft;
 			if (left < row.scrollLeft || left + chip.offsetWidth > row.scrollLeft + row.clientWidth) {
-				row.scrollTo({ left: left - 24, behavior: 'smooth' });
+				row.scrollTo({ left: left - 24, behavior });
 			}
+			positionedFor = id;
 		});
 	});
 

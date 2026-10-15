@@ -89,3 +89,27 @@ export function textKey(id: TourStepId, localOnly: boolean, keyboard: boolean): 
 	if (localOnly) return 'text_safe_local';
 	return keyboard ? 'text_safe' : 'text_safe_phone';
 }
+
+export const CARD_WAIT_MS = 1200;
+
+export interface WaitGate {
+	update(waiting: boolean, now?: number): boolean;
+	reset(): void;
+}
+
+export function createWaitGate(limit = CARD_WAIT_MS): WaitGate {
+	let since: number | null = null;
+	return {
+		update(waiting, now = Date.now()) {
+			if (!waiting) {
+				since = null;
+				return false;
+			}
+			since ??= now;
+			return now - since >= limit;
+		},
+		reset() {
+			since = null;
+		}
+	};
+}

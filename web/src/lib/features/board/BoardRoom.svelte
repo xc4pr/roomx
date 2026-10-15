@@ -12,8 +12,8 @@
 	import SlopeLayer from './SlopeLayer.svelte';
 	import { pickLabelAlong, type Span } from './labelSlots.ts';
 	import { connections } from './connections.svelte.ts';
-	import { cornerLabelPosition, pathOf, wallMiddle, wallNormal } from './shape.ts';
-	import { bandPaths, thicknessAt } from './wallBands.ts';
+	import { cornerLabelPosition, pathOf, wallNormal } from './shape.ts';
+	import { bandPaths, thicknessAt, wallBadgePlacement } from './wallBands.ts';
 
 	interface Props {
 		room: Room;
@@ -72,6 +72,22 @@
 		const rx = direction.x * Math.cos(rad) - direction.y * Math.sin(rad);
 		const ry = direction.x * Math.sin(rad) + direction.y * Math.cos(rad);
 		return Math.abs(rx) * w + Math.abs(ry) * h + 8;
+	}
+	function labelWidth(side: { length: number }): number {
+		return formatLength(Math.round(side.length), settings.unit, locale.language).length * 6.8 + 6;
+	}
+	function badgeFor(i: number) {
+		const side = sides[i];
+		const showsLabel = showLengths && side.length * k > 90;
+		const width = labelWidth(side);
+		const extent = alongExtent(side.direction, width, 14) * u;
+		const along = showsLabel ? pickLabelAlong(side.length, occupiedSpans(i + 1), extent) : null;
+		return wallBadgePlacement(
+			side.length,
+			roomLinks.filter((link) => link.wall === i + 1),
+			22 * u,
+			along === null ? null : { along, half: extent / 2 }
+		);
 	}
 	function occupiedSpans(wall: number): Span[] {
 		const pad = 10 * u;
@@ -215,12 +231,18 @@
 				{/if}
 			{/each}
 			{#each sides as side, i (i)}
-				{@const at = wallMiddle(room.polygon, i)}
 				{@const inward = wallNormal(room.polygon, i)}
-				{@const reach = thicknessAt(roomLinks, i + 1, side.length / 2, 0)}
+				{@const badge = badgeFor(i)}
+				{@const reach = badge.inside
+					? -15 * u
+					: thicknessAt(roomLinks, i + 1, badge.along, 0) + 15 * u}
+				{@const at = {
+					x: side.start.x + side.direction.x * badge.along,
+					y: side.start.y + side.direction.y * badge.along
+				}}
 				<g
-					transform="translate({at.x - inward.x * (reach + 15 * u)} {at.y -
-						inward.y * (reach + 15 * u)}) rotate({-rot}) scale(1 -1)"
+					transform="translate({at.x - inward.x * reach} {at.y -
+						inward.y * reach}) rotate({-rot}) scale(1 -1)"
 					pointer-events="none"
 				>
 					<circle r={9.5 * u} class={emphasised ? 'fill-accent' : 'fill-text'} opacity="0.9" />

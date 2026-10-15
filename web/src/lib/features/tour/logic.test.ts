@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	anchorExpected,
+	CARD_WAIT_MS,
+	createWaitGate,
 	clampStep,
 	inSampleContext,
 	isFirstStep,
@@ -122,5 +124,39 @@ describe('anchorExpected', () => {
 		expect(anchorExpected(step('plan'), projects, false)).toBe(false);
 		expect(anchorExpected(step('projects'), projects, false)).toBe(true);
 		expect(anchorExpected(step('furnish'), plan('x'), false)).toBe(false);
+	});
+});
+
+describe('createWaitGate', () => {
+	afterEach(() => vi.useRealTimers());
+
+	it('reports overdue once the wait exceeds the limit', () => {
+		vi.useFakeTimers();
+		const gate = createWaitGate();
+		expect(gate.update(true)).toBe(false);
+		vi.advanceTimersByTime(CARD_WAIT_MS - 1);
+		expect(gate.update(true)).toBe(false);
+		vi.advanceTimersByTime(1);
+		expect(gate.update(true)).toBe(true);
+	});
+
+	it('starts over after the wait ended', () => {
+		vi.useFakeTimers();
+		const gate = createWaitGate();
+		gate.update(true);
+		vi.advanceTimersByTime(CARD_WAIT_MS + 500);
+		expect(gate.update(false)).toBe(false);
+		expect(gate.update(true)).toBe(false);
+		vi.advanceTimersByTime(CARD_WAIT_MS);
+		expect(gate.update(true)).toBe(true);
+	});
+
+	it('starts over on reset', () => {
+		vi.useFakeTimers();
+		const gate = createWaitGate();
+		gate.update(true);
+		vi.advanceTimersByTime(CARD_WAIT_MS);
+		gate.reset();
+		expect(gate.update(true)).toBe(false);
 	});
 });

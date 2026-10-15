@@ -3,7 +3,7 @@ import { wallLinks } from '#lib/core/adjacency.ts';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 import { rectangleRoom } from '#lib/core/fixtures.ts';
 import type { Room } from '#lib/core/schema.ts';
-import { bandOutline, thicknessAt, wallPieces } from './wallBands.ts';
+import { bandOutline, thicknessAt, wallBadgePlacement, wallPieces } from './wallBands.ts';
 
 function pair(thickness: number): Room[] {
 	return [
@@ -71,5 +71,40 @@ describe('wall bands', () => {
 		expect(thicknessAt(link, 2, 1000, 800)).toBe(250);
 		expect(thicknessAt(link, 2, 100, 200)).toBe(WALL_THICKNESS);
 		expect(thicknessAt(link, 1, 1000, 800)).toBe(WALL_THICKNESS);
+	});
+});
+
+describe('wallBadgePlacement', () => {
+	it('keeps the middle on an unshared wall', () => {
+		expect(wallBadgePlacement(4000, [], 200, null)).toEqual({ along: 2000, inside: false });
+	});
+
+	it('moves to the unshared stretch when the middle is shared', () => {
+		const placed = wallBadgePlacement(4000, [{ from: 1000, to: 4000 }], 200, null);
+		expect(placed.inside).toBe(false);
+		expect(placed.along).toBe(500);
+	});
+
+	it('goes inside next to the own label when the wall is fully shared', () => {
+		const placed = wallBadgePlacement(4000, [{ from: 0, to: 4000 }], 200, {
+			along: 2000,
+			half: 300
+		});
+		expect(placed.inside).toBe(true);
+		expect(Math.abs(placed.along - 2000)).toBeGreaterThanOrEqual(300 + 100);
+	});
+
+	it('ignores unshared stretches that are too short', () => {
+		const placed = wallBadgePlacement(4000, [{ from: 100, to: 4000 }], 200, {
+			along: 2000,
+			half: 300
+		});
+		expect(placed.inside).toBe(true);
+	});
+
+	it('stays inside the wall', () => {
+		const placed = wallBadgePlacement(900, [{ from: 0, to: 900 }], 200, { along: 450, half: 400 });
+		expect(placed.along).toBeGreaterThanOrEqual(100);
+		expect(placed.along).toBeLessThanOrEqual(800);
 	});
 });

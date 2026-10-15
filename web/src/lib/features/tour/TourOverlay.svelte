@@ -22,6 +22,7 @@
 	import { placeCard } from './layout.ts';
 	import {
 		anchorExpected,
+		createWaitGate,
 		isFirstStep,
 		isLastStep,
 		progressLabel,
@@ -55,6 +56,8 @@
 	let insets = $state({ top: 0, right: 0, bottom: 0, left: 0 });
 	let paused = $state(false);
 	let waiting = $state(false);
+	let overdue = $state(false);
+	const gate = createWaitGate();
 	let cardWidth = $state(0);
 	let cardHeight = $state(0);
 	let card: HTMLElement | undefined = $state();
@@ -73,7 +76,7 @@
 	const route = $derived(currentRoute());
 	const centered = $derived(target === null);
 	const modal = $derived(centered && !waiting);
-	const hidden = $derived(cardWidth === 0 || (waiting && target === null));
+	const hidden = $derived(cardWidth === 0 || (waiting && target === null && !overdue));
 	const ringVisible = $derived(target !== null && targetStep === tour.step && !waiting);
 	const first = $derived(isFirstStep(tour.step));
 	const last = $derived(isLastStep(tour.step));
@@ -153,8 +156,15 @@
 	}
 
 	function measure(): void {
+		measureTarget();
+		const late = gate.update(waiting);
+		if (late !== overdue) overdue = late;
+	}
+
+	function measureTarget(): void {
 		if (measuredStep !== tour.step) {
 			measuredStep = tour.step;
+			gate.reset();
 			missingSince = null;
 			revealed = new Set();
 		}

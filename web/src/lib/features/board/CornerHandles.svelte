@@ -2,15 +2,16 @@
 	import { boardToRoom, cornerLabel, interiorAngle, type Vec } from '#lib/core/geometry.ts';
 	import type { BoardPos, Point, Room } from '#lib/core/schema.ts';
 	import { remapAfterInsert, reframePolygon } from '#lib/features/room/polygonEdit.ts';
-	import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 	import { gridForZoom, snapCorner } from '#lib/features/room/cornerSnap.ts';
 	import { polygonProblem } from '#lib/features/room/walls.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
+	import { connections } from './connections.svelte.ts';
 	import { gesture } from './gesture.svelte.ts';
 	import { messages } from './i18n.ts';
 	import { wallNormal } from './shape.ts';
 	import { getViewport } from './viewport.ts';
+	import { thicknessAt } from './wallBands.ts';
 
 	let { room }: { room: Room } = $props();
 
@@ -18,6 +19,7 @@
 	const u = $derived(1 / viewport.pxPerMm);
 	const rot = $derived(room.boardPos.rot);
 	const key = $derived(`corner-${room.id}`);
+	const roomLinks = $derived(connections.roomLinks(room.id));
 
 	interface Active {
 		pointerId: number;
@@ -113,12 +115,13 @@
 	{@const next = room.polygon[(i + 1) % room.polygon.length]}
 	{@const length = Math.hypot(next.x - corner.x, next.y - corner.y)}
 	{@const out = wallNormal(room.polygon, i)}
+	{@const thickness = thicknessAt(roomLinks, i + 1, length / 2, 0)}
 	{#if length * viewport.pxPerMm > 96}
 		<g
-			transform="translate({(corner.x + next.x) / 2 - (out.x * WALL_THICKNESS) / 2} {(corner.y +
+			transform="translate({(corner.x + next.x) / 2 - (out.x * thickness) / 2} {(corner.y +
 				next.y) /
 				2 -
-				(out.y * WALL_THICKNESS) / 2}) rotate({-rot}) scale(1 -1)"
+				(out.y * thickness) / 2}) rotate({-rot}) scale(1 -1)"
 		>
 			<circle
 				r={22 * u}
