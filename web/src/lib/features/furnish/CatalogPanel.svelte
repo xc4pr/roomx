@@ -129,13 +129,13 @@
 
 	<div class="flex flex-wrap items-end gap-2">
 		<Select
-			class="min-w-0 flex-1"
+			class="min-w-36 flex-1 basis-36"
 			options={brandOptions}
 			bind:value={brand}
 			label={t(messages, 'brand')}
 		/>
 		<Select
-			class="min-w-0 flex-1"
+			class="min-w-36 flex-1 basis-36"
 			options={widthOptions}
 			bind:value={width}
 			label={t(messages, 'widthFilter')}
