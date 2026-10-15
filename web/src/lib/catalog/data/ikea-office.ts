@@ -1,7 +1,7 @@
 import type { CatalogEntry } from '#lib/core/catalog.ts';
 import { C, cm, ikea } from './helpers.ts';
 
-const micke = [
+export const ikeaOffice: CatalogEntry[] = [
 	ikea({
 		id: 'ikea-micke-desk-105x50x75',
 		series: 'MICKE',
@@ -10,7 +10,7 @@ const micke = [
 		category: 'desk',
 		model: 'desk',
 		dims: cm(105, 50, 75),
-		colors: [C.white, C.blackBrown, C.birch],
+		colors: [C.white, C.blackBrown],
 		front: 900,
 		priceChf: 99.95,
 		url: 'https://www.ikea.com/ch/de/p/micke-schreibtisch-weiss-80213074/',
@@ -25,12 +25,13 @@ const micke = [
 		category: 'desk',
 		model: 'desk',
 		dims: cm(142, 50, 75),
-		colors: [C.white, C.blackBrown, C.birch],
-		front: 900
-	})
-];
-
-const alex = [
+		colors: [C.white, C.blackBrown],
+		front: 900,
+		priceChf: 129,
+		url: 'https://www.ikea.com/ch/de/p/micke-schreibtisch-weiss-90214308/',
+		articleNo: '902.143.08',
+		verified: true
+	}),
 	ikea({
 		id: 'ikea-alex-desk-100x48x76',
 		series: 'ALEX',
@@ -39,8 +40,12 @@ const alex = [
 		category: 'desk',
 		model: 'desk',
 		dims: cm(100, 48, 76),
-		colors: [C.white, C.blackBrown],
-		front: 900
+		colors: [C.white, C.darkGrey, C.oak],
+		front: 900,
+		priceChf: 169,
+		url: 'https://www.ikea.com/ch/de/p/alex-schreibtisch-weiss-10473555/',
+		articleNo: '104.735.55',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-alex-desk-131x60x76',
@@ -52,10 +57,7 @@ const alex = [
 		dims: cm(131, 60, 76),
 		colors: [C.white, C.blackBrown],
 		front: 900
-	})
-];
-
-const malm = [
+	}),
 	ikea({
 		id: 'ikea-malm-desk-140x65x73',
 		series: 'MALM',
@@ -64,98 +66,210 @@ const malm = [
 		category: 'desk',
 		model: 'desk',
 		dims: cm(140, 65, 73),
-		colors: [C.white, C.blackBrown, C.birch],
+		colors: [C.white],
+		front: 900,
+		priceChf: 169,
+		url: 'https://www.ikea.com/ch/de/p/malm-schreibtisch-weiss-60214159/',
+		articleNo: '602.141.59',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-malm-vanity-120x41x78',
+		series: 'MALM',
+		de: 'MALM Frisiertisch 120x41x78 cm',
+		en: 'MALM dressing table 120x41x78 cm',
+		category: 'table',
+		model: 'desk',
+		dims: cm(120, 41, 78),
+		colors: [C.white],
+		front: 800,
+		priceChf: 149,
+		url: 'https://www.ikea.com/ch/de/p/malm-frisiertisch-weiss-70620346/',
+		articleNo: '706.203.46',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-lagkapten-adils-desk-120x60x73',
+		series: 'LAGKAPTEN',
+		de: 'LAGKAPTEN / ADILS Schreibtisch 120x60x73 cm',
+		en: 'LAGKAPTEN / ADILS desk 120x60x73 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(120, 60, 73),
+		colors: [C.white, C.oak, C.darkGrey, C.black, C.grey],
+		front: 900,
+		priceChf: 49.95,
+		url: 'https://www.ikea.com/ch/de/p/lagkapten-adils-schreibtisch-weiss-s29416758/',
+		articleNo: '294.167.58',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-lagkapten-adils-desk-140x60x73',
+		series: 'LAGKAPTEN',
+		de: 'LAGKAPTEN / ADILS Schreibtisch 140x60x73 cm',
+		en: 'LAGKAPTEN / ADILS desk 140x60x73 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(140, 60, 73),
+		colors: [C.white, C.oak, C.darkGrey, C.black, C.grey],
+		front: 900,
+		priceChf: 59.95,
+		url: 'https://www.ikea.com/ch/de/p/lagkapten-adils-schreibtisch-weiss-s59417153/',
+		articleNo: '594.171.53',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-lagkapten-adils-desk-200x60x73',
+		series: 'LAGKAPTEN',
+		de: 'LAGKAPTEN/ADILS Schreibtisch 200x60 cm',
+		en: 'LAGKAPTEN/ADILS desk 200x60 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(200, 60, 73),
+		colors: [C.white, C.black, C.darkGrey],
 		front: 900
 	}),
 	ikea({
-		id: 'ikea-malm-vanity-100x41x78',
-		series: 'MALM',
-		de: 'MALM Frisiertisch 100x41x78 cm',
-		en: 'MALM dressing table 100x41x78 cm',
-		category: 'table',
-		model: 'desk',
-		dims: cm(100, 41, 78),
-		colors: [C.white, C.blackBrown],
-		front: 800
-	})
-];
-
-const lagkapten = [120, 140, 200].map((w) =>
-	ikea({
-		id: `ikea-lagkapten-adils-desk-${w}x60x73`,
-		series: 'LAGKAPTEN',
-		de: `LAGKAPTEN/ADILS Schreibtisch ${w}x60 cm`,
-		en: `LAGKAPTEN/ADILS desk ${w}x60 cm`,
-		category: 'desk',
-		model: 'desk',
-		dims: cm(w, 60, 73),
-		colors: [C.white, C.black, C.darkGrey],
-		front: 900
-	})
-);
-
-const trotten = [
-	[120, 70],
-	[160, 80]
-].map(([w, d]) =>
-	ikea({
-		id: `ikea-trotten-sit-stand-desk-${w}x${d}`,
+		id: 'ikea-trotten-sit-stand-desk-120x70',
 		series: 'TROTTEN',
-		de: `TROTTEN Sitz-/Steh-Schreibtisch ${w}x${d} cm`,
-		en: `TROTTEN sit/stand desk ${w}x${d} cm`,
+		de: 'TROTTEN Schreibtisch sitz/steh elektrisch 120x70x74 cm',
+		en: 'TROTTEN sit/stand desk electric 120x70x74 cm',
 		category: 'desk',
 		model: 'desk',
-		dims: cm(w, d, 75),
-		colors: [C.white, C.blackBrown, C.beige],
+		dims: cm(120, 70, 74),
+		colors: [C.white, C.birch],
+		power: 1,
 		front: 900,
-		power: 1
-	})
-);
-
-const mittzon = [
-	[120, 60],
-	[140, 60],
-	[140, 80],
-	[160, 80]
-].map(([w, d]) =>
+		priceChf: 199,
+		url: 'https://www.ikea.com/ch/de/p/trotten-schreibtisch-sitz-steh-elektrisch-weiss-s49621871/',
+		articleNo: '496.218.71',
+		verified: true
+	}),
 	ikea({
-		id: `ikea-mittzon-sit-stand-desk-${w}x${d}`,
+		id: 'ikea-trotten-sit-stand-desk-160x80',
+		series: 'TROTTEN',
+		de: 'TROTTEN Schreibtisch sitz/steh elektrisch 160x80x74 cm',
+		en: 'TROTTEN desk sit/stand electric 160x80x74 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(160, 80, 74),
+		colors: [C.white, C.birch],
+		power: 1,
+		front: 900,
+		priceChf: 269,
+		url: 'https://www.ikea.com/ch/de/p/trotten-schreibtisch-sitz-steh-elektrisch-weiss-s39621895/',
+		articleNo: '396.218.95',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-mittzon-sit-stand-desk-120x60',
 		series: 'MITTZON',
-		de: `MITTZON Sitz-/Steh-Schreibtisch elektrisch ${w}x${d} cm`,
-		en: `MITTZON electric sit/stand desk ${w}x${d} cm`,
+		de: 'MITTZON Schreibtisch sitz/steh elektrisch 120x60x74 cm',
+		en: 'MITTZON desk sit/stand electric 120x60x74 cm',
 		category: 'desk',
 		model: 'desk',
-		dims: cm(w, d, 68),
-		colors: [C.white, C.blackBrown, C.walnut, C.birch],
+		dims: cm(120, 60, 74),
+		colors: [C.white, C.birch, C.oak, C.walnut, C.black],
+		power: 1,
 		front: 900,
-		power: 1
-	})
-);
-
-const idasen = [
-	[120, 70],
-	[160, 80]
-].map(([w, d]) =>
+		priceChf: 369,
+		url: 'https://www.ikea.com/ch/de/p/mittzon-schreibtisch-sitz-steh-elektrisch-weiss-s89526122/',
+		articleNo: '895.261.22',
+		verified: true
+	}),
 	ikea({
-		id: `ikea-idasen-sit-stand-desk-${w}x${d}`,
-		series: 'IDÅSEN',
-		de: `IDÅSEN Sitz-/Steh-Schreibtisch ${w}x${d} cm`,
-		en: `IDÅSEN sit/stand desk ${w}x${d} cm`,
+		id: 'ikea-mittzon-sit-stand-desk-140x60',
+		series: 'MITTZON',
+		de: 'MITTZON Schreibtisch sitz/steh elektrisch 140x60x74 cm',
+		en: 'MITTZON desk sit/stand electric 140x60x74 cm',
 		category: 'desk',
 		model: 'desk',
-		dims: cm(w, d, 63),
-		colors: [C.black, C.white, C.darkGrey],
+		dims: cm(140, 60, 74),
+		colors: [C.white, C.birch, C.oak, C.walnut, C.black],
+		power: 1,
 		front: 900,
-		power: 1
+		priceChf: 419,
+		url: 'https://www.ikea.com/ch/de/p/mittzon-schreibtisch-sitz-steh-elektrisch-weiss-s69528184/',
+		articleNo: '695.281.84',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-mittzon-sit-stand-desk-140x80',
+		series: 'MITTZON',
+		de: 'MITTZON Schreibtisch sitz/steh elektrisch 140x80x74 cm',
+		en: 'MITTZON desk sit/stand electric 140x80x74 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(140, 80, 74),
+		colors: [C.white, C.birch, C.oak, C.walnut, C.black],
+		power: 1,
+		front: 900,
+		priceChf: 449,
+		url: 'https://www.ikea.com/ch/de/p/mittzon-schreibtisch-sitz-steh-elektrisch-weiss-s19528563/',
+		articleNo: '195.285.63',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-mittzon-sit-stand-desk-160x80',
+		series: 'MITTZON',
+		de: 'MITTZON Schreibtisch sitz/steh elektrisch 160x80x74 cm',
+		en: 'MITTZON desk sit/stand electric 160x80x74 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(160, 80, 74),
+		colors: [C.white, C.birch, C.oak, C.walnut, C.black],
+		power: 1,
+		front: 900,
+		priceChf: 469,
+		url: 'https://www.ikea.com/ch/de/p/mittzon-schreibtisch-sitz-steh-elektrisch-weiss-s59529966/',
+		articleNo: '595.299.66',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-idasen-sit-stand-desk-120x70',
+		series: 'IDÅSEN',
+		de: 'IDÅSEN Schreibtisch sitz/steh 120x70x74 cm',
+		en: 'IDÅSEN desk sit/stand 120x70x74 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(120, 70, 74),
+		colors: [C.walnut, C.beige, C.darkGrey, C.black],
+		power: 1,
+		front: 900,
+		priceChf: 599,
+		url: 'https://www.ikea.com/ch/de/p/idasen-schreibtisch-sitz-steh-braun-beige-s19280915/',
+		articleNo: '192.809.15',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-idasen-sit-stand-desk-160x80',
+		series: 'IDÅSEN',
+		de: 'IDÅSEN Schreibtisch sitz/steh 160x80x74 cm',
+		en: 'IDÅSEN desk sit/stand 160x80x74 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(160, 80, 74),
+		colors: [C.walnut, C.darkGrey, C.black],
+		power: 1,
+		front: 900,
+		priceChf: 649,
+		url: 'https://www.ikea.com/ch/de/p/idasen-schreibtisch-sitz-steh-braun-dunkelgrau-s39281004/',
+		articleNo: '392.810.04',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-alex-desk-132x58x76',
+		series: 'ALEX',
+		de: 'ALEX Schreibtisch 132x58x76 cm',
+		en: 'ALEX desk 132x58x76 cm',
+		category: 'desk',
+		model: 'desk',
+		dims: cm(132, 58, 76),
+		colors: [C.white, C.darkGrey, C.oak],
+		front: 900,
+		priceChf: 199,
+		url: 'https://www.ikea.com/ch/de/p/alex-schreibtisch-weiss-80483438/',
+		articleNo: '804.834.38',
+		verified: true
 	})
-);
-
-export const ikeaOffice: CatalogEntry[] = [
-	...micke,
-	...alex,
-	...malm,
-	...lagkapten,
-	...trotten,
-	...mittzon,
-	...idasen
 ];

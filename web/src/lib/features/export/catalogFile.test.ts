@@ -77,6 +77,6 @@ describe('catalogJson', () => {
 	);
 
 	it('stays compact', () => {
-		expect(catalogJson(catalog, 'de').length).toBeLessThan(120_000);
+		expect(catalogJson(catalog, 'de').length).toBeLessThan(200_000);
 	});
 });

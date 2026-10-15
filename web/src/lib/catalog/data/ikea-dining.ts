@@ -5,14 +5,18 @@ export const ikeaDining: CatalogEntry[] = [
 	ikea({
 		id: 'ikea-lisabo-table-140x78x74',
 		series: 'LISABO',
-		de: 'LISABO Tisch 140x78 cm',
-		en: 'LISABO table 140x78 cm',
+		de: 'LISABO Tisch 140x78x74 cm',
+		en: 'LISABO table 140x78x74 cm',
 		category: 'table',
 		model: 'table',
 		dims: cm(140, 78, 74),
-		colors: [C.blackBrown, C.oak],
+		colors: [C.birch],
 		front: 800,
-		side: 800
+		side: 800,
+		priceChf: 169,
+		url: 'https://www.ikea.com/ch/de/p/lisabo-tisch-eschenfurnier-70294339/',
+		articleNo: '702.943.39',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-melltorp-table-125x75x74',
@@ -79,10 +83,14 @@ export const ikeaDining: CatalogEntry[] = [
 		en: 'HOVET mirror 78x196 cm',
 		category: 'mirror',
 		model: 'mirror',
+		dims: cm(78, 6, 196),
+		colors: [C.lightGrey, C.brass, C.black, C.oak, C.walnut],
 		mount: 'wall',
-		dims: cm(78, 3, 196),
-		colors: [C.brass, C.black],
-		front: 600
+		front: 600,
+		priceChf: 149,
+		url: 'https://www.ikea.com/ch/de/p/hovet-spiegel-aluminium-50038213/',
+		articleNo: '500.382.13',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-nissedal-mirror-65x150',
@@ -91,10 +99,14 @@ export const ikeaDining: CatalogEntry[] = [
 		en: 'NISSEDAL mirror 65x150 cm',
 		category: 'mirror',
 		model: 'mirror',
-		mount: 'wall',
 		dims: cm(65, 3, 150),
-		colors: [C.black, C.white],
-		front: 600
+		colors: [C.white, C.black],
+		mount: 'wall',
+		front: 600,
+		priceChf: 69.95,
+		url: 'https://www.ikea.com/ch/de/p/nissedal-spiegel-weiss-80605487/',
+		articleNo: '806.054.87',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-knapper-standing-mirror-48x160',
@@ -103,8 +115,27 @@ export const ikeaDining: CatalogEntry[] = [
 		en: 'KNAPPER standing mirror 48x160 cm',
 		category: 'mirror',
 		model: 'mirror',
-		dims: cm(48, 35, 160),
-		colors: [C.white, C.black],
-		front: 600
+		dims: cm(48, 53, 160),
+		colors: [C.white],
+		front: 600,
+		priceChf: 59.95,
+		url: 'https://www.ikea.com/ch/de/p/knapper-standspiegel-weiss-00396242/',
+		articleNo: '003.962.42',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-ingolf-kids-chair-41x45x77',
+		series: 'INGOLF',
+		de: 'INGOLF Kinderstuhl 41x45x77 cm',
+		en: 'INGOLF junior chair 41x45x77 cm',
+		category: 'chair',
+		model: 'chair',
+		dims: cm(41, 45, 77),
+		colors: [C.walnut],
+		front: 400,
+		priceChf: 79.95,
+		url: 'https://www.ikea.com/ch/de/p/ingolf-kinderstuhl-antikbeize-60353838/',
+		articleNo: '603.538.38',
+		verified: true
 	})
 ];

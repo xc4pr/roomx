@@ -10,8 +10,12 @@ export const ikeaSeating: CatalogEntry[] = [
 		category: 'sofa',
 		model: 'sofa',
 		dims: cm(198, 99, 83),
-		colors: [C.grey, C.beige, C.darkGrey],
-		front: 800
+		colors: [C.white],
+		front: 800,
+		priceChf: 599,
+		url: 'https://www.ikea.com/ch/de/p/soederhamn-3er-sofa-blekinge-weiss-s29501761/',
+		articleNo: '295.017.61',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-kivik-sofa-2-190x95x83',
@@ -21,8 +25,12 @@ export const ikeaSeating: CatalogEntry[] = [
 		category: 'sofa',
 		model: 'sofa',
 		dims: cm(190, 95, 83),
-		colors: [C.grey, C.beige, C.navy],
-		front: 800
+		colors: [C.white, C.black],
+		front: 800,
+		priceChf: 699,
+		url: 'https://www.ikea.com/ch/de/p/kivik-2er-sofa-tallmyra-weiss-schwarz-s79484764/',
+		articleNo: '794.847.64',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-kivik-sofa-3-228x95x83',
@@ -32,19 +40,27 @@ export const ikeaSeating: CatalogEntry[] = [
 		category: 'sofa',
 		model: 'sofa',
 		dims: cm(228, 95, 83),
-		colors: [C.grey, C.beige, C.navy],
-		front: 800
+		colors: [C.white, C.black],
+		front: 800,
+		priceChf: 799,
+		url: 'https://www.ikea.com/ch/de/p/kivik-3er-sofa-tallmyra-weiss-schwarz-s09484772/',
+		articleNo: '094.847.72',
+		verified: true
 	}),
 	ikea({
-		id: 'ikea-friheten-corner-sofa-bed-230x151x66',
+		id: 'ikea-friheten-corner-sofa-bed-230x151x86',
 		series: 'FRIHETEN',
-		de: 'FRIHETEN Eckbettsofa 3er 230x151x66 cm',
-		en: 'FRIHETEN corner sofa-bed 230x151x66 cm',
+		de: 'FRIHETEN Eckbettsofa mit Bettkasten 230x151x86 cm',
+		en: 'FRIHETEN corner sofa-bed with storage 230x151x86 cm',
 		category: 'sofa',
 		model: 'cornerSofa',
-		dims: cm(230, 151, 66),
-		colors: [C.grey, C.darkGrey, C.blue],
-		front: 1000
+		dims: cm(230, 151, 86),
+		colors: [C.black, C.darkGrey, C.terracotta, C.lightGrey],
+		front: 1000,
+		priceChf: 599,
+		url: 'https://www.ikea.com/ch/de/p/friheten-eckbettsofa-mit-bettkasten-bomstad-schwarz-s69216818/',
+		articleNo: '692.168.18',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-poaeng-armchair-68x82x100',
@@ -54,8 +70,12 @@ export const ikeaSeating: CatalogEntry[] = [
 		category: 'armchair',
 		model: 'armchair',
 		dims: cm(68, 82, 100),
-		colors: [C.birch, C.black, C.lightGrey],
-		front: 600
+		colors: [C.birch, C.brass, C.black],
+		front: 600,
+		priceChf: 249,
+		url: 'https://www.ikea.com/ch/de/p/poaeng-sessel-birkenfurnier-grann-goldbraun-s49625001/',
+		articleNo: '496.250.01',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-strandmon-wing-chair-82x96x101',
@@ -65,7 +85,11 @@ export const ikeaSeating: CatalogEntry[] = [
 		category: 'armchair',
 		model: 'armchair',
 		dims: cm(82, 96, 101),
-		colors: [C.mustard, C.grey, C.navy],
-		front: 600
+		colors: [C.walnut],
+		front: 600,
+		priceChf: 399,
+		url: 'https://www.ikea.com/ch/de/p/strandmon-ohrensessel-grann-bomstad-dunkelbraun-00494638/',
+		articleNo: '004.946.38',
+		verified: true
 	})
 ];

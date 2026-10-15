@@ -1,106 +1,427 @@
 import type { CatalogEntry } from '#lib/core/catalog.ts';
 import { C, cm, ikea } from './helpers.ts';
 
-const paxWidths = [50, 75, 100];
-const paxDepths = [35, 58];
-const paxHeights = [201, 236];
-
-const paxFrames = paxHeights.flatMap((h) =>
-	paxDepths.flatMap((d) =>
-		paxWidths.map((w) => {
-			const leaf = w === 50 ? 500 : w * 5;
-			return ikea({
-				id: `ikea-pax-${w}x${d}x${h}`,
-				series: 'PAX',
-				de: `PAX Kleiderschrank-Korpus ${w}x${d}x${h} cm`,
-				en: `PAX wardrobe frame ${w}x${d}x${h} cm`,
-				category: 'wardrobe',
-				model: 'wardrobe',
-				dims: cm(w, d, h),
-				colors: [C.white, C.blackBrown],
-				front: leaf + 200
-			});
-		})
-	)
-);
-
-const paxCorners = paxHeights.map((h) =>
+export const ikeaStorage: CatalogEntry[] = [
 	ikea({
-		id: `ikea-pax-corner-53x58x${h}`,
+		id: 'ikea-pax-50x35x201',
 		series: 'PAX',
-		de: `PAX Eckelement 53x58x${h} cm`,
-		en: `PAX add-on corner unit 53x58x${h} cm`,
+		de: 'PAX Korpus Kleiderschrank 50x35x201 cm',
+		en: 'PAX wardrobe frame 50x35x201 cm',
 		category: 'wardrobe',
 		model: 'wardrobe',
-		dims: cm(53, 58, h),
-		colors: [C.white, C.blackBrown],
-		front: 700
-	})
-);
-
-const paxSliding = [
-	[150, 201],
-	[150, 236],
-	[200, 201],
-	[200, 236]
-].map(([w, h]) =>
+		dims: cm(49.8, 35.5, 201.2),
+		colors: [C.white, C.darkGrey, C.oak, C.beige],
+		front: 700,
+		priceChf: 65,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-20458210/',
+		articleNo: '204.582.10',
+		verified: true
+	}),
 	ikea({
-		id: `ikea-pax-sliding-${w}x66x${h}`,
+		id: 'ikea-pax-75x35x201',
 		series: 'PAX',
-		de: `PAX Kleiderschrank mit Schiebetüren ${w}x66x${h} cm`,
-		en: `PAX wardrobe with sliding doors ${w}x66x${h} cm`,
+		de: 'PAX Korpus Kleiderschrank 75x35x201 cm',
+		en: 'PAX wardrobe frame 75x35x201 cm',
 		category: 'wardrobe',
 		model: 'wardrobe',
-		dims: cm(w, 66, h),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 600
-	})
-);
-
-const kallaxSizes: [number, number][] = [
-	[41.5, 41.5],
-	[41.5, 76.5],
-	[41.5, 111.5],
-	[41.5, 146.5],
-	[76.5, 76.5],
-	[76.5, 111.5],
-	[111.5, 111.5],
-	[146.5, 76.5],
-	[146.5, 146.5]
-];
-
-const kallax = kallaxSizes.map(([w, h]) => {
-	const nominal = (v: number) => Math.round(v + 0.5);
-	return ikea({
-		id: `ikea-kallax-${nominal(w)}x${nominal(h)}`,
+		dims: cm(74.8, 35.5, 201.2),
+		colors: [C.white, C.darkGrey, C.oak, C.beige],
+		front: 575,
+		priceChf: 70,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-30458224/',
+		articleNo: '304.582.24',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-100x35x201',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 100x35x201 cm',
+		en: 'PAX wardrobe frame 100x35x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(99.8, 35.5, 201.2),
+		colors: [C.white, C.darkGrey, C.oak, C.beige],
+		front: 700,
+		priceChf: 80,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-30458196/',
+		articleNo: '304.581.96',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-50x58x201',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 50x58x201 cm',
+		en: 'PAX wardrobe frame 50x58x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(49.8, 58, 201.2),
+		colors: [C.white, C.darkGrey, C.oak, C.beige],
+		front: 700,
+		priceChf: 70,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-70458217/',
+		articleNo: '704.582.17',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-75x58x201',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 75x58x201 cm',
+		en: 'PAX wardrobe frame 75x58x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(74.8, 58, 201.2),
+		colors: [C.white, C.darkGrey, C.oak, C.beige],
+		front: 575,
+		priceChf: 80,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-80458231/',
+		articleNo: '804.582.31',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-100x58x201',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 100x58x201 cm',
+		en: 'PAX wardrobe frame 100x58x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(99.8, 58, 201.2),
+		colors: [C.white, C.darkGrey, C.oak, C.beige],
+		front: 700,
+		priceChf: 90,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-70458203/',
+		articleNo: '704.582.03',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-50x35x236',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 50x35x236 cm',
+		en: 'PAX wardrobe frame 50x35x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(50, 35, 236),
+		colors: [C.white],
+		front: 700,
+		priceChf: 80,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-60458213/',
+		articleNo: '604.582.13',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-75x35x236',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 75x35x236 cm',
+		en: 'PAX wardrobe frame 75x35x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(75, 35, 236),
+		colors: [C.white],
+		front: 575,
+		priceChf: 85,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-60458227/',
+		articleNo: '604.582.27',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-100x35x236',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 100x35x236 cm',
+		en: 'PAX wardrobe frame 100x35x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(100, 35, 236),
+		colors: [C.white],
+		front: 700,
+		priceChf: 95,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-70458199/',
+		articleNo: '704.581.99',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-50x58x236',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 50x58x236 cm',
+		en: 'PAX wardrobe frame 50x58x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(50, 58, 236),
+		colors: [C.white],
+		front: 700,
+		priceChf: 85,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-90458221/',
+		articleNo: '904.582.21',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-75x58x236',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 75x58x236 cm',
+		en: 'PAX wardrobe frame 75x58x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(75, 58, 236),
+		colors: [C.white],
+		front: 575,
+		priceChf: 95,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-90458235/',
+		articleNo: '904.582.35',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-100x58x236',
+		series: 'PAX',
+		de: 'PAX Korpus Kleiderschrank 100x58x236 cm',
+		en: 'PAX wardrobe frame 100x58x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(100, 58, 236),
+		colors: [C.white],
+		front: 700,
+		priceChf: 105,
+		url: 'https://www.ikea.com/ch/de/p/pax-korpus-kleiderschrank-weiss-80458207/',
+		articleNo: '804.582.07',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-corner-53x58x201',
+		series: 'PAX',
+		de: 'PAX Eckanbauelement/4 Böden 53x58x201 cm',
+		en: 'PAX add-on corner unit with 4 shelves 53x58x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(52.5, 58, 201.2),
+		colors: [C.white, C.darkGrey, C.beige],
+		front: 700,
+		priceChf: 175,
+		url: 'https://www.ikea.com/ch/de/p/pax-eckanbauelement-4-boeden-weiss-70346932/',
+		articleNo: '703.469.32',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-corner-53x58x236',
+		series: 'PAX',
+		de: 'PAX Eckanbauelement/4 Böden 53x58x236 cm',
+		en: 'PAX add-on corner unit with 4 shelves 53x58x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(53, 58, 236),
+		colors: [C.white],
+		front: 700,
+		priceChf: 185,
+		url: 'https://www.ikea.com/ch/de/p/pax-eckanbauelement-4-boeden-weiss-30346934/',
+		articleNo: '303.469.34',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-sliding-150x66x201',
+		series: 'PAX',
+		de: 'PAX / BERGSBO Kleiderschrank mit Schiebetüren 150x66x201 cm',
+		en: 'PAX / BERGSBO wardrobe with sliding doors 150x66x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(150, 66, 201.2),
+		colors: [C.white],
+		front: 600,
+		priceChf: 644,
+		url: 'https://www.ikea.com/ch/de/p/pax-bergsbo-kleiderschrank-mit-schiebetueren-weiss-weiss-s89502871/',
+		articleNo: '895.028.71',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-sliding-150x66x236',
+		series: 'PAX',
+		de: 'PAX / BERGSBO Kleiderschrank mit Schiebetüren 150x66x236 cm',
+		en: 'PAX / BERGSBO wardrobe with sliding doors 150x66x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(150, 66, 236.4),
+		colors: [C.white],
+		front: 600,
+		priceChf: 738,
+		url: 'https://www.ikea.com/ch/de/p/pax-bergsbo-kleiderschrank-mit-schiebetueren-weiss-weiss-s69502872/',
+		articleNo: '695.028.72',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-sliding-200x66x201',
+		series: 'PAX',
+		de: 'PAX / GRIMO Kleiderschrank mit Schiebetüren 200x66x201 cm',
+		en: 'PAX / GRIMO wardrobe with sliding doors 200x66x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(200, 66, 201.2),
+		colors: [C.white, C.clear],
+		front: 600,
+		priceChf: 689,
+		url: 'https://www.ikea.com/ch/de/p/pax-grimo-kleiderschrank-mit-schiebetueren-weiss-klarglas-weiss-s89502847/',
+		articleNo: '895.028.47',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-sliding-200x66x236',
+		series: 'PAX',
+		de: 'PAX / GRIMO Kleiderschrank mit Schiebetüren 200x66x236 cm',
+		en: 'PAX / GRIMO wardrobe with sliding doors 200x66x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(200, 66, 236.4),
+		colors: [C.white, C.clear],
+		front: 600,
+		priceChf: 783,
+		url: 'https://www.ikea.com/ch/de/p/pax-grimo-kleiderschrank-mit-schiebetueren-weiss-klarglas-weiss-s29502850/',
+		articleNo: '295.028.50',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-77x147',
 		series: 'KALLAX',
-		de: `KALLAX Regal ${nominal(w)}x${nominal(h)} cm`,
-		en: `KALLAX shelf unit ${nominal(w)}x${nominal(h)} cm`,
+		de: 'KALLAX Regal 77x147 cm',
+		en: 'KALLAX shelving unit 77x147 cm',
 		category: 'shelf',
 		model: 'cubeShelf',
-		dims: cm(w, 39, h),
-		colors: [C.white, C.blackBrown, C.birch],
-		front: 800
-	});
-});
-
-const kallaxVerified = ikea({
-	id: 'ikea-kallax-77x147',
-	series: 'KALLAX',
-	de: 'KALLAX Regal 77x147 cm',
-	en: 'KALLAX shelf unit 77x147 cm',
-	category: 'shelf',
-	model: 'cubeShelf',
-	dims: cm(76.5, 39, 146.5),
-	colors: [C.white, C.blackBrown, C.oak],
-	front: 800,
-	priceChf: 59.95,
-	url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-80275887/',
-	articleNo: '802.758.87',
-	verified: true
-});
-
-const billy = [
+		dims: cm(76.5, 39, 146.5),
+		colors: [C.white, C.walnut, C.oak, C.blackBrown, C.grey],
+		front: 800,
+		priceChf: 69.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-80275887/',
+		articleNo: '802.758.87',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-42x42',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 42x41 cm',
+		en: 'KALLAX shelving unit 42x41 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(41.5, 39, 40.7),
+		colors: [C.white, C.blackBrown],
+		front: 800,
+		priceChf: 24.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-20301554/',
+		articleNo: '203.015.54',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-42x77',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 42x77 cm',
+		en: 'KALLAX shelving unit 42x77 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(41.5, 39, 76.5),
+		colors: [C.white, C.oak, C.blackBrown],
+		front: 800,
+		priceChf: 29.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-90301555/',
+		articleNo: '903.015.55',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-42x112',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 42x112 cm',
+		en: 'KALLAX shelving unit 42x112 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(41.5, 39, 111.5),
+		colors: [C.white, C.oak, C.blackBrown],
+		front: 800,
+		priceChf: 49.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-30372188/',
+		articleNo: '303.721.88',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-42x147',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 42x147 cm',
+		en: 'KALLAX shelving unit 42x147 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(41.5, 39, 146.5),
+		colors: [C.white, C.walnut, C.oak, C.blackBrown],
+		front: 800,
+		priceChf: 59.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-00275848/',
+		articleNo: '002.758.48',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-77x77',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 77x77 cm',
+		en: 'KALLAX shelving unit 77x77 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(76.5, 39, 76.5),
+		colors: [C.white, C.walnut, C.oak, C.blackBrown],
+		front: 800,
+		priceChf: 39.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-20275814/',
+		articleNo: '202.758.14',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-77x112',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 77x112 cm',
+		en: 'KALLAX shelving unit 77x112 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(76.5, 39, 111.5),
+		colors: [C.white, C.oak, C.blackBrown],
+		front: 800,
+		priceChf: 64.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-90522420/',
+		articleNo: '905.224.20',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-112x112',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 112x112 cm',
+		en: 'KALLAX shelving unit 112x112 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(111.5, 39, 111.5),
+		colors: [C.white],
+		front: 800,
+		priceChf: 89.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-00415599/',
+		articleNo: '004.155.99',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-147x77',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 147x77 cm',
+		en: 'KALLAX shelving unit 147x77 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(146.5, 39, 76.5),
+		colors: [C.white, C.walnut, C.oak, C.blackBrown, C.grey],
+		front: 800,
+		priceChf: 69.95,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-80275887/',
+		articleNo: '802.758.87',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-kallax-147x147',
+		series: 'KALLAX',
+		de: 'KALLAX Regal 147x147 cm',
+		en: 'KALLAX shelving unit 147x147 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(147, 39, 146.5),
+		colors: [C.white, C.oak, C.blackBrown],
+		front: 800,
+		priceChf: 119,
+		url: 'https://www.ikea.com/ch/de/p/kallax-regal-weiss-30275861/',
+		articleNo: '302.758.61',
+		verified: true
+	}),
 	ikea({
 		id: 'ikea-billy-40x28x106',
 		series: 'BILLY',
@@ -109,8 +430,12 @@ const billy = [
 		category: 'shelf',
 		model: 'shelf',
 		dims: cm(40, 28, 106),
-		colors: [C.white, C.birch, C.blackBrown],
-		front: 700
+		colors: [C.white],
+		front: 700,
+		priceChf: 39.95,
+		url: 'https://www.ikea.com/ch/de/p/billy-buecherregal-weiss-80263832/',
+		articleNo: '802.638.32',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-billy-40x28x202',
@@ -120,8 +445,12 @@ const billy = [
 		category: 'shelf',
 		model: 'shelf',
 		dims: cm(40, 28, 202),
-		colors: [C.white, C.birch, C.blackBrown],
-		front: 700
+		colors: [C.white],
+		front: 700,
+		priceChf: 49.95,
+		url: 'https://www.ikea.com/ch/de/p/billy-buecherregal-weiss-50263838/',
+		articleNo: '502.638.38',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-billy-80x28x106',
@@ -131,8 +460,12 @@ const billy = [
 		category: 'shelf',
 		model: 'shelf',
 		dims: cm(80, 28, 106),
-		colors: [C.white, C.birch, C.blackBrown],
-		front: 700
+		colors: [C.white, C.walnut, C.oak, C.black],
+		front: 700,
+		priceChf: 49.95,
+		url: 'https://www.ikea.com/ch/de/p/billy-buecherregal-weiss-30263844/',
+		articleNo: '302.638.44',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-billy-80x28x202',
@@ -142,7 +475,7 @@ const billy = [
 		category: 'shelf',
 		model: 'shelf',
 		dims: cm(80, 28, 202),
-		colors: [C.white, C.birch, C.blackBrown],
+		colors: [C.white],
 		front: 700,
 		priceChf: 59.95,
 		url: 'https://www.ikea.com/ch/de/p/billy-buecherregal-weiss-00263850/',
@@ -150,19 +483,20 @@ const billy = [
 		verified: true
 	}),
 	ikea({
-		id: 'ikea-billy-80x40x202',
+		id: 'ikea-billy-80x39x202',
 		series: 'BILLY',
-		de: 'BILLY Bücherregal 80x40x202 cm',
-		en: 'BILLY bookcase 80x40x202 cm',
+		de: 'BILLY Bücherregal 80x39x202 cm',
+		en: 'BILLY bookcase 80x39x202 cm',
 		category: 'shelf',
 		model: 'shelf',
-		dims: cm(80, 40, 202),
-		colors: [C.white, C.birch, C.blackBrown],
-		front: 700
-	})
-];
-
-const besta = [
+		dims: cm(80, 39, 202),
+		colors: [C.white],
+		front: 700,
+		priceChf: 79.95,
+		url: 'https://www.ikea.com/ch/de/p/billy-buecherregal-weiss-90401932/',
+		articleNo: '904.019.32',
+		verified: true
+	}),
 	ikea({
 		id: 'ikea-besta-60x40x64',
 		series: 'BESTÅ',
@@ -171,8 +505,12 @@ const besta = [
 		category: 'sideboard',
 		model: 'sideboard',
 		dims: cm(60, 40, 64),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 600
+		colors: [C.white],
+		front: 600,
+		priceChf: 45,
+		url: 'https://www.ikea.com/ch/de/p/besta-korpus-weiss-30245850/',
+		articleNo: '302.458.50',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-besta-120x40x64',
@@ -182,57 +520,118 @@ const besta = [
 		category: 'sideboard',
 		model: 'sideboard',
 		dims: cm(120, 40, 64),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 600
+		colors: [C.white],
+		front: 600,
+		priceChf: 70,
+		url: 'https://www.ikea.com/ch/de/p/besta-korpus-weiss-10245846/',
+		articleNo: '102.458.46',
+		verified: true
 	}),
 	ikea({
-		id: 'ikea-besta-120x42x38',
+		id: 'ikea-besta-120x40x38',
 		series: 'BESTÅ',
-		de: 'BESTÅ TV-Bank 120x42x38 cm',
-		en: 'BESTÅ TV unit 120x42x38 cm',
+		de: 'BESTÅ TV-Bank 120x40x38 cm',
+		en: 'BESTÅ TV bench 120x40x38 cm',
 		category: 'tvUnit',
 		model: 'sideboard',
-		dims: cm(120, 42, 38),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 500
+		dims: cm(120, 40, 38),
+		colors: [C.white],
+		front: 500,
+		priceChf: 70,
+		url: 'https://www.ikea.com/ch/de/p/besta-tv-bank-weiss-80294503/',
+		articleNo: '802.945.03',
+		verified: true
 	}),
 	ikea({
-		id: 'ikea-besta-180x42x39',
+		id: 'ikea-besta-180x40x38',
 		series: 'BESTÅ',
-		de: 'BESTÅ TV-Bank 180x42x39 cm',
-		en: 'BESTÅ TV unit 180x42x39 cm',
+		de: 'BESTÅ TV-Bank 180x40x38 cm',
+		en: 'BESTÅ TV bench 180x40x38 cm',
 		category: 'tvUnit',
 		model: 'sideboard',
-		dims: cm(180, 42, 39),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 500
-	})
-];
-
-const eketSizes: [number, number, number][] = [
-	[35, 35, 35],
-	[70, 35, 35],
-	[35, 35, 70],
-	[105, 35, 35],
-	[70, 35, 70]
-];
-
-const eket = eketSizes.map(([w, d, h]) =>
+		dims: cm(180, 40, 38),
+		colors: [C.oak],
+		front: 500,
+		priceChf: 105,
+		url: 'https://www.ikea.com/ch/de/p/besta-tv-bank-eicheneff-wlas-60474072/',
+		articleNo: '604.740.72',
+		verified: true
+	}),
 	ikea({
-		id: `ikea-eket-${w}x${d}x${h}`,
+		id: 'ikea-eket-35x35x35',
 		series: 'EKET',
-		de: `EKET Schrankkombination ${w}x${d}x${h} cm`,
-		en: `EKET cabinet combination ${w}x${d}x${h} cm`,
+		de: 'EKET Schrankkombination für Wandmontage 35x35x35 cm',
+		en: 'EKET wall-mounted cabinet combination 35x35x35 cm',
 		category: 'shelf',
 		model: 'cubeShelf',
-		mount: 'floor',
-		dims: cm(w, d, h),
-		colors: [C.white, C.grey, C.blackBrown, C.birch],
-		front: 500
-	})
-);
-
-const ivar = [
+		dims: cm(35, 35, 35),
+		colors: [C.white],
+		front: 500,
+		priceChf: 40,
+		url: 'https://www.ikea.com/ch/de/p/eket-schrankkombination-fuer-wandmontage-weiss-s89307643/',
+		articleNo: '893.076.43',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-eket-70x35x35',
+		series: 'EKET',
+		de: 'EKET Schrank mit 2 Schubladen 70x35x35 cm',
+		en: 'EKET cabinet with 2 drawers 70x35x35 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(70, 35, 35),
+		colors: [C.white],
+		front: 500,
+		priceChf: 100,
+		url: 'https://www.ikea.com/ch/de/p/eket-schrank-mit-2-schubladen-weiss-00333947/',
+		articleNo: '003.339.47',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-eket-35x35x70',
+		series: 'EKET',
+		de: 'EKET Schrank mit Tür + 1 Boden 35x35x70 cm',
+		en: 'EKET cabinet with door and 1 shelf 35x35x70 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(35, 35, 70),
+		colors: [C.white],
+		front: 500,
+		priceChf: 55,
+		url: 'https://www.ikea.com/ch/de/p/eket-schrank-mit-tuer-1-boden-weiss-90333938/',
+		articleNo: '903.339.38',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-eket-105x35x70',
+		series: 'EKET',
+		de: 'EKET Schrankkombination für Wandmontage 105x35x70 cm',
+		en: 'EKET wall-mounted cabinet combination 105x35x70 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(105, 35, 70),
+		colors: [C.white],
+		front: 500,
+		priceChf: 85,
+		url: 'https://www.ikea.com/ch/de/p/eket-schrankkombination-fuer-wandmontage-weiss-s29286281/',
+		articleNo: '292.862.81',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-eket-70x35x70',
+		series: 'EKET',
+		de: 'EKET Schrank mit 2 Türen + 1 Boden 70x35x70 cm',
+		en: 'EKET cabinet with 2 doors and 1 shelf 70x35x70 cm',
+		category: 'shelf',
+		model: 'cubeShelf',
+		dims: cm(70, 35, 70),
+		colors: [C.white],
+		front: 500,
+		priceChf: 85,
+		url: 'https://www.ikea.com/ch/de/p/eket-schrank-mit-2-tueren-1-boden-weiss-20333951/',
+		articleNo: '203.339.51',
+		verified: true
+	}),
 	ikea({
 		id: 'ikea-ivar-89x30x179',
 		series: 'IVAR',
@@ -242,7 +641,11 @@ const ivar = [
 		model: 'shelf',
 		dims: cm(89, 30, 179),
 		colors: [C.birch],
-		front: 700
+		front: 700,
+		priceChf: 69,
+		url: 'https://www.ikea.com/ch/de/p/ivar-regal-kiefer-s89404578/',
+		articleNo: '894.045.78',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-ivar-89x50x179',
@@ -253,22 +656,27 @@ const ivar = [
 		model: 'shelf',
 		dims: cm(89, 50, 179),
 		colors: [C.birch],
-		front: 700
+		front: 700,
+		priceChf: 99,
+		url: 'https://www.ikea.com/ch/de/p/ivar-regal-kiefer-s39407070/',
+		articleNo: '394.070.70',
+		verified: true
 	}),
 	ikea({
-		id: 'ikea-ivar-174x30x179',
+		id: 'ikea-ivar-174x30x124',
 		series: 'IVAR',
-		de: 'IVAR Regal 2 Elemente 174x30x179 cm',
-		en: 'IVAR shelving unit 2 sections 174x30x179 cm',
+		de: 'IVAR 2 Elem/Regale 174x30x124 cm',
+		en: 'IVAR 2 sections/shelves 174x30x124 cm',
 		category: 'shelf',
 		model: 'shelf',
-		dims: cm(174, 30, 179),
+		dims: cm(174, 30, 124),
 		colors: [C.birch],
-		front: 700
-	})
-];
-
-const hemnes = [
+		front: 700,
+		priceChf: 88,
+		url: 'https://www.ikea.com/ch/de/p/ivar-2-elem-regale-kiefer-s99403936/',
+		articleNo: '994.039.36',
+		verified: true
+	}),
 	ikea({
 		id: 'ikea-hemnes-dresser-3-108x50x96',
 		series: 'HEMNES',
@@ -277,8 +685,12 @@ const hemnes = [
 		category: 'dresser',
 		model: 'dresser',
 		dims: cm(108, 50, 96),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 900
+		colors: [C.white, C.green, C.oak],
+		front: 900,
+		priceChf: 229,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-kommode-mit-3-schubladen-weiss-gebeizt-80424745/',
+		articleNo: '804.247.45',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-hemnes-dresser-6-108x50x131',
@@ -288,19 +700,27 @@ const hemnes = [
 		category: 'dresser',
 		model: 'dresser',
 		dims: cm(108, 50, 131),
-		colors: [C.white, C.blackBrown, C.grey],
-		front: 900
+		colors: [C.white],
+		front: 900,
+		priceChf: 329,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-kommode-mit-6-schubladen-weiss-gebeizt-60239273/',
+		articleNo: '602.392.73',
+		verified: true
 	}),
 	ikea({
-		id: 'ikea-hemnes-dresser-8-160x50x95',
+		id: 'ikea-hemnes-dresser-8-160x50x96',
 		series: 'HEMNES',
-		de: 'HEMNES Kommode mit 8 Schubladen 160x50x95 cm',
-		en: 'HEMNES chest of 8 drawers 160x50x95 cm',
+		de: 'HEMNES Kommode mit 8 Schubladen 160x50x96 cm',
+		en: 'HEMNES chest of 8 drawers 160x50x96 cm',
 		category: 'dresser',
 		model: 'dresser',
-		dims: cm(160, 50, 95),
-		colors: [C.white, C.blackBrown],
-		front: 900
+		dims: cm(160, 50, 96),
+		colors: [C.white],
+		front: 900,
+		priceChf: 349,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-kommode-mit-8-schubladen-weiss-gebeizt-10239280/',
+		articleNo: '102.392.80',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-hemnes-nightstand-46x35x70',
@@ -321,19 +741,27 @@ const hemnes = [
 		category: 'shelf',
 		model: 'shelf',
 		dims: cm(90, 37, 197),
-		colors: [C.white, C.blackBrown],
-		front: 700
+		colors: [C.white, C.oak, C.green, C.blackBrown],
+		front: 700,
+		priceChf: 229,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-buecherregal-weiss-gebeizt-hellbraun-60413502/',
+		articleNo: '604.135.02',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-hemnes-tv-148x47x57',
 		series: 'HEMNES',
 		de: 'HEMNES TV-Bank 148x47x57 cm',
-		en: 'HEMNES TV unit 148x47x57 cm',
+		en: 'HEMNES TV bench 148x47x57 cm',
 		category: 'tvUnit',
 		model: 'sideboard',
 		dims: cm(148, 47, 57),
-		colors: [C.white, C.blackBrown],
-		front: 600
+		colors: [C.white, C.oak],
+		front: 600,
+		priceChf: 229,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-tv-bank-weiss-gebeizt-hellbraun-50413526/',
+		articleNo: '504.135.26',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-hemnes-shoe-cabinet-107x30x127',
@@ -345,10 +773,7 @@ const hemnes = [
 		dims: cm(107, 30, 127),
 		colors: [C.white, C.blackBrown],
 		front: 700
-	})
-];
-
-const malm = [
+	}),
 	ikea({
 		id: 'ikea-malm-dresser-2-80x48x55',
 		series: 'MALM',
@@ -392,46 +817,52 @@ const malm = [
 		dims: cm(160, 48, 78),
 		colors: [C.white, C.blackBrown, C.birch],
 		front: 900
-	})
-];
-
-const brimnes = [
+	}),
 	ikea({
-		id: 'ikea-brimnes-dresser-4-78x41x96',
+		id: 'ikea-brimnes-dresser-4-78x46x124',
 		series: 'BRIMNES',
-		de: 'BRIMNES Kommode mit 4 Schubladen 78x41x96 cm',
-		en: 'BRIMNES chest of 4 drawers 78x41x96 cm',
+		de: 'BRIMNES Kommode mit 4 Schubladen 78x46x124 cm',
+		en: 'BRIMNES chest of 4 drawers 78x46x124 cm',
 		category: 'dresser',
 		model: 'dresser',
-		dims: cm(78, 41, 96),
-		colors: [C.white, C.blackBrown],
-		front: 900
+		dims: cm(78, 46, 124),
+		colors: [C.white, C.clear],
+		front: 900,
+		priceChf: 129,
+		url: 'https://www.ikea.com/ch/de/p/brimnes-kommode-mit-4-schubladen-weiss-frostglas-90392046/',
+		articleNo: '903.920.46',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-brimnes-tv-120x41x53',
 		series: 'BRIMNES',
 		de: 'BRIMNES TV-Bank 120x41x53 cm',
-		en: 'BRIMNES TV unit 120x41x53 cm',
+		en: 'BRIMNES TV bench 120x41x53 cm',
 		category: 'tvUnit',
 		model: 'sideboard',
 		dims: cm(120, 41, 53),
-		colors: [C.white, C.blackBrown],
-		front: 600
+		colors: [C.black],
+		front: 600,
+		priceChf: 99.95,
+		url: 'https://www.ikea.com/ch/de/p/brimnes-tv-bank-schwarz-50337698/',
+		articleNo: '503.376.98',
+		verified: true
 	}),
 	ikea({
-		id: 'ikea-brimnes-wardrobe-78x47x190',
+		id: 'ikea-brimnes-wardrobe-78x50x190',
 		series: 'BRIMNES',
-		de: 'BRIMNES Kleiderschrank 2 Türen 78x47x190 cm',
-		en: 'BRIMNES wardrobe with 2 doors 78x47x190 cm',
+		de: 'BRIMNES Kleiderschrank 2-türig 78x50x190 cm',
+		en: 'BRIMNES wardrobe with 2 doors 78x50x190 cm',
 		category: 'wardrobe',
 		model: 'wardrobe',
-		dims: cm(78, 47, 190),
-		colors: [C.white, C.blackBrown],
-		front: 590
-	})
-];
-
-const nordli = [
+		dims: cm(78, 50, 190),
+		colors: [C.white],
+		front: 590,
+		priceChf: 129,
+		url: 'https://www.ikea.com/ch/de/p/brimnes-kleiderschrank-2-tuerig-weiss-40400478/',
+		articleNo: '404.004.78',
+		verified: true
+	}),
 	ikea({
 		id: 'ikea-nordli-dresser-3-80x47x76',
 		series: 'NORDLI',
@@ -441,7 +872,11 @@ const nordli = [
 		model: 'dresser',
 		dims: cm(80, 47, 76),
 		colors: [C.white, C.darkGrey],
-		front: 900
+		front: 900,
+		priceChf: 149,
+		url: 'https://www.ikea.com/ch/de/p/nordli-kommode-mit-3-schubladen-weiss-s69239495/',
+		articleNo: '692.394.95',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-nordli-dresser-5-80x47x99',
@@ -453,10 +888,7 @@ const nordli = [
 		dims: cm(80, 47, 99),
 		colors: [C.white, C.darkGrey],
 		front: 900
-	})
-];
-
-const lack = [
+	}),
 	ikea({
 		id: 'ikea-lack-side-table-55x55x45',
 		series: 'LACK',
@@ -465,8 +897,12 @@ const lack = [
 		category: 'table',
 		model: 'table',
 		dims: cm(55, 55, 45),
-		colors: [C.white, C.black, C.birch],
-		front: 400
+		colors: [C.white, C.oak, C.blackBrown],
+		front: 400,
+		priceChf: 9.95,
+		url: 'https://www.ikea.com/ch/de/p/lack-beistelltisch-weiss-30449908/',
+		articleNo: '304.499.08',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-lack-coffee-table-90x55x45',
@@ -476,35 +912,176 @@ const lack = [
 		category: 'table',
 		model: 'table',
 		dims: cm(90, 55, 45),
-		colors: [C.white, C.black, C.birch],
-		front: 400
+		colors: [C.white, C.oak, C.blackBrown],
+		front: 400,
+		priceChf: 24.95,
+		url: 'https://www.ikea.com/ch/de/p/lack-couchtisch-weiss-90449905/',
+		articleNo: '904.499.05',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-lack-tv-160x35x36',
 		series: 'LACK',
 		de: 'LACK TV-Bank 160x35x36 cm',
-		en: 'LACK TV unit 160x35x36 cm',
+		en: 'LACK TV bench 160x35x36 cm',
 		category: 'tvUnit',
 		model: 'sideboard',
 		dims: cm(160, 35, 36),
-		colors: [C.white, C.black],
-		front: 500
+		colors: [C.white, C.blackBrown],
+		front: 500,
+		priceChf: 69.95,
+		url: 'https://www.ikea.com/ch/de/p/lack-tv-bank-weiss-30498927/',
+		articleNo: '304.989.27',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-hemnes-shoe-bench-85x32x65',
+		series: 'HEMNES',
+		de: 'HEMNES Bank mit Schuhablage 85x32x65 cm',
+		en: 'HEMNES bench with shoe storage 85x32x65 cm',
+		category: 'dresser',
+		model: 'dresser',
+		dims: cm(85, 32, 65),
+		colors: [C.white],
+		front: 700,
+		priceChf: 89.95,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-bank-mit-schuhablage-weiss-00243800/',
+		articleNo: '002.438.00',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-nordli-dresser-5-80x47x122',
+		series: 'NORDLI',
+		de: 'NORDLI Kommode mit 5 Schubladen 80x47x122 cm',
+		en: 'NORDLI chest of 5 drawers 80x47x122 cm',
+		category: 'dresser',
+		model: 'dresser',
+		dims: cm(80, 47, 122),
+		colors: [C.white, C.darkGrey],
+		front: 900,
+		priceChf: 269,
+		url: 'https://www.ikea.com/ch/de/p/nordli-kommode-mit-5-schubladen-weiss-s29276550/',
+		articleNo: '292.765.50',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-100x60x201',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 100x60x201 cm',
+		en: 'PAX / FORSAND wardrobe 100x60x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(100, 60, 201.2),
+		colors: [C.white],
+		front: 700,
+		priceChf: 240,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s79503017/',
+		articleNo: '795.030.17',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-100x60x236',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 100x60x236 cm',
+		en: 'PAX / FORSAND wardrobe 100x60x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(100, 60, 236.4),
+		colors: [C.white],
+		front: 700,
+		priceChf: 311,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s49502665/',
+		articleNo: '495.026.65',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-150x60x201',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 150x60x201 cm',
+		en: 'PAX / FORSAND wardrobe 150x60x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(150, 60, 201.2),
+		colors: [C.white],
+		front: 700,
+		priceChf: 355,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s29503171/',
+		articleNo: '295.031.71',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-150x60x236',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 150x60x236 cm',
+		en: 'PAX / FORSAND wardrobe 150x60x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(150, 60, 236.4),
+		colors: [C.white],
+		front: 700,
+		priceChf: 470,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s09503172/',
+		articleNo: '095.031.72',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-220x60x201',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 220x60x201 cm',
+		en: 'PAX / FORSAND wardrobe 220x60x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(220, 60, 201.2),
+		colors: [C.white],
+		front: 700,
+		priceChf: 515,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s09635422/',
+		articleNo: '096.354.22',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-235x60x236',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 235x60x236 cm',
+		en: 'PAX / FORSAND wardrobe 235x60x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(235, 60, 236.4),
+		colors: [C.white],
+		front: 700,
+		priceChf: 677,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s19635412/',
+		articleNo: '196.354.12',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-forsand-schrank-250x60x201',
+		series: 'PAX',
+		de: 'PAX / FORSAND Kleiderschrank 250x60x201 cm',
+		en: 'PAX / FORSAND wardrobe 250x60x201 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(250, 60, 201.2),
+		colors: [C.white],
+		front: 700,
+		priceChf: 698,
+		url: 'https://www.ikea.com/ch/de/p/pax-forsand-kleiderschrank-weiss-weiss-s09502728/',
+		articleNo: '095.027.28',
+		verified: true
+	}),
+	ikea({
+		id: 'ikea-pax-bergsbo-schrank-150x60x236',
+		series: 'PAX',
+		de: 'PAX / BERGSBO Kleiderschrank 150x60x236 cm',
+		en: 'PAX / BERGSBO wardrobe 150x60x236 cm',
+		category: 'wardrobe',
+		model: 'wardrobe',
+		dims: cm(150, 60, 236.4),
+		colors: [C.white],
+		front: 600,
+		priceChf: 691,
+		url: 'https://www.ikea.com/ch/de/p/pax-bergsbo-kleiderschrank-weiss-weiss-s39502331/',
+		articleNo: '395.023.31',
+		verified: true
 	})
-];
-
-export const ikeaStorage: CatalogEntry[] = [
-	...paxFrames,
-	...paxCorners,
-	...paxSliding,
-	kallaxVerified,
-	...kallax,
-	...billy,
-	...besta,
-	...eket,
-	...ivar,
-	...hemnes,
-	...malm,
-	...brimnes,
-	...nordli,
-	...lack
 ];

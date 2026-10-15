@@ -14,9 +14,9 @@ const requiredIds = [
 const poweredModels = ['monitor', 'tv', 'pc', 'printer', 'smallDevice', 'speaker', 'powerStrip'];
 
 describe('catalog', () => {
-	it('contains 150 to 280 entries', () => {
-		expect(catalog.length).toBeGreaterThanOrEqual(150);
-		expect(catalog.length).toBeLessThanOrEqual(280);
+	it('contains 400 to 700 entries', () => {
+		expect(catalog.length).toBeGreaterThanOrEqual(400);
+		expect(catalog.length).toBeLessThanOrEqual(700);
 	});
 
 	it('passes the entry schema', () => {
@@ -73,6 +73,24 @@ describe('catalog', () => {
 		}
 		for (const entry of catalog.filter((e) => e.brand === 'Tchibo')) {
 			expect(entry.id.startsWith('tchibo-'), entry.id).toBe(true);
+		}
+	});
+
+	it('tags JYSK entries with the brand and the jysk id prefix', () => {
+		const jysk = catalog.filter((entry) => entry.id.startsWith('jysk-'));
+		expect(jysk.length).toBeGreaterThan(0);
+		for (const entry of jysk) expect(entry.brand, entry.id).toBe('JYSK');
+		for (const entry of catalog.filter((e) => e.brand === 'JYSK')) {
+			expect(entry.id.startsWith('jysk-'), entry.id).toBe(true);
+		}
+	});
+
+	it('puts the article number of every verified IKEA entry into its url', () => {
+		const ikea = catalog.filter((entry) => entry.brand === 'IKEA' && entry.verified);
+		expect(ikea.length).toBeGreaterThan(0);
+		for (const entry of ikea) {
+			expect(entry.articleNo, entry.id).toBeTruthy();
+			expect(entry.url?.includes((entry.articleNo ?? '').replaceAll('.', '')), entry.id).toBe(true);
 		}
 	});
 

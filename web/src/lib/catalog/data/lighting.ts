@@ -3,15 +3,19 @@ import { C, cm, generic, ikea } from './helpers.ts';
 
 export const lighting: CatalogEntry[] = [
 	ikea({
-		id: 'ikea-hektar-floor-lamp-40x40x181',
+		id: 'ikea-hektar-floor-lamp-34x34x181',
 		series: 'HEKTAR',
-		de: 'HEKTAR Stehleuchte',
-		en: 'HEKTAR floor lamp',
+		de: 'HEKTAR Standleuchte 34x34x181 cm',
+		en: 'HEKTAR floor lamp 34x34x181 cm',
 		category: 'lamp',
 		model: 'floorLamp',
-		dims: cm(40, 40, 181),
-		colors: [C.darkGrey, C.black],
-		power: 1
+		dims: cm(34, 34, 181),
+		colors: [C.darkGrey],
+		power: 1,
+		priceChf: 69.95,
+		url: 'https://www.ikea.com/ch/de/p/hektar-standleuchte-dunkelgrau-00215307/',
+		articleNo: '002.153.07',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-ranarp-floor-lamp-36x36x153',
@@ -23,6 +27,21 @@ export const lighting: CatalogEntry[] = [
 		dims: cm(36, 36, 153),
 		colors: [C.cream, C.black],
 		power: 1
+	}),
+	ikea({
+		id: 'ikea-ranarp-floor-lamp-28x76x153',
+		series: 'RANARP',
+		de: 'RANARP Stand-/Leseleuchte 28x76x153 cm',
+		en: 'RANARP floor/reading lamp 28x76x153 cm',
+		category: 'lamp',
+		model: 'floorLamp',
+		dims: cm(28, 76, 153),
+		colors: [C.black],
+		power: 1,
+		priceChf: 59.95,
+		url: 'https://www.ikea.com/ch/de/p/ranarp-stand-leseleuchte-schwarz-90331374/',
+		articleNo: '903.313.74',
+		verified: true
 	}),
 	generic({
 		id: 'generic-floor-lamp-35x35x160',

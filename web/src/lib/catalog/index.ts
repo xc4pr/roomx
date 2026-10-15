@@ -7,6 +7,7 @@ import { ikeaDining } from './data/ikea-dining.ts';
 import { ikeaOffice } from './data/ikea-office.ts';
 import { ikeaSeating } from './data/ikea-seating.ts';
 import { ikeaStorage } from './data/ikea-storage.ts';
+import { jyskFurniture } from './data/jysk.ts';
 import { lighting } from './data/lighting.ts';
 import { tchiboCn3 } from './data/tchibo.ts';
 import { withPrices } from './data/prices.ts';
@@ -26,7 +27,8 @@ export const catalog: readonly CatalogEntry[] = withPrices([
 	...genericDevices,
 	...decor,
 	...lighting,
-	...tchiboCn3
+	...tchiboCn3,
+	...jyskFurniture
 ]);
 
 export const lookup = catalogLookup(catalog, catalogAliases);
