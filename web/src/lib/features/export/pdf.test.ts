@@ -38,6 +38,30 @@ describe('buildPdf', () => {
 		}
 	});
 
+	it('labels connected rooms and still produces the same pages', async () => {
+		const apart = furnishedProject();
+		const joined = furnishedProject();
+		const rect = joined.rooms.find((candidate) => candidate.id === 'room-rect')!;
+		const other = joined.rooms.find((candidate) => candidate.id === 'room-l')!;
+		other.boardPos = { x: 4000 + 150, y: 0, rot: 0 };
+		rect.elements.push({
+			id: 'pass',
+			kind: 'door',
+			status: 'existing',
+			wall: 2,
+			offset: 600,
+			width: 900,
+			height: 2000,
+			elevation: 0,
+			hinge: 'start',
+			swing: 'out'
+		});
+		const before = await buildPdf({ project: apart, language: 'de', fonts });
+		const after = await buildPdf({ project: joined, language: 'de', fonts });
+		expect(after.pageCount).toBe(before.pageCount);
+		expect(after.bytes.length).toBeGreaterThan(before.bytes.length);
+	});
+
 	it('limits the document to the requested rooms and counts photo pages', async () => {
 		const project = furnishedProject();
 		const only = await buildPdf({ project, roomIds: ['room-l'], language: 'en', fonts });

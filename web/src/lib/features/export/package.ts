@@ -1,9 +1,21 @@
+import { catalog as defaultCatalog } from '#lib/catalog/index.ts';
+import { catalogLookup, type CatalogEntry } from '#lib/core/catalog.ts';
 import { buildExport, ExportSchema, type ExportDocument } from '#lib/core/export.ts';
+import { planJsonSchema } from '#lib/core/plan.ts';
 import type { Project, Room } from '#lib/core/schema.ts';
 import type { Language } from '#lib/core/units.ts';
+import { catalogJson } from './catalogFile.ts';
+import { buildInstructions, buildPrompt } from './instructions.ts';
 import { isTooLarge } from './layout.ts';
 import { buildPdf, type PdfFonts, type RoomImages } from './pdf.ts';
-import { exportFileName } from './slug.ts';
+import {
+	CATALOG_FILE_NAME,
+	exportFileName,
+	instructionsFileName,
+	packageZipName,
+	planFileName,
+	SCHEMA_FILE_NAME
+} from './slug.ts';
 
 export interface PackageDeps {
 	loadFonts: () => Promise<PdfFonts>;
@@ -22,6 +34,7 @@ export interface PackageOptions {
 	date?: Date;
 	signal?: AbortSignal;
 	onProgress?: (fraction: number) => void;
+	catalog?: readonly CatalogEntry[];
 }
 
 export interface PackageFile {
@@ -31,8 +44,14 @@ export interface PackageFile {
 }
 
 export interface PackageResult {
+	instructions: PackageFile;
 	pdf: PackageFile;
 	json: PackageFile;
+	schema: PackageFile;
+	catalog: PackageFile;
+	files: PackageFile[];
+	zipName: string;
+	prompt: string;
 	pageCount: number;
 	tooLarge: boolean;
 	document: ExportDocument;
@@ -68,21 +87,55 @@ export async function buildPackage(
 			exportedAt: date.toISOString()
 		})
 	);
-	const jsonData = new TextEncoder().encode(JSON.stringify(document, null, 2));
+	const encoder = new TextEncoder();
+	const entries = options.catalog ?? defaultCatalog;
+	const fileNames = {
+		instructions: instructionsFileName(project.name, language, date),
+		pdf: exportFileName(project.name, 'pdf', date),
+		json: exportFileName(project.name, 'json', date),
+		schema: SCHEMA_FILE_NAME,
+		catalog: CATALOG_FILE_NAME,
+		plan: planFileName(project.name)
+	};
+	const jsonData = encoder.encode(JSON.stringify(document, null, 2));
+	const instructionsData = encoder.encode(
+		buildInstructions({
+			document,
+			language,
+			date,
+			fileNames,
+			pdfPages: pdf.pageCount,
+			partial: roomIds !== undefined && roomIds.length < project.rooms.length,
+			lookup: catalogLookup(entries)
+		})
+	);
+	const schemaData = encoder.encode(`${JSON.stringify(planJsonSchema(), null, 2)}\n`);
+	const catalogData = encoder.encode(catalogJson(entries, language));
 	options.onProgress?.(1);
+	const instructions = {
+		name: fileNames.instructions,
+		data: instructionsData,
+		type: 'text/markdown'
+	};
+	const pdfFile = { name: fileNames.pdf, data: pdf.bytes, type: 'application/pdf' };
+	const json = { name: fileNames.json, data: jsonData, type: 'application/json' };
+	const schema = { name: fileNames.schema, data: schemaData, type: 'application/json' };
+	const catalog = { name: fileNames.catalog, data: catalogData, type: 'application/json' };
+	const files = [instructions, pdfFile, json, schema, catalog];
 	return {
-		pdf: {
-			name: exportFileName(project.name, 'pdf', date),
-			data: pdf.bytes,
-			type: 'application/pdf'
-		},
-		json: {
-			name: exportFileName(project.name, 'json', date),
-			data: jsonData,
-			type: 'application/json'
-		},
+		instructions,
+		pdf: pdfFile,
+		json,
+		schema,
+		catalog,
+		files,
+		zipName: packageZipName(project.name, language, date),
+		prompt: buildPrompt(language, fileNames.instructions),
 		pageCount: pdf.pageCount,
-		tooLarge: isTooLarge(pdf.pageCount, pdf.bytes.length + jsonData.length),
+		tooLarge: isTooLarge(
+			pdf.pageCount,
+			files.reduce((sum, file) => sum + file.data.length, 0)
+		),
 		document
 	};
 }

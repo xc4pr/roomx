@@ -179,7 +179,7 @@
 				autocapitalize="off"
 				autocomplete="off"
 				placeholder={t(messages, 'pastePlaceholder')}
-				class="min-h-36 w-full resize-y rounded-md border border-border bg-bg p-3 font-mono text-sm text-text placeholder:text-muted focus:border-accent focus:outline-2 focus:outline-offset-1 focus:outline-accent"
+				class="min-h-36 w-full resize-y rounded-md border border-border bg-bg p-3 font-mono text-sm text-text placeholder:text-muted focus:border-accent focus:outline-2 focus:outline-offset-1 focus:outline-accent pointer-coarse:text-base"
 				data-testid="import-text"></textarea>
 			<div class="flex flex-wrap gap-2">
 				<Button
@@ -305,7 +305,9 @@
 							</p>
 							{#if room.errors.length > 0}
 								<div class="flex flex-col gap-1.5" data-testid="import-conflicts">
-									<p class="px-1 text-xs font-bold tracking-wide text-danger uppercase">
+									<p
+										class="px-1 text-xs font-bold tracking-wide text-danger uppercase pointer-coarse:text-sm"
+									>
 										{t(messages, 'conflictsTitle')}
 									</p>
 									{#each room.errors as conflict (conflict.text)}
@@ -320,7 +322,9 @@
 							{/if}
 							{#if room.warnings.length > 0}
 								<div class="flex flex-col gap-1.5" data-testid="import-warnings">
-									<p class="px-1 text-xs font-bold tracking-wide text-warning uppercase">
+									<p
+										class="px-1 text-xs font-bold tracking-wide text-warning uppercase pointer-coarse:text-sm"
+									>
 										{t(messages, 'warningsTitle')}
 									</p>
 									{#each room.warnings as conflict (conflict.text)}
@@ -341,7 +345,9 @@
 
 					{#if variant.issues.some((issue) => issue.severity === 'error')}
 						<div class="flex flex-col gap-1.5" data-testid="import-skipped">
-							<p class="px-1 text-xs font-bold tracking-wide text-danger uppercase">
+							<p
+								class="px-1 text-xs font-bold tracking-wide text-danger uppercase pointer-coarse:text-sm"
+							>
 								{t(messages, 'skippedTitle')}
 							</p>
 							{#each variant.issues.filter((issue) => issue.severity === 'error') as issue (issue.where + issue.message)}
@@ -354,7 +360,9 @@
 					{/if}
 					{#if variant.issues.some((issue) => issue.severity !== 'error')}
 						<div class="flex flex-col gap-1.5">
-							<p class="px-1 text-xs font-bold tracking-wide text-muted uppercase">
+							<p
+								class="px-1 text-xs font-bold tracking-wide text-muted uppercase pointer-coarse:text-sm"
+							>
 								{t(messages, 'planNotesTitle')}
 							</p>
 							{#each variant.issues.filter((issue) => issue.severity !== 'error') as issue (issue.where + issue.message)}

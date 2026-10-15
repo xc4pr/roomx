@@ -2,6 +2,9 @@
 	import Archive from '@lucide/svelte/icons/archive';
 	import ArchiveRestore from '@lucide/svelte/icons/archive-restore';
 	import Box from '@lucide/svelte/icons/box';
+	import Check from '@lucide/svelte/icons/check';
+	import Copy from '@lucide/svelte/icons/copy';
+	import FileArchive from '@lucide/svelte/icons/file-archive';
 	import Download from '@lucide/svelte/icons/download';
 	import Package from '@lucide/svelte/icons/package';
 	import PackageOpen from '@lucide/svelte/icons/package-open';
@@ -11,6 +14,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/core/units.ts';
+	import BuildCheck from '#lib/features/board/BuildCheck.svelte';
 	import { formatBytes } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -34,20 +38,36 @@
 		type ParsedBackup
 	} from './backup.ts';
 	import { browserDeps, makeThumbnail } from './browser.ts';
-	import { canShareFiles, downloadBlob, downloadFiles, shareFiles, toFiles } from './deliver.ts';
+	import {
+		canShareFiles,
+		copySelection,
+		copyText,
+		downloadBlob,
+		downloadFiles,
+		selectNode,
+		shareFiles,
+		toFiles,
+		zipPackage
+	} from './deliver.ts';
 	import { messages } from './i18n.ts';
-	import { estimatePackage } from './layout.ts';
+	import { estimatePackage, PACKAGE_FILE_COUNT } from './layout.ts';
 	import { buildPackage } from './package.ts';
 	import SectionCard from './SectionCard.svelte';
 	import { exportFileName } from './slug.ts';
 
 	type JobKind = 'package' | 'backup' | 'model';
 
+	const steps = ['step1', 'step2', 'step3', 'step4'] as const;
+
 	interface ReadyPackage {
 		files: File[];
+		zipName: string;
+		prompt: string;
 		pageCount: number;
 		pdfSize: number;
 		jsonSize: number;
+		totalSize: number;
+		zip: () => Blob;
 		tooLarge: boolean;
 	}
 
@@ -55,6 +75,10 @@
 	let selected = $state<string[]>([]);
 	let includePackage = $state(false);
 	let includeModel = $state(false);
+	let checking = $state(false);
+	let copied = $state(false);
+	let copyTimer: ReturnType<typeof setTimeout> | undefined;
+	let promptEl = $state<HTMLElement>();
 	let job = $state<{ kind: JobKind; progress: number | undefined } | null>(null);
 	let ready = $state<ReadyPackage | null>(null);
 	let pendingRestore = $state<ParsedBackup | null>(null);
@@ -116,6 +140,11 @@
 		controller?.abort();
 	}
 
+	function startPackage(): void {
+		ready = null;
+		checking = true;
+	}
+
 	async function createPackage(): Promise<void> {
 		const snapshot = store.snapshot();
 		if (!snapshot || roomIds.length === 0) return;
@@ -134,11 +163,16 @@
 				},
 				browserDeps
 			);
+			copied = false;
 			ready = {
-				files: toFiles([result.pdf, result.json]),
+				files: toFiles(result.files),
+				zipName: result.zipName,
+				prompt: result.prompt,
 				pageCount: result.pageCount,
 				pdfSize: result.pdf.data.length,
 				jsonSize: result.json.data.length,
+				totalSize: result.files.reduce((sum, file) => sum + file.data.length, 0),
+				zip: () => zipPackage(result.files),
 				tooLarge: result.tooLarge
 			};
 		} catch (error) {
@@ -179,6 +213,29 @@
 		toasts.show({ message: t(messages, 'downloaded'), kind: 'success' });
 	}
 
+	function downloadZip(): void {
+		if (!ready) return;
+		downloadBlob(ready.zipName, ready.zip());
+		toasts.show({ message: t(messages, 'zipDone'), kind: 'success' });
+	}
+
+	async function copyPrompt(): Promise<void> {
+		if (!ready) return;
+		let done = await copyText(ready.prompt);
+		if (!done && promptEl) {
+			selectNode(promptEl);
+			done = copySelection();
+		}
+		if (!done) {
+			toasts.show({ message: t(messages, 'promptSelected') });
+			return;
+		}
+		copied = true;
+		clearTimeout(copyTimer);
+		copyTimer = setTimeout(() => (copied = false), 2600);
+		toasts.show({ message: t(messages, 'promptCopied'), kind: 'success' });
+	}
+
 	async function modelBlob(snapshot: NonNullable<typeof project>, ids: string[]): Promise<Blob> {
 		const { exportGlb } = await import('#lib/three/offscreen.ts');
 		return exportGlb({ project: snapshot, roomIds: ids, variantId: snapshot.activeVariantId });
@@ -217,8 +274,11 @@
 					browserDeps
 				);
 				extras.push(
-					{ name: result.pdf.name, data: result.pdf.data },
-					{ name: result.json.name, data: result.json.data, compress: true }
+					...result.files.map((file) => ({
+						name: file.name,
+						data: file.data,
+						compress: file.type !== 'application/pdf'
+					}))
 				);
 			}
 			if (includeModel && snapshot.rooms.length > 0) {
@@ -395,6 +455,7 @@
 				<p class="px-1 text-sm text-muted" data-testid="estimate">
 					{t(messages, 'estimate', {
 						pages: estimate.pages,
+						files: PACKAGE_FILE_COUNT,
 						size: formatBytes(estimate.bytes, locale.language)
 					})}
 				</p>
@@ -417,13 +478,13 @@
 			{#if job?.kind === 'package'}
 				{@render progress(t(messages, 'working'))}
 			{:else}
-				<div>
+				<div class="flex flex-wrap gap-2">
 					<Button
 						variant="primary"
 						size="lg"
 						icon={PackageOpen}
 						disabled={busy || roomIds.length === 0}
-						onclick={() => void createPackage()}
+						onclick={startPackage}
 						data-testid="create-package"
 					>
 						{t(messages, 'createPackage')}
@@ -433,7 +494,7 @@
 
 			{#if ready && !busy}
 				<div
-					class="flex flex-col gap-3 rounded-md border border-border bg-bg p-4"
+					class="flex flex-col gap-4 rounded-md border border-border bg-bg p-4"
 					data-testid="package-ready"
 				>
 					<div class="flex items-start gap-3">
@@ -442,12 +503,14 @@
 							<p class="font-bold">{t(messages, 'readyTitle')}</p>
 							<p class="mt-0.5 text-sm text-muted">
 								{t(messages, 'readyText', {
+									files: ready.files.length,
+									total: formatBytes(ready.totalSize, locale.language),
 									pages: ready.pageCount,
 									pdfSize: formatBytes(ready.pdfSize, locale.language),
 									jsonSize: formatBytes(ready.jsonSize, locale.language)
 								})}
 							</p>
-							<ul class="mt-2 text-sm text-muted">
+							<ul class="mt-2 text-sm text-muted" data-testid="package-files">
 								{#each ready.files as file (file.name)}
 									<li class="truncate">{file.name}</li>
 								{/each}
@@ -476,6 +539,55 @@
 						>
 							{t(messages, 'download')}
 						</Button>
+						<Button
+							variant="secondary"
+							icon={FileArchive}
+							onclick={downloadZip}
+							data-testid="download-zip"
+						>
+							{t(messages, 'zipDownload')}
+						</Button>
+					</div>
+					<p class="-mt-2 text-xs text-muted pointer-coarse:text-sm">{t(messages, 'zipHint')}</p>
+
+					<div class="flex flex-col gap-3 border-t border-border pt-4" data-testid="package-steps">
+						<p class="font-bold">{t(messages, 'stepsTitle')}</p>
+						<ol class="flex flex-col gap-3">
+							{#each steps as key, index (key)}
+								<li class="flex items-start gap-3">
+									<span
+										class="grid size-7 shrink-0 place-items-center rounded-full bg-accent-soft text-sm font-bold text-accent"
+										aria-hidden="true"
+									>
+										{index + 1}
+									</span>
+									<div class="min-w-0 grow">
+										<p class="pt-0.5 text-base">{t(messages, key)}</p>
+										{#if index === 2}
+											<div class="mt-2 flex flex-col gap-2">
+												<p
+													bind:this={promptEl}
+													class="rounded-md border border-border bg-surface p-3 text-sm leading-relaxed whitespace-pre-wrap select-all"
+													data-testid="prompt-text"
+												>
+													{ready.prompt}
+												</p>
+												<div>
+													<Button
+														variant="primary"
+														icon={copied ? Check : Copy}
+														onclick={() => void copyPrompt()}
+														data-testid="copy-prompt"
+													>
+														{copied ? t(messages, 'promptCopiedShort') : t(messages, 'copyPrompt')}
+													</Button>
+												</div>
+											</div>
+										{/if}
+									</div>
+								</li>
+							{/each}
+						</ol>
 					</div>
 				</div>
 			{/if}
@@ -571,6 +683,14 @@
 		{/if}
 	</SectionCard>
 </div>
+
+<BuildCheck
+	bind:open={checking}
+	{roomIds}
+	title={t(messages, 'checkTitle')}
+	proceedLabel={t(messages, 'exportAnyway')}
+	onproceed={() => void createPackage()}
+/>
 
 <Dialog
 	bind:open={askingRestore}

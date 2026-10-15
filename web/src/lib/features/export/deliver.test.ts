@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { canShareFiles, shareFiles, toFiles } from './deliver.ts';
+import { canShareFiles, copyText, shareFiles, toFiles } from './deliver.ts';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -34,5 +34,23 @@ describe('deliver', () => {
 		vi.stubGlobal('navigator', { share });
 		expect(await shareFiles(files, 'title')).toBe('shared');
 		expect(share).toHaveBeenCalledWith({ files, title: 'title' });
+	});
+});
+
+describe('copyText', () => {
+	it('writes to the clipboard when it is available', async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		vi.stubGlobal('navigator', { clipboard: { writeText } });
+		expect(await copyText('Prompt')).toBe(true);
+		expect(writeText).toHaveBeenCalledWith('Prompt');
+	});
+
+	it('reports false without the clipboard API or when it refuses', async () => {
+		vi.stubGlobal('navigator', {});
+		expect(await copyText('x')).toBe(false);
+		vi.stubGlobal('navigator', {
+			clipboard: { writeText: vi.fn().mockRejectedValue(new DOMException('x', 'NotAllowedError')) }
+		});
+		expect(await copyText('x')).toBe(false);
 	});
 });

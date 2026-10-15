@@ -1,3 +1,4 @@
+import { withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { checkRoomItems, type ItemIssue } from '#lib/core/checks.ts';
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import type { Plan } from '#lib/core/plan.ts';
@@ -130,6 +131,7 @@ export function buildPreview(
 ): PreviewVariant[] {
 	const tr = translator(messages, options.language);
 	const context = { project: options.project, lookup: options.lookup, language: options.language };
+	const connected = withMirroredOpenings(options.project.rooms);
 	return resolved.variants.map((variant, index) => {
 		const planRoomIds = plan.variants[index]?.rooms.map((room) => room.roomId) ?? [];
 		const roomIds = [...new Set(planRoomIds)].filter((id) =>
@@ -137,7 +139,7 @@ export function buildPreview(
 		);
 		const items = new Map(variant.items.map((item) => [item.id, item]));
 		const rooms = roomIds.map((roomId): PreviewRoom => {
-			const room = options.project.rooms.find((candidate) => candidate.id === roomId)!;
+			const room = connected.find((candidate) => candidate.id === roomId)!;
 			const roomItems = variant.items.filter((item) => item.roomId === roomId);
 			const suggestions = variant.suggestions
 				.filter((suggestion) => suggestion.roomId === roomId)

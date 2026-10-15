@@ -1,5 +1,6 @@
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, type PDFImage, type PDFPage } from 'pdf-lib';
+import { mirroredOpenings, wallLinks, withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { areaM2 } from '#lib/core/defaults.ts';
 import {
 	cornerLabel,
@@ -570,16 +571,41 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 	doc.setCreationDate(date);
 	doc.setModificationDate(date);
 
+	const connected = new Map(withMirroredOpenings(project.rooms).map((room) => [room.id, room]));
+	const names = new Map(project.rooms.map((room) => [room.id, room.name]));
+	const neighbours = new Map<string, { wall: number; from: number; to: number; name: string }[]>();
+	for (const link of wallLinks(project.rooms)) {
+		const list = neighbours.get(link.roomId) ?? [];
+		list.push({
+			wall: link.wall,
+			from: link.from,
+			to: link.to,
+			name: names.get(link.otherRoomId) ?? ''
+		});
+		neighbours.set(link.roomId, list);
+	}
+	const mirrored = mirroredOpenings(project.rooms);
+	ctx.links = {
+		shared: new Set(
+			mirrored.flatMap((entry) => [entry.element.id, entry.element.id.split('@')[0]])
+		),
+		sources: new Map(
+			mirrored.map((entry) => [entry.element.id, names.get(entry.sourceRoomId) ?? ''])
+		),
+		neighbours
+	};
+
 	drawTitlePage(ctx, project, rooms, date);
 	tick();
 
-	for (const room of rooms) {
+	for (const source of rooms) {
+		const room = connected.get(source.id) ?? source;
 		input.signal?.throwIfAborted();
 		drawPlanPage(ctx, room);
 		drawWallPages(ctx, room);
 		tick();
 		input.signal?.throwIfAborted();
-		const images = await input.renderViews?.(room, project.activeVariantId);
+		const images = await input.renderViews?.(source, project.activeVariantId);
 		if (images) await drawViewsPage(ctx, room, images);
 		tick();
 		drawFurnishPages(ctx, project, room);

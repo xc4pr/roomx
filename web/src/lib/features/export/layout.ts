@@ -9,6 +9,8 @@ export const PHOTOS_PER_PAGE = 2;
 export const PHOTO_LONG_EDGE = 1600;
 export const MAX_PAGES = 80;
 export const MAX_BYTES = 25 * 1024 * 1024;
+export const PACKAGE_FILE_COUNT = 5;
+export const PACKAGE_EXTRA_BYTES = 120_000;
 
 export interface Box {
 	x: number;
@@ -161,7 +163,7 @@ export function estimatePackage(
 		pages += Math.ceil(room.photos / PHOTOS_PER_PAGE);
 		bytes += room.photos * 260_000;
 	}
-	bytes += pages * 6_000 + 40_000;
+	bytes += pages * 6_000 + 40_000 + PACKAGE_EXTRA_BYTES;
 	return { pages, bytes, tooLarge: pages > MAX_PAGES || bytes > MAX_BYTES };
 }
 

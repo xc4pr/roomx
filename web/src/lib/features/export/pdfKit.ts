@@ -14,6 +14,19 @@ import type { Translate } from './text.ts';
 
 export type PdfKey = keyof (typeof messages)['de'];
 
+export interface PdfNeighbour {
+	wall: number;
+	from: number;
+	to: number;
+	name: string;
+}
+
+export interface PdfLinks {
+	shared: ReadonlySet<string>;
+	sources: ReadonlyMap<string, string>;
+	neighbours: ReadonlyMap<string, readonly PdfNeighbour[]>;
+}
+
 export interface PdfContext {
 	doc: PDFDocument;
 	font: PDFFont;
@@ -23,6 +36,7 @@ export interface PdfContext {
 	tr: Translate<PdfKey>;
 	known: ReadonlySet<number>;
 	knownBold: ReadonlySet<number>;
+	links?: PdfLinks;
 }
 
 export interface Point2 {

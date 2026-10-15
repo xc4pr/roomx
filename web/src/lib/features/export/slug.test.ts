@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { dateStamp, exportFileName, slugify } from './slug.ts';
+import {
+	dateStamp,
+	exportFileName,
+	instructionsFileName,
+	packageZipName,
+	planFileName,
+	slugify
+} from './slug.ts';
 
 describe('slugify', () => {
 	it('transliterates umlauts and sharp s', () => {
@@ -34,5 +41,26 @@ describe('file names', () => {
 		expect(exportFileName('Wohnung Süd', 'pdf', new Date(2026, 9, 13))).toBe(
 			'roomx-wohnung-sued-2026-10-13.pdf'
 		);
+	});
+});
+
+describe('package file names', () => {
+	const date = new Date(2026, 9, 13);
+
+	it('names the instructions by language', () => {
+		expect(instructionsFileName('Wohnung Süd', 'de', date)).toBe(
+			'roomx-anleitung-wohnung-sued-2026-10-13.md'
+		);
+		expect(instructionsFileName('Wohnung Süd', 'en', date)).toBe(
+			'roomx-instructions-wohnung-sued-2026-10-13.md'
+		);
+	});
+
+	it('names the ZIP and the plan file', () => {
+		expect(packageZipName('Wohnung Süd', 'de', date)).toBe(
+			'roomx-ki-paket-wohnung-sued-2026-10-13.zip'
+		);
+		expect(packageZipName('Home', 'en', date)).toBe('roomx-ai-package-home-2026-10-13.zip');
+		expect(planFileName('Wohnung Süd')).toBe('roomx-plan-wohnung-sued.json');
 	});
 });

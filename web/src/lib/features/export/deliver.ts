@@ -1,3 +1,4 @@
+import { zipSync, type Zippable } from 'fflate';
 import type { PackageFile } from './package.ts';
 
 export function toFiles(files: readonly PackageFile[]): File[] {
@@ -43,5 +44,42 @@ export async function downloadFiles(files: readonly File[], pause = 400): Promis
 	for (let index = 0; index < files.length; index++) {
 		if (index > 0) await new Promise((resolve) => setTimeout(resolve, pause));
 		downloadBlob(files[index].name, files[index]);
+	}
+}
+
+export function zipPackage(files: readonly PackageFile[]): Blob {
+	const entries: Zippable = {};
+	for (const file of files) {
+		entries[file.name] = [file.data, { level: file.type === 'application/pdf' ? 0 : 6 }];
+	}
+	return new Blob([zipSync(entries) as BlobPart], { type: 'application/zip' });
+}
+
+export async function copyText(text: string): Promise<boolean> {
+	try {
+		if (typeof navigator === 'undefined' || typeof navigator.clipboard?.writeText !== 'function') {
+			return false;
+		}
+		await navigator.clipboard.writeText(text);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+export function selectNode(node: Node): void {
+	const selection = typeof window === 'undefined' ? null : window.getSelection();
+	if (!selection) return;
+	const range = document.createRange();
+	range.selectNodeContents(node);
+	selection.removeAllRanges();
+	selection.addRange(range);
+}
+
+export function copySelection(): boolean {
+	try {
+		return document.execCommand('copy');
+	} catch {
+		return false;
 	}
 }

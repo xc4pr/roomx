@@ -6,6 +6,8 @@ import {
 	fitBounds,
 	hatchSegments,
 	isTooLarge,
+	PACKAGE_EXTRA_BYTES,
+	PACKAGE_FILE_COUNT,
 	packBlocks,
 	paperScale,
 	planPhotoPages,
@@ -118,6 +120,12 @@ describe('estimatePackage', () => {
 		const small = estimatePackage([{ walls: 4, photos: 5, items: 10 }]);
 		expect(small.pages).toBe(1 + 1 + 2 + 1 + 1 + 3);
 		expect(small.tooLarge).toBe(false);
+	});
+
+	it('counts the files of the package and their fixed size', () => {
+		expect(PACKAGE_FILE_COUNT).toBe(5);
+		const empty = estimatePackage([]);
+		expect(empty.bytes).toBeGreaterThanOrEqual(PACKAGE_EXTRA_BYTES);
 	});
 
 	it('flags large packages by pages or size', () => {

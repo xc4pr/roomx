@@ -134,6 +134,7 @@ function drawOpening(
 	target: Wall,
 	fit: Fit
 ): void {
+	const shared = ctx.links?.shared.has(element.id) ?? false;
 	const stroke = elementColor(ctx, element);
 	const start = toPage(fit, wallPoint(target, element.offset));
 	const end = toPage(fit, wallPoint(target, element.offset + element.width));
@@ -154,6 +155,7 @@ function drawOpening(
 		strokeLine(page, inner(start), inner(end), { width: 0.8, color: stroke, dash: [3, 2] });
 		return;
 	}
+	if (shared && element.swing === 'out') return;
 	const swing = doorSwing(room.polygon, element, 12);
 	if (!swing) return;
 	const arc = swing.polygon.map((p) => toPage(fit, p));
@@ -342,6 +344,54 @@ function drawDimension(
 	);
 }
 
+function drawNeighbours(
+	page: PDFPage,
+	ctx: PdfContext,
+	room: Room,
+	fit: Fit,
+	roomWalls: readonly Wall[]
+): void {
+	const size = 7;
+	const color = ctx.palette.muted;
+	for (const entry of ctx.links?.neighbours.get(room.id) ?? []) {
+		const target = roomWalls.find((candidate) => candidate.number === entry.wall);
+		if (!target) continue;
+		const out = scaleVec(target.inward, -1);
+		const a = toPage(fit, target.start);
+		const b = toPage(fit, target.end);
+		const lengthPt = Math.hypot(b.x - a.x, b.y - a.y);
+		if (lengthPt < 1) continue;
+		const unit = { x: (b.x - a.x) / lengthPt, y: (b.y - a.y) / lengthPt };
+		const at = (along: number, distance: number): Point2 => {
+			const base = toPage(fit, wallPoint(target, along));
+			return { x: base.x + out.x * distance, y: base.y + out.y * distance };
+		};
+		strokeLine(page, at(entry.from, DIMENSION_OFFSET + 9), at(entry.to, DIMENSION_OFFSET + 9), {
+			width: 0.9,
+			color
+		});
+		let angle = (Math.atan2(unit.y, unit.x) * 180) / Math.PI;
+		let direction = unit;
+		if (angle > 90 || angle <= -90) {
+			angle += angle > 0 ? -180 : 180;
+			direction = { x: -unit.x, y: -unit.y };
+		}
+		const label = ctx.tr('borders', { room: entry.name });
+		const width = textWidth(ctx, label, size);
+		const up = { x: -direction.y, y: direction.x };
+		const lift = up.x * out.x + up.y * out.y >= 0 ? 0 : -size * 0.75;
+		const middle = at((entry.from + entry.to) / 2, DIMENSION_OFFSET + 13 + (lift === 0 ? 0 : size));
+		drawText(
+			page,
+			ctx,
+			label,
+			middle.x - direction.x * (width / 2) + up.x * lift,
+			middle.y - direction.y * (width / 2) + up.y * lift,
+			{ size, angle, color }
+		);
+	}
+}
+
 export function drawRoomPlan(
 	page: PDFPage,
 	ctx: PdfContext,
@@ -350,7 +400,8 @@ export function drawRoomPlan(
 ): PlanResult {
 	const shapes = (options.items ?? []).flatMap((item) => itemFootprint(item));
 	const bounds = boundsOf([...room.polygon, ...shapes]);
-	const fit = fitBounds(bounds, options.box, PLAN_PADDING, options.align);
+	const bordering = (ctx.links?.neighbours.get(room.id)?.length ?? 0) > 0;
+	const fit = fitBounds(bounds, options.box, PLAN_PADDING + (bordering ? 12 : 0), options.align);
 	const roomWalls = walls(room.polygon);
 	const outline = room.polygon.map((p) => toPage(fit, p));
 	polygon(page, outline, { fill: '#ffffff', color: ctx.palette.ink, width: 0.1 });
@@ -392,6 +443,7 @@ export function drawRoomPlan(
 	for (const target of roomWalls) {
 		drawDimension(page, ctx, target, fit, String(Math.round(target.length)));
 	}
+	drawNeighbours(page, ctx, room, fit, roomWalls);
 	roomWalls.forEach((target) => {
 		const mid = toPage(fit, wallPoint(target, target.length / 2));
 		const at = { x: mid.x + target.inward.x * 15, y: mid.y + target.inward.y * 15 };
@@ -598,6 +650,8 @@ function elementDescription(
 		if (element.usb) parts.push('USB');
 	}
 	if (element.kind === 'dataPort') parts.push(tr(`port_${element.portType}`));
+	const source = ctx.links?.sources.get(element.id);
+	if (source) parts.push(tr('sharedFrom', { room: source }));
 	if (element.note) parts.push(element.note);
 	return parts.join(' · ');
 }
