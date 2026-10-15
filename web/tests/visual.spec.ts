@@ -5,6 +5,7 @@ import type { Page } from '@playwright/test';
 import {
 	addRoom,
 	createProject,
+	fillChecked,
 	jpegUpload,
 	lPolygon,
 	makeJpeg,
@@ -105,7 +106,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		writeFileSync(join(OUTPUT, `l-${project}-export-${scheme}.pdf`), first.pdf);
 		await page.evaluate(() => scrollTo(0, 0));
 
-		await page.getByTestId('import-text').fill(planMessage(buildPlan(first)));
+		await fillChecked(page.getByTestId('import-text'), planMessage(buildPlan(first)));
 		await expect(page.getByTestId('import-preview')).toBeVisible();
 		await page.getByTestId('import-preview').scrollIntoViewIfNeeded();
 		await shot('import-preview');

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { createProject, readAllProjects, waitForProject } from './helpers/app.ts';
+import { createProject, fillChecked, readAllProjects, waitForProject } from './helpers/app.ts';
 import { test, expect } from './helpers/fixtures.ts';
 
 const DIR =
@@ -34,7 +34,7 @@ test('KI-Probelauf: Backup wiederherstellen, Antwort importieren, Einkaufsliste 
 	await page.getByTestId('seg-share').click();
 	await expect(page.getByTestId('import-panel')).toBeVisible();
 
-	await page.getByTestId('import-text').fill(readFileSync(ANSWER!, 'utf8'));
+	await fillChecked(page.getByTestId('import-text'), readFileSync(ANSWER!, 'utf8'));
 	await expect(page.getByTestId('import-preview')).toBeVisible();
 	await expect(page.getByTestId('import-invalid')).toHaveCount(0);
 	await expect(page.getByTestId('import-unreadable')).toHaveCount(0);

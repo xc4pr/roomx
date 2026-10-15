@@ -1,4 +1,4 @@
-import { addRoom, createProject, readProject, waitForProject } from './helpers/app.ts';
+import { addRoom, createProject, fillChecked, readProject, waitForProject } from './helpers/app.ts';
 import { test, expect } from './helpers/fixtures.ts';
 
 declare global {
@@ -63,7 +63,7 @@ test('Unsichere Links aus einem Plan landen nie als Link im DOM', async ({ page 
 		},
 		{ id: 'ok', catalogId: DESK, x: 1000, y: 1000, url: 'https://example.com/schreibtisch' }
 	]);
-	await page.getByTestId('import-text').fill(JSON.stringify(plan));
+	await fillChecked(page.getByTestId('import-text'), JSON.stringify(plan));
 	await expect(page.getByTestId('import-invalid')).toBeVisible();
 	await expect(page.getByTestId('import-apply')).toHaveCount(0);
 	expect(await dangerousLinks(page)).toBe(0);
@@ -79,9 +79,10 @@ test('Unsichere Links in gespeicherten Daten werden nicht zu Links', async ({ pa
 		void dialog.dismiss();
 	});
 	const { id, roomId } = await prepare(page, 'Gespeicherte Links');
-	await page
-		.getByTestId('import-text')
-		.fill(JSON.stringify(planOf(id, roomId, [{ id: 'desk', catalogId: DESK, x: 2000, y: 1500 }])));
+	await fillChecked(
+		page.getByTestId('import-text'),
+		JSON.stringify(planOf(id, roomId, [{ id: 'desk', catalogId: DESK, x: 2000, y: 1500 }]))
+	);
 	await page.getByTestId('import-apply').click();
 	await waitForProject(page, id, (p) => p.variants.some((v) => v.items.length === 1), 'Möbel da');
 
@@ -150,7 +151,7 @@ test('Import verträgt Codeblock, Kommentare und nachgestellte Kommas', async ({
 		'',
 		'Sag Bescheid, wenn du etwas ändern möchtest.'
 	].join('\n');
-	await page.getByTestId('import-text').fill(message);
+	await fillChecked(page.getByTestId('import-text'), message);
 	await expect(page.getByTestId('import-preview')).toBeVisible();
 	await expect(page.getByTestId('import-variant')).toHaveCount(1);
 	await expect(page.getByTestId('import-invalid')).toHaveCount(0);
@@ -172,7 +173,7 @@ test('Fehlerhafter Plan liefert Korrekturtext zum Kopieren', async ({ page }) =>
 	const plan = planOf(id, roomId, [
 		{ id: 'desk', catalogId: DESK, x: 2000, y: 1500, rotation: 'schräg' }
 	]);
-	await page.getByTestId('import-text').fill(JSON.stringify(plan));
+	await fillChecked(page.getByTestId('import-text'), JSON.stringify(plan));
 	await expect(page.getByTestId('import-invalid')).toBeVisible();
 	await expect(page.getByTestId('import-apply')).toHaveCount(0);
 	await page.getByTestId('import-copy-corrections').click();

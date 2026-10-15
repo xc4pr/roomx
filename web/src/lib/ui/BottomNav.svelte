@@ -19,6 +19,17 @@
 	}
 
 	let { items, value, label, class: extra = '' }: Props = $props();
+
+	function onclick(event: MouseEvent): void {
+		if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+			return;
+		const target = new URL((event.currentTarget as HTMLAnchorElement).href);
+		// Same URL: SvelteKit would still navigate and blur the focused element. Other
+		// query strings (e.g. /3d?build=1) keep navigating.
+		if (target.pathname === location.pathname && target.search === location.search) {
+			event.preventDefault();
+		}
+	}
 </script>
 
 <nav
@@ -32,6 +43,7 @@
 			href={item.href}
 			data-testid="seg-{item.value}"
 			aria-current={active ? 'page' : undefined}
+			{onclick}
 			aria-label={item.label}
 			class="flex min-h-14 min-w-0 grow basis-0 flex-col items-center justify-center gap-0.5 px-1 pt-1.5 pb-1 text-sm font-semibold transition duration-(--duration-base) ease-soft select-none {active
 				? 'text-accent'
