@@ -247,7 +247,13 @@ export function startTour(options: { resume?: boolean } = {}): void {
 	}
 }
 
+function onPhonePage(): boolean {
+	const base = resolve('/').replace(/\/+$/, '');
+	const path = page.url.pathname;
+	return (base && path.startsWith(base) ? path.slice(base.length) : path).startsWith('/m/');
+}
+
 export function autostartTour(): void {
-	if (tour.active || !shouldAutostart(settings)) return;
+	if (tour.active || onPhonePage() || !shouldAutostart(settings)) return;
 	startTour({ resume: isInterrupted(settings.tourStep) });
 }

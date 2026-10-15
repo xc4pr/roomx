@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { IS_FREE } from '#lib/edition.ts';
+	import OpenJobs from '#lib/features/camera/OpenJobs.svelte';
 	import { requestPersistence } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -321,6 +322,8 @@
 		</header>
 
 		<h1 class="mt-6 mb-5 text-4xl font-extrabold tracking-tight">{t(messages, 'title')}</h1>
+
+		<OpenJobs />
 
 		{#if showInstallHint}
 			<aside
