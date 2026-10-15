@@ -5,6 +5,8 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
+      args:
+        ROOMX_VERSION: ${ROOMX_VERSION:-dev}
     image: roomx:latest
     container_name: roomx
     env_file: .env

@@ -4,7 +4,8 @@ WORKDIR /src/web
 COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY web/ ./
-RUN EDITION=pro pnpm build
+ARG ROOMX_VERSION=dev
+RUN EDITION=pro ROOMX_VERSION=$ROOMX_VERSION pnpm build
 
 FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
