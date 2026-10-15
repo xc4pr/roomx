@@ -1,84 +1,12 @@
 import { Group } from 'three';
-import { box, cyl, mat, mix, seeded, shade, split, type Palette } from './kit.ts';
+import type { Look } from '#lib/core/catalog.ts';
+import { cabinet, type Fill } from './cabinet.ts';
+import { bookRow } from './fill.ts';
+import { box, mat, mix, seeded, shade, split, type Palette } from './kit.ts';
 
-type Build = (w: number, d: number, h: number, p: Palette) => Group;
+type Build = (w: number, d: number, h: number, p: Palette, look?: Look) => Group;
 
-export interface FrontRow {
-	kind: 'drawer' | 'door';
-	weight: number;
-	cols: number;
-}
-
-export interface CabinetOptions {
-	x?: number;
-	w: number;
-	d: number;
-	h: number;
-	legH: number;
-	rows: FrontRow[];
-	handle: 'bar' | 'knob';
-}
-
-const GAP = 0.004;
-const LIP = 0.014;
-
-export function cabinet(g: Group, p: Palette, o: CabinetOptions): void {
-	const body = mat('wood', p.main);
-	const seam = mat('matte', shade(p.main, -0.3));
-	const fronts = mat('wood', p.light);
-	const handles = mat('metal', p.metal);
-	const x = o.x ?? 0;
-	const front = -o.d / 2 + LIP;
-	const bodyH = o.h - o.legH;
-	const backZ = o.d / 2;
-	const carcassFront = front + 0.012;
-
-	box(g, body, o.w, bodyH, backZ - carcassFront, x, o.legH, (backZ + carcassFront) / 2);
-	if (o.legH > 0) {
-		const legs = mat('wood', p.darkWood);
-		for (const sx of [-1, 1]) {
-			for (const sz of [-1, 1]) {
-				box(g, legs, 0.04, o.legH, 0.04, x + sx * (o.w / 2 - 0.05), 0, sz * (o.d / 2 - 0.05));
-			}
-		}
-	}
-	const plinth = o.legH > 0 ? 0 : Math.min(0.06, o.h * 0.04);
-	const usable = bodyH - plinth;
-	const total = o.rows.reduce((sum, row) => sum + row.weight, 0);
-	box(g, seam, o.w - 0.006, usable - 0.006, 0.01, x, o.legH + plinth + 0.003, front + 0.009);
-	if (plinth > 0) box(g, mat('matte', p.darkWood), o.w - 0.04, plinth, o.d - 0.06, x, 0, 0);
-
-	let top = o.legH + bodyH;
-	for (const row of o.rows) {
-		const rowH = (usable * row.weight) / total;
-		const y = top - rowH;
-		const colW = o.w / row.cols;
-		for (let c = 0; c < row.cols; c++) {
-			const cx = x - o.w / 2 + colW * (c + 0.5);
-			box(g, fronts, colW - GAP, rowH - GAP, 0.018, cx, y + GAP / 2, front + 0.009);
-			let hx = cx;
-			let hy = y + rowH * 0.62;
-			let barW = Math.min(0.14, colW * 0.4);
-			let barH = 0.012;
-			if (row.kind === 'door') {
-				const side = c + 0.5 < row.cols / 2 ? 1 : -1;
-				hx = cx + side * (colW / 2 - 0.035);
-				barW = 0.012;
-				barH = Math.min(0.14, rowH * 0.3);
-				hy = y + rowH * 0.5;
-			}
-			if (o.handle === 'knob') {
-				cyl(g, handles, 0.03, LIP, 0.03, hx, hy - LIP / 2, front - LIP / 2, 1, 12).rotation.x =
-					Math.PI / 2;
-			} else {
-				box(g, handles, barW, barH, LIP, hx, hy - barH / 2, front - LIP / 2);
-			}
-		}
-		top = y;
-	}
-}
-
-const wardrobe: Build = (w, d, h, p) => {
+const wardrobe: Build = (w, d, h, p, look) => {
 	const g = new Group();
 	cabinet(g, p, {
 		w,
@@ -86,12 +14,13 @@ const wardrobe: Build = (w, d, h, p) => {
 		h,
 		legH: 0,
 		rows: [{ kind: 'door', weight: 1, cols: Math.max(1, Math.round(w / 0.5)) }],
-		handle: 'bar'
+		handle: 'bar',
+		look
 	});
 	return g;
 };
 
-const dresser: Build = (w, d, h, p) => {
+const dresser: Build = (w, d, h, p, look) => {
 	const g = new Group();
 	const rows = Math.max(2, Math.min(6, Math.round(h / 0.24)));
 	cabinet(g, p, {
@@ -104,21 +33,24 @@ const dresser: Build = (w, d, h, p) => {
 			weight: 1,
 			cols: w > 1.2 ? 2 : 1
 		})),
-		handle: 'bar'
+		handle: 'bar',
+		look
 	});
 	return g;
 };
 
-const sideboard: Build = (w, d, h, p) => {
+const sideboard: Build = (w, d, h, p, look) => {
 	const g = new Group();
 	const cols = Math.max(2, Math.min(5, Math.round(w / 0.5)));
-	const rows: FrontRow[] = [{ kind: 'door', weight: 2.4, cols }];
+	const rows: { kind: 'drawer' | 'door'; weight: number; cols: number }[] = [
+		{ kind: 'door', weight: 2.4, cols }
+	];
 	if (w > 1.2 && h > 0.5) rows.unshift({ kind: 'drawer', weight: 1, cols: Math.min(cols, 4) });
-	cabinet(g, p, { w, d, h, legH: h > 0.5 ? 0.12 : 0, rows, handle: 'bar' });
+	cabinet(g, p, { w, d, h, legH: h > 0.5 ? 0.12 : 0, rows, handle: 'bar', look });
 	return g;
 };
 
-const nightstand: Build = (w, d, h, p) => {
+const nightstand: Build = (w, d, h, p, look) => {
 	const g = new Group();
 	const drawers = h > 0.5 ? 2 : 1;
 	cabinet(g, p, {
@@ -127,41 +59,51 @@ const nightstand: Build = (w, d, h, p) => {
 		h,
 		legH: Math.min(0.12, h * 0.2),
 		rows: Array.from({ length: drawers }, () => ({ kind: 'drawer' as const, weight: 1, cols: 1 })),
-		handle: 'knob'
+		handle: 'knob',
+		look
 	});
 	return g;
 };
 
-export function bookRow(
-	g: Group,
-	rng: () => number,
-	x0: number,
-	x1: number,
-	y: number,
-	z: number,
-	depth: number,
-	maxH: number,
-	base: string
-): void {
-	let x = x0;
-	let index = 0;
-	while (x < x1 - 0.02) {
-		const width = Math.min(0.02 + rng() * 0.02, x1 - x);
-		const height = maxH * (0.7 + rng() * 0.3);
-		const hue = [
-			mix(base, '#b9694a', 0.7),
-			mix(base, '#4f7f9a', 0.7),
-			mix(base, '#d8c9a8', 0.6),
-			mix(base, '#6b8f5e', 0.6),
-			mix(base, '#8a5a7a', 0.6)
-		][(index + Math.floor(rng() * 3)) % 5];
-		box(g, mat('matte', hue), width, height, depth * (0.85 + rng() * 0.15), x + width / 2, y, z);
-		x += width + 0.002;
-		index++;
-	}
+const STRUCTURE = [
+	'rows',
+	'sections',
+	'base',
+	'baseHeight',
+	'baseMaterial',
+	'sides',
+	'wheels',
+	'top',
+	'accentColor'
+] as const;
+
+function structural(look: Look): boolean {
+	return STRUCTURE.some((key) => look[key] !== undefined);
 }
 
-const shelf: Build = (w, d, h, p) => {
+function openRows(count: number, cols = 1): Look['rows'] {
+	return Array.from({ length: count }, () => ({ kind: 'open' as const, cols }));
+}
+
+function furnish(
+	g: Group,
+	p: Palette,
+	o: { w: number; d: number; h: number; rows: Look['rows']; fill: Fill; look: Look }
+): Group {
+	cabinet(g, p, {
+		w: o.w,
+		d: o.d,
+		h: o.h,
+		legH: 0,
+		rows: o.rows ?? [],
+		handle: 'bar',
+		fill: o.fill,
+		look: o.look
+	});
+	return g;
+}
+
+function plainShelf(w: number, d: number, h: number, p: Palette, books?: boolean): Group {
 	const g = new Group();
 	const wood = mat('wood', p.main);
 	const back = mat('matte', shade(p.main, -0.1));
@@ -175,7 +117,7 @@ const shelf: Build = (w, d, h, p) => {
 	for (let i = 0; i < levels; i++) {
 		const y = plinth + (span * i) / (levels - 1);
 		box(g, wood, w - t * 2, t, d - 0.008, 0, y, -0.004);
-		if (i < levels - 1 && rng() > 0.35) {
+		if (i < levels - 1 && (books ?? rng() > 0.35)) {
 			const gap = span / (levels - 1) - t;
 			const x0 = -w / 2 + t + 0.02 + rng() * 0.1;
 			bookRow(
@@ -192,9 +134,16 @@ const shelf: Build = (w, d, h, p) => {
 		}
 	}
 	return g;
+}
+
+const shelf: Build = (w, d, h, p, look = {}) => {
+	if (!structural(look)) return plainShelf(w, d, h, p, look.books);
+	const levels = Math.max(2, Math.min(8, Math.round(h / 0.38) + 1));
+	const rows = look.rows ?? openRows(levels - 1);
+	return furnish(new Group(), p, { w, d, h, rows, fill: 'books', look });
 };
 
-const cubeShelf: Build = (w, d, h, p) => {
+function plainCube(w: number, d: number, h: number, p: Palette): Group {
 	const g = new Group();
 	const wood = mat('wood', p.main);
 	const back = mat('matte', shade(p.main, -0.1));
@@ -225,9 +174,16 @@ const cubeShelf: Build = (w, d, h, p) => {
 		}
 	}
 	return g;
+}
+
+const cubeShelf: Build = (w, d, h, p, look = {}) => {
+	if (!structural(look)) return plainCube(w, d, h, p);
+	const rows =
+		look.rows ?? openRows(Math.max(1, Math.round(h / 0.34)), Math.max(1, Math.round(w / 0.34)));
+	return furnish(new Group(), p, { w, d, h, rows, fill: 'bins', look });
 };
 
-const wallShelf: Build = (w, d, h, p) => {
+function plainWall(w: number, d: number, h: number, p: Palette): Group {
 	const g = new Group();
 	const wood = mat('wood', p.main);
 	const board = h <= 0.06 ? h : 0.03;
@@ -240,6 +196,11 @@ const wallShelf: Build = (w, d, h, p) => {
 		}
 	}
 	return g;
+}
+
+const wallShelf: Build = (w, d, h, p, look = {}) => {
+	if (!structural(look)) return plainWall(w, d, h, p);
+	return furnish(new Group(), p, { w, d, h, rows: look.rows ?? openRows(1), fill: 'none', look });
 };
 
 export const storage = { wardrobe, dresser, sideboard, nightstand, shelf, cubeShelf, wallShelf };

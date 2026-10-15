@@ -27,6 +27,7 @@ export type Surface =
 	| 'light'
 	| 'screen'
 	| 'shade'
+	| 'frost'
 	| 'cloth'
 	| 'ceramic';
 
@@ -49,6 +50,15 @@ function create(surface: Surface, color: string): MeshStandardMaterial {
 				metalness: 0.1,
 				transparent: true,
 				opacity: 0.38,
+				depthWrite: false
+			});
+		case 'frost':
+			return new MeshStandardMaterial({
+				...base,
+				roughness: 0.55,
+				metalness: 0.05,
+				transparent: true,
+				opacity: 0.5,
 				depthWrite: false
 			});
 		case 'plastic':
@@ -256,6 +266,44 @@ export function cyl(
 		[dx, height, dz],
 		x,
 		y,
+		z
+	);
+	parent.add(mesh);
+	return mesh;
+}
+
+export function tube(
+	parent: Group,
+	material: MeshStandardMaterial,
+	axis: 'x' | 'y' | 'z',
+	length: number,
+	thickness: number,
+	x: number,
+	y: number,
+	z: number
+): Mesh {
+	const mesh = cyl(parent, material, thickness, length, thickness, x, y - length / 2, z, 1, 8);
+	if (axis === 'x') mesh.rotation.z = Math.PI / 2;
+	if (axis === 'z') mesh.rotation.x = Math.PI / 2;
+	return mesh;
+}
+
+export function bead(
+	parent: Group,
+	material: MeshStandardMaterial,
+	size: number,
+	x: number,
+	y: number,
+	z: number
+): Mesh {
+	const mesh = place(
+		new Mesh(
+			cached('bead', () => new SphereGeometry(0.5, 8, 4)),
+			material
+		),
+		[size, size, size],
+		x,
+		y - size / 2,
 		z
 	);
 	parent.add(mesh);
