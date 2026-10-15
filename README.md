@@ -29,7 +29,7 @@
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/hero.webp" alt="RoomX on a laptop and a smartphone: a furnished apartment in 3D, next to the furniture plan on the phone" width="900">
+  <img src=".github/assets/screenshots/en/hero.webp" alt="RoomX on a laptop and a smartphone: a furnished apartment in 3D, next to the photo tour of a room on the phone" width="900">
 </p>
 
 ---
@@ -51,34 +51,34 @@ The app runs in the browser on a computer, laptop, tablet or smartphone, and you
 <table>
   <tr>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/plan-panel.webp" alt="Floor plan with three rooms and the panel for the dimensions" width="100%"><br>
+      <img src=".github/assets/screenshots/en/plan-panel.webp" alt="Floor plan with three rooms and the panel for the dimensions" width="100%"><br>
       <b>Capture rooms</b><br>
       Rectangles, templates (L, U, T, bay, recess), free shapes with walls and angles, sloped ceilings. Rooms snap together like magnets.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/wall-view.webp" alt="Wall view with windows, sockets and the palette of elements" width="100%"><br>
+      <img src=".github/assets/screenshots/en/wall-view.webp" alt="Wall view with windows, sockets and the palette of elements" width="100%"><br>
       <b>Doors, windows, electrical</b><br>
       Place elements from the palette on a wall, line them up to the centimetre in the wall view, show sockets and switches.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Cutaway 3D view of an apartment with three rooms" width="100%"><br>
+      <img src=".github/assets/screenshots/en/3d-cutaway.webp" alt="Cutaway 3D view of an apartment with three rooms" width="100%"><br>
       <b>Your apartment in 3D</b><br>
       Cutaway, high or low walls, lights on and off, walk through the rooms, save an image.
     </td>
   </tr>
   <tr>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/furnish.webp" alt="Furniture catalogue next to the floor plan with a furnished living room" width="100%"><br>
+      <img src=".github/assets/screenshots/en/furnish.webp" alt="Furniture catalogue next to the floor plan with a furnished living room" width="100%"><br>
       <b>Furnish</b><br>
       Over 250 pieces from IKEA, Tchibo and generic models. Drag, rotate, stack, add your own furniture, compare variants.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/furnish-hints.webp" alt="A piece of furniture in red with the hint that it blocks the door area" width="100%"><br>
+      <img src=".github/assets/screenshots/en/furnish-hints.webp" alt="A piece of furniture in red with the hint that it blocks the door area" width="100%"><br>
       <b>Checks</b><br>
       Red shows what does not fit: collisions, door area, sloped ceiling, sockets that are too far away.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/export.webp" alt="Export and Import page with the AI package" width="100%"><br>
+      <img src=".github/assets/screenshots/en/export.webp" alt="Export and Import page with the AI package" width="100%"><br>
       <b>Furnish with an AI assistant</b><br>
       Create an AI package, upload it in a chat, import the AI's plan as a variant. Plus budget, shopping list and backup.
     </td>
@@ -87,7 +87,7 @@ The app runs in the browser on a computer, laptop, tablet or smartphone, and you
 
 ## Quick start
 
-**1. Open the app.** Go to **<https://xc4pr.github.io/roomx/>**. On first launch a short tour shows you the key places.
+**1. Open the app.** Go to **<https://xc4pr.github.io/roomx/>**. On first launch a short tour welcomes you with the RoomX logo and shows you the key places.
 
 **2. Create a project.** Tap “New project” and enter a name, for example “My apartment”.
 
@@ -141,10 +141,10 @@ You can add RoomX to your home screen or app folder like any other app. It then 
 A project is an apartment, a house or a single room, with all its rooms, photos, furniture and variants. The project list is the start page.
 
 <p align="center">
-  <img src=".github/assets/screenshots/projects.webp" alt="Project list with three projects and 3D preview images" width="760">
+  <img src=".github/assets/screenshots/en/projects.webp" alt="Project list with three projects and 3D preview images" width="760">
 </p>
 
-- **New project:** button at the bottom right. Give it a name.
+- **New project:** button at the bottom right. Give it a name. While the list is empty, you see the full RoomX logo and a large plus instead: tap it to create your first project.
 - **Open:** tap the card. The preview image shows your project in 3D.
 - **Menu (three dots) on the card:** Rename, Backup (ZIP), Delete.
 - **Delete goes to the trash.** A deleted project is not gone: “Move to trash” puts it in the **Trash** at the bottom of the project list, where it stays for **30 days**. “Undo” in the message at the bottom brings it back right away. In the Trash, “Restore” brings it back, “Delete for good” removes it for good; after 30 days RoomX removes it by itself. The same “Undo” exists when you delete a photo.
@@ -152,7 +152,7 @@ A project is an apartment, a house or a single room, with all its rooms, photos,
 - **Gear icon at the top right:** [Settings](#settings).
 
 <p align="center">
-  <img src=".github/assets/screenshots/trash.webp" alt="Project list with an open Trash: one deleted project with Restore and Delete for good, and the message with Undo" width="760">
+  <img src=".github/assets/screenshots/en/trash.webp" alt="Project list with an open Trash: one deleted project with Restore and Delete for good, and the message with Undo" width="760">
 </p>
 
 > [!NOTE]
@@ -164,7 +164,7 @@ In the **Plan** tab you draw the floor plan. Everything is entered in centimetre
 
 **Add a room.** Tap the plus. A 4 × 3 m room appears, and you drag it into place. Tapping selects a room and opens the panel with its three sections **Dimensions**, **Elements** and **Photos**. Double-tapping focuses the room, you zoom with two fingers or the mouse wheel, and “Show everything” fits the view to your plan.
 
-**Room type and name.** Pick a type (Living room, Bedroom, Office, Kitchen, Bathroom, Children’s room, Hallway, Dining room, Storage room or Other) and give the room a name.
+**Room type and name.** Pick a type (Living room, Bedroom, Office, Kitchen, Bathroom, Children’s room, Hallway, Dining room, Storage room or Other) and give the room a name. The types wrap onto several lines, so you see all of them at once, even on a narrow screen.
 
 Under **Dimensions** there are three ways to set the shape:
 
@@ -172,10 +172,10 @@ Under **Dimensions** there are three ways to set the shape:
 |---|---|---|
 | **Rectangle** | Most rooms | Type in length and width, or adjust them with plus and minus. |
 | **Template** | Common special shapes | Pick a basic shape: L shape, U shape, T shape, Angled corner, Bay or Recess. Then set the dimensions to the centimetre. A preview shows the floor plan. |
-| **Free** | Everything else | Enter the length and the angles wall by wall. The last wall closes automatically. You can split or remove walls, and “Spread evenly” helps with uneven input. |
+| **Freeform** | Everything else | Enter the length and the angles wall by wall. The last wall closes automatically. You can split or remove walls, and “Spread evenly” helps with uneven input. |
 
 > [!TIP]
-> With “Free” you can also **drag the corners directly on the plan**. The plus in the middle of a wall inserts a corner. If the floor plan does not close, RoomX shows how much is missing.
+> With “Freeform” you can also **drag the corners directly on the plan**. The plus in the middle of a wall inserts a corner. If the floor plan does not close, RoomX shows how much is missing.
 
 **Height.** Enter the ceiling height. It is used for 3D, the checks and the AI package.
 
@@ -198,7 +198,7 @@ An apartment is made of several rooms. So that RoomX knows how they fit together
 4. Under each neighbour, **“Wall thickness to …”** shows how thick the shared wall is. Pick 10, 12, 15, 20, 25 or 30 cm; RoomX moves the neighbouring room accordingly. 3D and the plan draw the wall with this thickness.
 
 <p align="center">
-  <img src=".github/assets/screenshots/neighbours.webp" alt="Room panel with the Neighbours section: two neighbouring rooms with wall thickness choices of 10 to 30 cm, and the switch Deliberately separate" width="860">
+  <img src=".github/assets/screenshots/en/neighbours.webp" alt="Room panel with the Neighbours section: two neighbouring rooms with wall thickness choices of 10 to 30 cm, and the switch Deliberately separate" width="860">
 </p>
 
 **Doors and windows in the shared wall lead into both rooms.** If you put a door in the wall between the living room and the bedroom, it automatically appears in the bedroom as well, with the hinge mirrored. In the neighbouring room’s element list it is marked “from Living room”; you edit it in the room it belongs to.
@@ -216,7 +216,7 @@ In the room panel, section **Elements**, you find the palette:
 | Electrical | Socket, Switch, Lamp (on the wall), LAN / TV, Ceiling (ceiling lamp) |
 
 <p align="center">
-  <img src=".github/assets/screenshots/wall-view.webp" alt="Plan with a selected room, the palette on the right and the wall view of wall 4" width="860">
+  <img src=".github/assets/screenshots/en/wall-view.webp" alt="Plan with a selected room, the palette on the right and the wall view of wall 1 with two windows and a radiator" width="860">
 </p>
 
 **Place.** Choose an element in the palette and tap a wall (for the ceiling lamp, tap inside the room). Then drag it to the right spot. “Cancel placing” or the `Esc` key cancels.
@@ -260,7 +260,7 @@ Photos are shrunk on the device and saved without metadata. If you delete a phot
 
     </td>
     <td valign="top" width="260">
-      <img src=".github/assets/screenshots/photo-tour.webp" alt="Photo tour on a smartphone: step 1 of 18, corner A looking towards C" width="260">
+      <img src=".github/assets/screenshots/en/photo-tour.webp" alt="Photo tour on a smartphone: step 1 of 16, corner A, with the room panel on top of the plan looking towards C" width="260">
     </td>
   </tr>
 </table>
@@ -276,7 +276,7 @@ Photos are shrunk on the device and saved without metadata. If you delete a phot
 Tap **“Build 3D”** at the top right. RoomX first checks your plan and lists any problems, for example invalid floor plans, elements that stick out past the wall, missing required photos or [unconnected rooms](#connect-rooms). “Build 3D anyway” carries on, and “Back to the plan” lets you fix things first.
 
 <p align="center">
-  <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Cutaway 3D view of the apartment with living room, bedroom and office" width="860">
+  <img src=".github/assets/screenshots/en/3d-cutaway.webp" alt="Cutaway 3D view of the apartment with living room, bedroom and study" width="860">
 </p>
 
 **Controlling the view.** Dragging rotates the view, the mouse wheel or two fingers zoom. At the top left you choose **Whole apartment** or a **single room**.
@@ -294,7 +294,7 @@ Tap **“Build 3D”** at the top right. RoomX first checks your plan and lists 
 **Walk.** In this mode you stand in the room at eye level. On a computer you walk with `W` `A` `S` `D`, look around with the arrow keys or by dragging the mouse, and stop with `Esc`. On a tablet or phone you walk with the joystick on the left and swipe to look around.
 
 <p align="center">
-  <img src=".github/assets/screenshots/3d-walk.webp" alt="Walk mode: view through the living room onto the dining table, shelves and balcony door" width="760">
+  <img src=".github/assets/screenshots/en/3d-walk.webp" alt="Walk mode: view through the living room onto a bookcase with floor lamp, an armchair, the door and the dining table" width="760">
 </p>
 
 > [!NOTE]
@@ -305,13 +305,13 @@ Tap **“Build 3D”** at the top right. RoomX first checks your plan and lists 
 In the **Furnish** tab you place furniture in your rooms. At the top left you switch between Plan and 3D and choose the variant. The buttons at the top right open the panel with the sections **Catalogue**, **Furniture**, **List** and **Needs**.
 
 <p align="center">
-  <img src=".github/assets/screenshots/furnish.webp" alt="Furnish: plan with furnished rooms, the furniture catalogue with search and brand filter on the right" width="860">
+  <img src=".github/assets/screenshots/en/furnish.webp" alt="Furnish: plan with furnished rooms, the furniture catalogue with search and brand filter on the right" width="860">
 </p>
 
 **Catalogue.** It holds over 250 items from the brands **IKEA**, **Tchibo** (series CN3) and **Generic** (neutral furniture, appliances, decor, lamps).
 
 - Search at the top, for example “Billy” or “desk”.
-- Categories as chips (Beds, Shelves, Tables, Sofas, Lighting and more), plus the “Brand” filter.
+- Categories as chips: the most common ones (for example Beds, Shelves, Tables, Sofas) come first, and “+ n more” shows the rest (“Less” folds them again). The “Brand” filter narrows the list by manufacturer.
 - **Drag** or **tap** furniture: tapping puts it into the room.
 
 > [!NOTE]
@@ -344,7 +344,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 
     </td>
     <td valign="top" width="360">
-      <img src=".github/assets/screenshots/furnish-hints.webp" alt="A plant stands in the swing area of the door and is marked red" width="360">
+      <img src=".github/assets/screenshots/en/furnish-hints.webp" alt="A plant stands in the swing area of the door and is marked red" width="360">
     </td>
   </tr>
 </table>
@@ -356,7 +356,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 **Budget, list and needs.**
 
 <p align="center">
-  <img src=".github/assets/screenshots/shopping-list.webp" alt="Shopping list with total, budget bar and items with guide prices" width="860">
+  <img src=".github/assets/screenshots/en/shopping-list.webp" alt="Shopping list with total, budget bar and items with guide prices" width="860">
 </p>
 
 - **Budget:** enter your budget in CHF under **Needs**. A bar at the top shows the total of the current variant and how much is left in the budget or how far over it you are.
@@ -392,19 +392,19 @@ You can have an AI assistant furnish your rooms. For this, RoomX prepares an **A
 8. **Adjust and export again.** Look at the variant in “Furnish” and change what you do not like. For a second round, create a new AI package: it now contains your adjusted furnishing.
 
 <p align="center">
-  <img src=".github/assets/screenshots/export.webp" alt="Export and Import: AI package card with scope, the notice What you share, the switch Export without photos and the button to create the package" width="760">
+  <img src=".github/assets/screenshots/en/export.webp" alt="Export and Import: AI package card with scope, the notice What you share, the switch Export without photos and the button to create the package" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/package-ready.webp" alt="AI package ready: the five files, the buttons Download and AI package as ZIP, and the steps with the prompt and the button Copy prompt" width="760">
+  <img src=".github/assets/screenshots/en/package-ready.webp" alt="AI package ready: the five files, the buttons Download and AI package as ZIP, and the steps with the prompt and the button Copy prompt" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import.webp" alt="Import plan: pasted reply with JSON and the preview with total and notes" width="760">
+  <img src=".github/assets/screenshots/en/import.webp" alt="Import plan: pasted reply with JSON and the preview with total and notes" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import-corrections.webp" alt="Import preview with a piece of furniture that was not imported and the box with the button Copy corrections" width="760">
+  <img src=".github/assets/screenshots/en/import-corrections.webp" alt="Import preview with a piece of furniture that was not imported and the box with the button Copy corrections" width="760">
 </p>
 
 > [!TIP]
@@ -432,7 +432,7 @@ You can have an AI assistant furnish your rooms. For this, RoomX prepares an **A
 **Back up everything.** In the [settings](#settings), “Back up everything” saves **all projects with their photos** in one ZIP file. “Restore everything” reads such a file back in. It never overwrites anything: a project that already exists is added as a copy. A project that cannot be opened is not lost: it goes into the backup unchanged as raw data. RoomX remembers when you last made a backup and reminds you when it is more than 14 days ago; on iPhone and iPad it also shows a reminder, because Safari can delete data.
 
 <p align="center">
-  <img src=".github/assets/screenshots/settings.webp" alt="Settings: the Back up card with Back up everything and Restore everything, below the Storage card with usage" width="760">
+  <img src=".github/assets/screenshots/en/settings.webp" alt="Settings: the Back up card with Back up everything and Restore everything, below the Storage card with usage" width="760">
 </p>
 
 **Moving to another device or to the installed app:**
@@ -460,12 +460,11 @@ You reach them with the gear icon at the top right of the project list.
 | **Install the app** | In Chrome and Edge, an “Install app” button appears here. On iPhone and iPad, RoomX explains how to use “Add to Home Screen”, because Safari can delete the data of websites that have not been opened for seven days. |
 | **Storage** | Shows whether the browser **keeps the data permanently** (“Stored permanently”) or may delete it when space runs low, and how much space is used. “Ask again” tries to get permanent storage once more. It is more likely to work with the app on your home screen. |
 | **Help** | “Start the tour” plays the introduction again (ten steps, skippable at any time, optionally with a sample room). “Show keyboard shortcuts” opens the overview. |
-| **Version and diagnostics** | Shows the version and build date. “Copy diagnostics” copies technical details about device and app, **without project data**, names or photos, so you can paste them into a report. Under “Report a bug or suggest an idea” you can open the GitHub issues (templates in German and English; you need a GitHub account) or, with “Write an email”, send a message. Paste the diagnostics into it, but no private details or photos. |
+| **About RoomX** | The card below “Help”. It shows the full logo, the **version** and the **build date**, and the line “Data: Everything stays on your device”. “Privacy & liability” opens a short page with the privacy policy (who is responsible, how to get in touch), the disclaimer and the licence of RoomX. “Open-source licences” leads to the licences of the parts RoomX uses (both pages are also at `/rechtliches`). Under “Feedback” you open the GitHub issues with “Report a bug or suggest an idea” (templates in German and English; you need a GitHub account) or send a message with “Write an email”. “Copy diagnostics” copies technical details about device and app, **without project data**, names or photos, so you can paste them into your report. |
 | **Reset everything** | “Delete all local data” removes all projects, photos and settings from this device. Beforehand RoomX offers to back up first. This cannot be undone. |
-| **Privacy & liability** | Opens a short page with the privacy policy (who is responsible, how to get in touch), the disclaimer, the licence of RoomX and the **open-source licences** of the parts it uses (also at `/rechtliches`). |
 
 <p align="center">
-  <img src=".github/assets/screenshots/settings-diagnostics.webp" alt="Settings: version, build date, Copy diagnostics, the two ways to give feedback (GitHub issues and email) and the Reset everything card" width="760">
+  <img src=".github/assets/screenshots/en/settings-about.webp" alt="Settings, section About RoomX: logo, version v1.0.1, build date, the line Everything stays on your device, the links Privacy &amp; liability and Open-source licences, the two ways to give feedback and the button Copy diagnostics" width="760">
 </p>
 
 ### Keyboard shortcuts
@@ -526,7 +525,7 @@ Open the project list and the **Trash** at the bottom: deleted projects can be r
 <details>
 <summary><b>How do I report a mistake or suggest something?</b></summary>
 
-In the settings, under “Version and diagnostics”, you have two ways. “Report a bug or suggest an idea” opens the issues on GitHub (account needed). “Write an email” opens a message to julian-5@gmx.ch. Paste the result of “Copy diagnostics” if it helps, but no private details or photos.
+In the settings, under “About RoomX”, section “Feedback”, you have two ways. “Report a bug or suggest an idea” opens the issues on GitHub (account needed). “Write an email” opens a message to julian-5@gmx.ch. Paste the result of “Copy diagnostics” if it helps, but no private details or photos.
 </details>
 
 <details>
@@ -588,7 +587,7 @@ In short: **your data stays on your device.**
 
 Responsible for the app and its privacy page is xc4pr. Contact: julian-5@gmx.ch, or the [issues on GitHub](https://github.com/xc4pr/roomx/issues).
 
-The full privacy policy is in the app: at the bottom of the project list and under Settings on the page [“Privacy & liability”](https://xc4pr.github.io/roomx/rechtliches).
+The full privacy policy is in the app: under Settings, in the section “About RoomX”, on the page [“Privacy & liability”](https://xc4pr.github.io/roomx/rechtliches).
 
 ## Disclaimer
 

@@ -29,7 +29,7 @@
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/hero.webp" alt="RoomX auf Laptop und Smartphone: eine eingerichtete Wohnung in 3D, daneben die Möbelplanung auf dem Handy" width="900">
+  <img src=".github/assets/screenshots/de/hero.webp" alt="RoomX auf Laptop und Smartphone: eine eingerichtete Wohnung in 3D, daneben die Foto-Tour eines Raums auf dem Handy" width="900">
 </p>
 
 ---
@@ -51,34 +51,34 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
 <table>
   <tr>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/plan-panel.webp" alt="Grundriss mit drei Räumen und dem Panel für die Masse" width="100%"><br>
+      <img src=".github/assets/screenshots/de/plan-panel.webp" alt="Grundriss mit drei Räumen und dem Panel für die Masse" width="100%"><br>
       <b>Räume erfassen</b><br>
       Rechteck, Vorlagen (L, U, T, Erker, Nische), freie Formen mit Wänden und Winkeln, Dachschrägen. Räume rasten wie ein Magnet aneinander ein.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/wall-view.webp" alt="Wandansicht mit Fenstern, Steckdosen und der Palette für Elemente" width="100%"><br>
+      <img src=".github/assets/screenshots/de/wall-view.webp" alt="Wandansicht mit Fenstern, Steckdosen und der Palette für Elemente" width="100%"><br>
       <b>Türen, Fenster, Elektro</b><br>
       Elemente aus der Palette auf die Wand setzen, in der Wandansicht auf den Zentimeter genau ausrichten, Steckdosen und Schalter einblenden.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht einer Wohnung mit drei Räumen" width="100%"><br>
+      <img src=".github/assets/screenshots/de/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht einer Wohnung mit drei Räumen" width="100%"><br>
       <b>Wohnung in 3D</b><br>
       Aufgeschnitten, hoch oder niedrig ansehen, Licht an und aus, durch die Räume gehen, Bild speichern.
     </td>
   </tr>
   <tr>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/furnish.webp" alt="Möbelkatalog neben dem Grundriss mit eingerichtetem Wohnzimmer" width="100%"><br>
+      <img src=".github/assets/screenshots/de/furnish.webp" alt="Möbelkatalog neben dem Grundriss mit eingerichtetem Wohnzimmer" width="100%"><br>
       <b>Einrichten</b><br>
       Über 250 Möbel von IKEA, Tchibo und allgemeine Modelle. Ziehen, drehen, stapeln, eigene Möbel anlegen, Varianten vergleichen.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/furnish-hints.webp" alt="Ein Möbel in Rot mit dem Hinweis, dass es den Türbereich blockiert" width="100%"><br>
+      <img src=".github/assets/screenshots/de/furnish-hints.webp" alt="Ein Möbel in Rot mit dem Hinweis, dass es den Türbereich blockiert" width="100%"><br>
       <b>Prüfungen</b><br>
       Rot markiert, was nicht passt: Kollisionen, Türbereich, Dachschräge, zu weite Wege zur Steckdose.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/export.webp" alt="Seite Export und Import mit dem KI-Paket" width="100%"><br>
+      <img src=".github/assets/screenshots/de/export.webp" alt="Seite Export und Import mit dem KI-Paket" width="100%"><br>
       <b>Mit KI-Assistent einrichten</b><br>
       KI-Paket erstellen, im Chat hochladen, den Plan der KI als Variante importieren. Dazu Budget, Einkaufsliste und Backup.
     </td>
@@ -87,7 +87,7 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
 
 ## Schnellstart
 
-**1. App öffnen.** Gehe auf **<https://xc4pr.github.io/roomx/>**. Beim ersten Start zeigt dir eine kurze Tour die wichtigsten Stellen.
+**1. App öffnen.** Gehe auf **<https://xc4pr.github.io/roomx/>**. Beim ersten Start begrüsst dich eine kurze Tour mit dem RoomX-Logo und zeigt dir die wichtigsten Stellen.
 
 **2. Projekt anlegen.** Tippe auf «Neues Projekt» und gib einen Namen ein, zum Beispiel «Meine Wohnung».
 
@@ -141,10 +141,10 @@ Du kannst RoomX wie eine normale App auf den Startbildschirm oder in den Program
 Ein Projekt ist eine Wohnung, ein Haus oder ein einzelner Raum, mit allen Räumen, Fotos, Möbeln und Varianten. Die Projektliste ist die Startseite.
 
 <p align="center">
-  <img src=".github/assets/screenshots/projects.webp" alt="Projektliste mit drei Projekten und Vorschaubildern in 3D" width="760">
+  <img src=".github/assets/screenshots/de/projects.webp" alt="Projektliste mit drei Projekten und Vorschaubildern in 3D" width="760">
 </p>
 
-- **Neues Projekt:** Knopf unten rechts. Vergib einen Namen.
+- **Neues Projekt:** Knopf unten rechts. Vergib einen Namen. Solange die Liste leer ist, siehst du stattdessen das volle RoomX-Logo und ein grosses Plus: Tippe darauf, um dein erstes Projekt anzulegen.
 - **Öffnen:** auf die Karte tippen. Das Vorschaubild zeigt dein Projekt in 3D.
 - **Menü (drei Punkte) auf der Karte:** Umbenennen, Backup (ZIP) erstellen, Löschen.
 - **Löschen landet im Papierkorb.** Ein gelöschtes Projekt ist nicht weg: «In den Papierkorb» legt es in den **Papierkorb** unten in der Projektliste, wo es **30 Tage** bleibt. «Rückgängig» in der Meldung unten holt es sofort zurück. Im Papierkorb holt «Wiederherstellen» es zurück, «Endgültig löschen» entfernt es für immer; nach 30 Tagen entfernt RoomX es von selbst. Dasselbe «Rückgängig» gibt es beim Löschen eines Fotos.
@@ -152,7 +152,7 @@ Ein Projekt ist eine Wohnung, ein Haus oder ein einzelner Raum, mit allen Räume
 - **Zahnrad oben rechts:** [Einstellungen](#einstellungen).
 
 <p align="center">
-  <img src=".github/assets/screenshots/trash.webp" alt="Projektliste mit geöffnetem Papierkorb: ein gelöschtes Projekt mit Wiederherstellen und Endgültig löschen, dazu die Meldung mit Rückgängig" width="760">
+  <img src=".github/assets/screenshots/de/trash.webp" alt="Projektliste mit geöffnetem Papierkorb: ein gelöschtes Projekt mit Wiederherstellen und Endgültig löschen, dazu die Meldung mit Rückgängig" width="760">
 </p>
 
 > [!NOTE]
@@ -164,7 +164,7 @@ Im Reiter **Plan** zeichnest du den Grundriss. Alles wird in Zentimetern eingege
 
 **Raum hinzufügen.** Tippe auf das Plus. Es erscheint ein Raum mit 4 × 3 m, den du an seinen Platz ziehst. Tippen wählt einen Raum aus und öffnet das Panel mit den drei Bereichen **Masse**, **Elemente** und **Fotos**. Doppelt tippen fokussiert den Raum, mit zwei Fingern oder dem Mausrad zoomst du, «Alles zeigen» passt den Ausschnitt an.
 
-**Raumtyp und Name.** Wähle einen Typ (Wohnzimmer, Schlafzimmer, Büro, Küche, Bad, Kinderzimmer, Flur, Esszimmer, Abstellraum oder Andere) und gib dem Raum einen Namen.
+**Raumtyp und Name.** Wähle einen Typ (Wohnzimmer, Schlafzimmer, Büro, Küche, Bad, Kinderzimmer, Flur, Esszimmer, Abstellraum oder Andere) und gib dem Raum einen Namen. Die Typen brechen auf mehrere Zeilen um, sodass du alle auf einen Blick siehst, auch auf einem schmalen Bildschirm.
 
 Unter **Masse** gibt es drei Arten, die Form festzulegen:
 
@@ -198,7 +198,7 @@ Eine Wohnung besteht aus mehreren Räumen. Damit RoomX weiss, wie sie zusammenh�
 4. Unter jedem Nachbarn zeigt **«Wandstärke zu …»**, wie dick die gemeinsame Wand ist. Wähle 10, 12, 15, 20, 25 oder 30 cm; RoomX verschiebt den Nachbarraum entsprechend. 3D und Plan zeichnen die Wand mit dieser Stärke.
 
 <p align="center">
-  <img src=".github/assets/screenshots/neighbours.webp" alt="Raum-Panel mit dem Bereich Nachbarn: zwei Nachbarräume mit Wandstärken von 10 bis 30 cm zur Auswahl und der Schalter Bewusst separat" width="860">
+  <img src=".github/assets/screenshots/de/neighbours.webp" alt="Raum-Panel mit dem Bereich Nachbarn: zwei Nachbarräume mit Wandstärken von 10 bis 30 cm zur Auswahl und der Schalter Bewusst separat" width="860">
 </p>
 
 **Türen und Fenster in der gemeinsamen Wand führen in beide Räume.** Setzt du eine Tür in die Wand zwischen Wohnzimmer und Schlafzimmer, erscheint sie automatisch auch im Schlafzimmer, mit gespiegeltem Anschlag. In der Elementliste des Nachbarraums steht sie mit dem Vermerk «von Wohnzimmer»; geändert wird sie im Raum, zu dem sie gehört.
@@ -216,7 +216,7 @@ Im Panel des Raums, Bereich **Elemente**, findest du die Palette:
 | Elektro | Steckdose, Schalter, Lampe (an der Wand), LAN / TV, Decke (Deckenlampe) |
 
 <p align="center">
-  <img src=".github/assets/screenshots/wall-view.webp" alt="Plan mit gewähltem Raum, rechts die Palette und die Wandansicht der Wand 4" width="860">
+  <img src=".github/assets/screenshots/de/wall-view.webp" alt="Plan mit gewähltem Raum, rechts die Palette und die Wandansicht der Wand 1 mit zwei Fenstern und einem Heizkörper" width="860">
 </p>
 
 **Platzieren.** Wähle ein Element in der Palette und tippe auf eine Wand (bei der Deckenlampe in den Raum). Zieh es danach an die richtige Stelle. «Platzieren abbrechen» oder die Taste `Esc` bricht ab.
@@ -260,7 +260,7 @@ Fotos werden direkt auf dem Gerät verkleinert und ohne Metadaten gespeichert. H
 
     </td>
     <td valign="top" width="260">
-      <img src=".github/assets/screenshots/photo-tour.webp" alt="Foto-Tour auf dem Smartphone: Schritt 1 von 18, Ecke A mit Blick Richtung C" width="260">
+      <img src=".github/assets/screenshots/de/photo-tour.webp" alt="Foto-Tour auf dem Smartphone: Schritt 1 von 16, Ecke A mit Blick Richtung C, mit dem Raum-Panel über dem Plan" width="260">
     </td>
   </tr>
 </table>
@@ -276,7 +276,7 @@ Fotos werden direkt auf dem Gerät verkleinert und ohne Metadaten gespeichert. H
 Tippe oben rechts auf **«3D erstellen»**. RoomX prüft zuerst deinen Plan und nennt Probleme, zum Beispiel ungültige Grundrisse, Elemente, die über die Wand hinausragen, fehlende Pflichtfotos oder [unverbundene Räume](#räume-verbinden). Mit «Trotzdem erstellen» geht es weiter, mit «Zurück zum Plan» korrigierst du zuerst.
 
 <p align="center">
-  <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht der Wohnung mit Wohnzimmer, Schlafzimmer und Büro" width="860">
+  <img src=".github/assets/screenshots/de/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht der Wohnung mit Wohnzimmer, Schlafzimmer und Büro" width="860">
 </p>
 
 **Ansicht steuern.** Ziehen dreht die Ansicht, Mausrad oder zwei Finger zoomen. Oben links wählst du **Ganze Wohnung** oder einen **einzelnen Raum**.
@@ -294,7 +294,7 @@ Tippe oben rechts auf **«3D erstellen»**. RoomX prüft zuerst deinen Plan und 
 **Begehen.** In diesem Modus stehst du im Raum, auf Augenhöhe. Am Computer gehst du mit `W` `A` `S` `D`, schaust mit den Pfeiltasten oder gezogener Maus um und beendest mit `Esc`. Auf Tablet und Handy gehst du mit dem Steuerkreuz links und wischst zum Umsehen.
 
 <p align="center">
-  <img src=".github/assets/screenshots/3d-walk.webp" alt="Begehen-Modus: Blick durch das Wohnzimmer auf Esstisch, Regale und Balkontür" width="760">
+  <img src=".github/assets/screenshots/de/3d-walk.webp" alt="Begehen-Modus: Blick durch das Wohnzimmer auf ein Bücherregal mit Stehlampe, einen Sessel, die Tür und den Esstisch" width="760">
 </p>
 
 > [!NOTE]
@@ -305,13 +305,13 @@ Tippe oben rechts auf **«3D erstellen»**. RoomX prüft zuerst deinen Plan und 
 Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst du zwischen Plan und 3D und wählst die Variante. Über die Knöpfe oben rechts öffnest du das Panel mit den Bereichen **Katalog**, **Möbel**, **Liste** und **Bedarf**.
 
 <p align="center">
-  <img src=".github/assets/screenshots/furnish.webp" alt="Einrichten: Plan mit eingerichteten Räumen, rechts der Möbelkatalog mit Suche und Markenfilter" width="860">
+  <img src=".github/assets/screenshots/de/furnish.webp" alt="Einrichten: Plan mit eingerichteten Räumen, rechts der Möbelkatalog mit Suche und Markenfilter" width="860">
 </p>
 
 **Katalog.** Er enthält über 250 Artikel in den Marken **IKEA**, **Tchibo** (Serie CN3) und **Allgemein** (neutrale Möbel, Geräte, Deko, Lampen).
 
 - Suche oben, zum Beispiel «Billy» oder «Schreibtisch».
-- Kategorien als Chips (Betten, Regale, Tische, Sofas, Lampen und mehr), dazu der Filter «Marke».
+- Kategorien als Chips: Die häufigsten (zum Beispiel Betten, Regale, Tische, Sofas) stehen vorne, «+ n weitere» zeigt den Rest («Weniger» klappt sie wieder ein). Der Filter «Marke» grenzt die Liste nach Hersteller ein.
 - Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
 
 > [!NOTE]
@@ -344,7 +344,7 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 
     </td>
     <td valign="top" width="360">
-      <img src=".github/assets/screenshots/furnish-hints.webp" alt="Eine Pflanze steht im Schwenkbereich der Tür und ist rot markiert" width="360">
+      <img src=".github/assets/screenshots/de/furnish-hints.webp" alt="Eine Pflanze steht im Schwenkbereich der Tür und ist rot markiert" width="360">
     </td>
   </tr>
 </table>
@@ -356,7 +356,7 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 **Budget, Liste und Bedarf.**
 
 <p align="center">
-  <img src=".github/assets/screenshots/shopping-list.webp" alt="Einkaufsliste mit Gesamtsumme, Budgetbalken und Artikeln mit Richtpreis" width="860">
+  <img src=".github/assets/screenshots/de/shopping-list.webp" alt="Einkaufsliste mit Gesamtsumme, Budgetbalken und Artikeln mit Richtpreis" width="860">
 </p>
 
 - **Budget:** Trage unter **Bedarf** dein Budget in CHF ein. Oben erscheint ein Balken mit der Summe der aktuellen Variante und dem Hinweis, wie viel noch im Budget ist oder wie viel darüber.
@@ -392,19 +392,19 @@ Du kannst deine Räume von einem KI-Assistenten einrichten lassen. RoomX bereite
 8. **Anpassen und erneut exportieren.** Sieh dir die Variante in «Einrichten» an und ändere, was dir nicht gefällt. Willst du eine zweite Runde, erstelle ein neues KI-Paket: Es enthält jetzt deine angepasste Einrichtung.
 
 <p align="center">
-  <img src=".github/assets/screenshots/export.webp" alt="Export und Import: Karte KI-Paket mit Umfang, dem Hinweis Was du teilst, dem Schalter Ohne Fotos exportieren und dem Knopf zum Erstellen" width="760">
+  <img src=".github/assets/screenshots/de/export.webp" alt="Export und Import: Karte KI-Paket mit Umfang, dem Hinweis Was du teilst, dem Schalter Ohne Fotos exportieren und dem Knopf zum Erstellen" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/package-ready.webp" alt="KI-Paket bereit: die fünf Dateien, die Knöpfe Herunterladen und KI-Paket als ZIP sowie die Schritte mit dem Prompt und dem Knopf Prompt kopieren" width="760">
+  <img src=".github/assets/screenshots/de/package-ready.webp" alt="KI-Paket bereit: die fünf Dateien, die Knöpfe Herunterladen und KI-Paket als ZIP sowie die Schritte mit dem Prompt und dem Knopf Prompt kopieren" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import.webp" alt="Plan importieren: eingefügte Antwort mit JSON und die Vorschau mit Summe und Hinweisen" width="760">
+  <img src=".github/assets/screenshots/de/import.webp" alt="Plan importieren: eingefügte Antwort mit JSON und die Vorschau mit Summe und Hinweisen" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import-corrections.webp" alt="Import-Vorschau mit einem nicht übernommenen Möbel und dem Kasten mit dem Knopf Korrekturen kopieren" width="760">
+  <img src=".github/assets/screenshots/de/import-corrections.webp" alt="Import-Vorschau mit einem nicht übernommenen Möbel und dem Kasten mit dem Knopf Korrekturen kopieren" width="760">
 </p>
 
 > [!TIP]
@@ -432,7 +432,7 @@ Du kannst deine Räume von einem KI-Assistenten einrichten lassen. RoomX bereite
 **Alles sichern.** In den [Einstellungen](#einstellungen) sichert «Alles sichern» **alle Projekte mit ihren Fotos** in einer ZIP-Datei. «Alles wiederherstellen» liest eine solche Datei wieder ein. Dabei wird nie etwas überschrieben: Ein Projekt, das es schon gibt, kommt als Kopie dazu. Ein Projekt, das sich nicht öffnen lässt, geht nicht verloren: Es kommt unverändert als Rohdaten mit ins Backup. RoomX merkt sich den Zeitpunkt des letzten Backups und erinnert dich, wenn es mehr als 14 Tage her ist; auf iPhone und iPad erscheint zusätzlich eine Erinnerung, weil Safari Daten löschen kann.
 
 <p align="center">
-  <img src=".github/assets/screenshots/settings.webp" alt="Einstellungen: Karte Sichern mit Alles sichern und Alles wiederherstellen, darunter die Karte Speicher mit Belegung" width="760">
+  <img src=".github/assets/screenshots/de/settings.webp" alt="Einstellungen: Karte Sichern mit Alles sichern und Alles wiederherstellen, darunter die Karte Speicher mit Belegung" width="760">
 </p>
 
 **Auf ein anderes Gerät oder in die installierte App umziehen:**
@@ -460,12 +460,11 @@ Du erreichst sie über das Zahnrad oben rechts in der Projektliste.
 | **App installieren** | In Chrome und Edge erscheint hier der Knopf «App installieren». Auf iPhone und iPad erklärt RoomX «Zum Home-Bildschirm», weil Safari die Daten von Websites löschen kann, die sieben Tage lang nicht geöffnet wurden. |
 | **Speicher** | Zeigt, ob der Browser die Daten **dauerhaft sichert** («Dauerhaft gesichert») oder bei Platzmangel löschen darf, und wie viel Platz belegt ist. «Erneut anfragen» versucht die dauerhafte Sicherung noch einmal. Mit der App auf dem Home-Bildschirm klappt sie eher. |
 | **Hilfe** | «Tour starten» spielt die Einführung noch einmal ab (zehn Schritte, jederzeit überspringbar, wahlweise mit einem Beispielzimmer). «Tastaturkürzel anzeigen» öffnet die Übersicht. |
-| **Version und Diagnose** | Zeigt Version und Build-Datum. «Diagnose kopieren» kopiert technische Angaben zu Gerät und App, **ohne Projektdaten**, Namen oder Fotos, damit du sie in eine Meldung einfügen kannst. Unter «Fehler melden oder Wunsch äussern» öffnest du die GitHub-Issues (Vorlagen auf Deutsch und Englisch; du brauchst ein GitHub-Konto), oder du schickst mit «Per E-Mail schreiben» eine Nachricht. Füge die Diagnose ein, aber keine privaten Angaben oder Fotos. |
+| **Über RoomX** | Die Karte unter «Hilfe». Sie zeigt das volle Logo, die **Version** und das **Build-Datum** sowie die Zeile «Daten: Alles bleibt auf deinem Gerät». «Datenschutz & Haftung» öffnet eine kurze Seite mit der Datenschutzerklärung (wer verantwortlich ist, wie du Kontakt aufnimmst), dem Haftungsausschluss und der Lizenz von RoomX. «Open-Source-Lizenzen» führt zu den Lizenzen der verwendeten Bausteine (beide Seiten auch unter `/rechtliches`). Unter «Feedback» öffnest du mit «Fehler melden oder Wunsch äussern» die GitHub-Issues (Vorlagen auf Deutsch und Englisch; du brauchst ein GitHub-Konto) oder schickst mit «Per E-Mail schreiben» eine Nachricht. «Diagnose kopieren» kopiert technische Angaben zu Gerät und App, **ohne Projektdaten**, Namen oder Fotos, damit du sie in deine Meldung einfügen kannst. |
 | **Alles zurücksetzen** | «Alle lokalen Daten löschen» entfernt alle Projekte, Fotos und Einstellungen von diesem Gerät. RoomX bietet vorher an, zuerst zu sichern. Das lässt sich nicht rückgängig machen. |
-| **Datenschutz & Haftung** | Öffnet eine kurze Seite mit der Datenschutzerklärung (wer verantwortlich ist, wie du Kontakt aufnimmst), dem Haftungsausschluss, der Lizenz von RoomX und den **Open-Source-Lizenzen** der verwendeten Bausteine (auch unter `/rechtliches`). |
 
 <p align="center">
-  <img src=".github/assets/screenshots/settings-diagnostics.webp" alt="Einstellungen: Version, Build-Datum, Diagnose kopieren, die zwei Wege für Rückmeldungen (GitHub-Issues und E-Mail) und die Karte Alles zurücksetzen" width="760">
+  <img src=".github/assets/screenshots/de/settings-about.webp" alt="Einstellungen, Abschnitt Über RoomX: Logo, Version v1.0.1, Build-Datum, die Zeile Alles bleibt auf deinem Gerät, die Links Datenschutz &amp; Haftung und Open-Source-Lizenzen, die zwei Wege für Rückmeldungen und der Knopf Diagnose kopieren" width="760">
 </p>
 
 ### Tastaturkürzel
@@ -526,7 +525,7 @@ Die Fotos stecken im PDF des Pakets. RoomX selbst sendet nichts: Du lädst die D
 <details>
 <summary><b>Wie melde ich einen Fehler oder mache einen Vorschlag?</b></summary>
 
-In den Einstellungen unter «Version und Diagnose» hast du zwei Wege. «Fehler melden oder Wunsch äussern» öffnet die Issues auf GitHub (Konto nötig). «Per E-Mail schreiben» öffnet eine Nachricht an julian-5@gmx.ch. Füge bei Bedarf das Ergebnis von «Diagnose kopieren» ein, aber keine privaten Angaben oder Fotos.
+In den Einstellungen unter «Über RoomX», Abschnitt «Feedback», hast du zwei Wege. «Fehler melden oder Wunsch äussern» öffnet die Issues auf GitHub (Konto nötig). «Per E-Mail schreiben» öffnet eine Nachricht an julian-5@gmx.ch. Füge bei Bedarf das Ergebnis von «Diagnose kopieren» ein, aber keine privaten Angaben oder Fotos.
 </details>
 
 <details>
@@ -588,7 +587,7 @@ Kurz gesagt: **Deine Daten bleiben auf deinem Gerät.**
 
 Verantwortlich für die App und ihre Datenschutzseite ist xc4pr. Kontakt: julian-5@gmx.ch oder die [Issues auf GitHub](https://github.com/xc4pr/roomx/issues).
 
-Die ausführliche Datenschutzerklärung steht in der App: in der Projektliste unten und unter Einstellungen auf der Seite [«Datenschutz & Haftung»](https://xc4pr.github.io/roomx/rechtliches).
+Die ausführliche Datenschutzerklärung steht in der App: unter Einstellungen, im Abschnitt «Über RoomX», auf der Seite [«Datenschutz & Haftung»](https://xc4pr.github.io/roomx/rechtliches).
 
 ## Haftungsausschluss
 
