@@ -2,7 +2,9 @@ import asyncio
 import hashlib
 import hmac
 import json
+import logging
 import mimetypes
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +17,9 @@ from .config import Config
 from .storage import Store, valid_hash, valid_id
 
 mimetypes.add_type("application/manifest+json", ".webmanifest")
+
+MIN_TOKEN_LENGTH = 32
+log = logging.getLogger("roomx")
 
 NO_CACHE = "no-cache"
 IMMUTABLE = "public, max-age=31536000, immutable"
@@ -42,6 +47,13 @@ async def read_limited(request: Request, limit: int) -> bytes:
 def create_app(config: Config) -> FastAPI:
     if not config.token:
         raise RuntimeError("ROOMX_TOKEN is not set")
+    if len(config.token) < MIN_TOKEN_LENGTH:
+        log.warning(
+            "ROOMX_TOKEN is shorter than %d characters and easy to guess. "
+            "Generate a new one with: python -c "
+            '"import secrets; print(secrets.token_urlsafe(32))"',
+            MIN_TOKEN_LENGTH,
+        )
     store = Store(config.data)
     token = config.token.encode()
     app = FastAPI(title="roomx", docs_url=None, redoc_url=None, openapi_url=None)
@@ -53,6 +65,14 @@ def create_app(config: Config) -> FastAPI:
             allow_headers=["Authorization", "Content-Type"],
             max_age=600,
         )
+
+    @app.middleware("http")
+    async def nosniff(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
 
     def authorize(request: Request) -> None:
         header = request.headers.get("authorization", "")
