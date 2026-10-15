@@ -33,6 +33,13 @@ jobs:
       - run: pnpm -C web test
       - run: pnpm -C web build:server
       - run: pnpm -C web build:pages
+      - name: Production build has public relays only
+        run: |
+          grep -q 'wss://nos.lol' web/build/index.html
+          for relay in nos.lol relay.damus.io relay.primal.net relay.snort.social nostr.data.haus; do
+            grep -q "wss://$relay" web/build/index.html
+          done
+          ! grep -q 'ws://127.0.0.1' web/build/index.html
 
   server:
     runs-on: ubuntu-latest
@@ -50,6 +57,9 @@ jobs:
 
   e2e-chromium:
     runs-on: ubuntu-latest
+    env:
+      ROOMX_MIRROR_RELAYS: ws://127.0.0.1:4275
+      ROOMX_MIRROR_STUN: none
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -79,6 +89,9 @@ jobs:
 
   e2e-webkit:
     runs-on: ubuntu-latest
+    env:
+      ROOMX_MIRROR_RELAYS: ws://127.0.0.1:4275
+      ROOMX_MIRROR_STUN: none
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -108,6 +121,9 @@ jobs:
 
   e2e-pages:
     runs-on: ubuntu-latest
+    env:
+      ROOMX_MIRROR_RELAYS: ws://127.0.0.1:4275
+      ROOMX_MIRROR_STUN: none
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

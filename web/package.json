@@ -16,12 +16,12 @@
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
 		"test": "vitest run",
-		"test:e2e": "EDITION=pro vite build && playwright test --project=desktop --project=ipad-chromium",
-		"test:e2e:all": "EDITION=pro vite build && playwright test",
+		"test:e2e": "ROOMX_MIRROR_RELAYS=ws://127.0.0.1:4275 ROOMX_MIRROR_STUN=none EDITION=pro vite build && playwright test --project=desktop --project=ipad-chromium --project=mirror",
+		"test:e2e:all": "ROOMX_MIRROR_RELAYS=ws://127.0.0.1:4275 ROOMX_MIRROR_STUN=none EDITION=pro vite build && playwright test",
 		"test:e2e:webkit": "bash tests/webkit.sh",
-		"test:e2e:pages": "EDITION=free BASE_PATH=/roomx vite build && cp build/index.html build/404.html && playwright test -c playwright.pages.config.ts --project=pages-chromium",
+		"test:e2e:pages": "ROOMX_MIRROR_RELAYS=ws://127.0.0.1:4275 ROOMX_MIRROR_STUN=none EDITION=free BASE_PATH=/roomx vite build && cp build/index.html build/404.html && playwright test -c playwright.pages.config.ts --project=pages-chromium",
 		"test:e2e:pages:webkit": "bash tests/pages/webkit.sh",
-		"test:e2e:visual": "EDITION=pro vite build && PW_VISUAL=1 playwright test --project=desktop --project=ipad-chromium",
+		"test:e2e:visual": "ROOMX_MIRROR_RELAYS=ws://127.0.0.1:4275 ROOMX_MIRROR_STUN=none EDITION=pro vite build && PW_VISUAL=1 playwright test --project=desktop --project=ipad-chromium",
 		"emit-contract": "node scripts/emit-contract.ts"
 	},
 	"devDependencies": {
