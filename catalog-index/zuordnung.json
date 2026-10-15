@@ -6306,5 +6306,18 @@
   "model": "throw",
   "mount": "on-top"
  },
- "tchibo|–": "aus"
+ "tchibo|–": "aus",
+ "tchibo|kleinkindbett": {
+  "category": "bed",
+  "model": "bed",
+  "mount": "floor"
+ },
+ "tchibo|arbeitstisch": {
+  "category": "table",
+  "model": "table",
+  "mount": "floor"
+ },
+ "tchibo|textilbürste": "aus",
+ "tchibo|couchorganizer": "aus",
+ "tchibo|m": "aus"
 }
