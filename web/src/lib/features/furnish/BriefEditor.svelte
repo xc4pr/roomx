@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import { RETAILERS } from '#lib/catalog/retailers.ts';
 	import type { Brief, Workstation } from '#lib/core/schema.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
@@ -13,14 +14,14 @@
 	import { emptyBrief } from './actions.ts';
 	import { parsePrice } from './format.ts';
 	import { messages } from './i18n.ts';
+	import { retailerChips, toggleRetailer } from './retailerChips.ts';
 	import Stepper from './Stepper.svelte';
 
 	const BED_SIZES = ['90×200', '140×200', '160×200', '180×200', '200×200'];
-	const RETAILERS = ['IKEA', 'Pfister', 'Micasa', 'Interio', 'Jysk', 'Conforama'];
 
 	const brief = $derived(store.project?.brief ?? emptyBrief());
 	const bedSizes = $derived([...new Set([...BED_SIZES, ...brief.bedSizes])]);
-	const retailers = $derived([...new Set([...RETAILERS, ...(brief.retailers ?? [])])]);
+	const retailers = $derived(retailerChips(RETAILERS, brief.retailers));
 	const computerOptions = $derived([
 		{ value: 'none', label: t(messages, 'computer_none') },
 		{ value: 'laptop', label: t(messages, 'computer_laptop') },
@@ -167,17 +168,17 @@
 	<section class="flex flex-col gap-2">
 		<h3 class="text-sm font-bold">{t(messages, 'retailers')}</h3>
 		<div class="flex flex-wrap gap-2">
-			{#each retailers as name (name)}
+			{#each retailers as chip (chip.label)}
 				<Chip
-					selected={(brief.retailers ?? []).includes(name)}
+					selected={chip.selected}
 					onclick={() =>
 						update((next) => {
-							const list = toggle(next.retailers, name);
+							const list = toggleRetailer(next.retailers, chip.label);
 							if (list.length > 0) next.retailers = list;
 							else delete next.retailers;
 						})}
 				>
-					{name}
+					{chip.label}
 				</Chip>
 			{/each}
 		</div>

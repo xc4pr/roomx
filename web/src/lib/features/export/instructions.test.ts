@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { lookup } from '#lib/catalog/index.ts';
+import { RETAILERS } from '#lib/catalog/retailers.ts';
 import { checkRoomItems } from '#lib/core/checks.ts';
 import { buildExport } from '#lib/core/export.ts';
 import { PlanSchema } from '#lib/core/plan.ts';
@@ -91,6 +92,15 @@ describe('instruction texts', () => {
 				expect(/[—–]/.test(text), `${language}.${key}`).toBe(false);
 			}
 		}
+	});
+});
+
+describe('retailers in the instructions', () => {
+	it.each(LANGUAGES)('name every catalog retailer and no old ones (%s)', (language) => {
+		const line = instructionTexts[language].step1.split('\n').find((row) => row.startsWith('5.'));
+		expect(line).toBeDefined();
+		for (const name of RETAILERS) expect(line).toContain(name);
+		expect(line).not.toMatch(/Pfister|Micasa|Interio|Conforama/);
 	});
 });
 

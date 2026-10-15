@@ -1,4 +1,7 @@
+import { RETAILERS } from '#lib/catalog/retailers.ts';
 import { defineMessages } from '#lib/i18n/index.svelte.ts';
+
+const OTHER_RETAILERS = RETAILERS.filter((name) => name !== 'IKEA').join(', ');
 
 function lines(...rows: string[]): string {
 	return rows.join('\n');
@@ -72,7 +75,7 @@ export const instructionTexts = defineMessages({
 			'2. **Betten** je Schlafzimmer (Schweizer Standardgrössen): 90x200, 100x200, 120x200, 140x200, 160x200, 180x200, 200x200; extra lang 210 oder 220; Kinderbett 70x140; Babybett 60x120.',
 			'3. **Arbeitsplätze:** Anzahl; je Platz Monitore (Anzahl, Zoll), Laptop oder PC, Dock, Drucker, Sitz-Steh-Tisch, weitere Geräte.',
 			'4. **Stil und Farben**, zum Beispiel hell und ruhig, warmes Holz, skandinavisch, schwarz und weiss.',
-			'5. **Budget** in CHF und **bevorzugte Händler** (Standard IKEA; ausserdem Micasa, Pfister, Interio, JYSK, Conforama, Tchibo).',
+			`5. **Budget** in CHF und **bevorzugte Händler** (Standard IKEA; ausserdem ${OTHER_RETAILERS}).`,
 			'6. **Möbel, die bleiben** (mit Breite x Tiefe x Höhe in mm) und **Wünsche**: Stauraum, Gäste, TV, Pflanzen, Haustiere, Allergien.',
 			'',
 			'Enthält die JSON-Datei einen `brief` (Bedarf), zeige ihn in zwei bis drei Zeilen und lasse ihn nur bestätigen oder ändern. Frage dann nur nach dem, was darin fehlt.',
@@ -356,7 +359,7 @@ export const instructionTexts = defineMessages({
 			'2. **Beds** per bedroom (Swiss standard sizes): 90x200, 100x200, 120x200, 140x200, 160x200, 180x200, 200x200; extra long 210 or 220; child bed 70x140; baby bed 60x120.',
 			'3. **Workstations:** how many; per workstation monitors (count, inches), laptop or PC, dock, printer, sit-stand desk, other devices.',
 			'4. **Style and colours**, for example bright and calm, warm wood, Scandinavian, black and white.',
-			'5. **Budget** in CHF and **preferred retailers** (default IKEA; also Micasa, Pfister, Interio, JYSK, Conforama, Tchibo).',
+			`5. **Budget** in CHF and **preferred retailers** (default IKEA; also ${OTHER_RETAILERS}).`,
 			'6. **Furniture that stays** (with width x depth x height in mm) and **wishes**: storage, guests, TV, plants, pets, allergies.',
 			'',
 			'If the JSON file contains a `brief` (the user needs), show it in two or three lines and only let the user confirm or change it. Then ask only for what is missing in it.',
