@@ -62,10 +62,17 @@ def index_lauf(modul, state: Path = g.STATE, out: Path = g.OUT, budget_min: floa
     zust = zs.Zustand(Path(state) / f"{name}.jsonl", modul.PRAEFIX).laden()
     b = {"shop": name, "tag": tag, "abgerufen": 0, "neu": 0, "neue_produkte": 0, "verschwunden": 0, "wieder_aufgetaucht": 0,
          "fehler": 0, "dauer_s": 0, "blockiert": False, "meldung": None, "suche_fehler": [], "offen_danach": 0,
-         "verschwunden_urls": [], "fehler_beispiele": []}
+         "verschwunden_urls": [], "fehler_beispiele": [], "umfang_neu_beurteilt": 0}
     shop = g.Shop(name, modul.HOST, pause=pause, lock_dir=lock_dir, opener=opener)
     ctx = modul.grund_kontext()
     code = 0
+    neuer_hash = zs.umfang_hash(modul)
+    alter_hash = zs.lies_hashes(state).get(name)
+    if alter_hash is not None and alter_hash != neuer_hash:  # Umfangsdatei geaendert: Ausgeschlossene neu beurteilen
+        b["umfang_neu_beurteilt"] = zust.beurteile_umfang_neu(lambda u, q: modul.start_umfang(u, q, ctx))
+        zust.speichern()
+    if alter_hash != neuer_hash:
+        zs.schreibe_hash(state, name, neuer_hash)  # erster Lauf ohne Hash: nur merken
     letzte_speicherung = (uhr(), 0)
 
     def melde(urls: dict[str, str]) -> None:
@@ -266,6 +273,7 @@ def import_lauf(von: Path, ab: dict[str, str], state: Path = g.STATE) -> int:
             continue
         gefunden = True
         print(name, json.dumps(zs.importiere(modul, von, state / f"{name}.jsonl", ab.get(name, ""))))
+        zs.schreibe_hash(state, name, zs.umfang_hash(modul))
     ids_quelle = von / "ids.json"
     if ids_quelle.exists():  # bestehende IDs behalten Vorrang
         ids = nm.lade_json(str(ids_quelle), {})

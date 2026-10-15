@@ -11,6 +11,8 @@ import bericht  # noqa: E402
 import gemeinsam as g  # noqa: E402
 import jysk  # noqa: E402
 import normalisieren as nm  # noqa: E402
+import ikea  # noqa: E402
+import tchibo  # noqa: E402
 import update  # noqa: E402
 import zustand as zs  # noqa: E402
 from test_index import Antwort, FalscherOpener  # noqa: E402
@@ -458,6 +460,111 @@ class KuratiertAbgleich(unittest.TestCase):
         update.normalize_lauf(d / "full.json", state, out, web, basis, cache_erlaubt=True)
         self.assertEqual(json.loads((out / "report.json").read_text())["curated_diffs"], 0)
         self.assertFalse((out / "curated.md").exists())
+
+
+class UmfangTest(unittest.TestCase):
+    def test_zeile_faellt_bei_false_weg(self):
+        d = tmp()
+        z = zs.Zustand(d / "x.jsonl", "https://x/")
+        z.uebernimm({"url": "https://x/a/", "ergebnis": "produkt", "name": "A", "im_umfang": False}, "2026-10-01", True)
+        self.assertIsNone(z.eintraege["https://x/a/"]["zeile"])
+        z.eintraege["https://x/b/"] = {**zs.neuer_eintrag(), "umfang": False, "status": "produkt", "zeile": {"name": "B"}}
+        z.speichern()
+        self.assertNotIn("zeile", (d / "x.jsonl").read_text())
+        (d / "y.jsonl").write_text('{"u":"c/","umfang":false,"status":"produkt","geprueft":"2026-10-01","zeile":{"name":"C"}}\n')
+        self.assertIsNone(zs.Zustand(d / "y.jsonl", "https://x/").laden().eintraege["https://x/c/"]["zeile"])
+
+    def zustand_mit_ausgeschlossenen(self, state):
+        z = zs.Zustand(state / "jysk.jsonl", jysk.PRAEFIX)
+        aus = "https://jysk.ch/de/badezimmer/handtuecher/x/"
+        ein = PFAD + "a/"
+        z.eintrag(aus).update(umfang=False, status="offen")
+        z.eintrag(ein).update(umfang=True, status="produkt", geprueft="2026-10-14", zeile={"name": "A"})
+        z.speichern()
+        return aus
+
+    def test_hash_unveraendert_nichts_passiert(self):
+        state, out = tmp(), tmp()
+        aus = self.zustand_mit_ausgeschlossenen(state)
+        zs.schreibe_hash(state, "jysk", zs.umfang_hash(jysk))
+        code, b, op = lauf(state, out, sitemap(), ohne_suche=True, tag="2026-10-15")
+        self.assertEqual(b["umfang_neu_beurteilt"], 0)
+        self.assertIs(zs.Zustand(state / "jysk.jsonl", jysk.PRAEFIX).laden().eintraege[aus]["umfang"], False)
+
+    def test_erster_lauf_ohne_hash_merkt_nur(self):
+        state, out = tmp(), tmp()
+        self.zustand_mit_ausgeschlossenen(state)
+        code, b, _ = lauf(state, out, {}, ohne_suche=True, max_urls=0)
+        self.assertEqual(b["umfang_neu_beurteilt"], 0)
+        self.assertEqual(zs.lies_hashes(state)["jysk"], zs.umfang_hash(jysk))
+
+    def test_hash_geaendert_jysk_sofort_neu_berechnet(self):
+        state, out = tmp(), tmp()
+        aus = self.zustand_mit_ausgeschlossenen(state)
+        zs.schreibe_hash(state, "jysk", "alt")
+        # Umfang erweitert: 'badezimmer' gehoert jetzt dazu -> Eintrag war False, wird True (Hash-Wechsel), Rest bleibt
+        cfg = jysk.lade_umfang()
+        orig = jysk.lade_umfang
+        neu = {**cfg, "einschliessen": list(cfg["einschliessen"]) + ["badezimmer/handtuecher"]}
+        jysk.lade_umfang = lambda *a, **k: neu
+        try:
+            code, b, op = lauf(state, out, {**seiten("a")}, ohne_suche=True, max_urls=0, tag="2026-10-15")
+        finally:
+            jysk.lade_umfang = orig
+        self.assertEqual(b["umfang_neu_beurteilt"], 1)
+        e = zs.Zustand(state / "jysk.jsonl", jysk.PRAEFIX).laden().eintraege[aus]
+        self.assertIs(e["umfang"], True)
+        self.assertEqual(e["status"], "offen")
+        # zweiter Lauf: Hash gespeichert, kein erneutes Zuruecksetzen
+        code, b, _ = lauf(state, out, {}, ohne_suche=True, max_urls=0)
+        self.assertEqual(b["umfang_neu_beurteilt"], 0)
+
+    def test_hash_geaendert_ikea_auf_none_und_in_warteschlange(self):
+        state, out = tmp(), tmp()
+        u = "https://www.ikea.com/ch/de/p/foo-kommode-10000001/"
+        z = zs.Zustand(state / "ikea.jsonl", ikea.PRAEFIX)
+        z.eintrag(u).update(umfang=False, status="produkt", geprueft="2026-10-14")
+        z.speichern()
+        zs.schreibe_hash(state, "ikea", "alt")
+        produkt = ('<script type="application/ld+json">{"@type":"Product","name":"FOO Kommode","sku":"100.000.01"}</script>'
+                   '<script type="application/ld+json">{"@type":"BreadcrumbList","itemListElement":[{"name":"Produkte"},{"name":"X","item":"https://www.ikea.com/ch/de/cat/x-st001/"}]}</script>')
+        robots = {"https://www.ikea.com/robots.txt": Antwort(200, b"User-agent: *\n", "text/plain")}
+        op = FalscherOpener({**robots, u: Antwort(200, produkt.encode())})
+        code, b = update.index_lauf(ikea, state=state, out=out, opener=op, lock_dir=tmp(), pause=0.0, ohne_suche=True, tag="2026-10-15")
+        self.assertEqual((b["umfang_neu_beurteilt"], b["abgerufen"]), (1, 1))
+        self.assertIn(u, op.urls)
+        e = zs.Zustand(state / "ikea.jsonl", ikea.PRAEFIX).laden().eintraege[u]
+        self.assertEqual(e["geprueft"], "2026-10-15")
+        self.assertIs(e["umfang"], True)  # Kategorie st001 liegt im Umfang
+        self.assertEqual(zs.lies_hashes(state)["ikea"], zs.umfang_hash(ikea))
+        # ist die Seite ausserhalb, bleibt False bis zur naechsten Aenderung (keine Endlosschleife)
+        zs.schreibe_hash(state, "ikea", "alt2")
+        z = zs.Zustand(state / "ikea.jsonl", ikea.PRAEFIX).laden()
+        z.eintraege[u]["umfang"] = False
+        z.speichern()
+        produkt2 = produkt.replace("st001", "zz999")
+        op = FalscherOpener({**robots, u: Antwort(200, produkt2.encode())})
+        update.index_lauf(ikea, state=state, out=out, opener=op, lock_dir=tmp(), pause=0.0, ohne_suche=True, tag="2026-10-16")
+        e = zs.Zustand(state / "ikea.jsonl", ikea.PRAEFIX).laden().eintraege[u]
+        self.assertIs(e["umfang"], False)
+        self.assertIsNone(e["zeile"])
+        op = FalscherOpener(robots)
+        code, b = update.index_lauf(ikea, state=state, out=out, opener=op, lock_dir=tmp(), pause=0.0, ohne_suche=True, tag="2026-10-17")
+        self.assertEqual((b["umfang_neu_beurteilt"], b["abgerufen"]), (0, 0))
+
+    def test_tchibo_neu_berechnet(self):
+        state, out = tmp(), tmp()
+        z = zs.Zustand(state / "tchibo.jsonl", tchibo.PRAEFIX)
+        z.eintrag("https://www.tchibo.ch/products/1/regal-metall/").update(umfang=False, status="offen")
+        z.eintrag("https://www.tchibo.ch/products/2/pyjama-x/").update(umfang=False, status="offen")
+        z.speichern()
+        zs.schreibe_hash(state, "tchibo", "alt")
+        op = FalscherOpener({})
+        code, b = update.index_lauf(tchibo, state=state, out=out, opener=op, lock_dir=tmp(), pause=0.0, ohne_suche=True, max_urls=0)
+        self.assertEqual(b["umfang_neu_beurteilt"], 2)
+        e = zs.Zustand(state / "tchibo.jsonl", tchibo.PRAEFIX).laden().eintraege
+        self.assertIs(e["https://www.tchibo.ch/products/1/regal-metall/"]["umfang"], True)
+        self.assertIs(e["https://www.tchibo.ch/products/2/pyjama-x/"]["umfang"], False)
 
 
 class ImportUndStand(unittest.TestCase):

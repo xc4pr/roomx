@@ -1,5 +1,8 @@
 """Zustand je Shop: state/<shop>.jsonl, eine Zeile pro bekannter URL, nach URL sortiert.
 
+Umfang: state/umfang.json merkt je Shop einen Hash der Umfangsdatei; aendert er sich, werden die Eintraege mit
+umfang false neu beurteilt. Eintraege mit umfang false speichern keine "zeile".
+
 Zeile: {"u": <URL ohne gemeinsamen Anfang>, "umfang": true|false|null, "status": ..., "geprueft": "YYYY-MM-DD",
         "quelle": "k" (nur wenn von einer Kategorieseite oder Variante), "weiter": <Ziel> (nur bei Weiterleitung),
         "zeile": {geparste Felder, nur die, die normalisieren.py liest}}
@@ -70,6 +73,8 @@ class Zustand:
             e = neuer_eintrag()
             e.update(umfang=z.get("umfang"), status=z.get("status", "offen"), geprueft=z.get("geprueft"),
                      quelle=z.get("quelle"), weiter=z.get("weiter"), zeile=z.get("zeile"))
+            if e["umfang"] is False:
+                e["zeile"] = None  # ausserhalb des Umfangs speichern wir keine Produktdaten
             self.eintraege[self._voll(z["u"])] = e
         return self
 
@@ -84,7 +89,7 @@ class Zustand:
                     z["quelle"] = e["quelle"]
                 if e["weiter"]:
                     z["weiter"] = e["weiter"]
-                if e["zeile"] is not None:
+                if e["zeile"] is not None and e["umfang"] is not False:
                     z["zeile"] = e["zeile"]
                 f.write(json.dumps(z, ensure_ascii=False, separators=(",", ":")) + "\n")
             f.flush()
@@ -112,6 +117,21 @@ class Zustand:
                     e["umfang"] = start_umfang(url, q)
         return neu
 
+    def beurteile_umfang_neu(self, start_umfang) -> int:
+        """Nach einer Aenderung der Umfangsdatei: alle Eintraege mit umfang False neu beurteilen.
+        `start_umfang(url, quelle) -> bool|None`: bool sofort uebernehmen, None (Umfang erst von der Produktseite):
+        wird abgerufen und neu beurteilt. Eintraege, die dazugehoeren koennten, aber keine Daten haben, gelten als nie geprueft.
+        Gibt die Zahl der neu beurteilten Eintraege zurueck."""
+        n = 0
+        for url, e in self.eintraege.items():
+            if e["umfang"] is not False:
+                continue
+            n += 1
+            e["umfang"] = start_umfang(url, e["quelle"] or "s")
+            if e["umfang"] is not False and e["zeile"] is None and not ist_verschwunden(e):
+                e.update(status="offen", geprueft=None)
+        return n
+
     def uebernimm(self, zeile: dict, tag_: str, shop_hat_umfang_im_ergebnis: bool) -> dict:
         """Ergebnis eines Abrufs eintragen. Gibt {"verschwunden": [...], "wieder": [...]} (URLs) zurueck."""
         ereignis = {"verschwunden": [], "wieder": []}
@@ -135,6 +155,8 @@ class Zustand:
                 e["umfang"] = zeile.get("im_umfang")
             elif e["umfang"] is None:
                 e["umfang"] = zeile.get("im_umfang")
+            if e["umfang"] is False:
+                e["zeile"] = None
             if war_weg:
                 ereignis["wieder"].append(url)
         elif erg in ("404", "weiterleitung"):
@@ -166,6 +188,31 @@ def importiere(shop_modul, von: Path, ziel: Path, ab: str = "") -> dict:
     for url, e in z.eintraege.items():
         if e["umfang"] is None and ctx is not None:
             e["umfang"] = shop_modul.start_umfang(url, e["quelle"] or "s", ctx)
+    for e in z.eintraege.values():
+        if e["umfang"] is False:
+            e["zeile"] = None
     z.speichern()
     return {"urls": len(z.eintraege), "zeilen": len(zeilen),
             "produkte": sum(1 for e in z.eintraege.values() if e["status"] == "produkt")}
+
+
+def umfang_hash(modul) -> str:
+    """Kurzer Hash der Umfangsdatei des Shops (Inhalt, nicht Formatierung)."""
+    import hashlib
+    daten = json.loads(Path(modul.KATEGORIEN).read_text(encoding="utf-8"))
+    return hashlib.sha256(json.dumps(daten, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[:16]
+
+
+def lies_hashes(state: Path) -> dict:
+    try:
+        d = json.loads((Path(state) / "umfang.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return d if isinstance(d, dict) else {}
+
+
+def schreibe_hash(state: Path, shop: str, h: str) -> None:
+    d = lies_hashes(state)
+    d[shop] = h
+    Path(state).mkdir(parents=True, exist_ok=True)
+    (Path(state) / "umfang.json").write_text(json.dumps(d, indent=1, sort_keys=True) + "\n", encoding="utf-8")
