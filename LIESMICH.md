@@ -10,6 +10,17 @@
 <h3 align="center">Die Sims fürs echte Leben: Räume erfassen, in 3D ansehen, einrichten.</h3>
 
 <p align="center">
+  <a href="https://github.com/xc4pr/roomx/releases"><img src="https://img.shields.io/github/v/release/xc4pr/roomx?label=Version&color=0b8f66" alt="Version"></a>
+  <a href="https://github.com/xc4pr/roomx/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xc4pr/roomx/ci.yml?branch=dev&label=CI" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-PolyForm%20Noncommercial%201.0.0-0b8f66" alt="Lizenz"></a>
+  <img src="https://img.shields.io/badge/Plattformen-Browser%20%C2%B7%20iPhone%20%C2%B7%20iPad%20%C2%B7%20Android%20%C2%B7%20Desktop-0b8f66" alt="Plattformen">
+  <img src="https://img.shields.io/badge/offline%20%C2%B7%20installierbar-0b8f66" alt="offline · installierbar">
+  <img src="https://img.shields.io/badge/Daten%20bleiben%20auf%20dem%20Ger%C3%A4t-0b8f66" alt="Daten bleiben auf dem Gerät">
+  <img src="https://img.shields.io/badge/Sprachen-EN%20%C2%B7%20DE-0b8f66" alt="Sprachen">
+  <img src="https://img.shields.io/badge/gebaut%20mit-SvelteKit%20%C2%B7%20three.js-0b8f66" alt="gebaut mit">
+</p>
+
+<p align="center">
   <a href="https://xc4pr.github.io/roomx/"><b>App öffnen</b></a>
   &nbsp;·&nbsp;
   <a href="#handbuch"><b>Handbuch</b></a>

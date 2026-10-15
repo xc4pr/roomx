@@ -10,6 +10,17 @@
 <h3 align="center">The Sims for real life: measure your rooms, see them in 3D, furnish them.</h3>
 
 <p align="center">
+  <a href="https://github.com/xc4pr/roomx/releases"><img src="https://img.shields.io/github/v/release/xc4pr/roomx?label=version&color=0b8f66" alt="version"></a>
+  <a href="https://github.com/xc4pr/roomx/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xc4pr/roomx/ci.yml?branch=dev&label=CI" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-0b8f66" alt="license"></a>
+  <img src="https://img.shields.io/badge/platforms-Browser%20%C2%B7%20iPhone%20%C2%B7%20iPad%20%C2%B7%20Android%20%C2%B7%20Desktop-0b8f66" alt="platforms">
+  <img src="https://img.shields.io/badge/offline%20%C2%B7%20installable-0b8f66" alt="offline · installable">
+  <img src="https://img.shields.io/badge/data%20stays%20on%20your%20device-0b8f66" alt="data stays on your device">
+  <img src="https://img.shields.io/badge/languages-EN%20%C2%B7%20DE-0b8f66" alt="languages">
+  <img src="https://img.shields.io/badge/built%20with-SvelteKit%20%C2%B7%20three.js-0b8f66" alt="built with">
+</p>
+
+<p align="center">
   <a href="https://xc4pr.github.io/roomx/"><b>Open the app</b></a>
   &nbsp;·&nbsp;
   <a href="#manual"><b>Manual</b></a>
