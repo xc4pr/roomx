@@ -11,6 +11,7 @@
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { sharedBus } from '#lib/state/channel.ts';
+	import { db } from '#lib/state/db.ts';
 	import { runCleanup } from '#lib/state/cleanup.ts';
 	import { probeStorage } from '#lib/state/persistence.ts';
 	import { store } from '#lib/state/project.svelte.ts';
@@ -36,7 +37,10 @@
 		const stopSync = startSync();
 		const stopReminders = startReminders({ lastSyncedAt: () => syncState.lastSyncedAt });
 		const stopWipe = sharedBus()?.subscribe((message) => {
-			if (message.type === 'wiped') location.reload();
+			if (message.type !== 'wiped') return;
+			store.abandon();
+			db.close({ disableAutoOpen: true });
+			setTimeout(() => location.reload(), 500);
 		});
 		void probeStorage().then((ok) => {
 			if (!ok) return;

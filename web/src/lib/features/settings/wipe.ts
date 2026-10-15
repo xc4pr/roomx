@@ -31,16 +31,20 @@ function browserStorage(read: () => Storage): Storage | undefined {
 
 export interface WipeTargets {
 	storages?: readonly (KeyStorage | undefined)[];
+	waitMs?: number;
 }
+
+export const WIPE_WAIT_MS = 200;
 
 export async function wipeAllLocalData(targets: WipeTargets = {}): Promise<void> {
 	store.abandon();
 	cancelCleanup();
+	sharedBus()?.post({ type: 'wiped', from: tabId });
+	await new Promise<void>((resolve) => setTimeout(resolve, targets.waitMs ?? WIPE_WAIT_MS));
 	await db.delete();
 	const storages = targets.storages ?? [
 		browserStorage(() => globalThis.localStorage),
 		browserStorage(() => globalThis.sessionStorage)
 	];
 	for (const storage of storages) clearPrefixedKeys(storage);
-	sharedBus()?.post({ type: 'wiped', from: tabId });
 }

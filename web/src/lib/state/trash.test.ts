@@ -167,4 +167,24 @@ describe('trash', () => {
 		await purgeFromTrash('a');
 		expect(await pruneOrphanPhotos()).toBe(1);
 	});
+
+	it('does not purge a project that was changed after it was trashed, and brings it back', async () => {
+		await seed('a');
+		await trashProject('a', start);
+		const stored = await db.projects.get('a');
+		await db.projects.put({ ...stored!, updatedAt: after(5).toISOString() });
+		expect(await purgeExpiredTrash(after(31))).toBe(0);
+		expect((await db.projects.get('a'))?.deleted).toBeUndefined();
+		expect(await db.trash.get('a')).toBeUndefined();
+		expect((await listProjects()).map((project) => project.id)).toEqual(['a']);
+	});
+
+	it('takes a project that was changed elsewhere out of the list of the trash', async () => {
+		await seed('a');
+		await trashProject('a', start);
+		const stored = await db.projects.get('a');
+		await db.projects.put({ ...stored!, updatedAt: after(1).toISOString() });
+		expect(await listTrash(after(2))).toEqual([]);
+		expect(await db.trash.count()).toBe(0);
+	});
 });

@@ -25,6 +25,12 @@ export function isExpired(trashedAt: string, now: Date = new Date()): boolean {
 	return !Number.isNaN(trashed) && now.getTime() - trashed >= TRASH_DAYS * DAY_MS;
 }
 
+function usedSinceTrashed(updatedAt: string, trashedAt: string): boolean {
+	const updated = Date.parse(updatedAt);
+	const trashed = Date.parse(trashedAt);
+	return !Number.isNaN(updated) && !Number.isNaN(trashed) && updated > trashed;
+}
+
 export async function trashProject(id: string, now: Date = new Date()): Promise<boolean> {
 	const project = await db.projects.get(id);
 	if (!project || project.deleted) return false;
@@ -51,6 +57,10 @@ export async function listTrash(now: Date = new Date()): Promise<TrashEntry[]> {
 			stale.push(row.projectId);
 			return;
 		}
+		if (usedSinceTrashed(project.updatedAt, row.trashedAt)) {
+			stale.push(row.projectId);
+			return;
+		}
 		entries.push({
 			id: project.id,
 			name: project.name,
@@ -71,6 +81,16 @@ export async function purgeFromTrash(id: string): Promise<void> {
 export async function purgeExpiredTrash(now: Date = new Date()): Promise<number> {
 	const rows = await db.trash.toArray();
 	const expired = rows.filter((row) => isExpired(row.trashedAt, now));
-	for (const row of expired) await purgeFromTrash(row.projectId);
-	return expired.length;
+	const projects = await db.projects.bulkGet(expired.map((row) => row.projectId));
+	let purged = 0;
+	for (const [index, row] of expired.entries()) {
+		const project = projects[index];
+		if (project && !project.deleted && usedSinceTrashed(project.updatedAt, row.trashedAt)) {
+			await db.trash.delete(row.projectId);
+			continue;
+		}
+		await purgeFromTrash(row.projectId);
+		purged++;
+	}
+	return purged;
 }

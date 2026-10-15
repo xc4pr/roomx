@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useBus, type TabMessage } from '#lib/state/channel.ts';
 import { db } from '#lib/state/db.ts';
 import { emptyProject, getPhoto, listProjects, saveProject } from '#lib/state/persistence.ts';
 import { ProjectStore } from '#lib/state/project.svelte.ts';
@@ -84,5 +85,27 @@ describe('wipeAllLocalData', () => {
 		const other = new ProjectStore();
 		await wipeAllLocalData({ storages: [] });
 		expect(other.project).toBeNull();
+	});
+});
+
+describe('wipe order', () => {
+	afterEach(() => {
+		useBus(null);
+		vi.restoreAllMocks();
+	});
+
+	it('tells the other tabs before the database is deleted', async () => {
+		const events: string[] = [];
+		useBus({
+			post: (message: TabMessage) => void events.push(message.type),
+			subscribe: () => () => undefined
+		});
+		const original = db.delete.bind(db);
+		vi.spyOn(db, 'delete').mockImplementation(() => {
+			events.push('delete');
+			return original();
+		});
+		await wipeAllLocalData({ storages: [], waitMs: 0 });
+		expect(events).toEqual(['wiped', 'delete']);
 	});
 });

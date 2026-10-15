@@ -1,8 +1,11 @@
 import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Photo } from '#lib/core/schema.ts';
+import { useBus, type TabBus, type TabMessage } from './channel.ts';
 import {
 	CLEANUP_DELAY_MS,
+	CLEANUP_LOCK,
+	CLEANUP_RETRY_MS,
 	cancelCleanup,
 	runCleanup,
 	scheduleCleanup,
@@ -45,12 +48,32 @@ async function openWithPhoto() {
 	return { store, id, roomId };
 }
 
+interface Held {
+	name: string;
+	clientId: string;
+}
+
+function stubLocks(others: Held[] = [], available = true) {
+	const request = vi.fn(
+		async (name: string, _options: unknown, callback: (lock: object | null) => Promise<unknown>) =>
+			available ? callback({ name }) : callback(null)
+	);
+	const query = vi.fn(async () => ({
+		held: [{ name: CLEANUP_LOCK, clientId: 'me' }, ...others]
+	}));
+	vi.stubGlobal('navigator', { locks: { request, query } });
+	return { request, query };
+}
+
 beforeEach(async () => {
+	stubLocks();
 	cancelCleanup();
 	await Promise.all(db.tables.map((table) => table.clear()));
 });
 
 afterEach(() => {
+	vi.unstubAllGlobals();
+	useBus(null);
 	cancelCleanup();
 	setKeepProvider(() => new Set());
 	vi.useRealTimers();
@@ -204,5 +227,85 @@ describe('runCleanup', () => {
 		});
 		expect(await runCleanup()).toBe(0);
 		vi.restoreAllMocks();
+	});
+});
+
+describe('cleanup across tabs', () => {
+	beforeEach(async () => {
+		await db.photos.put(stored(A, 0));
+	});
+
+	it('runs under the cleanup lock', async () => {
+		const { request } = stubLocks();
+		expect(await runCleanup()).toBe(1);
+		expect(request).toHaveBeenCalledWith(CLEANUP_LOCK, { ifAvailable: true }, expect.any(Function));
+	});
+
+	it('keeps the blobs while another tab has a project open, and tries again later', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		stubLocks([{ name: 'roomx.project.x', clientId: 'other' }]);
+		expect(await runCleanup()).toBe(0);
+		expect(await getPhoto(A)).toBeDefined();
+		stubLocks();
+		await vi.advanceTimersByTimeAsync(CLEANUP_RETRY_MS);
+		vi.useRealTimers();
+		await vi.waitFor(async () => expect(await getPhoto(A)).toBeUndefined());
+	});
+
+	it('ignores the project locks of its own tab', async () => {
+		stubLocks([{ name: 'roomx.project.x', clientId: 'me' }]);
+		expect(await runCleanup()).toBe(1);
+	});
+
+	it('skips when another tab already cleans up', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		stubLocks([], false);
+		expect(await runCleanup()).toBe(0);
+		expect(await getPhoto(A)).toBeDefined();
+	});
+
+	it('does not delete without locks and without a channel', async () => {
+		vi.stubGlobal('navigator', {});
+		useBus(null);
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		expect(await runCleanup()).toBe(0);
+		expect(await getPhoto(A)).toBeDefined();
+	});
+
+	function fakeBus(reply: boolean): TabBus {
+		const listeners = new Set<(message: TabMessage) => void>();
+		return {
+			post(message) {
+				if (reply && message.type === 'who') {
+					queueMicrotask(() => {
+						for (const listener of listeners)
+							listener({
+								type: 'owner',
+								projectId: message.projectId,
+								from: 'other-tab',
+								claimedAt: 1
+							});
+					});
+				}
+			},
+			subscribe(listener) {
+				listeners.add(listener);
+				return () => listeners.delete(listener);
+			}
+		};
+	}
+
+	it('asks the other tabs over the channel when there are no locks', async () => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+		vi.stubGlobal('navigator', {});
+		await createProject('Bus');
+		useBus(fakeBus(true));
+		expect(await runCleanup()).toBe(0);
+		expect(await getPhoto(A)).toBeDefined();
+		cancelCleanup();
+		useBus(fakeBus(false));
+		const pending = runCleanup();
+		await vi.advanceTimersByTimeAsync(1000);
+		expect(await pending).toBe(1);
 	});
 });
