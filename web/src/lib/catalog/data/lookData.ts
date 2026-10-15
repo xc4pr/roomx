@@ -122,6 +122,7 @@ export const seriesLooks: Record<string, Look> = {
 		headboard: 'slats'
 	},
 	'IKEA|IDÅSEN|desk': {
+		frameColor: '#b8b09a',
 		accentColor: '#5c4033',
 		legs: 'tframe'
 	},
@@ -388,7 +389,7 @@ export const seriesLooks: Record<string, Look> = {
 		base: 'legs',
 		baseHeight: 100,
 		baseMaterial: 'wood',
-		frameColor: '#c9a57a',
+		frameColor: '#3a3d40',
 		drawers: 0,
 		headboard: 'upholstered',
 		footboard: true
@@ -1051,9 +1052,6 @@ export const entryLooks: Record<string, Look> = {
 	},
 	'ikea-idanaes-bett-187x222x121-180': {
 		headboard: 'upholstered'
-	},
-	'ikea-idasen-sit-stand-desk-120x70': {
-		frameColor: '#a3a6a1'
 	},
 	'ikea-ivar-174x30x124': {
 		rows: [
