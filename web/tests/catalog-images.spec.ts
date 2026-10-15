@@ -1,8 +1,11 @@
 import { catalog } from '#lib/catalog/index.ts';
 import { addRoom, createProject } from './helpers/app.ts';
+import { withoutFullCatalog } from './helpers/catalog.ts';
 import { test, expect } from './helpers/fixtures.ts';
 
-test('Alle Katalogbilder entstehen ohne Fehler', async ({ page }, testInfo) => {
+test.use({ serviceWorkers: 'block' });
+
+test('Alle Bilder des kuratierten Katalogs entstehen ohne Fehler', async ({ page }, testInfo) => {
 	test.skip(testInfo.project.name !== 'desktop', 'Nur Projekt desktop');
 	test.setTimeout(150_000);
 
@@ -14,6 +17,7 @@ test('Alle Katalogbilder entstehen ohne Fehler', async ({ page }, testInfo) => {
 		}
 	});
 
+	await withoutFullCatalog(page);
 	await createProject(page, 'Katalogbilder');
 	await addRoom(page);
 	await page.getByTestId('seg-furnish').click();
