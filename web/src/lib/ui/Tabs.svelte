@@ -70,7 +70,7 @@
 			aria-selected={active}
 			tabindex={active ? 0 : -1}
 			disabled={item.disabled}
-			class="relative inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-semibold whitespace-nowrap transition duration-(--duration-base) ease-soft select-none after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-accent after:transition-transform after:duration-(--duration-base) after:ease-soft disabled:opacity-40 {full
+			class="relative inline-flex min-h-11 items-center justify-center gap-1.5 px-1 text-sm font-semibold whitespace-nowrap transition duration-(--duration-base) ease-soft select-none after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-accent after:transition-transform after:duration-(--duration-base) after:ease-soft disabled:opacity-40 min-[400px]:gap-2 min-[400px]:px-4 {full
 				? 'grow'
 				: ''} {active
 				? 'text-accent after:scale-x-100'

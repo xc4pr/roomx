@@ -31,6 +31,7 @@ export interface FurnishSession {
 	placedId: string | null;
 	vanishing: Item[];
 	customOpen: boolean;
+	categoriesOpen: boolean;
 }
 
 export const session = $state<FurnishSession>({
@@ -43,7 +44,8 @@ export const session = $state<FurnishSession>({
 	drop: null,
 	placedId: null,
 	vanishing: [],
-	customOpen: false
+	customOpen: false,
+	categoriesOpen: false
 });
 
 let placedTimer: ReturnType<typeof setTimeout> | undefined;

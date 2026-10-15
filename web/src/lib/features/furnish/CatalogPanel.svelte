@@ -12,7 +12,7 @@
 	import Select from '#lib/ui/Select.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import CatalogCard from './CatalogCard.svelte';
-	import { brandsOf, categoriesOf, filterCatalog } from './filter.ts';
+	import { brandsOf, categoriesOf, collapsedCategories, filterCatalog } from './filter.ts';
 	import { messages } from './i18n.ts';
 	import { pricesAsOf } from './priceDate.ts';
 	import { session } from './session.svelte.ts';
@@ -36,6 +36,12 @@
 				locale.language
 			)
 		)
+	);
+	const shownCategories = $derived(
+		session.categoriesOpen ? categories : collapsedCategories(categories, category)
+	);
+	const hiddenCount = $derived(
+		categories.length - collapsedCategories(categories, category).length
 	);
 	const brands = brandsOf(catalog);
 	const brandOptions = $derived([
@@ -63,19 +69,24 @@
 		{/snippet}
 	</TextField>
 
-	<div
-		class="-mx-5 no-scrollbar flex gap-2 overflow-x-auto px-5 py-0.5"
-		role="group"
-		aria-label={t(messages, 'categories')}
-	>
+	<div class="flex flex-wrap gap-2 py-0.5" role="group" aria-label={t(messages, 'categories')}>
 		<Chip selected={category === 'all'} onclick={() => (category = 'all')}>
 			{t(messages, 'all')}
 		</Chip>
-		{#each categories as name (name)}
+		{#each shownCategories as name (name)}
 			<Chip selected={category === name} onclick={() => (category = name)}>
 				{t(categoryNames, name)}
 			</Chip>
 		{/each}
+		{#if session.categoriesOpen}
+			<Chip onclick={() => (session.categoriesOpen = false)} data-testid="categories-less">
+				{t(messages, 'fewerCategories')}
+			</Chip>
+		{:else if hiddenCount > 0}
+			<Chip onclick={() => (session.categoriesOpen = true)} data-testid="categories-more">
+				{t(messages, 'moreCategories', { n: hiddenCount })}
+			</Chip>
+		{/if}
 	</div>
 
 	<div class="flex items-end gap-2">

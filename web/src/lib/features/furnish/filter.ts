@@ -61,3 +61,30 @@ export function categoriesOf(entries: readonly CatalogEntry[]): Map<ItemCategory
 	for (const entry of entries) counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
 	return counts;
 }
+
+export const COMMON_CATEGORIES: readonly ItemCategory[] = [
+	'sofa',
+	'bed',
+	'table',
+	'chair',
+	'desk',
+	'shelf',
+	'lamp',
+	'dresser'
+];
+
+export const COLLAPSED_CATEGORY_COUNT = 3;
+
+export function collapsedCategories(
+	available: readonly ItemCategory[],
+	selected: ItemCategory | 'all',
+	limit: number = COLLAPSED_CATEGORY_COUNT
+): ItemCategory[] {
+	const has = new Set(available);
+	const result: ItemCategory[] = selected !== 'all' && has.has(selected) ? [selected] : [];
+	for (const category of COMMON_CATEGORIES) {
+		if (result.length >= limit) break;
+		if (has.has(category) && !result.includes(category)) result.push(category);
+	}
+	return result;
+}

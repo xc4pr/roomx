@@ -33,24 +33,6 @@
 		return () => clearTimeout(timer);
 	});
 
-	let positionedFor: string | null = null;
-	$effect(() => {
-		const id = roomId;
-		void room?.type;
-		const behavior: ScrollBehavior = positionedFor === id ? 'smooth' : 'auto';
-		requestAnimationFrame(() => {
-			if (document.querySelector('[role="menu"]')) return;
-			const row = document.querySelector<HTMLElement>('[data-type-row]');
-			const chip = row?.querySelector<HTMLElement>('[aria-pressed="true"]');
-			if (!row || !chip) return;
-			const left = chip.offsetLeft - row.offsetLeft;
-			if (left < row.scrollLeft || left + chip.offsetWidth > row.scrollLeft + row.clientWidth) {
-				row.scrollTo({ left: left - 24, behavior });
-			}
-			positionedFor = id;
-		});
-	});
-
 	const tabs = $derived([
 		{ value: 'dims', label: t(messages, 'tabDims') },
 		{
@@ -92,7 +74,7 @@
 
 			<div
 				data-type-row
-				class="-mx-5 no-scrollbar flex gap-2 overflow-x-auto px-5 py-0.5"
+				class="flex flex-wrap gap-2 py-0.5"
 				role="group"
 				aria-label={t(messages, 'roomType')}
 			>

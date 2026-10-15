@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { catalog } from '#lib/catalog/index.ts';
 import { sampleCatalog } from '#lib/core/fixtures.ts';
-import { brandsOf, categoriesOf, filterCatalog, normalizeText } from './filter.ts';
+import {
+	brandsOf,
+	categoriesOf,
+	collapsedCategories,
+	filterCatalog,
+	normalizeText
+} from './filter.ts';
 
 const all = { category: 'all', brand: 'all' } as const;
 
@@ -43,5 +49,22 @@ describe('filterCatalog', () => {
 
 	it('works on the real catalogue', () => {
 		expect(filterCatalog(catalog, { ...all, query: 'billy' }, 'de').length).toBeGreaterThan(0);
+	});
+});
+
+describe('collapsedCategories', () => {
+	const available = ['bed', 'sofa', 'plant', 'table', 'chair', 'desk'] as const;
+
+	it('lists the most common available categories in fixed order', () => {
+		expect(collapsedCategories(available, 'all')).toEqual(['sofa', 'bed', 'table']);
+	});
+
+	it('keeps the selected category first and within the limit', () => {
+		expect(collapsedCategories(available, 'plant')).toEqual(['plant', 'sofa', 'bed']);
+		expect(collapsedCategories(available, 'sofa')).toEqual(['sofa', 'bed', 'table']);
+	});
+
+	it('ignores categories that are not available', () => {
+		expect(collapsedCategories(['lamp'], 'desk')).toEqual(['lamp']);
 	});
 });
