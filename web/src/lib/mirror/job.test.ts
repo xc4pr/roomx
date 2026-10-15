@@ -163,6 +163,19 @@ describe('createHostJob', () => {
 		expect([...parsed.payload.rooms[0].done].sort()).toEqual(['element:e0', 'floor']);
 	});
 
+	it('carries the server flag in the link and omits it otherwise', async () => {
+		const p = project([room('a')]);
+		const plain = await createHostJob(p, ['a'], APP, NOW);
+		const served = await createHostJob(p, ['a'], APP, NOW, { server: true });
+		expect(plain.server).toBeUndefined();
+		expect(served.server).toBe(true);
+		const parsedPlain = parsePair(frag(plain.links[0]), NOW);
+		const parsedServed = parsePair(frag(served.links[0]), NOW);
+		if (!parsedPlain.ok || !parsedServed.ok) throw new Error('parse');
+		expect(parsedPlain.payload.server).toBeUndefined();
+		expect(parsedServed.payload.server).toBe(true);
+	});
+
 	it('uses a fresh token every time', async () => {
 		const p = project([room('a')]);
 		const [x, y] = await Promise.all([

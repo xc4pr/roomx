@@ -54,6 +54,7 @@ interface Wire {
 	v: 1;
 	p: string;
 	l: 'd' | 'e';
+	s?: 1;
 	x: number;
 	n: number;
 	m: number;
@@ -69,6 +70,7 @@ function toWire(payload: JobPayload): Wire {
 		v: 1,
 		p: payload.project,
 		l: payload.lang === 'de' ? 'd' : 'e',
+		...(payload.server ? { s: 1 as const } : {}),
 		x: payload.expiresAt,
 		n: payload.part,
 		m: payload.parts,
@@ -119,6 +121,7 @@ const WireSchema = z
 		v: z.literal(1),
 		p: z.string().max(LIMITS.name),
 		l: z.enum(['d', 'e']),
+		s: z.literal(1).optional(),
 		x: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
 		n: z.number().int().min(1),
 		m: z.number().int().min(1).max(MAX_PARTS),
@@ -132,6 +135,7 @@ function fromWire(wire: z.infer<typeof WireSchema>): JobPayload {
 		project: wire.p,
 		lang: wire.l === 'd' ? 'de' : 'en',
 		expiresAt: wire.x,
+		...(wire.s ? { server: true } : {}),
 		part: wire.n,
 		parts: wire.m,
 		rooms: wire.r.map(([index, name, polygon, height, elements, done]) => ({
@@ -210,7 +214,8 @@ export async function createHostJob(
 	project: Project,
 	roomIds: string[],
 	appUrl: string,
-	now: number = Date.now()
+	now: number = Date.now(),
+	options: { server?: boolean } = {}
 ): Promise<HostJob> {
 	if (roomIds.length === 0) throw new JobError('noRooms');
 	if (roomIds.length > MAX_ROOMS_PER_JOB) throw new JobError('tooManyRooms');
@@ -228,6 +233,7 @@ export async function createHostJob(
 		project: project.name,
 		lang,
 		expiresAt,
+		...(options.server ? { server: true } : {}),
 		part: MAX_PARTS,
 		parts: MAX_PARTS,
 		rooms
@@ -269,7 +275,8 @@ export async function createHostJob(
 			elementIds
 		})),
 		links,
-		received: []
+		received: [],
+		...(options.server ? { server: true } : {})
 	};
 }
 

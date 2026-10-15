@@ -11,7 +11,8 @@ import { CameraSession } from './camera.svelte.ts';
 import { FakeHub, type FakePeer } from './fakeTransport.ts';
 import { openMessage, sealMessage, type Frame } from './frames.ts';
 import { MirrorHost } from './host.svelte.ts';
-import { createHostJob } from './job.ts';
+import { createHostJob, parsePair } from './job.ts';
+import { mailboxHash } from './mailbox.ts';
 import { getJob, saveHostJob } from './jobs.ts';
 import { deriveKeys, newToken } from './token.ts';
 import type { CameraJob, HostJob, Shot } from './types.ts';
@@ -468,5 +469,235 @@ describe('phone to computer', () => {
 		expect((phoneState.jobs.get(job.id) as CameraJob).revokedAt).toBeTypeOf('number');
 		expect(camera.status.status).toBe('ended');
 		expect(hub.peers()).toEqual([]);
+	});
+});
+
+function fakeMailbox() {
+	const state = {
+		shots: new Map<string, Uint8Array>(),
+		placed: [] as string[],
+		calls: [] as { method: string; path: string; headers: Headers; body?: unknown }[],
+		status: 0,
+		registerStatus: 201,
+		offline: false
+	};
+	const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+		const url = new URL(String(input));
+		const method = init?.method ?? 'GET';
+		state.calls.push({
+			method,
+			path: url.pathname,
+			headers: new Headers(init?.headers),
+			body: init?.body
+		});
+		if (state.offline) throw new TypeError('offline');
+		if (state.status) return new Response('', { status: state.status });
+		const [, , , , what, id] = url.pathname.split('/');
+		if (what === undefined)
+			return new Response('{}', { status: method === 'PUT' ? state.registerStatus : 200 });
+		if (what === 'placed') return Response.json({ placed: state.placed, expiresAt: 1 });
+		if (id === undefined) {
+			return Response.json(
+				[...state.shots].map(([key, bytes]) => ({ id: key, size: bytes.length }))
+			);
+		}
+		if (method === 'PUT') {
+			state.shots.set(id, new Uint8Array(init?.body as Uint8Array));
+			return new Response('{}', { status: 201 });
+		}
+		if (method === 'DELETE') {
+			state.placed.push(id);
+			state.shots.delete(id);
+			return new Response('{}');
+		}
+		return new Response((state.shots.get(id) as BodyInit | undefined) ?? '', {
+			status: state.shots.has(id) ? 200 : 404
+		});
+	});
+	const env = {
+		fetch: fetcher as unknown as typeof fetch,
+		free: false,
+		serverUrl: 'https://srv.test',
+		token: 'sync-token',
+		origin: 'https://srv.test'
+	};
+	const count = (method: string, part: string) =>
+		state.calls.filter((call) => call.method === method && call.path.includes(part)).length;
+	return { state, fetcher, env, count };
+}
+
+async function serverJob(): Promise<HostJob> {
+	const job = await hostJob();
+	job.server = true;
+	await saveHostJob(job);
+	return job;
+}
+
+async function sealedPhoto(job: HostJob, bytes: Uint8Array<ArrayBuffer>, stepKey = 'corner:A') {
+	const keys = await deriveKeys(job.token);
+	const sealed = await sealMessage(keys.key, job.id, {
+		frame: { t: 'photo', shot: await shotInfo(bytes, stepKey) },
+		body: bytes
+	});
+	return { sealed, id: await sha256Hex(sealed) };
+}
+
+describe('MirrorHost mailbox', () => {
+	it('registers a new job and builds server links', async () => {
+		const mail = fakeMailbox();
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			appUrl: () => 'https://srv.test/',
+			mailbox: mail.env
+		});
+		const job = await host.create(['room-rect']);
+		expect(job.server).toBe(true);
+		const put = mail.state.calls[0];
+		expect(put).toMatchObject({ method: 'PUT', path: `/api/mirror/${job.id}` });
+		expect(put.headers.get('Authorization')).toBe('Bearer sync-token');
+		const keys = await deriveKeys(job.token);
+		expect(JSON.parse(String(put.body))).toEqual({
+			mailbox: await mailboxHash(keys.mailbox),
+			expiresAt: job.expiresAt
+		});
+		const parsed = parsePair(job.links[0].slice(job.links[0].indexOf('#')));
+		expect(parsed.ok && parsed.payload.server).toBe(true);
+	});
+
+	it('keeps the job but turns the server path off when registering fails', async () => {
+		const mail = fakeMailbox();
+		mail.state.registerStatus = 500;
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			appUrl: () => 'https://srv.test/',
+			mailbox: mail.env
+		});
+		const job = await host.create(['room-rect']);
+		expect(job.server).toBe(false);
+		const stored = await getJob(job.id);
+		expect(stored?.role === 'host' && stored.server).toBe(false);
+	});
+
+	it('never asks the server in the free edition', async () => {
+		const mail = fakeMailbox();
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			appUrl: () => 'https://srv.test/',
+			mailbox: { ...mail.env, free: true },
+			pollMs: 20
+		});
+		const job = await host.create(['room-rect']);
+		expect(job.server).toBeUndefined();
+		startHost();
+		await tick(120);
+		await host.revoke(job.id);
+		expect(mail.fetcher).not.toHaveBeenCalled();
+	});
+
+	it('fetches photos, places them and discards them on the server', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const bytes = jpeg('mail');
+		const { sealed, id } = await sealedPhoto(job, bytes);
+		mail.state.shots.set(id, sealed);
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 30 });
+		const before = photos();
+		startHost();
+		await until(() => expect(photos()).toBe(before + 1));
+		await until(() => expect(mail.state.placed).toEqual([id]));
+		expect(mail.state.shots.size).toBe(0);
+		expect(host.status(job.id).received).toBe(1);
+	});
+
+	it('counts a photo that came by relay and by server once', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 30 });
+		startHost();
+		const phone = await handPhone(hub, job);
+		await until(() => expect(phone.hostPeer()).not.toBe(''));
+		const bytes = jpeg('both');
+		const info = await shotInfo(bytes);
+		await phone.send({ t: 'hello', pending: [info] });
+		await phone.send({ t: 'photo', shot: info }, bytes);
+		await until(() => expect(phone.inbox).toHaveLength(2));
+		const count = photos();
+		const { sealed, id } = await sealedPhoto(job, bytes);
+		mail.state.shots.set(id, sealed);
+		await until(() => expect(mail.state.placed).toEqual([id]));
+		expect(photos()).toBe(count);
+	});
+
+	it('leaves invalid photos alone and does not fetch them again', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const svg = new Uint8Array(svgImage());
+		const { sealed, id } = await sealedPhoto(job, svg);
+		mail.state.shots.set(id, sealed);
+		const noise = new Uint8Array(80).fill(5);
+		const noiseId = await sha256Hex(noise);
+		mail.state.shots.set(noiseId, noise);
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 25 });
+		startHost();
+		await until(() => expect(mail.count('GET', `/shots/${id}`)).toBe(1));
+		await tick(200);
+		expect(mail.count('GET', `/shots/${id}`)).toBe(1);
+		expect(mail.count('GET', `/shots/${noiseId}`)).toBe(1);
+		expect(mail.count('DELETE', '/shots/')).toBe(0);
+		expect(mail.state.shots.size).toBe(2);
+	});
+
+	it('tries again after read-only and storage failures', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const { sealed, id } = await sealedPhoto(job, jpeg('later'));
+		mail.state.shots.set(id, sealed);
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 25 });
+		startHost();
+		await until(() => expect(host.jobs).toHaveLength(1));
+		store.readOnly = true;
+		await tick(120);
+		expect(mail.count('GET', '/shots')).toBe(0);
+		store.readOnly = false;
+		await until(() => expect(mail.state.placed).toEqual([id]));
+	});
+
+	it('stops asking for a job the server reports gone', async () => {
+		const mail = fakeMailbox();
+		mail.state.status = 410;
+		await serverJob();
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 25 });
+		startHost();
+		await until(() => expect(mail.fetcher).toHaveBeenCalledTimes(1));
+		await tick(150);
+		expect(mail.fetcher).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not fetch without an open project', async () => {
+		const mail = fakeMailbox();
+		await serverJob();
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 25 });
+		startHost();
+		await until(() => expect(host.jobs).toHaveLength(1));
+		cleanup.pop()?.();
+		await tick(120);
+		expect(mail.fetcher).not.toHaveBeenCalled();
+	});
+
+	it('revoke removes the mailbox', async () => {
+		const mail = fakeMailbox();
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			appUrl: () => 'https://srv.test/',
+			mailbox: mail.env
+		});
+		const job = await host.create(['room-rect']);
+		await host.revoke(job.id);
+		expect(mail.count('DELETE', `/api/mirror/${job.id}`)).toBe(1);
+		expect(mail.state.calls.at(-1)?.headers.get('Authorization')).toBe('Bearer sync-token');
 	});
 });

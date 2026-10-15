@@ -1,7 +1,9 @@
+import { sha256Hex } from '#lib/features/photos/hash.ts';
 import { newPhotoId } from '#lib/features/photos/process.ts';
 import type { ProcessedImage } from '#lib/features/photos/image.ts';
 import { openMessage, sealMessage, type Frame } from './frames.ts';
 import { addShot as storeShot, deleteShot, getJob, listShots, markCameraRevoked } from './jobs.ts';
+import * as mailbox from './mailbox.ts';
 import { deriveKeys, type MirrorKeys } from './token.ts';
 import { openNostrTransport } from './transport.ts';
 import {
@@ -16,12 +18,25 @@ import {
 const ACK_TIMEOUT_MS = 30_000;
 const RETRY_LATER_MS = 15_000;
 const MAX_TIMER_MS = 2 ** 31 - 1;
+const PLACED_MS = 20_000;
+const UPLOAD_RETRY_MS = 30_000;
 
 export interface CameraOptions {
 	ackTimeoutMs?: number;
 	retryLaterMs?: number;
 	fallbackAfterMs?: number;
 	now?: () => number;
+	mailbox?: mailbox.MailboxEnv;
+	placedMs?: number;
+	uploadRetryMs?: number;
+}
+
+interface ServerLink {
+	keys: MirrorKeys;
+	closed: boolean;
+	busy: boolean;
+	again: boolean;
+	timers: Set<ReturnType<typeof setTimeout> | ReturnType<typeof setInterval>>;
 }
 
 type AckFrame = Extract<Frame, { t: 'ack' }>;
@@ -63,6 +78,7 @@ export class CameraSession {
 	});
 	#open: OpenTransport;
 	#options: Required<CameraOptions>;
+	#server: ServerLink | undefined;
 	#link: Link | undefined;
 	#generation = 0;
 	#lastTaken = 0;
@@ -74,7 +90,10 @@ export class CameraSession {
 			ackTimeoutMs: options.ackTimeoutMs ?? ACK_TIMEOUT_MS,
 			retryLaterMs: options.retryLaterMs ?? RETRY_LATER_MS,
 			fallbackAfterMs: options.fallbackAfterMs ?? FALLBACK_AFTER_MS,
-			now: options.now ?? Date.now
+			now: options.now ?? Date.now,
+			mailbox: options.mailbox ?? {},
+			placedMs: options.placedMs ?? PLACED_MS,
+			uploadRetryMs: options.uploadRetryMs ?? UPLOAD_RETRY_MS
 		};
 	}
 
@@ -85,6 +104,7 @@ export class CameraSession {
 			if (this.#generation !== generation) return;
 			this.#generation++;
 			void this.#stop();
+			this.#stopServer();
 		};
 	}
 
@@ -110,6 +130,7 @@ export class CameraSession {
 			this.status.total++;
 			void this.#drain(link, link.active);
 		}
+		void this.#upload();
 		return shot;
 	}
 
@@ -136,6 +157,151 @@ export class CameraSession {
 		this.shots = this.shots.filter((shot) => shot.id !== id);
 		this.status.pending = this.shots.length;
 		this.status.failed = this.status.failed.filter((failed) => failed !== id);
+		this.#countUploaded();
+	}
+
+	#countUploaded(): void {
+		this.status.uploaded = this.shots.filter((shot) => shot.uploaded !== undefined).length;
+	}
+
+	#stopServer(): void {
+		const server = this.#server;
+		this.#server = undefined;
+		if (!server) return;
+		server.closed = true;
+		for (const timer of server.timers) {
+			clearTimeout(timer);
+			clearInterval(timer);
+		}
+		server.timers.clear();
+	}
+
+	async #startServer(job: CameraJob, generation: number): Promise<void> {
+		if (!job.server || !mailbox.mailboxUploadAvailable(this.#options.mailbox)) return;
+		let keys: MirrorKeys;
+		try {
+			keys = await deriveKeys(job.token);
+		} catch {
+			return;
+		}
+		if (this.#generation !== generation) return;
+		const server: ServerLink = {
+			keys,
+			closed: false,
+			busy: false,
+			again: false,
+			timers: new Set()
+		};
+		this.#server = server;
+		this.status.server = 'ok';
+		server.timers.add(setInterval(() => void this.#collect(server), this.#options.placedMs));
+		void this.#upload();
+	}
+
+	#unreachable(server: ServerLink): void {
+		this.status.server = 'unreachable';
+		this.#stopServer();
+	}
+
+	async #upload(): Promise<void> {
+		const server = this.#server;
+		if (!server || server.closed) return;
+		if (server.busy) {
+			server.again = true;
+			return;
+		}
+		server.busy = true;
+		try {
+			do {
+				server.again = false;
+				for (const shot of this.shots.filter((candidate) => candidate.uploaded === undefined)) {
+					if (server.closed) return;
+					if (!this.shots.some((candidate) => candidate.id === shot.id)) continue;
+					const outcome = await this.#uploadShot(server, shot);
+					if (outcome === 'retry') {
+						const timer = setTimeout(() => {
+							server.timers.delete(timer);
+							void this.#upload();
+						}, this.#options.uploadRetryMs);
+						server.timers.add(timer);
+						return;
+					}
+					if (outcome === 'off') return;
+				}
+			} while (server.again && !server.closed);
+		} finally {
+			server.busy = false;
+		}
+	}
+
+	async #uploadShot(server: ServerLink, shot: Shot): Promise<'done' | 'retry' | 'off'> {
+		let id: string;
+		let sealed: Uint8Array<ArrayBuffer>;
+		try {
+			const body = new Uint8Array(await shot.blob.arrayBuffer());
+			sealed = await sealMessage(server.keys.key, this.jobId, {
+				frame: {
+					t: 'photo',
+					shot: {
+						hash: shot.hash,
+						room: shot.room,
+						stepKey: shot.stepKey,
+						takenAt: shot.takenAt,
+						size: body.byteLength
+					}
+				},
+				body
+			});
+			id = await sha256Hex(sealed);
+		} catch {
+			return 'done';
+		}
+		const result = await mailbox.upload(
+			this.jobId,
+			id,
+			sealed,
+			server.keys.mailbox,
+			this.#options.mailbox
+		);
+		if (server.closed) return 'off';
+		if (result.kind === 'network') return 'retry';
+		if (result.kind !== 'ok') {
+			this.#unreachable(server);
+			return 'off';
+		}
+		const index = this.shots.findIndex((candidate) => candidate.id === shot.id);
+		if (index < 0) return 'done';
+		const stored: Shot = { ...this.shots[index], uploaded: id };
+		try {
+			await storeShot(stored);
+		} catch {
+			return 'done';
+		}
+		const current = this.shots.findIndex((candidate) => candidate.id === shot.id);
+		if (current >= 0) this.shots[current] = stored;
+		else await deleteShot(shot.id).catch(() => {});
+		this.#countUploaded();
+		return 'done';
+	}
+
+	async #collect(server: ServerLink): Promise<void> {
+		if (server.closed || !this.shots.some((shot) => shot.uploaded !== undefined)) return;
+		const result = await mailbox.placed(this.jobId, server.keys.mailbox, this.#options.mailbox);
+		if (server.closed) return;
+		if (result.kind === 'ok') {
+			const fetched = new Set(result.value);
+			for (const shot of [...this.shots]) {
+				if (shot.uploaded !== undefined && fetched.has(shot.uploaded)) {
+					try {
+						await this.removeShot(shot.id);
+					} catch {
+						continue;
+					}
+				}
+			}
+		} else if (result.kind !== 'network') {
+			this.#unreachable(server);
+		}
 	}
 
 	async #begin(generation: number): Promise<void> {
@@ -150,6 +316,7 @@ export class CameraSession {
 		if (this.#generation !== generation) return;
 		this.shots = shots;
 		this.status.pending = shots.length;
+		this.#countUploaded();
 		if (!job || job.role !== 'camera') {
 			this.status.expired = true;
 			this.status.status = 'ended';
@@ -166,6 +333,7 @@ export class CameraSession {
 			this.status.status = 'ended';
 			return;
 		}
+		void this.#startServer(job, generation);
 		await this.#connect(job, generation);
 	}
 
@@ -201,6 +369,7 @@ export class CameraSession {
 			if (remaining > 0) this.#timer(link, expire, Math.min(remaining, MAX_TIMER_MS));
 			else {
 				this.status.expired = true;
+				this.#stopServer();
 				void this.#stop();
 			}
 		};
@@ -324,6 +493,7 @@ export class CameraSession {
 				// The flag is also kept in memory for this session.
 			}
 			this.status.revoked = true;
+			this.#stopServer();
 			await this.#stop();
 		} else if (frame.t === 'state') {
 			await this.#state(link, peer, frame.received);

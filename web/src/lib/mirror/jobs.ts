@@ -60,6 +60,7 @@ export async function saveCameraPart(
 			rooms: [...byIndex.values()].sort((a, b) => a.index - b.index)
 		};
 		if (existing?.revokedAt !== undefined) job.revokedAt = existing.revokedAt;
+		if (payload.server || existing?.server) job.server = true;
 		await db.mirrorJobs.put(job);
 		return job;
 	});

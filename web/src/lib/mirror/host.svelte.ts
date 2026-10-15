@@ -3,6 +3,7 @@ import type { Reencode } from '#lib/features/photos/reencode.ts';
 import { store } from '#lib/state/project.svelte.ts';
 import { openMessage, sealMessage, type Frame, type Message } from './frames.ts';
 import { createHostJob } from './job.ts';
+import * as mailbox from './mailbox.ts';
 import { deleteHostJob, getJob, listHostJobs, saveHostJob } from './jobs.ts';
 import { placeShot } from './place.ts';
 import { deriveKeys, type MirrorKeys } from './token.ts';
@@ -18,12 +19,15 @@ import type {
 } from './types.ts';
 
 const MAX_TIMER_MS = 2 ** 31 - 1;
+const POLL_MS = 20_000;
 
 export interface MirrorHostOptions {
 	open?: OpenTransport;
 	reencode?: Reencode;
 	appUrl?: () => string;
 	now?: () => number;
+	mailbox?: mailbox.MailboxEnv;
+	pollMs?: number;
 }
 
 interface Connection {
@@ -56,6 +60,10 @@ export class MirrorHost {
 	#connections = new Map<string, Connection>();
 	#queue: Promise<unknown> = Promise.resolve();
 	#generation = 0;
+	#pollStop: (() => void) | undefined;
+	#polling = new Set<string>();
+	#dead = new Set<string>();
+	#left = new Set<string>();
 	#options: Required<Omit<MirrorHostOptions, 'reencode'>> & { reencode?: Reencode };
 
 	constructor(options: MirrorHostOptions = {}) {
@@ -63,7 +71,9 @@ export class MirrorHost {
 			open: options.open ?? openNostrTransport,
 			reencode: options.reencode,
 			appUrl: options.appUrl ?? defaultAppUrl,
-			now: options.now ?? Date.now
+			now: options.now ?? Date.now,
+			mailbox: options.mailbox ?? {},
+			pollMs: options.pollMs ?? POLL_MS
 		};
 	}
 
@@ -81,6 +91,7 @@ export class MirrorHost {
 	start(projectId: string): () => void {
 		const generation = ++this.#generation;
 		void this.#shutdown();
+		this.#pollStop = this.#startPolling(generation);
 		void this.#begin(projectId, generation);
 		return () => {
 			if (this.#generation !== generation) return;
@@ -92,12 +103,15 @@ export class MirrorHost {
 	async create(roomIds: string[]): Promise<HostJob> {
 		const project = store.project;
 		if (!project) throw new Error('no project open');
+		const server = mailbox.mailboxAvailable(this.#options.mailbox);
 		const created = await createHostJob(
 			project,
 			roomIds,
 			this.#options.appUrl(),
-			this.#options.now()
+			this.#options.now(),
+			{ server }
 		);
+		if (server) created.server = await this.#register(created);
 		await saveHostJob(created);
 		this.jobs = [...this.jobs, created];
 		const job = this.jobs.find((candidate) => candidate.id === created.id) ?? created;
@@ -107,6 +121,7 @@ export class MirrorHost {
 
 	// Tells connected phones, then deletes the job.
 	async revoke(jobId: string): Promise<void> {
+		const server = this.jobs.find((job) => job.id === jobId)?.server;
 		const connection = this.#connections.get(jobId);
 		if (connection) {
 			if (connection.transport) {
@@ -122,6 +137,111 @@ export class MirrorHost {
 		await deleteHostJob(jobId);
 		this.jobs = this.jobs.filter((job) => job.id !== jobId);
 		delete this.#links[jobId];
+		if (server && mailbox.mailboxAvailable(this.#options.mailbox)) {
+			await mailbox.remove(jobId, this.#options.mailbox);
+		}
+	}
+
+	async #register(job: HostJob): Promise<boolean> {
+		try {
+			const keys = await deriveKeys(job.token);
+			const result = await mailbox.register(
+				job.id,
+				await mailbox.mailboxHash(keys.mailbox),
+				job.expiresAt,
+				this.#options.mailbox
+			);
+			return result.kind === 'ok';
+		} catch {
+			return false;
+		}
+	}
+
+	#startPolling(generation: number): () => void {
+		const run = () => {
+			if (this.#generation === generation) void this.#pollAll();
+		};
+		const visible = () => {
+			if (document.visibilityState === 'visible') run();
+		};
+		const timer = setInterval(run, this.#options.pollMs);
+		const canListen = typeof window !== 'undefined' && typeof document !== 'undefined';
+		if (canListen) {
+			window.addEventListener('online', run);
+			document.addEventListener('visibilitychange', visible);
+		}
+		return () => {
+			clearInterval(timer);
+			if (canListen) {
+				window.removeEventListener('online', run);
+				document.removeEventListener('visibilitychange', visible);
+			}
+		};
+	}
+
+	async #pollAll(): Promise<void> {
+		if (store.readOnly || !store.project) return;
+		if (!mailbox.mailboxAvailable(this.#options.mailbox)) return;
+		const generation = this.#generation;
+		for (const job of this.jobs) {
+			if (
+				job.server &&
+				job.projectId === store.project.id &&
+				job.revokedAt === undefined &&
+				job.expiresAt > this.#options.now() &&
+				!this.#dead.has(job.id) &&
+				!this.#polling.has(job.id)
+			) {
+				this.#polling.add(job.id);
+				void this.#pollJob(job, generation).finally(() => this.#polling.delete(job.id));
+			}
+		}
+	}
+
+	async #pollJob(job: HostJob, generation: number): Promise<void> {
+		const env = this.#options.mailbox;
+		const active = () =>
+			this.#generation === generation &&
+			!store.readOnly &&
+			store.project?.id === job.projectId &&
+			this.jobs.some((candidate) => candidate.id === job.id);
+		try {
+			const keys = await deriveKeys(job.token);
+			const listing = await mailbox.list(job.id, env);
+			if (listing.kind === 'gone' || listing.kind === 'notFound') this.#dead.add(job.id);
+			if (listing.kind !== 'ok') return;
+			for (const entry of listing.value) {
+				const mark = `${job.id}:${entry.id}`;
+				if (!active()) return;
+				if (this.#left.has(mark)) continue;
+				const fetched = await mailbox.download(job.id, entry.id, env);
+				if (fetched.kind === 'gone' || fetched.kind === 'notFound') continue;
+				if (fetched.kind !== 'ok') return;
+				const message = await openMessage(keys.key, job.id, fetched.value);
+				if (!message || message.frame.t !== 'photo' || !message.body) {
+					this.#left.add(mark);
+					continue;
+				}
+				if (!active()) return;
+				const { shot } = message.frame;
+				const result = await this.#place(
+					job,
+					{ room: shot.room, stepKey: shot.stepKey, takenAt: shot.takenAt, hash: shot.hash },
+					message.body
+				);
+				if (result.ok) {
+					await mailbox.discard(job.id, entry.id, env);
+				} else if (result.reason === 'readOnly' || result.reason === 'storage') {
+					return;
+				} else if (result.reason === 'unknownJob') {
+					return;
+				} else {
+					this.#left.add(mark);
+				}
+			}
+		} catch {
+			// The next round tries again.
+		}
 	}
 
 	// Fallback path: a photo file shared from the phone and dropped into the app.
@@ -163,6 +283,10 @@ export class MirrorHost {
 	}
 
 	async #shutdown(): Promise<void> {
+		this.#pollStop?.();
+		this.#pollStop = undefined;
+		this.#dead.clear();
+		this.#left.clear();
 		const open = [...this.#connections.values()];
 		this.jobs = [];
 		this.#links = {};

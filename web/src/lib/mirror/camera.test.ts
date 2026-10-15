@@ -331,3 +331,176 @@ describe('CameraSession end of job', () => {
 		expect(camera.status.status).toBe('ended');
 	});
 });
+
+function fakeMailbox() {
+	const state = {
+		shots: new Map<string, Uint8Array>(),
+		placed: [] as string[],
+		calls: [] as { method: string; path: string; headers: Headers; body?: unknown }[],
+		status: 0,
+		registerStatus: 201,
+		offline: false
+	};
+	const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+		const url = new URL(String(input));
+		const method = init?.method ?? 'GET';
+		state.calls.push({
+			method,
+			path: url.pathname,
+			headers: new Headers(init?.headers),
+			body: init?.body
+		});
+		if (state.offline) throw new TypeError('offline');
+		if (state.status) return new Response('', { status: state.status });
+		const [, , , , what, id] = url.pathname.split('/');
+		if (what === undefined)
+			return new Response('{}', { status: method === 'PUT' ? state.registerStatus : 200 });
+		if (what === 'placed') return Response.json({ placed: state.placed, expiresAt: 1 });
+		if (id === undefined) {
+			return Response.json(
+				[...state.shots].map(([key, bytes]) => ({ id: key, size: bytes.length }))
+			);
+		}
+		if (method === 'PUT') {
+			state.shots.set(id, new Uint8Array(init?.body as Uint8Array));
+			return new Response('{}', { status: 201 });
+		}
+		if (method === 'DELETE') {
+			state.placed.push(id);
+			state.shots.delete(id);
+			return new Response('{}');
+		}
+		return new Response((state.shots.get(id) as BodyInit | undefined) ?? '', {
+			status: state.shots.has(id) ? 200 : 404
+		});
+	});
+	const env = {
+		fetch: fetcher as unknown as typeof fetch,
+		free: false,
+		serverUrl: 'https://srv.test',
+		token: 'sync-token',
+		origin: 'https://srv.test'
+	};
+	const count = (method: string, part: string) =>
+		state.calls.filter((call) => call.method === method && call.path.includes(part)).length;
+	return { state, fetcher, env, count };
+}
+
+async function makeServerJob() {
+	await saveCameraPart(token, {
+		v: 1,
+		project: 'Wohnung',
+		lang: 'de',
+		expiresAt: Date.now() + 60_000,
+		server: true,
+		part: 0,
+		parts: 1,
+		rooms: []
+	});
+}
+
+describe('CameraSession mailbox', () => {
+	const fast = { placedMs: 40, uploadRetryMs: 60 };
+
+	it('uploads each photo sealed with the mailbox header and remembers the id', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		const shot = await camera.addShot(0, 'corner:A', await image('one'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		const [call] = mail.state.calls;
+		expect(call.method).toBe('PUT');
+		expect(call.headers.get('X-Roomx-Mailbox')).toBe(keys.mailbox);
+		const [[id, sealed]] = [...mail.state.shots];
+		expect(call.path).toBe(`/api/mirror/${keys.jobId}/shots/${id}`);
+		expect(id).toBe(await sha256Hex(sealed));
+		const message = await openMessage(keys.key, keys.jobId, new Uint8Array(sealed));
+		expect(message?.frame).toMatchObject({ t: 'photo', shot: { hash: shot.hash, room: 0 } });
+		expect((await listShots(keys.jobId))[0].uploaded).toBe(id);
+		expect(camera.shots[0].uploaded).toBe(id);
+	});
+
+	it('deletes locally only after the computer fetched the photo', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		await camera.addShot(0, 'corner:A', await image('keep'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		await tick(150);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+		expect(mail.count('GET', '/placed')).toBeGreaterThan(0);
+		mail.state.placed.push([...mail.state.shots.keys()][0]);
+		await until(async () => expect(await listShots(keys.jobId)).toHaveLength(0));
+		expect(camera.shots).toEqual([]);
+		expect(camera.status.uploaded).toBe(0);
+	});
+
+	it('uploads photos that were taken earlier when the page opens', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		const first = session({ ...fast, mailbox: { ...mail.env, free: true } });
+		run(first);
+		await first.addShot(0, 'corner:A', await image('old'));
+		cleanup.pop()?.();
+		expect(mail.fetcher).not.toHaveBeenCalled();
+		const second = session({ ...fast, mailbox: mail.env });
+		run(second);
+		await until(() => expect(second.status.uploaded).toBe(1));
+	});
+
+	it('switches off on 410 until the next start', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		mail.state.status = 410;
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		await camera.addShot(0, 'corner:A', await image('gone'));
+		await until(() => expect(camera.status.server).toBe('unreachable'));
+		const calls = mail.fetcher.mock.calls.length;
+		await camera.addShot(0, 'corner:B', await image('gone2'));
+		await tick(150);
+		expect(mail.fetcher.mock.calls.length).toBe(calls);
+		expect(camera.shots).toHaveLength(2);
+		expect(camera.status.uploaded).toBe(0);
+	});
+
+	it('retries after a network failure', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		mail.state.offline = true;
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		await camera.addShot(0, 'corner:A', await image('net'));
+		await until(() => expect(mail.fetcher.mock.calls.length).toBeGreaterThan(1));
+		expect(camera.status.server).toBe('ok');
+		mail.state.offline = false;
+		await until(() => expect(camera.status.uploaded).toBe(1));
+	});
+
+	it('makes no request in the free edition or for jobs without the flag', async () => {
+		const mail = fakeMailbox();
+		await makeServerJob();
+		const free = session({ ...fast, mailbox: { ...mail.env, free: true } });
+		run(free);
+		await tick(30);
+		await free.addShot(0, 'corner:A', await image('free'));
+		await tick(150);
+		expect(free.status.server).toBe('off');
+		cleanup.pop()?.();
+		await db.mirrorJobs.clear();
+		await makeJob();
+		const plain = session({ ...fast, mailbox: mail.env });
+		run(plain);
+		await tick(30);
+		await plain.addShot(0, 'corner:B', await image('plain'));
+		await tick(150);
+		expect(plain.status.server).toBe('off');
+		expect(mail.fetcher).not.toHaveBeenCalled();
+	});
+});

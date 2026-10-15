@@ -20,6 +20,8 @@ export const messages = defineMessages({
 		statusAllSent: 'Alle Fotos übertragen',
 		statusOffline: 'Offline: Fotos bleiben auf dem Handy',
 		statusEnded: 'Auftrag beendet',
+		serverUploaded: '{n} Fotos auf dem Server, der PC holt sie ab',
+		serverUnreachable: 'Server nicht erreichbar',
 		askTitle: 'Foto-Auftrag bereit',
 		askText:
 			'{rooms} Räume warten auf Fotos. Du kannst jetzt fotografieren oder später weitermachen.',
@@ -109,6 +111,8 @@ export const messages = defineMessages({
 		statusAllSent: 'All photos transferred',
 		statusOffline: 'Offline: photos stay on this phone',
 		statusEnded: 'Job ended',
+		serverUploaded: '{n} photos on the server, the computer will fetch them',
+		serverUnreachable: 'Server not reachable',
 		askTitle: 'Photo job ready',
 		askText: '{rooms} rooms are waiting for photos. You can take them now or continue later.',
 		askNow: 'Take photos now',

@@ -247,6 +247,21 @@
 					>
 						{statusText}
 					</span>
+					{#if status.server === 'unreachable'}
+						<span
+							class="inline-flex min-h-8 items-center rounded-full bg-warning-soft px-3 text-sm font-semibold"
+							data-testid="camera-server"
+						>
+							{t(messages, 'serverUnreachable')}
+						</span>
+					{:else if status.server === 'ok' && status.uploaded > 0}
+						<span
+							class="inline-flex min-h-8 items-center rounded-full bg-surface-2 px-3 text-sm font-semibold"
+							data-testid="camera-server"
+						>
+							{t(messages, 'serverUploaded', { n: status.uploaded })}
+						</span>
+					{/if}
 					{#if jobState !== 'ended'}
 						<span class="text-sm text-muted">
 							{t(messages, 'expiresIn', { hours: hoursLeft(job.expiresAt, now) })}
