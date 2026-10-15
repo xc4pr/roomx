@@ -23,7 +23,9 @@ export const C = {
 	mustard: '#d4a72c',
 	pink: '#d9a5a5',
 	brass: '#b59a4a',
-	clear: '#d8e4e8'
+	clear: '#d8e4e8',
+	greyGreen: '#86937f',
+	lightBrown: '#a7845c'
 } as const;
 
 export const cm = (w: number, d: number, h: number): Dims => ({

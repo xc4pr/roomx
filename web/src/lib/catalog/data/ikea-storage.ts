@@ -678,6 +678,21 @@ export const ikeaStorage: CatalogEntry[] = [
 		verified: true
 	}),
 	ikea({
+		id: 'ikea-ivar-174x30x179',
+		series: 'IVAR',
+		de: 'IVAR 2 Elem/Böden/Schrank 174x30x179 cm',
+		en: 'IVAR 2 sections/shelves/cabinet 174x30x179 cm',
+		category: 'shelf',
+		model: 'shelf',
+		dims: cm(174, 30, 179),
+		colors: [C.birch],
+		front: 700,
+		priceChf: 249,
+		url: 'https://www.ikea.com/ch/de/p/ivar-2-elem-boeden-schrank-kiefer-s39403939/',
+		articleNo: '394.039.39',
+		verified: true
+	}),
+	ikea({
 		id: 'ikea-hemnes-dresser-3-108x50x96',
 		series: 'HEMNES',
 		de: 'HEMNES Kommode mit 3 Schubladen 108x50x96 cm',
@@ -725,13 +740,17 @@ export const ikeaStorage: CatalogEntry[] = [
 	ikea({
 		id: 'ikea-hemnes-nightstand-46x35x70',
 		series: 'HEMNES',
-		de: 'HEMNES Nachttisch 46x35x70 cm',
+		de: 'HEMNES Ablagetisch 46x35x70 cm',
 		en: 'HEMNES bedside table 46x35x70 cm',
 		category: 'nightstand',
 		model: 'nightstand',
 		dims: cm(46, 35, 70),
-		colors: [C.white, C.blackBrown],
-		front: 600
+		colors: [C.greyGreen, C.lightBrown],
+		front: 600,
+		priceChf: 49.95,
+		url: 'https://www.ikea.com/ch/de/p/hemnes-ablagetisch-graugruen-hellbraun-lasiert-50610739/',
+		articleNo: '506.107.39',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-hemnes-bookcase-90x37x197',
@@ -817,6 +836,21 @@ export const ikeaStorage: CatalogEntry[] = [
 		dims: cm(160, 48, 78),
 		colors: [C.white, C.blackBrown, C.birch],
 		front: 900
+	}),
+	ikea({
+		id: 'ikea-brimnes-dresser-3-78x46x95',
+		series: 'BRIMNES',
+		de: 'BRIMNES Kommode mit 3 Schubladen 78x46x95 cm',
+		en: 'BRIMNES chest of 3 drawers 78x46x95 cm',
+		category: 'dresser',
+		model: 'dresser',
+		dims: cm(78, 46, 95),
+		colors: [C.white, C.clear],
+		front: 900,
+		priceChf: 99.95,
+		url: 'https://www.ikea.com/ch/de/p/brimnes-kommode-mit-3-schubladen-weiss-frostglas-00392041/',
+		articleNo: '003.920.41',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-brimnes-dresser-4-78x46x124',
