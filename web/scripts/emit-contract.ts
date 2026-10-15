@@ -13,7 +13,10 @@ mkdirSync(target, { recursive: true });
 const write = (name: string, data: unknown) =>
 	writeFileSync(join(target, name), `${JSON.stringify(data, null, '\t')}\n`);
 
-write('catalog.json', CatalogSchema.parse(catalog));
+write(
+	'catalog.json',
+	CatalogSchema.parse(catalog).map((entry) => ({ ...entry, look: undefined }))
+);
 write('catalog-aliases.json', catalogAliases);
 write('plan.schema.json', planJsonSchema());
 write('export.schema.json', z.toJSONSchema(ExportSchema));

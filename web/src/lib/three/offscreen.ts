@@ -132,7 +132,8 @@ export async function renderCatalogThumbnail(entry: CatalogEntry, size = 160): P
 		const object = buildFurniture({
 			model: entry.model,
 			dims: entry.dims,
-			color: entry.colors[0]
+			color: entry.colors[0],
+			...(entry.look ? { look: entry.look } : {})
 		});
 		const rig = createRig(object, { shadows: false, background: false });
 		try {

@@ -10,6 +10,7 @@ import { ikeaStorage } from './data/ikea-storage.ts';
 import { jyskFurniture } from './data/jysk.ts';
 import { lighting } from './data/lighting.ts';
 import { tchiboCn3 } from './data/tchibo.ts';
+import { withLooks } from './data/looks.ts';
 import { withPrices } from './data/prices.ts';
 import { catalogAliases } from './data/aliases.ts';
 
@@ -17,18 +18,20 @@ export { catalogAliases };
 
 export const CATALOG_PRICES_AS_OF = '2026-10';
 
-export const catalog: readonly CatalogEntry[] = withPrices([
-	...ikeaStorage,
-	...ikeaBeds,
-	...ikeaSeating,
-	...ikeaOffice,
-	...ikeaDining,
-	...genericFurniture,
-	...genericDevices,
-	...decor,
-	...lighting,
-	...tchiboCn3,
-	...jyskFurniture
-]);
+export const catalog: readonly CatalogEntry[] = withLooks(
+	withPrices([
+		...ikeaStorage,
+		...ikeaBeds,
+		...ikeaSeating,
+		...ikeaOffice,
+		...ikeaDining,
+		...genericFurniture,
+		...genericDevices,
+		...decor,
+		...lighting,
+		...tchiboCn3,
+		...jyskFurniture
+	])
+);
 
 export const lookup = catalogLookup(catalog, catalogAliases);
