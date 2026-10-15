@@ -421,3 +421,32 @@ describe('every stage 3 look field changes the model', () => {
 function mirrorDims(name: string): Dims {
 	return name === 'mirror shape rect' ? { w: 500, d: 25, h: 500 } : { w: 600, d: 25, h: 900 };
 }
+
+describe('stage 3 defaults of described models', () => {
+	function colors(object: Object3D): Set<string> {
+		const found = new Set<string>();
+		object.traverse((node) => {
+			if (!(node instanceof Mesh)) return;
+			const list = Array.isArray(node.material) ? node.material : [node.material];
+			for (const m of list) found.add(m.color.getHexString());
+		});
+		return found;
+	}
+
+	it('a desk with a named stand gets drawers only when the look counts them', () => {
+		const dims = dimsOf('desk');
+		for (const legs of ['four', 'tframe', 'trestle'] as const) {
+			const plain = fingerprint(build('desk', dims, { legs }));
+			expect(plain, legs).toEqual(fingerprint(build('desk', dims, { legs, drawers: 0 })));
+			expect(plain, legs).not.toEqual(fingerprint(build('desk', dims, { legs, drawers: 2 })));
+		}
+	});
+
+	it('wooden legs of a described table share the main colour', () => {
+		for (const model of ['table', 'roundTable', 'desk'] as const) {
+			const look: Look = model === 'roundTable' ? { legs: 'four' } : { legs: 'four', drawers: 0 };
+			expect(colors(build(model, dimsOf(model), look)).size, model).toBe(1);
+			expect(colors(build(model, dimsOf(model), {})).size, model).toBeGreaterThan(1);
+		}
+	});
+});

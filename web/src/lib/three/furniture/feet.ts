@@ -28,11 +28,14 @@ export function footSpec(
 }
 
 // Wood or metal material of a stand: `baseMaterial` and `frameColor` of the look, else the given defaults.
-export function standMaterial(look: Look, p: Palette, defaultMetal: boolean): MeshStandardMaterial {
+export function standMaterial(
+	look: Look,
+	p: Palette,
+	defaultMetal: boolean,
+	wood = p.darkWood
+): MeshStandardMaterial {
 	const metal = look.baseMaterial ? look.baseMaterial === 'metal' : defaultMetal;
-	return metal
-		? mat('metal', look.frameColor ?? p.metal)
-		: mat('wood', look.frameColor ?? p.darkWood);
+	return metal ? mat('metal', look.frameColor ?? p.metal) : mat('wood', look.frameColor ?? wood);
 }
 
 export interface Footprint {

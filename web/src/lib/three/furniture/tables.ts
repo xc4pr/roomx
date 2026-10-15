@@ -36,6 +36,12 @@ const RECT_LEGS: readonly Leg[] = [
 const METAL_LEGS: readonly Leg[] = ['sled', 'tframe'];
 const SHELF_LEGS: readonly Leg[] = ['four', 'trestle', 'sled', 'panel'];
 
+// A described table has its frame in the main colour (`accentColor` is the top when it differs);
+// without a look the wooden legs stay dark as before.
+function frameWood(look: Look, p: Palette): string {
+	return Object.keys(look).length > 0 ? p.main : p.darkWood;
+}
+
 function legKind(look: Look, fallback: Leg): Leg {
 	return look.legs && RECT_LEGS.includes(look.legs) ? look.legs : fallback;
 }
@@ -196,7 +202,7 @@ const table: Build = (w, d, h, p, look = {}) => {
 	const g = new Group();
 	const top = mat('wood', look.accentColor ?? p.main);
 	const kind = legKind(look, 'four');
-	const legs = standMaterial(look, p, METAL_LEGS.includes(kind));
+	const legs = standMaterial(look, p, METAL_LEGS.includes(kind), frameWood(look, p));
 	const t = Math.min(0.035, h * 0.12);
 	const under = h - t;
 	const lift = wheelLift(look, under);
@@ -210,7 +216,7 @@ const table: Build = (w, d, h, p, look = {}) => {
 const roundTable: Build = (w, d, h, p, look = {}) => {
 	const g = new Group();
 	const top = mat('wood', look.accentColor ?? p.main);
-	const base = standMaterial(look, p, false);
+	const base = standMaterial(look, p, false, frameWood(look, p));
 	const t = Math.min(0.035, h * 0.12);
 	cyl(g, top, w, t, d, 0, h - t, 0, 1, 28);
 	if (look.legs === 'four') {
@@ -236,8 +242,9 @@ const roundTable: Build = (w, d, h, p, look = {}) => {
 	return g;
 };
 
+// A look that names the stand also names the drawers, so none are added by default.
 function deskDrawers(look: Look, w: number): { block: number; flat: number } {
-	const n = look.drawers ?? (w >= 1.1 ? 2 : 0);
+	const n = look.drawers ?? (look.legs ? 0 : w >= 1.1 ? 2 : 0);
 	if (n >= 2 && w >= 1.1) return { block: n, flat: 0 };
 	return { block: 0, flat: n };
 }
@@ -246,7 +253,7 @@ const desk: Build = (w, d, h, p, look = {}) => {
 	const g = new Group();
 	const top = mat('wood', look.accentColor ?? p.main);
 	const kind = legKind(look, 'panel');
-	const legs = standMaterial(look, p, METAL_LEGS.includes(kind));
+	const legs = standMaterial(look, p, METAL_LEGS.includes(kind), frameWood(look, p));
 	const t = Math.min(0.03, h * 0.06);
 	box(g, top, w, t, d, 0, h - t, 0);
 	const under = h - t;
