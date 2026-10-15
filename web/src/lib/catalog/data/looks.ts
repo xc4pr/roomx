@@ -1,10 +1,9 @@
 import type { CatalogEntry, Look } from '#lib/core/catalog.ts';
+import { entryLooks, seriesLooks } from './lookData.ts';
 
-// Keyed by `brand|series|model`; applies to every entry of that series and model type.
-export const seriesLooks: Record<string, Look> = {};
+export { entryLooks, seriesLooks };
 
-// Keyed by entry id; fields replace those of the series look.
-export const entryLooks: Record<string, Look> = {};
+// Series looks are keyed by `brand|series|model`; entry looks by id and replace fields of the series look.
 
 export const lookKey = (entry: Pick<CatalogEntry, 'brand' | 'series' | 'model'>): string =>
 	`${entry.brand}|${entry.series ?? ''}|${entry.model}`;
