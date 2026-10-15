@@ -6,6 +6,7 @@ import {
 	type StoredProject
 } from './helpers/app.ts';
 import { test, expect } from './helpers/fixtures.ts';
+import { budgetText } from './helpers/prices.ts';
 
 const BED = 'ikea-malm-bed-160x200';
 const DESK = 'generic-desk-160x80';
@@ -39,7 +40,7 @@ test('Möbel einrichten, bewegen, drehen, löschen, Budget und Variante kopieren
 	);
 	await expect(budget).not.toHaveText(before);
 	const afterDesk = await budget.innerText();
-	expect(afterDesk).toContain('250');
+	await expect(budget).toHaveText(budgetText([DESK]));
 
 	await page.locator(`[data-catalog-id="${BED}"]`).click();
 	const second = await waitForProject(
@@ -49,7 +50,7 @@ test('Möbel einrichten, bewegen, drehen, löschen, Budget und Variante kopieren
 		'Bett'
 	);
 	await expect(budget).not.toHaveText(afterDesk);
-	await expect(budget).toContainText('495');
+	await expect(budget).toHaveText(budgetText([DESK, BED]));
 	const bed = active(second)!.items.find((item) => item.catalogId === BED)!;
 	const desk = active(first)!.items[0];
 	expect(bed.roomId).toBe(second.rooms[0].id);
@@ -118,12 +119,11 @@ test('Möbel einrichten, bewegen, drehen, löschen, Budget und Variante kopieren
 	expect(
 		trimmed.variants.find((variant) => variant.id !== trimmed.activeVariantId)!.items
 	).toHaveLength(2);
-	await expect(budget).toContainText('250');
-	await expect(budget).not.toContainText('495');
+	await expect(budget).toHaveText(budgetText([DESK]));
 
 	await page.getByTestId('undo').click();
 	await waitForProject(page, id, (p) => active(p)!.items.length === 2, 'Löschen rückgängig');
-	await expect(budget).toContainText('495');
+	await expect(budget).toHaveText(budgetText([DESK, BED]));
 	const final = (await readProject(page, id))!;
 	expect(final.variants).toHaveLength(2);
 });

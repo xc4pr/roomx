@@ -14,7 +14,8 @@ import { canvasStats } from './helpers/canvas.ts';
 import { contract } from './helpers/contract.ts';
 import { exportPackage, PACKAGE_FILES, pdfPages } from './helpers/export.ts';
 import { test, expect } from './helpers/fixtures.ts';
-import { buildPlan, EXPECTED, planMessage } from './helpers/plan.ts';
+import { chf, catalogTotal } from './helpers/prices.ts';
+import { buildPlan, EXPECTED, PLAN_ITEMS, planMessage } from './helpers/plan.ts';
 import { validate } from './helpers/schema.ts';
 
 const L = { a: 5400, b: 4200, c: 2600, d: 2200 };
@@ -108,7 +109,9 @@ test('Projekt anlegen bis Plan-Import und Re-Export', async ({ page }, testInfo)
 		?.map(Number);
 	expect(summary?.slice(0, -1).reduce((sum, n) => sum + n, 0)).toBe(4);
 	expect(summary?.at(-1)).toBe(1);
-	await expect(page.getByTestId('import-total')).toContainText('865');
+	await expect(page.getByTestId('import-total')).toContainText(
+		chf(catalogTotal(Object.values(PLAN_ITEMS).map((item) => item.catalogId)).sum)
+	);
 	await expect(page.getByTestId('import-conflicts')).toHaveCount(0);
 	await expect(page.getByTestId('import-apply')).toBeEnabled();
 	await page.getByTestId('import-apply').click();
