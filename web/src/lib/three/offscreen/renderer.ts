@@ -2,12 +2,13 @@ import { WebGLRenderer } from 'three';
 
 type AnyCanvas = HTMLCanvasElement | OffscreenCanvas;
 
-const IDLE_MS = 4000;
+const IDLE_MS = 3000;
 
 let shared: WebGLRenderer | null = null;
 let chain: Promise<unknown> = Promise.resolve();
 let pending = 0;
 let timer: ReturnType<typeof setTimeout> | undefined;
+let viewers = 0;
 
 export function createCanvas(width: number, height: number): AnyCanvas {
 	if (typeof document !== 'undefined') {
@@ -41,15 +42,43 @@ function release(): void {
 	shared = null;
 }
 
+export function viewerOpened(): void {
+	viewers++;
+	if (pending > 0) return;
+	if (timer) clearTimeout(timer);
+	release();
+}
+
+export function viewerClosed(): void {
+	viewers = Math.max(0, viewers - 1);
+}
+
+function contextLost(): boolean {
+	return shared?.getContext().isContextLost() ?? false;
+}
+
+async function attempt<T>(task: (renderer: WebGLRenderer) => T | Promise<T>): Promise<T> {
+	try {
+		const result = await task(acquire());
+		if (!contextLost()) return result;
+	} catch (error) {
+		if (!contextLost()) throw error;
+	}
+	release();
+	return task(acquire());
+}
+
 export function withRenderer<T>(task: (renderer: WebGLRenderer) => T | Promise<T>): Promise<T> {
 	pending++;
 	if (timer) clearTimeout(timer);
-	const run = chain.then(() => task(acquire()));
+	const run = chain.then(() => attempt(task));
 	chain = run
 		.catch(() => undefined)
 		.then(() => {
 			pending--;
-			if (pending === 0) timer = setTimeout(release, IDLE_MS);
+			if (pending > 0) return;
+			if (viewers > 0) release();
+			else timer = setTimeout(release, IDLE_MS);
 		});
 	return run;
 }

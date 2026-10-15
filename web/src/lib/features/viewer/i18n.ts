@@ -29,7 +29,14 @@ export const messages = defineMessages({
 		webglTitle: '3D ist hier nicht verfügbar',
 		webglText:
 			'Dein Browser kann die 3D-Grafik nicht starten. Lade die Seite neu oder probiere einen anderen Browser.',
-		canvasLabel: '3D-Ansicht der Wohnung'
+		canvasLabel: '3D-Ansicht der Wohnung',
+		reload: 'Neu laden',
+		contextLostTitle: 'Die 3D-Ansicht wird wiederhergestellt',
+		contextLostText:
+			'Dein Gerät hat die Grafik kurz freigegeben. Einen Moment, die Ansicht baut sich gleich neu auf.',
+		contextFailedTitle: 'Die 3D-Ansicht konnte nicht wiederhergestellt werden',
+		contextFailedText:
+			'Deine Pläne sind gesichert. Lade die 3D-Ansicht neu. Hilft das nicht, schliesse andere Tabs oder Apps und versuche es noch einmal.'
 	},
 	en: {
 		room: 'Room',
@@ -58,6 +65,13 @@ export const messages = defineMessages({
 		emptyText: 'Add a room in the plan and it will show up here in 3D.',
 		webglTitle: '3D is not available here',
 		webglText: 'Your browser could not start 3D graphics. Reload the page or try another browser.',
-		canvasLabel: '3D view of the apartment'
+		canvasLabel: '3D view of the apartment',
+		reload: 'Reload',
+		contextLostTitle: 'Restoring the 3D view',
+		contextLostText:
+			'Your device briefly released the graphics. One moment, the view will rebuild itself.',
+		contextFailedTitle: 'The 3D view could not be restored',
+		contextFailedText:
+			'Your plans are safe. Reload the 3D view. If that does not help, close other tabs or apps and try again.'
 	}
 });

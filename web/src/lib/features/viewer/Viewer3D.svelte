@@ -9,6 +9,7 @@
 	import Lightbulb from '@lucide/svelte/icons/lightbulb';
 	import PackageOpen from '@lucide/svelte/icons/package-open';
 	import PanelTop from '@lucide/svelte/icons/panel-top';
+	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 	import Share2 from '@lucide/svelte/icons/share-2';
 	import Slice from '@lucide/svelte/icons/slice';
 	import SquareDashed from '@lucide/svelte/icons/square-dashed';
@@ -20,6 +21,8 @@
 	import { store } from '#lib/state/project.svelte.ts';
 	import { ui } from '#lib/state/ui.svelte.ts';
 	import { createViewer } from '#lib/three/viewer.ts';
+	import type { ContextPhase } from '#lib/three/viewer/context.ts';
+	import type { QualityTier } from '#lib/three/viewer/quality.ts';
 	import type {
 		CameraMode,
 		SceneContent,
@@ -30,6 +33,7 @@
 	import Button from '#lib/ui/Button.svelte';
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
+	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import Select from '#lib/ui/Select.svelte';
 	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
 	import { PHONE_PORTRAIT_QUERY } from '#lib/ui/layout.ts';
@@ -67,6 +71,9 @@
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let viewer = $state.raw<SceneViewer | null>(null);
 	let failed = $state(false);
+	let contextPhase = $state<ContextPhase>('ok');
+	let quality = $state<QualityTier>(0);
+	let attempt = $state(0);
 	let wallMode = $state<WallMode>('cutaway');
 	let ceiling = $state(false);
 	let lights = $state(false);
@@ -152,18 +159,27 @@
 		let created: SceneViewer | null = null;
 		try {
 			created = untrack(() =>
-				createViewer(element, {
-					wallMode,
-					ceiling,
-					electrical: ui.electricalLayer,
-					lightsOn: lights
-				})
+				createViewer(
+					element,
+					{
+						wallMode,
+						ceiling,
+						electrical: ui.electricalLayer,
+						lightsOn: lights
+					},
+					{
+						onContext: (phase) => (contextPhase = phase),
+						onQuality: (tier) => (quality = tier)
+					}
+				)
 			);
 		} catch {
 			failed = true;
 			return;
 		}
 		failed = false;
+		contextPhase = 'ok';
+		quality = 0;
 		viewer = created;
 		untrack(() => onready?.(created));
 		return () => {
@@ -274,6 +290,12 @@
 		};
 	});
 
+	function reload3d(): void {
+		failed = false;
+		contextPhase = 'ok';
+		attempt += 1;
+	}
+
 	function setCameraMode(mode: CameraMode): void {
 		cameraMode = mode;
 		viewer?.setCameraMode(mode);
@@ -291,14 +313,23 @@
 	}
 </script>
 
-<div class="relative size-full overflow-hidden bg-bg" data-testid="viewer3d">
+<div
+	class="relative size-full overflow-hidden bg-bg"
+	data-testid="viewer3d"
+	data-quality={quality}
+	data-context={contextPhase}
+>
 	{#if failed}
 		<EmptyState
 			class="h-full"
 			icon={Box}
 			title={t(messages, 'webglTitle')}
 			description={t(messages, 'webglText')}
-		/>
+		>
+			<Button icon={RefreshCw} onclick={reload3d} data-testid="viewer-retry">
+				{t(messages, 'reload')}
+			</Button>
+		</EmptyState>
 	{:else if store.project && rooms.length === 0}
 		<EmptyState
 			class="h-full"
@@ -307,12 +338,40 @@
 			description={t(messages, 'emptyText')}
 		/>
 	{:else}
-		<canvas
-			bind:this={canvas}
-			data-testid="canvas3d"
-			aria-label={t(messages, 'canvasLabel')}
-			class="absolute inset-0 size-full touch-none outline-none select-none"
-		></canvas>
+		{#key attempt}
+			<canvas
+				bind:this={canvas}
+				data-testid="canvas3d"
+				aria-label={t(messages, 'canvasLabel')}
+				class="absolute inset-0 size-full touch-none outline-none select-none"
+			></canvas>
+		{/key}
+
+		{#if contextPhase !== 'ok'}
+			<div
+				class="absolute inset-0 z-20 flex items-center justify-center bg-bg/85 p-6 backdrop-blur-sm"
+				role={contextPhase === 'failed' ? 'alert' : 'status'}
+				data-testid="viewer-context-{contextPhase}"
+			>
+				<div class="flex max-w-sm animate-fade-in flex-col items-center gap-4 text-center">
+					{#if contextPhase === 'lost'}
+						<div class="text-accent"><ProgressRing size={40} /></div>
+						<div>
+							<h2 class="text-xl font-bold tracking-tight">{t(messages, 'contextLostTitle')}</h2>
+							<p class="mt-1.5 text-base text-muted">{t(messages, 'contextLostText')}</p>
+						</div>
+					{:else}
+						<div>
+							<h2 class="text-xl font-bold tracking-tight">{t(messages, 'contextFailedTitle')}</h2>
+							<p class="mt-1.5 text-base text-muted">{t(messages, 'contextFailedText')}</p>
+						</div>
+						<Button icon={RefreshCw} onclick={reload3d} data-testid="viewer-retry">
+							{t(messages, 'reload')}
+						</Button>
+					{/if}
+				</div>
+			</div>
+		{/if}
 
 		{#if toolbar && viewer}
 			<div

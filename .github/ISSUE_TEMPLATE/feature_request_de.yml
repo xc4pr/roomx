@@ -1,0 +1,35 @@
+name: Wunsch oder Idee (Deutsch)
+description: Du wünschst dir etwas oder hast eine Idee.
+title: "[Wunsch] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deine Idee. Neue Wünsche werden gesammelt und nicht sofort umgesetzt. Diese Seite ist öffentlich: bitte keine privaten Angaben.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Was möchtest du erreichen?
+      description: Beschreibe die Aufgabe oder das Problem, nicht nur die Lösung.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Wie stellst du dir das vor?
+    validations:
+      required: false
+  - type: dropdown
+    id: device
+    attributes:
+      label: Auf welchem Gerät brauchst du es vor allem?
+      options:
+        - iPhone
+        - iPad
+        - Android-Handy
+        - Android-Tablet
+        - Computer (Windows, Mac oder Linux)
+        - Egal
+    validations:
+      required: false

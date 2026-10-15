@@ -1,0 +1,61 @@
+name: Report a bug (English)
+description: Something does not work as expected.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. This page is public. Please do not include private details (addresses, names) and do not upload private photos. Crop screenshots if needed.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Briefly describe what did not work.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can the bug be reproduced?
+      description: The individual steps, ideally numbered.
+      placeholder: |
+        1. Open a project
+        2. Tap a room
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: false
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: 'In roomx, open the settings, tap "Copy diagnostics" and paste the result here. It only contains technical details, no project data, names or photos.'
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Which device was it on?
+      options:
+        - iPhone
+        - iPad
+        - Android phone
+        - Android tablet
+        - Computer (Windows, Mac or Linux)
+        - Other
+    validations:
+      required: false
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Image or screen recording
+      description: Optional. Please no private photos.
+    validations:
+      required: false

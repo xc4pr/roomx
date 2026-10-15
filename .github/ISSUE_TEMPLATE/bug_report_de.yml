@@ -1,0 +1,61 @@
+name: Fehler melden (Deutsch)
+description: Etwas funktioniert nicht wie erwartet.
+title: "[Fehler] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deine Meldung. Diese Seite ist öffentlich. Schreibe bitte keine privaten Angaben (Adressen, Namen) und lade keine privaten Fotos hoch. Schneide Screenshots zu, wenn nötig.
+  - type: textarea
+    id: what
+    attributes:
+      label: Was ist passiert?
+      description: Beschreibe kurz, was nicht funktioniert hat.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Wie lässt sich der Fehler nachstellen?
+      description: Die einzelnen Schritte, am besten nummeriert.
+      placeholder: |
+        1. Projekt öffnen
+        2. Raum antippen
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Was hast du erwartet?
+    validations:
+      required: false
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnose
+      description: "In roomx unter Einstellungen auf «Diagnose kopieren» tippen und hier einfügen. Sie enthält nur technische Angaben, keine Projektdaten, Namen oder Fotos."
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Auf welchem Gerät ist es passiert?
+      options:
+        - iPhone
+        - iPad
+        - Android-Handy
+        - Android-Tablet
+        - Computer (Windows, Mac oder Linux)
+        - Anderes
+    validations:
+      required: false
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Bild oder Bildschirmaufnahme
+      description: Optional. Bitte keine privaten Fotos.
+    validations:
+      required: false

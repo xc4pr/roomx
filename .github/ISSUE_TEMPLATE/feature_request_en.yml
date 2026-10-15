@@ -1,0 +1,35 @@
+name: Request or idea (English)
+description: You wish for something or have an idea.
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your idea. New requests are collected and not built right away. This page is public: please do not include private details.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you want to achieve?
+      description: Describe the task or the problem, not only the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How do you picture it?
+    validations:
+      required: false
+  - type: dropdown
+    id: device
+    attributes:
+      label: On which device do you need it most?
+      options:
+        - iPhone
+        - iPad
+        - Android phone
+        - Android tablet
+        - Computer (Windows, Mac or Linux)
+        - Does not matter
+    validations:
+      required: false

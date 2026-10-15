@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: roomx öffnen / Open roomx
+    url: https://xc4pr.github.io/roomx/
+    about: Die App im Browser starten. Unter Einstellungen findest du Version und Diagnose. / Start the app in your browser. Version and diagnostics are in the settings.

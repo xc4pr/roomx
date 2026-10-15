@@ -66,6 +66,16 @@ import {
 	type SightPoint
 } from './viewer/cutaway.ts';
 import { readCssColor } from './viewer/color.ts';
+import {
+	contextLost,
+	contextRestored,
+	contextTimeout,
+	initialContext,
+	lossIsRepeating,
+	remainingMs,
+	type ContextPhase,
+	type ContextState
+} from './viewer/context.ts';
 import { clamp01, easeInCubic, easeOutBack, easeOutCubic } from './viewer/easing.ts';
 import { bestFitPose, shapeOfFootprints, type CameraPose, type FitShape } from './viewer/fit.ts';
 import {
@@ -79,6 +89,15 @@ import {
 	type RoomFrame,
 	roomFrames
 } from './viewer/layout.ts';
+import { viewerClosed, viewerOpened } from './offscreen/renderer.ts';
+import {
+	isWeakDevice,
+	pixelRatioFor,
+	profileFor,
+	QualityGovernor,
+	type DeviceHints,
+	type QualityTier
+} from './viewer/quality.ts';
 import {
 	approach,
 	bestStandPoint,
@@ -96,6 +115,14 @@ export interface ViewerStats {
 	programs: number;
 	drawCalls: number;
 	triangles: number;
+	tier: QualityTier;
+	pixelRatio: number;
+	shadows: boolean;
+}
+
+export interface ViewerHooks {
+	onContext?(phase: ContextPhase): void;
+	onQuality?(tier: QualityTier): void;
 }
 
 export interface RoomxViewer extends SceneViewer {
@@ -176,13 +203,33 @@ function reducedMotion(): boolean {
 	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): RoomxViewer {
-	const renderer = new WebGLRenderer({
-		canvas,
-		antialias: true,
-		powerPreference: 'high-performance'
-	});
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+function deviceHints(): DeviceHints {
+	const hints = navigator as Navigator & { deviceMemory?: number };
+	return {
+		deviceMemory: hints.deviceMemory,
+		hardwareConcurrency: hints.hardwareConcurrency,
+		coarsePointer: window.matchMedia('(pointer: coarse)').matches
+	};
+}
+
+export function createViewer(
+	canvas: HTMLCanvasElement,
+	initial: SceneOptions,
+	hooks: ViewerHooks = {}
+): RoomxViewer {
+	const weak = isWeakDevice(deviceHints());
+	viewerOpened();
+	let renderer: WebGLRenderer;
+	try {
+		renderer = new WebGLRenderer({
+			canvas,
+			antialias: !weak,
+			powerPreference: 'high-performance'
+		});
+	} catch (error) {
+		viewerClosed();
+		throw error;
+	}
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMap.type = PCFShadowMap;
 	renderer.shadowMap.autoUpdate = false;
@@ -207,7 +254,8 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 	const fill = new AmbientLight(0xffffff, 0.15);
 	const sun = new DirectionalLight(0xfff6e8, 1.9);
 	sun.castShadow = true;
-	sun.shadow.mapSize.set(2048, 2048);
+	const startProfile = profileFor(0, weak);
+	sun.shadow.mapSize.set(startProfile.shadowMapSize, startProfile.shadowMapSize);
 	sun.shadow.bias = -0.0004;
 	sun.shadow.normalBias = 0.03;
 	sun.shadow.radius = 4;
@@ -248,6 +296,9 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 	let autoFit = true;
 	let viewWidth = 1;
 	let viewHeight = 1;
+	let contextState: ContextState = initialContext();
+	let contextTimer: ReturnType<typeof setTimeout> | undefined;
+	const governor = new QualityGovernor();
 
 	const walk = {
 		yaw: 0,
@@ -312,7 +363,9 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 		const host = canvas.parentElement ?? canvas;
 		viewWidth = Math.max(1, host.clientWidth);
 		viewHeight = Math.max(1, host.clientHeight);
-		renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+		renderer.setPixelRatio(
+			pixelRatioFor(viewWidth, viewHeight, window.devicePixelRatio, profileFor(governor.tier, weak))
+		);
 		renderer.setSize(viewWidth, viewHeight, false);
 		applyViewport();
 		if (autoFit && mode === 'orbit' && !tween && content && !growth) {
@@ -320,6 +373,22 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 			setPose(pose);
 		}
 		requestRender();
+	}
+
+	function applyQuality(): void {
+		const profile = profileFor(governor.tier, weak);
+		if (profile.shadows) {
+			if (!sun.castShadow || sun.shadow.mapSize.x !== profile.shadowMapSize) {
+				sun.shadow.dispose();
+				sun.shadow.mapSize.set(profile.shadowMapSize, profile.shadowMapSize);
+				sun.castShadow = true;
+				shadowDirty = true;
+			}
+		} else if (sun.castShadow) {
+			sun.castShadow = false;
+			sun.shadow.dispose();
+		}
+		resize();
 	}
 
 	function render(): void {
@@ -707,6 +776,7 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 	function rebuild(settings: ContentSettings): void {
 		const previous = new Map(walls.map((state) => [state.key, state.current]));
 		const animate = settings.animate === true && !reducedMotion();
+		governor.reset(performance.now());
 		clearSelection();
 		if (built) {
 			scene.remove(built.root);
@@ -1125,6 +1195,11 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 	function frame(now: number): void {
 		rafId = 0;
 		if (disposed) return;
+		if (contextState.phase !== 'ok') {
+			lastTime = 0;
+			return;
+		}
+		const previous = lastTime;
 		const dt = lastTime ? Math.min(0.05, (now - lastTime) / 1000) : 0.016;
 		lastTime = now;
 		let busy = false;
@@ -1142,8 +1217,13 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 			needsRender = false;
 			render();
 		}
-		if (busy) schedule();
-		else lastTime = 0;
+		if (busy) {
+			if (previous !== 0 && governor.sample(now - previous, now) !== null) {
+				applyQuality();
+				hooks.onQuality?.(governor.tier);
+			}
+			schedule();
+		} else lastTime = 0;
 	}
 
 	function pointerRay(clientX: number, clientY: number): void {
@@ -1226,12 +1306,42 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 		walk.keys.clear();
 	}
 
+	function onVisibility(): void {
+		lastTime = 0;
+		governor.reset(performance.now());
+	}
+
+	function setContext(next: ContextState): void {
+		const changed = next.phase !== contextState.phase;
+		contextState = next;
+		if (changed) hooks.onContext?.(next.phase);
+	}
+
 	function onContextLost(event: Event): void {
 		event.preventDefault();
+		const now = performance.now();
+		setContext(contextLost(contextState, now));
+		clearTimeout(contextTimer);
+		contextTimer = setTimeout(
+			() => setContext(contextTimeout(contextState, performance.now())),
+			remainingMs(contextState, now)
+		);
 	}
 
 	function onContextRestored(): void {
+		clearTimeout(contextTimer);
+		const now = performance.now();
+		const repeating = lossIsRepeating(contextState, now);
+		setContext(contextRestored(contextState));
+		if (repeating) governor.penalize(now);
+		governor.reset(now);
 		shadowDirty = true;
+		cameraDirty = true;
+		lastTime = 0;
+		applyTheme();
+		if (content) rebuild({});
+		applyQuality();
+		if (repeating) hooks.onQuality?.(governor.tier);
 		requestRender();
 	}
 
@@ -1249,6 +1359,7 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 	window.addEventListener('keydown', onKeyDown);
 	window.addEventListener('keyup', onKeyUp);
 	window.addEventListener('blur', onBlur);
+	document.addEventListener('visibilitychange', onVisibility);
 	colorScheme.addEventListener('change', applyTheme);
 	applyTheme();
 	resize();
@@ -1387,6 +1498,7 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 		},
 		requestRender,
 		screenshot() {
+			if (contextState.phase !== 'ok') return Promise.reject(new Error('screenshot failed'));
 			render();
 			return new Promise<Blob>((resolve, reject) => {
 				canvas.toBlob(
@@ -1399,6 +1511,7 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 			if (disposed) return;
 			disposed = true;
 			if (rafId) cancelAnimationFrame(rafId);
+			clearTimeout(contextTimer);
 			observer.disconnect();
 			controls.removeEventListener('change', onControlsChange);
 			controls.removeEventListener('start', onControlsStart);
@@ -1412,6 +1525,7 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 			window.removeEventListener('keydown', onKeyDown);
 			window.removeEventListener('keyup', onKeyUp);
 			window.removeEventListener('blur', onBlur);
+			document.removeEventListener('visibilitychange', onVisibility);
 			colorScheme.removeEventListener('change', applyTheme);
 			clearSelection();
 			if (built) {
@@ -1419,9 +1533,14 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 				built = null;
 			}
 			for (const light of lampLights) scene.remove(light);
+			scene.clear();
 			sun.shadow.dispose();
+			renderer.renderLists.dispose();
 			renderer.dispose();
 			renderer.forceContextLoss();
+			canvas.width = 1;
+			canvas.height = 1;
+			viewerClosed();
 		},
 		stats() {
 			const { memory, render: info, programs } = renderer.info;
@@ -1430,7 +1549,10 @@ export function createViewer(canvas: HTMLCanvasElement, initial: SceneOptions): 
 				textures: memory.textures,
 				programs: programs?.length ?? 0,
 				drawCalls: info.calls,
-				triangles: info.triangles
+				triangles: info.triangles,
+				tier: governor.tier,
+				pixelRatio: renderer.getPixelRatio(),
+				shadows: sun.castShadow
 			};
 		}
 	};
