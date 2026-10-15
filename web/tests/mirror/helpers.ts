@@ -6,7 +6,7 @@ import {
 	type Page
 } from '@playwright/test';
 import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { networkInterfaces, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
 	addRoom,
@@ -30,28 +30,54 @@ const SEED = { tourSeen: true, installHintSeen: true, language: 'de', unit: 'cm'
 const ROOM = { a: 5400, b: 4200, c: 2600, d: 2200 };
 const PHONE_VIEWPORT = { width: 390, height: 844 };
 
-// WebKit hides host addresses behind mDNS names that nothing resolves in a container; both peers are on this machine, so loopback does the job.
-function resolveMirrorMdns(): void {
-	const name = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.local/g;
+// WebKit hides host addresses behind mDNS names that nothing resolves in a container. Both peers run on this machine, so every name is replaced by each of its own addresses and ICE picks the one that answers.
+function resolveMirrorMdns(hosts: string[]): void {
+	const name = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.local/;
 	const prototype = RTCPeerConnection.prototype;
 	const setRemote = prototype.setRemoteDescription;
 	prototype.setRemoteDescription = function (description) {
 		const fixed = description && {
 			type: description.type,
-			sdp: description.sdp?.replace(name, '127.0.0.1')
+			sdp: description.sdp
+				?.split('\r\n')
+				.flatMap((line) =>
+					line.startsWith('a=candidate:') && name.test(line)
+						? hosts.map((host) => line.replace(name, host))
+						: [line]
+				)
+				.join('\r\n')
 		};
 		return (setRemote as (d: unknown) => Promise<void>).call(this, fixed);
 	};
 	const addCandidate = prototype.addIceCandidate;
-	prototype.addIceCandidate = function (candidate) {
-		const fixed = candidate && {
-			candidate: candidate.candidate?.replace(name, '127.0.0.1'),
-			sdpMid: candidate.sdpMid,
-			sdpMLineIndex: candidate.sdpMLineIndex,
-			usernameFragment: candidate.usernameFragment
-		};
-		return (addCandidate as (c: unknown) => Promise<void>).call(this, fixed);
+	prototype.addIceCandidate = async function (candidate) {
+		const text = candidate?.candidate;
+		const variants =
+			text && name.test(text) ? hosts.map((host) => text.replace(name, host)) : [text];
+		const results = await Promise.allSettled(
+			variants.map((variant) =>
+				(addCandidate as (c: unknown) => Promise<void>).call(
+					this,
+					candidate && {
+						candidate: variant,
+						sdpMid: candidate.sdpMid,
+						sdpMLineIndex: candidate.sdpMLineIndex,
+						usernameFragment: candidate.usernameFragment
+					}
+				)
+			)
+		);
+		const failed = results.find((result) => result.status === 'rejected');
+		if (failed && results.every((result) => result.status === 'rejected')) throw failed.reason;
 	};
+}
+
+function localAddresses(): string[] {
+	const found = Object.values(networkInterfaces())
+		.flat()
+		.filter((entry) => entry && entry.family === 'IPv4' && !entry.internal)
+		.map((entry) => entry!.address);
+	return ['127.0.0.1', ...new Set(found)];
 }
 
 export interface PhoneOptions {
@@ -112,7 +138,8 @@ export const test = base.extend<{ world: World }>({
 					return;
 				}
 			}, SEED);
-			if (browserName === 'webkit') await context.addInitScript(resolveMirrorMdns);
+			if (browserName === 'webkit')
+				await context.addInitScript(resolveMirrorMdns, localAddresses());
 			contexts.push(context);
 			return context;
 		}

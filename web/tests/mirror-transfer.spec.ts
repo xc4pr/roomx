@@ -60,8 +60,10 @@ test('SpÃ¤ter: Handy fotografiert ohne offenes Projekt, PC holt die Fotos beim Ã
 	const desktop = await world.desktop();
 	const { id } = await prepareProject(desktop);
 	const link = await createJob(desktop);
-	await desktop.goto('/');
-	await expect(desktop.getByTestId('project-card')).toHaveCount(1);
+	const reopened = await world.newDesktopPage(desktop);
+	await desktop.close();
+	await reopened.goto('/');
+	await expect(reopened.getByTestId('project-card')).toHaveCount(1);
 
 	const phone = await world.phone();
 	await openLink(phone, link);
@@ -70,13 +72,13 @@ test('SpÃ¤ter: Handy fotografiert ohne offenes Projekt, PC holt die Fotos beim Ã
 	await closeCapture(phone);
 	await expect(phone.getByTestId('camera-room-0')).toContainText('2');
 	await expect.poll(() => countStore(phone, 'mirrorShots')).toBe(2);
-	expect(photosOf(await readProject(desktop, id))).toHaveLength(0);
+	expect(photosOf(await readProject(reopened, id))).toHaveLength(0);
 
-	await openProject(desktop, id);
-	await waitForProject(desktop, id, (p) => photosOf(p).length === 2, 'Fotos angekommen');
+	await openProject(reopened, id);
 	await expect(phone.getByTestId('camera-status')).toContainText('Alle Fotos Ã¼bertragen', {
 		timeout: 45_000
 	});
+	await waitForProject(reopened, id, (p) => photosOf(p).length === 2, 'Fotos angekommen');
 	await expect.poll(() => countStore(phone, 'mirrorShots')).toBe(0);
 });
 
