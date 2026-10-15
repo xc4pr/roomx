@@ -15,9 +15,15 @@ export async function backupAndAnnounce(overrides: readonly Project[] = []): Pro
 			result.projectCount === 1
 				? t(messages, 'backupDoneOne', { photos: result.photoCount })
 				: t(messages, 'backupDone', { n: result.projectCount, photos: result.photoCount });
-		if (result.missingPhotos > 0) {
+		const notes = [
+			result.missingPhotos > 0 ? t(messages, 'backupMissing', { n: result.missingPhotos }) : '',
+			result.unreadableCount > 0
+				? t(messages, 'backupUnreadable', { n: result.unreadableCount })
+				: ''
+		].filter(Boolean);
+		if (notes.length > 0) {
 			toasts.show({
-				message: `${done}. ${t(messages, 'backupMissing', { n: result.missingPhotos })}`,
+				message: [done, ...notes].join('. '),
 				kind: 'error',
 				duration: 10_000
 			});

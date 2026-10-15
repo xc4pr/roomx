@@ -58,6 +58,8 @@ export const messages = defineMessages({
 		backupDone: '{n} Projekte gesichert, {photos} Fotos',
 		backupDoneOne: '1 Projekt gesichert, {photos} Fotos',
 		backupMissing: '{n} Fotos liessen sich nicht lesen und fehlen im Backup.',
+		backupUnreadable:
+			'{n} Projekte liessen sich nicht öffnen und sind unverändert als Rohdaten im Backup.',
 		backupEmpty: 'Es gibt noch nichts zu sichern.',
 		backupFailed: 'Das Backup konnte nicht erstellt werden. Versuche es noch einmal.',
 		backupRetry: 'Erneut versuchen',
@@ -77,6 +79,8 @@ export const messages = defineMessages({
 		restoreDone: '{n} Projekte wiederhergestellt.',
 		restoreDoneOne: '1 Projekt wiederhergestellt.',
 		restoreCopies: '{n} davon als Kopie, weil es sie schon gab.',
+		restoreFailedProjects:
+			'{n} Projekte liessen sich nicht wiederherstellen und wurden übersprungen: {names}.',
 		restorePhotosRejected: '{n} ungültige Bilder wurden übersprungen.',
 		restorePhotosMissing: '{n} Fotos fehlten oder waren beschädigt.',
 		restoreNotZip:
@@ -219,6 +223,8 @@ export const messages = defineMessages({
 		backupDone: '{n} projects backed up, {photos} photos',
 		backupDoneOne: '1 project backed up, {photos} photos',
 		backupMissing: '{n} photos could not be read and are missing from the backup.',
+		backupUnreadable:
+			'{n} projects could not be opened and are kept unchanged as raw data in the backup.',
 		backupEmpty: 'There is nothing to back up yet.',
 		backupFailed: 'The backup could not be created. Please try again.',
 		backupRetry: 'Try again',
@@ -238,6 +244,7 @@ export const messages = defineMessages({
 		restoreDone: '{n} projects restored.',
 		restoreDoneOne: '1 project restored.',
 		restoreCopies: '{n} of them as a copy because they already existed.',
+		restoreFailedProjects: '{n} projects could not be restored and were skipped: {names}.',
 		restorePhotosRejected: '{n} invalid images were skipped.',
 		restorePhotosMissing: '{n} photos were missing or damaged.',
 		restoreNotZip:

@@ -9,11 +9,12 @@ import {
 	type BackupErrorCode,
 	type FullBackupResult,
 	type ParsedBackup,
-	type ParsedBackupSet
+	type ParsedBackupSet,
+	type UnreadableProject
 } from '#lib/features/export/backup.ts';
 import { dateStamp } from '#lib/features/export/slug.ts';
 import { locale, t } from '#lib/i18n/index.svelte.ts';
-import { loadActiveProjects } from '#lib/state/persistence.ts';
+import { listUnreadableProjects, loadActiveProjects } from '#lib/state/persistence.ts';
 import { updateSettings } from '#lib/state/settings.svelte.ts';
 import { messages } from './i18n.ts';
 import { formatBytes } from './storage.ts';
@@ -22,28 +23,34 @@ export function backupFileName(date: Date = new Date()): string {
 	return `roomx-backup-${dateStamp(date)}.zip`;
 }
 
+export interface BackupSource {
+	projects: Project[];
+	unreadable: UnreadableProject[];
+}
+
 // Unsaved in-memory states win over what the database holds, so nothing is left out when saving failed.
+export async function collectBackupSet(overrides: readonly Project[] = []): Promise<BackupSource> {
+	const stored = await loadActiveProjects();
+	const byId = new Map(stored.map((project) => [project.id, project]));
+	for (const project of overrides) byId.set(project.id, project);
+	const projects = [...byId.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+	const unreadable = (await listUnreadableProjects()).filter((entry) => !byId.has(entry.id));
+	return { projects, unreadable };
+}
+
 export async function collectBackupProjects(
 	overrides: readonly Project[] = []
 ): Promise<Project[]> {
-	let stored: Project[] = [];
-	try {
-		stored = await loadActiveProjects();
-	} catch {
-		stored = [];
-	}
-	const byId = new Map(stored.map((project) => [project.id, project]));
-	for (const project of overrides) byId.set(project.id, project);
-	return [...byId.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+	return (await collectBackupSet(overrides)).projects;
 }
 
 export async function runFullBackup(
 	overrides: readonly Project[] = [],
 	now: Date = new Date()
 ): Promise<FullBackupResult | null> {
-	const projects = await collectBackupProjects(overrides);
-	if (projects.length === 0) return null;
-	const result = await createFullBackup(projects, { now });
+	const { projects, unreadable } = await collectBackupSet(overrides);
+	if (projects.length === 0 && unreadable.length === 0) return null;
+	const result = await createFullBackup(projects, { now, unreadable });
 	downloadBlob(backupFileName(now), result.blob);
 	updateSettings({ lastBackupAt: now.toISOString() });
 	return result;
@@ -73,7 +80,7 @@ export async function readBackupFile(file: Blob): Promise<ReadBackupResult> {
 	const bytes = await readBytes(file);
 	if (bytes.kind === 'error') return bytes;
 	try {
-		return { kind: 'ok', set: parseBackupSet(bytes.value) };
+		return { kind: 'ok', set: await parseBackupSet(bytes.value) };
 	} catch (error) {
 		return { kind: 'error', code: codeOf(error) };
 	}
@@ -86,12 +93,12 @@ export async function readSingleBackupFile(file: Blob): Promise<ReadSingleResult
 	const bytes = await readBytes(file);
 	if (bytes.kind === 'error') return bytes;
 	try {
-		return { kind: 'ok', parsed: parseBackup(bytes.value) };
+		return { kind: 'ok', parsed: await parseBackup(bytes.value) };
 	} catch (error) {
 		const code = codeOf(error);
 		if (code !== 'noProject') return { kind: 'error', code };
 		try {
-			parseBackupSet(bytes.value);
+			await parseBackupSet(bytes.value);
 			return { kind: 'error', code: 'fullBackup' };
 		} catch {
 			return { kind: 'error', code };
@@ -119,6 +126,15 @@ export function restoreErrorKey(code: RestoreErrorCode): MessageKey {
 export function restoreErrorMessage(code: RestoreErrorCode): string {
 	return t(messages, restoreErrorKey(code), {
 		max: formatBytes(BACKUP_LIMITS.fileBytes, locale.language)
+	});
+}
+
+export function failedProjectsNote(names: readonly string[]): string {
+	const shown = names.slice(0, 3).join(', ');
+	const more = names.length - 3;
+	return t(messages, 'restoreFailedProjects', {
+		n: names.length,
+		names: more > 0 ? `${shown} (+${more})` : shown
 	});
 }
 

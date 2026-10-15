@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import { strToU8, zipSync } from 'fflate';
 import { beforeEach, describe, expect, it } from 'vitest';
+import type { Project } from '#lib/core/schema.ts';
 import { createBackup, createFullBackup, BACKUP_LIMITS } from '#lib/features/export/backup.ts';
 import { furnishedProject } from '#lib/features/export/testing.ts';
 import { updateSettings } from '#lib/state/settings.svelte.ts';
@@ -8,6 +9,7 @@ import { db } from '#lib/state/db.ts';
 import { saveProject } from '#lib/state/persistence.ts';
 import {
 	collectBackupProjects,
+	collectBackupSet,
 	photoLossNotes,
 	readBackupFile,
 	readSingleBackupFile,
@@ -125,12 +127,22 @@ describe('collecting projects for a backup', () => {
 		expect(collected.some((project) => project.id === 'gone')).toBe(false);
 	});
 
-	it('still returns the unsaved projects when the database cannot be read', async () => {
+	it('keeps stored projects that cannot be read as raw data', async () => {
+		const good = furnishedProject();
+		await saveProject(good);
+		const broken = { ...furnishedProject(), id: 'broken', name: 'Kaputt', rooms: 'oops' };
+		await db.projects.put(broken as unknown as Project);
+		const set = await collectBackupSet();
+		expect(set.projects.map((project) => project.id)).toEqual([good.id]);
+		expect(set.unreadable.map((entry) => [entry.id, entry.name])).toEqual([['broken', 'Kaputt']]);
+		const repaired = { ...furnishedProject(), id: 'broken' };
+		const withOverride = await collectBackupSet([repaired]);
+		expect(withOverride.unreadable).toEqual([]);
+	});
+
+	it('reports a database that cannot be read instead of backing up nothing', async () => {
 		await db.delete();
-		const unsaved = furnishedProject();
-		expect((await collectBackupProjects([unsaved])).map((project) => project.id)).toEqual([
-			unsaved.id
-		]);
+		await expect(collectBackupProjects([furnishedProject()])).rejects.toThrow();
 		await db.open();
 	});
 });

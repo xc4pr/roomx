@@ -10,7 +10,12 @@
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
 	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
-	import { photoLossNotes, readBackupFile, restoreErrorMessage } from './backupActions.ts';
+	import {
+		failedProjectsNote,
+		photoLossNotes,
+		readBackupFile,
+		restoreErrorMessage
+	} from './backupActions.ts';
 	import { backupAndAnnounce } from './backupFlow.ts';
 	import { messages } from './i18n.ts';
 	import SettingsCard from './SettingsCard.svelte';
@@ -62,9 +67,10 @@
 			];
 			if (result.copies > 0) parts.push(t(messages, 'restoreCopies', { n: result.copies }));
 			parts.push(...photoLossNotes(result.missingPhotos, result.rejectedPhotos));
+			if (result.skipped > 0) parts.push(failedProjectsNote(result.skippedNames));
 			toasts.show({
 				message: parts.join(' '),
-				kind: result.missingPhotos > 0 ? 'info' : 'success',
+				kind: result.missingPhotos > 0 || result.skipped > 0 ? 'info' : 'success',
 				duration: 8000
 			});
 		} catch {

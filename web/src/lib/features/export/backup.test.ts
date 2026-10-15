@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { strFromU8, strToU8, zipSync } from 'fflate';
+import { deflateSync, strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { sequentialIds } from '#lib/core/ids.ts';
 import type { Project } from '#lib/core/schema.ts';
@@ -77,7 +77,7 @@ describe('backup roundtrip', () => {
 		});
 		expect(result.photoCount).toBe(1);
 		expect(result.missingPhotos).toBe(0);
-		const parsed = parseBackup(new Uint8Array(await result.blob.arrayBuffer()));
+		const parsed = await parseBackup(new Uint8Array(await result.blob.arrayBuffer()));
 		expect(parsed.project).toEqual(project);
 		expect([...parsed.photos.keys()]).toEqual([hash]);
 	});
@@ -87,7 +87,7 @@ describe('backup roundtrip', () => {
 		const { blob } = await createBackup(project);
 		await Promise.all(db.tables.map((table) => table.clear()));
 		expect(await projectExists(project.id)).toBe(false);
-		const parsed = parseBackup(await blobBytes(blob));
+		const parsed = await parseBackup(await blobBytes(blob));
 		const restored = await restoreBackup(parsed, { mode: 'keep', reencode });
 		expect(restored.missingPhotos).toBe(0);
 		expect(restored.copied).toBe(false);
@@ -110,7 +110,7 @@ describe('backup roundtrip', () => {
 		const { blob } = await createBackup(project);
 		await saveProject({ ...project, name: 'Geändert', rooms: [] });
 		expect(await projectExists(project.id)).toBe(true);
-		const parsed = parseBackup(await blobBytes(blob));
+		const parsed = await parseBackup(await blobBytes(blob));
 		const restored = await restoreBackup(parsed, {
 			mode: 'keep',
 			copySuffix: 'Kopie',
@@ -128,7 +128,7 @@ describe('backup roundtrip', () => {
 		const { project } = await seed();
 		const { blob } = await createBackup(project);
 		await db.projects.put({ ...project, deleted: true, rooms: [], variants: [] });
-		const parsed = parseBackup(await blobBytes(blob));
+		const parsed = await parseBackup(await blobBytes(blob));
 		const restored = await restoreBackup(parsed, { mode: 'keep', reencode });
 		expect(restored.copied).toBe(true);
 		expect(restored.project.id).not.toBe(project.id);
@@ -138,7 +138,7 @@ describe('backup roundtrip', () => {
 	it('creates a copy with a new id when asked and keeps the original', async () => {
 		const { project } = await seed();
 		const { blob } = await createBackup(project);
-		const parsed = parseBackup(await blobBytes(blob));
+		const parsed = await parseBackup(await blobBytes(blob));
 		const restored = await restoreBackup(parsed, {
 			mode: 'copy',
 			copySuffix: 'Kopie',
@@ -155,12 +155,12 @@ describe('backup roundtrip', () => {
 			'project.json': strToU8(JSON.stringify(project)),
 			[`photos/${hash}.jpg`]: strToU8('not the original bytes')
 		});
-		const restored = await restoreBackup(parseBackup(archive), { mode: 'copy', reencode });
+		const restored = await restoreBackup(await parseBackup(archive), { mode: 'copy', reencode });
 		expect(restored.missingPhotos).toBe(1);
 		expect(seen).toEqual([]);
 		await db.photos.clear();
 		const missing = await restoreBackup(
-			parseBackup(zipSync({ 'project.json': strToU8(JSON.stringify(project)) })),
+			await parseBackup(zipSync({ 'project.json': strToU8(JSON.stringify(project)) })),
 			{ mode: 'copy', reencode }
 		);
 		expect(missing.missingPhotos).toBe(1);
@@ -180,7 +180,7 @@ describe('backup roundtrip', () => {
 describe('image validation on restore', () => {
 	async function restoreBytes(bytes: Uint8Array) {
 		const { archive } = await archiveWithPhoto(bytes);
-		const restored = await restoreBackup(parseBackup(archive), { mode: 'copy', reencode });
+		const restored = await restoreBackup(await parseBackup(archive), { mode: 'copy', reencode });
 		return { restored, photos: await db.photos.count() };
 	}
 
@@ -221,7 +221,7 @@ describe('image validation on restore', () => {
 		const failing: Reencode = async () => {
 			throw new Error('decode');
 		};
-		const restored = await restoreBackup(parseBackup(archive), {
+		const restored = await restoreBackup(await parseBackup(archive), {
 			mode: 'copy',
 			reencode: failing
 		});
@@ -240,27 +240,97 @@ describe('image validation on restore', () => {
 	});
 });
 
+interface RawEntry {
+	name: string;
+	method: number;
+	data: Uint8Array;
+	declared: number;
+}
+
+function rawZip(
+	entries: RawEntry[],
+	aliases: { name: string; of: number; declared: number }[] = []
+) {
+	const parts: Uint8Array[] = [];
+	const offsets: number[] = [];
+	let offset = 0;
+	const push = (bytes: Uint8Array) => {
+		parts.push(bytes);
+		offset += bytes.length;
+	};
+	for (const entry of entries) {
+		const name = strToU8(entry.name);
+		const header = new DataView(new ArrayBuffer(30));
+		header.setUint32(0, 0x04034b50, true);
+		header.setUint16(4, 20, true);
+		header.setUint16(8, entry.method, true);
+		header.setUint32(18, entry.data.length, true);
+		header.setUint32(22, entry.declared, true);
+		header.setUint16(26, name.length, true);
+		offsets.push(offset);
+		push(new Uint8Array(header.buffer));
+		push(name);
+		push(entry.data);
+	}
+	const directory = offset;
+	const all = [
+		...entries.map((entry, index) => ({ ...entry, of: index, size: entry.declared })),
+		...aliases.map((alias) => ({
+			...entries[alias.of],
+			name: alias.name,
+			of: alias.of,
+			size: alias.declared
+		}))
+	];
+	for (const entry of all) {
+		const name = strToU8(entry.name);
+		const record = new DataView(new ArrayBuffer(46));
+		record.setUint32(0, 0x02014b50, true);
+		record.setUint16(10, entry.method, true);
+		record.setUint32(20, entry.data.length, true);
+		record.setUint32(24, entry.size, true);
+		record.setUint16(28, name.length, true);
+		record.setUint32(42, offsets[entry.of], true);
+		push(new Uint8Array(record.buffer));
+		push(name);
+	}
+	const end = new DataView(new ArrayBuffer(22));
+	end.setUint32(0, 0x06054b50, true);
+	end.setUint16(8, all.length, true);
+	end.setUint16(10, all.length, true);
+	end.setUint32(12, offset - directory, true);
+	end.setUint32(16, directory, true);
+	push(new Uint8Array(end.buffer));
+	const out = new Uint8Array(offset);
+	let at = 0;
+	for (const part of parts) {
+		out.set(part, at);
+		at += part.length;
+	}
+	return out;
+}
+
 describe('limits and errors', () => {
-	const code = (data: Uint8Array, limits = {}) => {
+	const code = async (data: Uint8Array, limits = {}) => {
 		try {
-			parseBackup(data, limits);
+			await parseBackup(data, limits);
 		} catch (error) {
 			return error instanceof BackupError ? error.code : 'other';
 		}
 		return 'none';
 	};
 
-	it('rejects non-zip data', () => {
-		expect(code(strToU8('hello'))).toBe('notZip');
+	it('rejects non-zip data', async () => {
+		expect(await code(strToU8('hello'))).toBe('notZip');
 	});
 
-	it('rejects archives without project.json', () => {
-		expect(code(zipSync({ 'readme.txt': strToU8('x') }))).toBe('noProject');
+	it('rejects archives without project.json', async () => {
+		expect(await code(zipSync({ 'readme.txt': strToU8('x') }))).toBe('noProject');
 	});
 
-	it('rejects broken or invalid project data', () => {
-		expect(code(zipSync({ 'project.json': strToU8('{oops') }))).toBe('invalid');
-		expect(code(zipSync({ 'project.json': strToU8('{"id":"a"}') }))).toBe('invalid');
+	it('rejects broken or invalid project data', async () => {
+		expect(await code(zipSync({ 'project.json': strToU8('{oops') }))).toBe('invalid');
+		expect(await code(zipSync({ 'project.json': strToU8('{"id":"a"}') }))).toBe('invalid');
 	});
 
 	it('rejects projects from a newer schema', async () => {
@@ -268,7 +338,7 @@ describe('limits and errors', () => {
 		const archive = zipSync({
 			'project.json': strToU8(JSON.stringify({ ...project, schemaVersion: 99 }))
 		});
-		expect(code(archive)).toBe('tooNew');
+		expect(await code(archive)).toBe('tooNew');
 	});
 
 	it('rejects a backup written by a newer format', async () => {
@@ -277,26 +347,65 @@ describe('limits and errors', () => {
 			'backup.json': strToU8(JSON.stringify({ format: 'roomx-backup', version: 9 })),
 			'project.json': strToU8(JSON.stringify(project))
 		});
-		expect(code(archive)).toBe('tooNew');
+		expect(await code(archive)).toBe('tooNew');
 	});
 
 	it('rejects files above the size limits with a clear code', async () => {
 		const { project } = await seed();
 		const json = strToU8(JSON.stringify(project));
 		const archive = zipSync({ 'project.json': json });
-		expect(code(archive, { fileBytes: 50 })).toBe('tooLarge');
-		expect(code(archive, { jsonBytes: json.length - 1 })).toBe('tooLarge');
-		expect(code(archive, { unpackedBytes: json.length - 1 })).toBe('tooLarge');
+		expect(await code(archive, { fileBytes: 50 })).toBe('tooLarge');
+		expect(await code(archive, { jsonBytes: json.length - 1 })).toBe('tooLarge');
+		expect(await code(archive, { unpackedBytes: json.length - 1 })).toBe('tooLarge');
 		const photo = zipSync({
 			'project.json': json,
 			[`photos/${'a'.repeat(64)}.jpg`]: new Uint8Array(2000)
 		});
-		expect(code(photo, { imageBytes: 1000 })).toBe('tooLarge');
+		expect(await code(photo, { imageBytes: 1000 })).toBe('tooLarge');
 	});
 
-	it('does not inflate an entry that claims to be huge', () => {
+	it('does not inflate an entry that claims to be huge', async () => {
 		const big = new Uint8Array(30 * 1024 * 1024);
-		expect(code(zipSync({ 'project.json': big }))).toBe('tooLarge');
+		expect(await code(zipSync({ 'project.json': big }))).toBe('tooLarge');
+	});
+
+	it('stops inflating an entry whose header understates its size', async () => {
+		const bomb = deflateSync(new Uint8Array(16 * 1024 * 1024).fill(0x20), { level: 9 });
+		const archive = rawZip([{ name: 'project.json', method: 8, data: bomb, declared: 100 }]);
+		const limits = { jsonBytes: 1024 * 1024, unpackedBytes: 2 * 1024 * 1024 };
+		expect(await code(archive, limits)).toBe('tooLarge');
+		expect(await code(archive, { unpackedBytes: 1024 * 1024 })).toBe('tooLarge');
+	});
+
+	it('rejects a stored entry whose real length differs from the declared one', async () => {
+		const archive = rawZip([
+			{ name: 'project.json', method: 0, data: strToU8('{"id":"a"}'), declared: 3 }
+		]);
+		expect(await code(archive)).toBe('invalid');
+	});
+
+	it('does not multiply data that several directory entries point to', async () => {
+		const data = new Uint8Array(512 * 1024).fill(0x20);
+		const aliases = Array.from({ length: 200 }, (_, index) => ({
+			name: `photos/${String(index).padStart(64, '0')}.jpg`,
+			of: 0,
+			declared: data.length
+		}));
+		const archive = rawZip(
+			[{ name: 'project.json', method: 0, data, declared: data.length }],
+			aliases
+		);
+		const limits = { unpackedBytes: 2 * 1024 * 1024, jsonBytes: 1024 * 1024 };
+		expect(await code(archive, limits)).toBe('invalid');
+		const parsed = await parseBackupSet(
+			zipSync({ 'projects/1.json': strToU8(JSON.stringify(furnishedProject())) })
+		);
+		expect(parsed.photos.size).toBe(0);
+	});
+
+	it('rejects truncated archives', async () => {
+		const archive = zipSync({ 'project.json': strToU8(JSON.stringify(furnishedProject())) });
+		expect(await code(archive.subarray(0, Math.floor(archive.length / 2)))).not.toBe('none');
 	});
 
 	it('rejects archives with too many entries, photos or projects', async () => {
@@ -305,19 +414,21 @@ describe('limits and errors', () => {
 		const photos = Object.fromEntries(
 			Array.from({ length: 4 }, (_, i) => [`photos/${String(i).repeat(64)}.jpg`, new Uint8Array(4)])
 		);
-		expect(code(zipSync({ 'project.json': json, ...photos }), { photos: 3 })).toBe('tooMany');
-		expect(code(zipSync({ 'project.json': json, ...photos }), { entries: 3 })).toBe('tooMany');
+		expect(await code(zipSync({ 'project.json': json, ...photos }), { photos: 3 })).toBe('tooMany');
+		expect(await code(zipSync({ 'project.json': json, ...photos }), { entries: 3 })).toBe(
+			'tooMany'
+		);
 		const set = zipSync({ 'projects/1.json': json, 'projects/2.json': json });
-		expect(() => parseBackupSet(set, { projects: 1 })).toThrowError(BackupError);
+		await expect(parseBackupSet(set, { projects: 1 })).rejects.toThrowError(BackupError);
 	});
 
-	it('ignores everything that is not project data or a photo', () => {
+	it('ignores everything that is not project data or a photo', async () => {
 		const archive = zipSync({
 			'project.json': strToU8('{"id":"a"}'),
 			'../evil.html': strToU8('<script>1</script>'),
 			'photos/x.svg': svgImage()
 		});
-		expect(code(archive)).toBe('invalid');
+		expect(await code(archive)).toBe('invalid');
 	});
 });
 
@@ -341,7 +452,7 @@ describe('backup of all projects', () => {
 		expect(result.projectCount).toBe(3);
 		expect(result.photoCount).toBe(1);
 		expect(result.missingPhotos).toBe(1);
-		const set = parseBackupSet(await blobBytes(result.blob));
+		const set = await parseBackupSet(await blobBytes(result.blob));
 		expect(set.projects.map((project) => project.id).sort()).toEqual(
 			projects.map((project) => project.id).sort()
 		);
@@ -353,7 +464,7 @@ describe('backup of all projects', () => {
 		const projects = await seedMany();
 		const { blob } = await createFullBackup(projects);
 		await Promise.all(db.tables.map((table) => table.clear()));
-		const set = parseBackupSet(await blobBytes(blob));
+		const set = await parseBackupSet(await blobBytes(blob));
 		const result = await restoreBackupSet(set, { reencode });
 		expect(result).toMatchObject({ restored: 3, copies: 0, missingPhotos: 1, skipped: 0 });
 		expect(seen).toEqual(['png']);
@@ -368,7 +479,7 @@ describe('backup of all projects', () => {
 		const projects = await seedMany();
 		const { blob } = await createFullBackup(projects);
 		const progress: number[] = [];
-		const set = parseBackupSet(await blobBytes(blob));
+		const set = await parseBackupSet(await blobBytes(blob));
 		const result = await restoreBackupSet(set, {
 			reencode,
 			copySuffix: 'Kopie',
@@ -390,20 +501,42 @@ describe('backup of all projects', () => {
 			'projects/2.json': strToU8('{"broken":'),
 			'projects/3.json': strToU8(JSON.stringify(projects[1]))
 		});
-		const set = parseBackupSet(files);
+		const set = await parseBackupSet(files);
 		expect(set.projects).toHaveLength(2);
 		expect(set.skipped).toBe(1);
+		expect(set.skippedNames).toEqual(['projects/2.json']);
+		const result = await restoreBackupSet(set, { reencode });
+		expect(result).toMatchObject({ restored: 2, skipped: 1, skippedNames: ['projects/2.json'] });
+	});
+
+	it('keeps unreadable projects as raw entries and reports the ones that cannot load', async () => {
+		const projects = await seedMany();
+		const damaged = { name: 'Kaputt', rooms: 'nope' };
+		const { blob, unreadableCount } = await createFullBackup([projects[0]], {
+			unreadable: [
+				{ id: 'a/b', name: 'Kaputt', raw: damaged },
+				{ id: 'ok', name: 'Lesbar', raw: projects[1] },
+				{ id: 'bad', name: 'Zyklus', raw: undefined }
+			]
+		});
+		expect(unreadableCount).toBe(2);
+		const bytes = await blobBytes(blob);
+		const names = Object.keys(unzipSync(bytes)).filter((name) => name.startsWith('unreadable/'));
+		expect(names.sort()).toEqual(['unreadable/a_b.json', 'unreadable/ok.json']);
+		const set = await parseBackupSet(bytes);
+		expect(set.projects).toHaveLength(2);
+		expect(set.skippedNames).toEqual(['Kaputt']);
 	});
 
 	it('reads a backup of a single project as a set of one', async () => {
 		const { project } = await seed();
 		const { blob } = await createBackup(project);
-		const set = parseBackupSet(await blobBytes(blob));
+		const set = await parseBackupSet(await blobBytes(blob));
 		expect(set.projects.map((entry) => entry.id)).toEqual([project.id]);
 	});
 
-	it('has nothing to restore from a zip without projects', () => {
-		expect(() => parseBackupSet(zipSync({ 'backup.json': strToU8('{}') }))).toThrowError(
+	it('has nothing to restore from a zip without projects', async () => {
+		await expect(parseBackupSet(zipSync({ 'backup.json': strToU8('{}') }))).rejects.toThrowError(
 			BackupError
 		);
 	});
@@ -416,7 +549,7 @@ describe('backup of all projects', () => {
 				JSON.stringify({ ...projects[0], id: `p${index}` })
 			);
 		}
-		const set = parseBackupSet(zipSync(entries));
+		const set = await parseBackupSet(zipSync(entries));
 		expect(set.projects.map((project) => project.id)).toEqual(
 			Array.from({ length: 12 }, (_, i) => `p${i + 1}`)
 		);
