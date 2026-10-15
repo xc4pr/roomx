@@ -1,6 +1,7 @@
 {
 	"name": "roomx-web",
 	"private": true,
+	"license": "SEE LICENSE IN ../LICENSE",
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
