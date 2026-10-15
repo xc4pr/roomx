@@ -35,8 +35,12 @@ export const CatalogSchema = z.array(CatalogEntrySchema);
 
 export type CatalogEntry = z.infer<typeof CatalogEntrySchema>;
 export type CatalogLookup = (id: string) => CatalogEntry | undefined;
+export type CatalogAliases = Readonly<Record<string, string>>;
 
-export function catalogLookup(entries: readonly CatalogEntry[]): CatalogLookup {
+export function catalogLookup(
+	entries: readonly CatalogEntry[],
+	aliases: CatalogAliases = {}
+): CatalogLookup {
 	const byId = new Map(entries.map((entry) => [entry.id, entry]));
-	return (id) => byId.get(id);
+	return (id) => byId.get(id) ?? (Object.hasOwn(aliases, id) ? byId.get(aliases[id]) : undefined);
 }

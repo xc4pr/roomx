@@ -10,6 +10,9 @@ import { ikeaStorage } from './data/ikea-storage.ts';
 import { lighting } from './data/lighting.ts';
 import { tchiboCn3 } from './data/tchibo.ts';
 import { withPrices } from './data/prices.ts';
+import { catalogAliases } from './data/aliases.ts';
+
+export { catalogAliases };
 
 export const CATALOG_PRICES_AS_OF = '2026-10';
 
@@ -26,4 +29,4 @@ export const catalog: readonly CatalogEntry[] = withPrices([
 	...tchiboCn3
 ]);
 
-export const lookup = catalogLookup(catalog);
+export const lookup = catalogLookup(catalog, catalogAliases);

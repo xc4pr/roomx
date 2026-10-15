@@ -1,4 +1,4 @@
-import { catalog as defaultCatalog } from '#lib/catalog/index.ts';
+import { catalogAliases, catalog as defaultCatalog } from '#lib/catalog/index.ts';
 import { catalogLookup, type CatalogEntry } from '#lib/core/catalog.ts';
 import { buildExport, ExportSchema, type ExportDocument } from '#lib/core/export.ts';
 import { planJsonSchema } from '#lib/core/plan.ts';
@@ -109,7 +109,7 @@ export async function buildPackage(
 			pdfPages: pdf.pageCount,
 			partial: roomIds !== undefined && roomIds.length < project.rooms.length,
 			withoutPhotos: options.includePhotos === false,
-			lookup: catalogLookup(entries)
+			lookup: catalogLookup(entries, catalogAliases)
 		})
 	);
 	const schemaData = encoder.encode(`${JSON.stringify(planJsonSchema(), null, 2)}\n`);
