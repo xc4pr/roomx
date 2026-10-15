@@ -12,7 +12,7 @@ import {
 } from './helpers/app.ts';
 import { canvasStats } from './helpers/canvas.ts';
 import { contract } from './helpers/contract.ts';
-import { exportPackage, pdfPages } from './helpers/export.ts';
+import { exportPackage, PACKAGE_FILES, pdfPages } from './helpers/export.ts';
 import { test, expect } from './helpers/fixtures.ts';
 import { buildPlan, EXPECTED, planMessage } from './helpers/plan.ts';
 import { validate } from './helpers/schema.ts';
@@ -54,7 +54,18 @@ test('Projekt anlegen bis Plan-Import und Re-Export', async ({ page }, testInfo)
 		.toBeGreaterThan(12);
 	expect((await canvasStats(page, canvas)).luminanceDeviation).toBeGreaterThan(6);
 
+	await page.getByTestId('to-package').click();
+	await expect(page).toHaveURL(/\/share$/);
+	await expect(page.getByTestId('export-panel')).toBeVisible();
+
 	const first = await exportPackage(page);
+	expect(first.fileNames).toHaveLength(PACKAGE_FILES);
+	expect(first.instructionsName).toMatch(/^roomx-anleitung-wohnung-e2e-\d{4}-\d{2}-\d{2}\.md$/);
+	expect(first.instructions).toContain(id);
+	expect(first.instructions).toContain(first.json.rooms[0].id);
+	expect(first.instructions).toContain(first.instructionsName);
+	expect(JSON.parse(first.schemaText).properties.format.const).toBe('roomx-plan');
+	expect(JSON.parse(first.catalogText).items.length).toBeGreaterThan(100);
 	const { exportSchema, planSchema } = contract();
 	expect(validate(first.json, exportSchema)).toEqual([]);
 	expect(first.json.project.id).toBe(id);

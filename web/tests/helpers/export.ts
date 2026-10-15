@@ -10,7 +10,14 @@ export interface Exported {
 	pdf: Buffer;
 	pdfName: string;
 	jsonName: string;
+	instructions: string;
+	instructionsName: string;
+	schemaText: string;
+	catalogText: string;
+	fileNames: string[];
 }
+
+export const PACKAGE_FILES = 5;
 
 export async function exportPackage(page: Page): Promise<Exported> {
 	await page.getByTestId('seg-share').click();
@@ -18,9 +25,15 @@ export async function exportPackage(page: Page): Promise<Exported> {
 	const downloads: Download[] = [];
 	page.on('download', (download) => downloads.push(download));
 	await page.getByTestId('create-package').click();
-	await expect(page.getByTestId('package-ready')).toBeVisible({ timeout: 60_000 });
+	const proceed = page.getByTestId('check-proceed');
+	const ready = page.getByTestId('package-ready');
+	await expect(proceed.or(ready)).toBeVisible({ timeout: 60_000 });
+	if (await proceed.isVisible()) await proceed.click();
+	await expect(ready).toBeVisible({ timeout: 60_000 });
+	await expect(page.getByTestId('package-files').locator('li')).toHaveCount(PACKAGE_FILES);
+	await expect(page.getByTestId('prompt-text')).toContainText('roomx-plan');
 	await page.getByTestId('download-package').click();
-	await expect.poll(() => downloads.length, { timeout: 15_000 }).toBe(2);
+	await expect.poll(() => downloads.length, { timeout: 30_000 }).toBe(PACKAGE_FILES);
 	const files = await Promise.all(
 		downloads.map(async (download) => ({
 			name: download.suggestedFilename(),
@@ -28,15 +41,29 @@ export async function exportPackage(page: Page): Promise<Exported> {
 		}))
 	);
 	const pdf = files.find((file) => file.name.endsWith('.pdf'));
-	const json = files.find((file) => file.name.endsWith('.json'));
-	if (!pdf || !json) throw new Error(`unexpected downloads: ${files.map((f) => f.name).join()}`);
+	const instructions = files.find((file) =>
+		/^roomx-(anleitung|instructions)-.+\.md$/.test(file.name)
+	);
+	const schema = files.find((file) => file.name === 'roomx-plan.schema.json');
+	const catalog = files.find((file) => file.name === 'roomx-katalog.json');
+	const json = files.find(
+		(file) => file.name.endsWith('.json') && file !== schema && file !== catalog
+	);
+	if (!pdf || !json || !instructions || !schema || !catalog) {
+		throw new Error(`unexpected downloads: ${files.map((f) => f.name).join()}`);
+	}
 	const jsonText = json.data.toString('utf8');
 	return {
 		json: JSON.parse(jsonText),
 		jsonText,
 		pdf: pdf.data,
 		pdfName: pdf.name,
-		jsonName: json.name
+		jsonName: json.name,
+		instructions: instructions.data.toString('utf8'),
+		instructionsName: instructions.name,
+		schemaText: schema.data.toString('utf8'),
+		catalogText: catalog.data.toString('utf8'),
+		fileNames: files.map((file) => file.name)
 	};
 }
 
