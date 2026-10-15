@@ -1,5 +1,5 @@
 import type { Object3D } from 'three';
-import type { CatalogEntry } from '#lib/core/catalog.ts';
+import type { CatalogEntry, Look } from '#lib/core/catalog.ts';
 import type { Dims, Item, ModelType, Project, Room } from '#lib/core/schema.ts';
 
 // World space: metres, Y up. A room point (x, y) in mm maps to X = x / 1000, Z = -y / 1000.
@@ -127,16 +127,19 @@ export interface FurnitureSpec {
 	model: ModelType;
 	dims: Dims;
 	color: string;
+	look?: Look;
 }
 
 // Returns an object centred on its footprint, standing on y = 0, front towards -Z, sized in metres.
 export type FurnitureBuilder = (spec: FurnitureSpec) => Object3D;
 
 export function furnitureSpec(item: Item, entry: CatalogEntry | undefined): FurnitureSpec {
+	const model = item.model ?? entry?.model ?? 'box';
 	return {
-		model: item.model ?? entry?.model ?? 'box',
+		model,
 		dims: item.dims,
-		color: item.color ?? entry?.colors[0] ?? '#b8b2a7'
+		color: item.color ?? entry?.colors[0] ?? '#b8b2a7',
+		...(entry?.look && entry.model === model ? { look: entry.look } : {})
 	};
 }
 

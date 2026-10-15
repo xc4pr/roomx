@@ -24,7 +24,7 @@ test('Alle Katalogbilder entstehen ohne Fehler', async ({ page }, testInfo) => {
 	if (!(await panel.isVisible())) await fab.click();
 	await expect(panel).toBeVisible();
 
-	const select = panel.locator('select');
+	const select = panel.getByLabel('Marke');
 	const brands = await select
 		.locator('option')
 		.evaluateAll((options) =>
@@ -36,28 +36,69 @@ test('Alle Katalogbilder entstehen ohne Fehler', async ({ page }, testInfo) => {
 	const expected = new Map<string, number>();
 	for (const entry of catalog) expected.set(entry.brand, (expected.get(entry.brand) ?? 0) + 1);
 
-	const missingImages = () =>
+	const view = () =>
 		page.evaluate(() => {
-			const cards = [...document.querySelectorAll('[data-catalog-id]')];
-			const missing = cards.filter((card) => !card.querySelector('img'));
-			missing[0]?.scrollIntoView({ block: 'center' });
-			return missing.length;
+			const grid = document.querySelector('[data-testid="virtual-grid"]') as HTMLElement;
+			let scroller: HTMLElement | null = grid.parentElement;
+			while (scroller && !['auto', 'scroll'].includes(getComputedStyle(scroller).overflowY)) {
+				scroller = scroller.parentElement;
+			}
+			const area = (scroller ?? document.documentElement).getBoundingClientRect();
+			const cards = [...document.querySelectorAll('[data-catalog-id]')].filter((card) => {
+				const rect = card.getBoundingClientRect();
+				return rect.bottom > area.top && rect.top < area.bottom;
+			});
+			return {
+				ids: cards.map((card) => (card as HTMLElement).dataset.catalogId as string),
+				missing: cards.filter((card) => !card.querySelector('img')).length
+			};
 		});
+
+	const scrollBy = (fraction: number) =>
+		page.evaluate((amount) => {
+			const grid = document.querySelector('[data-testid="virtual-grid"]') as HTMLElement;
+			let scroller: HTMLElement | null = grid.parentElement;
+			while (scroller && !['auto', 'scroll'].includes(getComputedStyle(scroller).overflowY)) {
+				scroller = scroller.parentElement;
+			}
+			const target = scroller ?? document.documentElement;
+			if (amount === 0) {
+				target.scrollTop = 0;
+				return false;
+			}
+			const before = target.scrollTop;
+			target.scrollTop += target.clientHeight * amount;
+			return target.scrollTop === before;
+		}, fraction);
+
+	const sweep = async (label: string): Promise<number> => {
+		const seen = new Set<string>();
+		await scrollBy(0);
+		for (;;) {
+			await expect
+				.poll(async () => (await view()).missing, {
+					message: `Bilder ${label}`,
+					timeout: 90_000,
+					intervals: [100]
+				})
+				.toBe(0);
+			for (const id of (await view()).ids) seen.add(id);
+			if (await scrollBy(0.8)) break;
+		}
+		return seen.size;
+	};
 
 	let seen = 0;
 	for (const brand of brands) {
 		await select.selectOption(brand);
-		await expect(panel.locator('[data-catalog-id]')).toHaveCount(expected.get(brand) ?? -1);
-		await expect
-			.poll(missingImages, { message: `Bilder ${brand}`, timeout: 90_000, intervals: [100] })
-			.toBe(0);
-		seen += expected.get(brand) ?? 0;
+		const count = await sweep(brand);
+		expect(count, brand).toBe(expected.get(brand) ?? -1);
+		seen += count;
 	}
 	expect(seen).toBe(catalog.length);
 
 	await select.selectOption('all');
-	await expect(panel.locator('[data-catalog-id]')).toHaveCount(catalog.length);
-	await expect.poll(missingImages, { timeout: 30_000 }).toBe(0);
+	expect(await sweep('alle')).toBe(catalog.length);
 
 	const broken = await page.evaluate(() =>
 		[...document.querySelectorAll('[data-catalog-id] img')]

@@ -326,7 +326,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
   <img src=".github/assets/screenshots/en/furnish.webp" alt="Furnish: plan with furnished rooms, the furniture catalogue with search and brand filter on the right" width="860">
 </p>
 
-**Catalogue.** It holds over 450 items from the brands **IKEA**, **JYSK**, **Tchibo** (series CN3, all variants: shelves, chests of drawers, sideboards, low boards, cabinets, tables and desks) and **Generic** (neutral furniture, appliances, decor, lamps). The IKEA, JYSK and Tchibo items are **checked**: dimensions, article number and regular price come from the Swiss online shop (as of October 2026). Beds come in the Swiss sizes 90, 140, 160 and 180 × 200 cm, and PAX combinations include doors.
+**Catalogue.** It holds over 450 items from the brands **IKEA**, **JYSK**, **Tchibo** (series CN3, all variants: shelves, chests of drawers, sideboards, low boards, cabinets, tables and desks) and **Generic** (neutral furniture, appliances, decor, lamps). The IKEA, JYSK and Tchibo items are **checked**: dimensions, article number and regular price come from the Swiss online shop (as of October 2026). Beds come in the Swiss sizes 90, 140, 160 and 180 × 200 cm, and PAX combinations include doors. The full catalogue with several thousand items loads as a separate file (also offline); search and the filters for brand, category and width cover all of it. The AI package contains an excerpt for the retailers named in your needs.
 
 - Search at the top, for example “Billy” or “desk”.
 - Categories as chips: the most common ones (for example Beds, Shelves, Tables, Sofas) come first, and “+ n more” shows the rest (“Less” folds them again). The “Brand” filter narrows the list by retailer or manufacturer.

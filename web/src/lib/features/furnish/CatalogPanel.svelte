@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Search from '@lucide/svelte/icons/search';
-	import { catalog } from '#lib/catalog/index.ts';
+	import { fullCatalog } from '#lib/catalog/full.svelte.ts';
+	import { allEntries } from '#lib/catalog/index.ts';
 	import type { CatalogEntry } from '#lib/core/catalog.ts';
 	import type { ItemCategory } from '#lib/core/schema.ts';
 	import { categoryNames } from '#lib/i18n/common.ts';
@@ -12,10 +14,18 @@
 	import Select from '#lib/ui/Select.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import CatalogCard from './CatalogCard.svelte';
-	import { brandsOf, categoriesOf, collapsedCategories, filterCatalog } from './filter.ts';
+	import {
+		brandsOf,
+		categoriesOf,
+		collapsedCategories,
+		filterCatalog,
+		WIDTH_CLASSES,
+		type WidthClass
+	} from './filter.ts';
 	import { messages } from './i18n.ts';
 	import { pricesAsOf } from './priceDate.ts';
 	import { session } from './session.svelte.ts';
+	import VirtualGrid from './VirtualGrid.svelte';
 
 	interface Props {
 		onadd: (entry: CatalogEntry) => void;
@@ -24,11 +34,29 @@
 
 	let { onadd, ondrop }: Props = $props();
 
+	const SEARCH_DELAY = 140;
+	const CARD_HEIGHT = 292;
+
 	let query = $state('');
+	let applied = $state('');
 	let category = $state<ItemCategory | 'all'>('all');
 	let brand = $state('all');
+	let width = $state('all');
+	let timer: ReturnType<typeof setTimeout> | undefined;
 
-	const counts = categoriesOf(catalog);
+	$effect(() => {
+		const next = query;
+		clearTimeout(timer);
+		if (next === untrack(() => applied)) return;
+		timer = setTimeout(() => (applied = next), next === '' ? 0 : SEARCH_DELAY);
+		return () => clearTimeout(timer);
+	});
+
+	const entries = $derived.by(() => {
+		void fullCatalog.count;
+		return allEntries();
+	});
+	const counts = $derived(categoriesOf(entries));
 	const categories = $derived(
 		[...counts.keys()].sort((a, b) =>
 			categoryNames[locale.language][a].localeCompare(
@@ -43,7 +71,7 @@
 	const hiddenCount = $derived(
 		categories.length - collapsedCategories(categories, category).length
 	);
-	const brands = brandsOf(catalog);
+	const brands = $derived(brandsOf(entries));
 	const brandOptions = $derived([
 		{ value: 'all', label: t(messages, 'allBrands') },
 		...brands.map((name) => ({
@@ -51,7 +79,17 @@
 			label: name === 'Generic' ? t(messages, 'generic') : name
 		}))
 	]);
-	const results = $derived(filterCatalog(catalog, { query, category, brand }, locale.language));
+	const widthOptions = $derived([
+		{ value: 'all', label: t(messages, 'anyWidth') },
+		...WIDTH_CLASSES.map((value) => ({ value, label: t(messages, `width_${value}`) }))
+	]);
+	const results = $derived(
+		filterCatalog(
+			entries,
+			{ query: applied, category, brand, width: width as WidthClass | 'all' },
+			locale.language
+		)
+	);
 </script>
 
 <div class="flex flex-col gap-3" data-testid="catalog-panel">
@@ -89,12 +127,18 @@
 		{/if}
 	</div>
 
-	<div class="flex items-end gap-2">
+	<div class="flex flex-wrap items-end gap-2">
 		<Select
 			class="min-w-0 flex-1"
 			options={brandOptions}
 			bind:value={brand}
 			label={t(messages, 'brand')}
+		/>
+		<Select
+			class="min-w-0 flex-1"
+			options={widthOptions}
+			bind:value={width}
+			label={t(messages, 'widthFilter')}
 		/>
 		<Button
 			variant="secondary"
@@ -113,11 +157,11 @@
 			{t(messages, results.length === 1 ? 'resultCountOne' : 'resultCount', { n: results.length })} ·
 			{t(messages, 'dragHint')}
 		</p>
-		<div class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2">
-			{#each results as entry (entry.id)}
+		<VirtualGrid items={results} rowHeight={CARD_HEIGHT} minColumn={150} gap={8}>
+			{#snippet row(entry)}
 				<CatalogCard {entry} {onadd} {ondrop} />
-			{/each}
-		</div>
+			{/snippet}
+		</VirtualGrid>
 		<p class="px-1 text-xs text-muted pointer-coarse:text-sm" data-testid="catalog-note">
 			{t(messages, 'catalogNote', { date: pricesAsOf() })}
 		</p>

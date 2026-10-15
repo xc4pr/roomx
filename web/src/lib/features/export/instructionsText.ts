@@ -298,7 +298,9 @@ export const instructionTexts = defineMessages({
 		catalogNote3:
 			'power: grösser als 0 heisst, das Gerät braucht eine Steckdose in höchstens 1,5 m Entfernung.',
 		catalogNote4:
-			'priceChf sind Richtpreise in CHF, Stand {date}. verified: true heisst, der Artikel wurde beim Hersteller geprüft. Bei verified: false sind Masse und Preis ungeprüft: Der Nutzer muss sie beim Händler prüfen, bevor er kauft. Weise in deiner Begründung darauf hin.'
+			'priceChf sind Richtpreise in CHF, Stand {date}. verified: true heisst, der Artikel wurde beim Hersteller geprüft. Bei verified: false sind Masse und Preis ungeprüft: Der Nutzer muss sie beim Händler prüfen, bevor er kauft. Weise in deiner Begründung darauf hin.',
+		catalogExcerpt:
+			'Diese Datei ist ein Auszug: {count} von {total} Artikeln, die zu den Händlern im Bedarf passen. Es kann weitere Artikel geben; erfinde keine Ids und bevorzuge Artikel aus dieser Liste.'
 	},
 	en: {
 		prompt: sentences(
@@ -581,6 +583,8 @@ export const instructionTexts = defineMessages({
 			'mount: floor = stands on the floor, wall = hangs on the wall, ceiling = hangs from the ceiling, on-top = stands on other furniture and needs on in the plan.',
 		catalogNote3: 'power: greater than 0 means the device needs a socket at most 1.5 m away.',
 		catalogNote4:
-			'priceChf are guide prices in CHF, as of {date}. verified: true means the article was checked with the manufacturer. With verified: false, dimensions and price are unchecked: the user must check them with the retailer before buying. Point this out in your reasoning.'
+			'priceChf are guide prices in CHF, as of {date}. verified: true means the article was checked with the manufacturer. With verified: false, dimensions and price are unchecked: the user must check them with the retailer before buying. Point this out in your reasoning.',
+		catalogExcerpt:
+			'This file is an excerpt: {count} of {total} articles that fit the retailers in the brief. More articles may exist; do not invent ids and prefer articles from this list.'
 	}
 });

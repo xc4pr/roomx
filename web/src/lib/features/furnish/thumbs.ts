@@ -2,6 +2,7 @@ import type { CatalogEntry } from '#lib/core/catalog.ts';
 
 const cache = new Map<string, string>();
 const pending = new Map<string, Promise<string | undefined>>();
+const wanted = new Map<string, number>();
 let tail: Promise<unknown> = Promise.resolve();
 
 const IDLE_TIMEOUT = 500;
@@ -28,7 +29,9 @@ export function loadThumbnail(entry: CatalogEntry): Promise<string | undefined> 
 	if (running) return running;
 	const job = tail
 		.then(async () => {
+			if (wanted.get(entry.id) === 0) return undefined;
 			await idle();
+			if (wanted.get(entry.id) === 0) return undefined;
 			const { renderCatalogThumbnail } = await import('#lib/three/offscreen.ts');
 			const url = await renderCatalogThumbnail(entry, 192);
 			cache.set(entry.id, url);
@@ -47,7 +50,16 @@ export function lazyThumbnail(
 ) {
 	let current = options;
 	let observer: IntersectionObserver | undefined;
+	let holding: string | undefined;
+	const release = () => {
+		if (holding === undefined) return;
+		wanted.set(holding, Math.max(0, (wanted.get(holding) ?? 1) - 1));
+		holding = undefined;
+	};
 	const request = () => {
+		release();
+		holding = current.entry.id;
+		wanted.set(holding, (wanted.get(holding) ?? 0) + 1);
 		void loadThumbnail(current.entry).then((url) => {
 			if (url) current.onload(url);
 		});
@@ -73,6 +85,7 @@ export function lazyThumbnail(
 		},
 		destroy() {
 			observer?.disconnect();
+			release();
 		}
 	};
 }

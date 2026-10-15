@@ -1,5 +1,5 @@
 import { Group } from 'three';
-import { cabinet } from './storage.ts';
+import { cabinet } from './cabinet.ts';
 import { box, cyl, mat, type Palette } from './kit.ts';
 
 type Build = (w: number, d: number, h: number, p: Palette) => Group;

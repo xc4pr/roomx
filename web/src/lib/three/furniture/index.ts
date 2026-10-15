@@ -1,4 +1,5 @@
 import { Box3, Group, Mesh, Vector3, type Material, type Object3D } from 'three';
+import type { Look } from '#lib/core/catalog.ts';
 import type { ModelType } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
 import type { FurnitureBuilder } from '../types.ts';
@@ -11,7 +12,7 @@ import { seating } from './seating.ts';
 import { storage } from './storage.ts';
 import { tables } from './tables.ts';
 
-type Build = (w: number, d: number, h: number, p: Palette) => Group;
+type Build = (w: number, d: number, h: number, p: Palette, look?: Look) => Group;
 
 const plainBox: Build = (w, d, h, p) => {
 	const g = new Group();
@@ -72,7 +73,7 @@ export const buildFurniture: FurnitureBuilder = (spec) => {
 	const w = Math.max(spec.dims.w, 1) * MM;
 	const d = Math.max(spec.dims.d, 1) * MM;
 	const h = Math.max(spec.dims.h, 1) * MM;
-	const body = build(w, d, h, palette(spec.color));
+	const body = build(w, d, h, palette(spec.color), spec.look);
 	finish(body, spec.model);
 	const root = new Group();
 	root.name = spec.model;

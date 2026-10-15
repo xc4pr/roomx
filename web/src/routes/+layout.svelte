@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { ensureFullCatalog } from '#lib/catalog/full.svelte.ts';
 	import { consumePairFragment, pairErrorMessage } from '#lib/features/camera/pairing.ts';
 	import AppAlerts from '#lib/features/projects/AppAlerts.svelte';
 	import { watchInstall } from '#lib/features/projects/install.svelte.ts';
@@ -49,6 +50,7 @@
 		const onHash = () => void pairFromLink();
 		window.addEventListener('hashchange', onHash);
 		watchForUpdates();
+		if (page.url.pathname === resolve('/')) void ensureFullCatalog();
 		const stopInstall = watchInstall();
 		const stopKeyboard = watchKeyboard();
 		const stopSync = startSync();
