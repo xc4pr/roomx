@@ -154,7 +154,7 @@ export const messages = defineMessages({
 		form: 'Shape',
 		formRect: 'Rectangle',
 		formTemplate: 'Template',
-		formFree: 'Free',
+		formFree: 'Freeform',
 		length: 'Length',
 		lengthHint: 'Walls 1 and 3 (A to B)',
 		width: 'Width',

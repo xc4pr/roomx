@@ -86,7 +86,7 @@ export const messages = defineMessages({
 			'Tap the plus to add a room and drag it into place. Tapping selects, double-tapping focuses, and you zoom with two fingers or the mouse wheel.',
 		title_dims: 'Enter the dimensions',
 		text_dims:
-			'Enter length, width and height or pick a template, “Free” is for odd shapes. Drag corners right on the plan and set roof slopes in the panel.',
+			'Enter length, width and height or pick a template, “Freeform” is for odd shapes. Drag corners right on the plan and set roof slopes in the panel.',
 		title_elements: 'Doors, windows, sockets',
 		text_elements:
 			'Pick an element in the palette, tap a wall and drag it into place. The wall view shows heights exactly, the electrical layer reveals sockets.',

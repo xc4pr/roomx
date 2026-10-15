@@ -385,7 +385,7 @@ export const messages = defineMessages({
 		persp_ceiling: 'Ceiling',
 		persp_floor: 'Floor',
 		persp_element: 'Element',
-		persp_free: 'Free',
+		persp_free: 'Free view',
 		refLabel: 'Reference',
 		photoMissing: 'Photo not available',
 		pageOf: 'Page {page} of {total}',
