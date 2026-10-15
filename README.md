@@ -70,7 +70,7 @@ The app runs in the browser on a computer, laptop, tablet or smartphone, and you
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/furnish.webp" alt="Furniture catalogue next to the floor plan with a furnished living room" width="100%"><br>
       <b>Furnish</b><br>
-      Over 250 pieces from IKEA, Tchibo and generic models. Drag, rotate, stack, add your own furniture, compare variants.
+      Over 450 pieces from IKEA, JYSK, Tchibo and generic models. Drag, rotate, stack, add your own furniture, compare variants.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/furnish-hints.webp" alt="A piece of furniture in red with the hint that it blocks the door area" width="100%"><br>
@@ -308,14 +308,15 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
   <img src=".github/assets/screenshots/en/furnish.webp" alt="Furnish: plan with furnished rooms, the furniture catalogue with search and brand filter on the right" width="860">
 </p>
 
-**Catalogue.** It holds over 250 items from the brands **IKEA**, **Tchibo** (series CN3) and **Generic** (neutral furniture, appliances, decor, lamps).
+**Catalogue.** It holds over 450 items from the brands **IKEA**, **JYSK**, **Tchibo** (series CN3, all variants: shelves, chests of drawers, sideboards, low boards, cabinets, tables and desks) and **Generic** (neutral furniture, appliances, decor, lamps). The IKEA, JYSK and Tchibo items are **checked**: dimensions, article number and regular price come from the Swiss online shop (as of October 2026). Beds come in the Swiss sizes 90, 140, 160 and 180 × 200 cm, and PAX combinations include doors.
 
 - Search at the top, for example “Billy” or “desk”.
-- Categories as chips: the most common ones (for example Beds, Shelves, Tables, Sofas) come first, and “+ n more” shows the rest (“Less” folds them again). The “Brand” filter narrows the list by manufacturer.
+- Categories as chips: the most common ones (for example Beds, Shelves, Tables, Sofas) come first, and “+ n more” shows the rest (“Less” folds them again). The “Brand” filter narrows the list by retailer or manufacturer.
 - **Drag** or **tap** furniture: tapping puts it into the room.
+- **View at retailer:** every catalogue card of a checked item has a “View at retailer” link. It opens the retailer’s page in a new tab; RoomX itself makes no requests when you do so.
 
 > [!NOTE]
-> Catalogue dimensions are **guide values**. Items whose dimensions have not been checked against the manufacturer are marked **“Dimensions unverified”**. Prices are **guide prices in Swiss francs (CHF)** from the Swiss market, shown as “Guide price, as of October 2026”. Always check dimensions and price with the retailer before you buy.
+> Catalogue dimensions are **guide values**. Items that are no longer sold stay in the catalogue as unchecked, so that older projects still load; they are marked **“Dimensions unverified”**, and older catalogue IDs are redirected to the new item automatically. Prices are **guide prices in Swiss francs (CHF)** from the Swiss market, shown as “Guide price, as of October 2026”. Always check dimensions and price with the retailer before you buy.
 
 **Move furniture.** Drag a piece into place. The rotation handle turns it freely, the buttons in the panel turn it by 90° or 15°, or you type in the angle. On the plan, dotted lines show the distance to walls and other furniture. “Lock” protects a piece from being moved by accident. Duplicate and Delete are in the bar under the selected piece.
 
@@ -360,7 +361,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 </p>
 
 - **Budget:** enter your budget in CHF under **Needs**. A bar at the top shows the total of the current variant and how much is left in the budget or how far over it you are.
-- **List (shopping list):** all furniture in the variant with quantity, price, brand and link, plus the total. Items with a guide price are marked, and items without a price are counted. “Export as CSV” saves the list for Excel or Numbers (columns: Item, Brand, Quantity, Unit price CHF, Total CHF, Estimate, Link).
+- **List (shopping list):** all furniture in the variant with quantity, price, brand and link, plus the total. Items with a guide price are marked, and items without a price are counted. For checked items the link leads to the retailer’s page. “Export as CSV” saves the list for Excel or Numbers (columns: Item, Brand, Quantity, Unit price CHF, Total CHF, Estimate, Link).
 - **Needs:** people (adults, children, pets), bed sizes, workstations (monitors, laptop or PC, height-adjustable), style, budget, preferred retailers and wishes. The needs go into the AI package and help the assistant make its suggestion.
 
 ### Furnish with an AI assistant
@@ -549,7 +550,7 @@ Safari can delete the data of websites you have not opened for seven days. Insta
 <details>
 <summary><b>Are the furniture dimensions and prices correct?</b></summary>
 
-They are guide values. Catalogue prices are guide prices in CHF (as of October 2026), and entries whose dimensions have not been checked are marked “Dimensions unverified”. Check both with the retailer before you buy.
+They are guide values. Catalogue prices are guide prices in CHF (as of October 2026), and entries that are not checked (for example items that are no longer sold) are marked “Dimensions unverified”. Check both with the retailer before you buy.
 </details>
 
 <details>
@@ -582,7 +583,7 @@ In short: **your data stays on your device.**
 - Data only leaves your device when **you** pass it on: with an AI package, a backup or another export.
 - When you add photos, they are shrunk in the browser and saved without metadata such as the location where they were taken.
 - GitHub Pages serves the app’s files. When you open the app, GitHub processes technical access data such as your IP address. The operator of RoomX does not receive it.
-- Links to furniture stores only open when you tap them. No project data is passed on.
+- Links to furniture stores (“View at retailer”) only open, in a new tab, when you tap them. RoomX makes no requests to the stores, and no project data is passed on.
 - The data in the browser is not additionally encrypted. Lock your device.
 
 Responsible for the app and its privacy page is xc4pr. Contact: julian-5@gmx.ch, or the [issues on GitHub](https://github.com/xc4pr/roomx/issues).
@@ -598,7 +599,7 @@ RoomX is a free tool and is provided “as is”, without any guarantee that it 
 - **No professional advice.** RoomX does not replace planning by professionals, especially for structural work, electrical installations and wall fixings.
 - **Check before buying and building:** dimensions, prices and availability are yours to verify.
 - **Data loss is possible** if you clear browser data or lose your device. Make a backup regularly.
-- Brands such as IKEA and Tchibo belong to their owners. There is no connection to these companies.
+- Brands such as IKEA, JYSK and Tchibo belong to their owners. There is no connection to these companies.
 
 The full wording is in the app on the page [“Privacy & liability”](https://xc4pr.github.io/roomx/rechtliches).
 
@@ -637,7 +638,7 @@ roomx/
 │  ├─ src/lib/features     App areas: board, room, elements, photos, viewer, furnish,
 │  │                       export, import, projects, settings, tour, legal
 │  ├─ src/lib/three        3D: rooms, furniture models, viewer, GLB export
-│  ├─ src/lib/catalog      Furniture catalogue (IKEA, Tchibo, Generic)
+│  ├─ src/lib/catalog      Furniture catalogue (IKEA, JYSK, Tchibo, Generic)
 │  ├─ src/lib/ui           Base components and design tokens
 │  ├─ src/routes           Pages (projects, plan, 3D, furnish, export/import, settings)
 │  ├─ src/service-worker   Service worker

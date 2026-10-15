@@ -70,7 +70,7 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/furnish.webp" alt="Möbelkatalog neben dem Grundriss mit eingerichtetem Wohnzimmer" width="100%"><br>
       <b>Einrichten</b><br>
-      Über 250 Möbel von IKEA, Tchibo und allgemeine Modelle. Ziehen, drehen, stapeln, eigene Möbel anlegen, Varianten vergleichen.
+      Über 450 Möbel von IKEA, JYSK, Tchibo und allgemeine Modelle. Ziehen, drehen, stapeln, eigene Möbel anlegen, Varianten vergleichen.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/furnish-hints.webp" alt="Ein Möbel in Rot mit dem Hinweis, dass es den Türbereich blockiert" width="100%"><br>
@@ -308,14 +308,15 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
   <img src=".github/assets/screenshots/de/furnish.webp" alt="Einrichten: Plan mit eingerichteten Räumen, rechts der Möbelkatalog mit Suche und Markenfilter" width="860">
 </p>
 
-**Katalog.** Er enthält über 250 Artikel in den Marken **IKEA**, **Tchibo** (Serie CN3) und **Allgemein** (neutrale Möbel, Geräte, Deko, Lampen).
+**Katalog.** Er enthält über 450 Artikel in den Marken **IKEA**, **JYSK**, **Tchibo** (Serie CN3, alle Varianten: Regale, Kommoden, Sideboards, Lowboards, Schränke, Tische und Schreibtische) und **Allgemein** (neutrale Möbel, Geräte, Deko, Lampen). Die Artikel von IKEA, JYSK und Tchibo sind **geprüft**: Masse, Artikelnummer und regulärer Preis stammen vom Schweizer Online-Shop (Stand Oktober 2026). Betten gibt es in den Schweizer Grössen 90, 140, 160 und 180 × 200 cm, PAX-Kombinationen enthalten Türen.
 
 - Suche oben, zum Beispiel «Billy» oder «Schreibtisch».
-- Kategorien als Chips: Die häufigsten (zum Beispiel Betten, Regale, Tische, Sofas) stehen vorne, «+ n weitere» zeigt den Rest («Weniger» klappt sie wieder ein). Der Filter «Marke» grenzt die Liste nach Hersteller ein.
+- Kategorien als Chips: Die häufigsten (zum Beispiel Betten, Regale, Tische, Sofas) stehen vorne, «+ n weitere» zeigt den Rest («Weniger» klappt sie wieder ein). Der Filter «Marke» grenzt die Liste nach Händler oder Hersteller ein.
 - Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
+- **Beim Händler ansehen:** Jede Katalogkarte eines geprüften Artikels hat den Link «Beim Händler ansehen». Er öffnet die Seite des Händlers in einem neuen Tab; RoomX selbst macht dabei keine Anfragen.
 
 > [!NOTE]
-> Die Masse im Katalog sind **Richtwerte**. Artikel, deren Masse nicht beim Hersteller geprüft sind, tragen den Vermerk **«Masse ungeprüft»**. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen als «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
+> Die Masse im Katalog sind **Richtwerte**. Artikel, die es nicht mehr gibt, bleiben als ungeprüft im Katalog, damit alte Projekte weiter laden; sie tragen den Vermerk **«Masse ungeprüft»**, und ältere Katalog-IDs werden automatisch auf den neuen Artikel umgeleitet. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen als «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
 
 **Möbel bewegen.** Zieh ein Möbel an seinen Platz. Der Drehgriff dreht frei, die Knöpfe im Panel drehen um 90° oder 15°, oder du tippst die Gradzahl ein. Im Plan zeigen gepunktete Linien den Abstand zu Wänden und anderen Möbeln. Mit «Fixieren» sperrst du ein Möbel gegen versehentliches Verschieben. Duplizieren und Löschen findest du in der Leiste unter dem gewählten Möbel.
 
@@ -360,7 +361,7 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 </p>
 
 - **Budget:** Trage unter **Bedarf** dein Budget in CHF ein. Oben erscheint ein Balken mit der Summe der aktuellen Variante und dem Hinweis, wie viel noch im Budget ist oder wie viel darüber.
-- **Liste (Einkaufsliste):** alle Möbel der Variante mit Menge, Preis, Marke und Link, mit der Summe. Artikel mit Richtpreis sind gekennzeichnet, Artikel ohne Preis werden gezählt. «Als CSV exportieren» speichert die Liste für Excel oder Numbers (Spalten: Artikel, Marke, Menge, Einzelpreis CHF, Summe CHF, Richtpreis, Link).
+- **Liste (Einkaufsliste):** alle Möbel der Variante mit Menge, Preis, Marke und Link, mit der Summe. Artikel mit Richtpreis sind gekennzeichnet, Artikel ohne Preis werden gezählt. Bei geprüften Artikeln führt der Link zur Seite des Händlers. «Als CSV exportieren» speichert die Liste für Excel oder Numbers (Spalten: Artikel, Marke, Menge, Einzelpreis CHF, Summe CHF, Richtpreis, Link).
 - **Bedarf:** Personen (Erwachsene, Kinder, Haustiere), Bettgrössen, Arbeitsplätze (Bildschirme, Laptop oder PC, höhenverstellbar), Stil, Budget, bevorzugte Händler und Wünsche. Der Bedarf geht ins KI-Paket und hilft dem Assistenten beim Vorschlag.
 
 ### Mit dem KI-Assistenten einrichten
@@ -549,7 +550,7 @@ Safari kann die Daten von Websites löschen, die man sieben Tage lang nicht geö
 <details>
 <summary><b>Stimmen die Möbelmasse und Preise?</b></summary>
 
-Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF (Stand Oktober 2026), und Artikel mit ungeprüften Massen tragen den Vermerk «Masse ungeprüft». Prüfe beides beim Händler, bevor du kaufst.
+Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF (Stand Oktober 2026), und nicht geprüfte Artikel (zum Beispiel solche, die es nicht mehr gibt) tragen den Vermerk «Masse ungeprüft». Prüfe beides beim Händler, bevor du kaufst.
 </details>
 
 <details>
@@ -582,7 +583,7 @@ Kurz gesagt: **Deine Daten bleiben auf deinem Gerät.**
 - Daten verlassen dein Gerät nur, wenn **du** sie weitergibst: mit einem KI-Paket, einem Backup oder einem anderen Export.
 - Fotos werden beim Hinzufügen im Browser verkleinert und ohne Metadaten wie den Aufnahmeort gespeichert.
 - Die Dateien der App liefert GitHub Pages aus. Beim Aufruf verarbeitet GitHub technische Zugriffsdaten wie die IP-Adresse. Der Betreiber von RoomX erhält sie nicht.
-- Links zu Möbelhäusern öffnen sich nur, wenn du sie antippst. Dabei werden keine Projektdaten übergeben.
+- Links zu Möbelhäusern («Beim Händler ansehen») öffnen sich nur in einem neuen Tab, wenn du sie antippst. RoomX macht keine Anfragen an die Händler, und es werden keine Projektdaten übergeben.
 - Die Daten im Browser sind nicht zusätzlich verschlüsselt. Sperre dein Gerät.
 
 Verantwortlich für die App und ihre Datenschutzseite ist xc4pr. Kontakt: julian-5@gmx.ch oder die [Issues auf GitHub](https://github.com/xc4pr/roomx/issues).
@@ -598,7 +599,7 @@ RoomX ist ein kostenloses Hilfsmittel und wird «wie besehen» zur Verfügung ge
 - **Keine Fachberatung.** RoomX ersetzt keine Planung durch Fachleute, besonders bei Statik, Elektroinstallationen und Wandbefestigung.
 - **Prüfe vor Kauf und Umbau** Masse, Preise und Lieferbarkeit selbst.
 - **Datenverlust ist möglich**, wenn du Browserdaten löschst oder das Gerät verlierst. Mach regelmässig ein Backup.
-- Marken wie IKEA und Tchibo gehören ihren Inhabern. Es besteht keine Verbindung zu diesen Unternehmen.
+- Marken wie IKEA, JYSK und Tchibo gehören ihren Inhabern. Es besteht keine Verbindung zu diesen Unternehmen.
 
 Den vollständigen Wortlaut findest du in der App auf der Seite [«Datenschutz & Haftung»](https://xc4pr.github.io/roomx/rechtliches).
 
@@ -637,7 +638,7 @@ roomx/
 │  ├─ src/lib/features     Bereiche der App: board, room, elements, photos, viewer, furnish,
 │  │                       export, import, projects, settings, tour, legal
 │  ├─ src/lib/three        3D: Räume, Möbelmodelle, Viewer, GLB-Export
-│  ├─ src/lib/catalog      Möbelkatalog (IKEA, Tchibo, Allgemein)
+│  ├─ src/lib/catalog      Möbelkatalog (IKEA, JYSK, Tchibo, Allgemein)
 │  ├─ src/lib/ui           Basis-Komponenten und Design-Tokens
 │  ├─ src/routes           Seiten (Projekte, Plan, 3D, Einrichten, Export/Import, Einstellungen)
 │  ├─ src/service-worker   Service Worker
