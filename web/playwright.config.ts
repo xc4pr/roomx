@@ -5,6 +5,9 @@ const ipadPortrait = { viewport: { width: 820, height: 1180 }, hasTouch: true, i
 const port = process.env.PW_PORT ?? '4273';
 const external = process.env.PW_EXTERNAL_SERVER === '1';
 const mirrorSpecs = '**/mirror-*.spec.ts';
+const ignored = process.env.PW_VISUAL ? ['**/pages/**'] : ['**/visual.spec.ts', '**/pages/**'];
+// A project's testIgnore replaces the top-level list, so projects that skip the mirror specs repeat it.
+const withoutMirror = [...ignored, mirrorSpecs];
 const relay = {
 	command: 'node tests/mirror/relay.mjs',
 	url: 'http://127.0.0.1:4275/healthz',
@@ -16,7 +19,7 @@ const relay = {
 export default defineConfig({
 	testDir: 'tests',
 	testMatch: process.env.PW_VISUAL ? '**/visual.spec.ts' : '**/*.spec.ts',
-	testIgnore: process.env.PW_VISUAL ? ['**/pages/**'] : ['**/visual.spec.ts', '**/pages/**'],
+	testIgnore: ignored,
 	outputDir: process.env.PW_OUTPUT_DIR ?? 'test-results',
 	fullyParallel: true,
 	workers: process.env.CI ? 2 : 3,
@@ -47,16 +50,16 @@ export default defineConfig({
 				relay
 			],
 	projects: [
-		{ name: 'desktop', testIgnore: mirrorSpecs, use: { ...devices['Desktop Chrome'] } },
+		{ name: 'desktop', testIgnore: withoutMirror, use: { ...devices['Desktop Chrome'] } },
 		{ name: 'ipad-landscape', use: { browserName: 'webkit', ...ipadLandscape } },
 		{
 			name: 'ipad-portrait',
-			testIgnore: mirrorSpecs,
+			testIgnore: withoutMirror,
 			use: { browserName: 'webkit', ...ipadPortrait }
 		},
 		{
 			name: 'ipad-chromium',
-			testIgnore: mirrorSpecs,
+			testIgnore: withoutMirror,
 			use: {
 				browserName: 'chromium',
 				...ipadLandscape,
