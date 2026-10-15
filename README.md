@@ -131,9 +131,17 @@ A project is an apartment, a house or a single room, with all its rooms, photos,
 
 - **New project:** button at the bottom right. Give it a name.
 - **Open:** tap the card. The preview image shows your project in 3D.
-- **Menu (three dots) on the card:** Rename, Backup (ZIP), Delete. A deleted project is gone, so make a backup first if you are unsure.
+- **Menu (three dots) on the card:** Rename, Backup (ZIP), Delete.
+- **Delete goes to the trash.** A deleted project is not gone: “Move to trash” puts it in the **Trash** at the bottom of the project list, where it stays for **30 days**. “Undo” in the message at the bottom brings it back right away. In the Trash, “Restore” brings it back, “Delete for good” removes it for good; after 30 days roomx removes it by itself. The same “Undo” exists when you delete a photo.
 - **At the top of a project:** the tabs “Plan”, “3D”, “Furnish” and “Export / Import” switch between areas. Next to them are “Undo”, “Redo” and “Build 3D”.
 - **Gear icon at the top right:** [Settings](#settings).
+
+<p align="center">
+  <img src=".github/assets/screenshots/trash.webp" alt="Project list with an open Trash: one deleted project with Restore and Delete for good, and the message with Undo" width="760">
+</p>
+
+> [!NOTE]
+> With the self-hosted version and syncing switched on, a deletion only reaches your other devices when you delete the project for good.
 
 ### Capture rooms
 
@@ -172,11 +180,16 @@ An apartment is made of several rooms. So that roomx knows how they fit together
 1. Drag a room up to a neighbouring room.
 2. It **snaps in like a magnet**. The two rooms now share a wall.
 3. A connection symbol appears on the shared wall. In the panel, the “Neighbours” section shows which wall borders which room and how long the shared stretch is. One tap takes you to the neighbouring room.
+4. Under each neighbour, **“Wall thickness to …”** shows how thick the shared wall is. Pick 10, 12, 15, 20, 25 or 30 cm; roomx moves the neighbouring room accordingly. 3D and the plan draw the wall with this thickness.
+
+<p align="center">
+  <img src=".github/assets/screenshots/neighbours.webp" alt="Room panel with the Neighbours section: two neighbouring rooms with wall thickness choices of 10 to 30 cm, and the switch Deliberately separate" width="860">
+</p>
 
 **Doors and windows in the shared wall lead into both rooms.** If you put a door in the wall between the living room and the bedroom, it automatically appears in the bedroom as well, with the hinge mirrored. In the neighbouring room’s element list it is marked “from Living room”; you edit it in the room it belongs to.
 
 > [!IMPORTANT]
-> **Unconnected rooms are reported.** If a room in a project with several rooms has no neighbour, roomx points it out when you build the 3D view and when you export the AI package. You can carry on anyway. That makes sense for rooms that are deliberately separate, such as a cellar or garage.
+> **Unconnected rooms are reported.** If a room in a project with several rooms has no neighbour, roomx points it out when you build the 3D view and when you export the AI package. You can carry on anyway. For rooms that are deliberately separate, such as a cellar, garage, loft or an outdoor area, switch on **“Deliberately separate”** at the bottom of the “Neighbours” section in the room panel: roomx then no longer reports that room.
 
 ### Doors, windows and electrical
 
@@ -228,7 +241,7 @@ The photo tour guides you through a room step by step, so that no angle is missi
 
 On top of that you can take a **free photo** with a note at any time, for example of problem spots.
 
-Photos are shrunk on the device and saved without metadata.
+Photos are shrunk on the device and saved without metadata. If you delete a photo by mistake, “Undo” in the message at the bottom brings it back.
 
     </td>
     <td valign="top" width="260">
@@ -287,7 +300,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 - **Drag** or **tap** furniture: tapping puts it into the room.
 
 > [!NOTE]
-> Catalogue prices are **guide prices in Swiss francs (CHF)** from the Swiss market. Only a few dimensions have been checked against the manufacturers’ websites; for those items a link leads to the manufacturer’s page. Always check dimensions and price with the retailer before you buy.
+> Catalogue dimensions are **guide values**. Items whose dimensions have not been checked against the manufacturer are marked **“Dimensions unverified”**. Prices are **guide prices in Swiss francs (CHF)** from the Swiss market, shown as “Guide price, as of October 2026”. Always check dimensions and price with the retailer before you buy.
 
 **Move furniture.** Drag a piece into place. The rotation handle turns it freely, the buttons in the panel turn it by 90° or 15°, or you type in the angle. On the plan, dotted lines show the distance to walls and other furniture. “Lock” protects a piece from being moved by accident. Duplicate and Delete are in the bar under the selected piece.
 
@@ -337,7 +350,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 
 ### Furnish with an AI assistant
 
-You can have an AI assistant furnish your rooms. For this, roomx prepares an **AI package** and reads the assistant’s answer back in. It works with any AI assistant that accepts files. You do not need to install anything extra.
+You can have an AI assistant furnish your rooms. For this, roomx prepares an **AI package** and reads the assistant’s answer back in. It works with any AI assistant that accepts files. You do not need to install anything extra: the package already contains the instructions, the plan schema, the catalogue and a ready-made start prompt.
 
 > [!NOTE]
 > “Build 3D” is independent of this: it only shows your rooms in 3D for yourself. You only need the AI package if you want an assistant to make a plan for you.
@@ -354,21 +367,29 @@ You can have an AI assistant furnish your rooms. For this, roomx prepares an **A
 
 **Step by step:**
 
-1. **Create the AI package.** Open the “Export / Import” tab. Choose “Whole project” or “Selected rooms” and tap “Create AI package”. Beforehand roomx shows the estimated size and points out gaps in the plan, such as [unconnected rooms](#connect-rooms) or missing required photos. “Export anyway” carries on. Then “Share” or “Download”.
+1. **Create the AI package.** Open the “Export / Import” tab. Choose “Whole project” or “Selected rooms” and tap “Create AI package”. Beforehand roomx shows the estimated size and a notice **“What you share”**, and then points out gaps in the plan, such as [unconnected rooms](#connect-rooms) or missing required photos. “Export anyway” carries on. Then “Share” or “Download”. If you do not want to hand over any pictures of your home, switch on **“Export without photos”**.
 2. **Upload it in a chat.** Open a chat with an AI assistant of your choice and upload **all files** of the package. In roomx, tap **“Copy prompt”** and paste the text into the chat. Under “What to do next”, roomx shows these steps and the ready-made prompt right away.
 3. **Answer the questions.** The assistant asks what else it needs to know, for example about style, budget or wishes. Answer them.
 4. **Get the plan back as JSON.** At the end the assistant outputs the furnishing plan as JSON in the `roomx-plan` format. Copy the **whole reply**, or save the plan as a file.
-5. **Import the plan.** In roomx go to “Export / Import”, section “Import plan”: paste the text (“From clipboard” helps) or choose the file. The reply may contain other text as well; roomx finds the JSON by itself.
+5. **Import the plan.** In roomx go to “Export / Import”, section “Import plan”: paste the text (“From clipboard” helps) or choose the file. roomx is tolerant here: the reply may contain other text, a code block or comments in the JSON; roomx finds the JSON by itself.
 6. **Check the preview.** For each variant roomx shows the total and lists conflicts (for example “blocks the door”), notes and anything that cannot be imported.
 7. **Import as a variant.** “Import as new variant” adds the plan as a variant. Nothing is overwritten. If you like, choose whether the needs from the plan are taken over as well.
 8. **Adjust and export again.** Look at the variant in “Furnish” and change what you do not like. For a second round, create a new AI package: it now contains your adjusted furnishing.
 
 <p align="center">
-  <img src=".github/assets/screenshots/export.webp" alt="Export and Import: AI package card with scope and a button to create it, backup below" width="760">
+  <img src=".github/assets/screenshots/export.webp" alt="Export and Import: AI package card with scope, the notice What you share, the switch Export without photos and the button to create the package" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import.webp" alt="Import plan: pasted JSON and the preview" width="760">
+  <img src=".github/assets/screenshots/package-ready.webp" alt="AI package ready: the five files, the buttons Download and AI package as ZIP, and the steps with the prompt and the button Copy prompt" width="760">
+</p>
+
+<p align="center">
+  <img src=".github/assets/screenshots/import.webp" alt="Import plan: pasted reply with JSON and the preview with total and notes" width="760">
+</p>
+
+<p align="center">
+  <img src=".github/assets/screenshots/import-corrections.webp" alt="Import preview with a piece of furniture that was not imported and the box with the button Copy corrections" width="760">
 </p>
 
 > [!TIP]
@@ -378,10 +399,10 @@ You can have an AI assistant furnish your rooms. For this, roomx prepares an **A
 > **For large apartments**, export the rooms one at a time (“Selected rooms”). If roomx says the package is getting large and the assistant will not accept it, this is the best way.
 
 > [!TIP]
-> **Error message on import?** If there are errors or the reply breaks off in the middle of the JSON, roomx shows the exact places. With “Copy corrections” you send the list to the assistant and ask for a corrected, complete reply.
+> **Something not right after the import?** Under the preview, “Copy corrections” copies a ready-made text for the AI assistant. It starts with “Please correct the plan:”, lists what could not be imported and the notes, and asks for the whole corrected plan. Paste it into the chat. The same works if the JSON is faulty or the reply breaks off in the middle.
 
 > [!IMPORTANT]
-> The AI package contains your room data and, if included, your **photos**. You pass them on yourself to the assistant’s provider, and its terms apply. Check the photos beforehand for people, documents and anything private. With “Selected rooms” you only share what is needed.
+> The AI package contains your room data and, if included, your **photos**. You pass them on yourself to the assistant’s provider, and its terms apply. Check the photos beforehand for people, documents and anything private. With “Selected rooms” or “Export without photos” you only share what is needed.
 
 ### Back up and move
 
@@ -389,15 +410,23 @@ You can have an AI assistant furnish your rooms. For this, roomx prepares an **A
 
 **Undo and Redo.** The arrows at the top (or `Ctrl`/`Cmd` + `Z`) undo the last step. Deleting rooms and furniture can be undone too. One drag counts as one step.
 
-**Backup (ZIP).** Under “Export / Import” or in the menu of the project card you create a backup: the whole project in one ZIP file, with project data and original photos. Optionally you add the AI package and the 3D model. roomx remembers when you last made a backup and reminds you when it is more than 14 days ago.
+**Backup of one project (ZIP).** Under “Export / Import” or in the menu of the project card you create a backup: the whole project in one ZIP file, with project data and original photos. Optionally you add the AI package and the 3D model.
 
-**Restore.** Under “Restore” choose the ZIP file. If the project already exists on this device, roomx asks whether you want to **replace** it or **create it as a copy**. If photos are missing or damaged, roomx tells you how many.
+**Restore one project.** Under “Restore” choose the ZIP file. If the project already exists on this device, roomx **never overwrites** it but creates it as a copy. If photos are missing or damaged, roomx tells you how many.
+
+**Back up everything.** In the [settings](#settings), “Back up everything” saves **all projects with their photos** in one ZIP file. “Restore everything” reads such a file back in. It never overwrites anything: a project that already exists is added as a copy. A project that cannot be opened is not lost: it goes into the backup unchanged as raw data. roomx remembers when you last made a backup and reminds you when it is more than 14 days ago; on iPhone and iPad it also shows a reminder, because Safari can delete data.
+
+<p align="center">
+  <img src=".github/assets/screenshots/settings.webp" alt="Settings: the Back up card with Back up everything and Restore everything, below the Storage card with usage" width="760">
+</p>
 
 **Moving to another device or to the installed app:**
 
 1. Create a backup (ZIP) in the old place.
 2. Transfer the file, for example by AirDrop, email or a cloud folder.
 3. Open roomx in the new place and restore the backup.
+
+**Storage and saving.** If saving fails, for example because the storage is full or the browser forbids it, roomx says so openly and offers **“Back up now”**; it never fails silently. Shortly before the storage is full it warns you. If you open the same project in a second tab or window, that tab only shows it (“Read only”) and updates by itself; “Edit here” takes over editing.
 
 **3D model (.glb).** Under “Export / Import” you export the selected rooms with the active variant as a `.glb` file. You can open the model in programs such as Blender or in an AR viewer.
 
@@ -412,9 +441,17 @@ You reach them with the gear icon at the top right of the project list.
 |---|---|
 | **Language** | Deutsch or English. The default is your browser’s language. |
 | **Length unit** | Centimetres or metres. |
+| **Back up** | “Back up everything” and “Restore everything”, see [Back up and move](#back-up-and-move). Shows when you last made a backup. |
+| **Install the app** | In Chrome and Edge, an “Install app” button appears here. On iPhone and iPad, roomx explains how to use “Add to Home Screen”, because Safari can delete the data of websites that have not been opened for seven days. |
 | **Storage** | Shows whether the browser **keeps the data permanently** (“Stored permanently”) or may delete it when space runs low, and how much space is used. “Ask again” tries to get permanent storage once more. It is more likely to work with the app on your home screen. |
 | **Help** | “Start the tour” plays the introduction again (ten steps, skippable at any time, optionally with a sample room). “Show keyboard shortcuts” opens the overview. |
-| **Privacy & liability** | Opens the page with the privacy policy and the disclaimer. |
+| **Version and diagnostics** | Shows the version and build date. “Copy diagnostics” copies technical details about device and app, **without project data**, names or photos, so you can paste them into a report. “Report a bug or suggest an idea” opens the GitHub issues (templates in German and English); you need a GitHub account for that, and you should not include private details or photos. |
+| **Reset everything** | “Delete all local data” removes all projects, photos and settings from this device. Beforehand roomx offers to back up first. This cannot be undone. |
+| **Privacy & liability** | Opens the page with the privacy policy, the disclaimer and the **open-source licences** of the parts roomx uses (also at `/rechtliches`). |
+
+<p align="center">
+  <img src=".github/assets/screenshots/settings-diagnostics.webp" alt="Settings: version, build date, Copy diagnostics, link to report a bug and the Reset everything card" width="760">
+</p>
 
 ### Keyboard shortcuts
 
@@ -466,6 +503,18 @@ The photos are inside the package’s PDF. roomx itself sends nothing: you uploa
 </details>
 
 <details>
+<summary><b>I deleted a project by mistake.</b></summary>
+
+Open the project list and the **Trash** at the bottom: deleted projects can be restored there for 30 days. Right after deleting, “Undo” in the message also helps.
+</details>
+
+<details>
+<summary><b>How do I report a mistake or suggest something?</b></summary>
+
+In the settings, under “Version and diagnostics”, tap “Report a bug or suggest an idea”. That opens the issues on GitHub (account needed). Paste the result of “Copy diagnostics” if it helps, but no private details.
+</details>
+
+<details>
 <summary><b>Does it cost anything?</b></summary>
 
 No. roomx is free and needs no account. If you use an AI assistant, its provider’s terms apply.
@@ -480,19 +529,19 @@ Yes, after the first load. The app stores its files in the browser and also star
 <details>
 <summary><b>My projects disappeared on my iPhone. What happened?</b></summary>
 
-Safari cleans up the data of websites you have not opened for a while. Install roomx via “Add to Home Screen” so that this happens less often. A backup (ZIP) brings projects back, see [Back up and move](#back-up-and-move). Under “Storage”, the settings show whether your browser keeps the data permanently.
+Safari can delete the data of websites you have not opened for seven days. Install roomx via “Add to Home Screen”, because installed apps are exempt from this. roomx also reminds you to do so on iPhone and iPad. A backup (ZIP) brings projects back, see [Back up and move](#back-up-and-move). Under “Storage”, the settings show whether your browser keeps the data permanently.
 </details>
 
 <details>
 <summary><b>Are the furniture dimensions and prices correct?</b></summary>
 
-They are guide values. Catalogue prices are guide prices in CHF, and only a few dimensions have been checked against the manufacturers’ websites. Check both with the retailer before you buy.
+They are guide values. Catalogue prices are guide prices in CHF (as of October 2026), and entries whose dimensions have not been checked are marked “Dimensions unverified”. Check both with the retailer before you buy.
 </details>
 
 <details>
 <summary><b>The assistant gives me a plan that roomx cannot read.</b></summary>
 
-In the error message, tap “Copy corrections”, paste the list into the chat and ask the assistant for a corrected, complete output. For very large apartments it helps to export the rooms one at a time.
+Tap “Copy corrections” (it appears under the import preview and with every error message), paste the text into the chat and ask the assistant for a corrected, complete output. For very large apartments it helps to export the rooms one at a time.
 </details>
 
 <details>
@@ -591,14 +640,20 @@ pnpm -C web preview      # preview the built result
 pnpm -C web test                # unit tests
 pnpm -C web test:e2e            # E2E in Chromium (desktop and iPad landscape), builds first
 pnpm -C web test:e2e:webkit     # E2E in WebKit (iPad landscape and portrait) in a Docker image
+pnpm -C web test:e2e:pages      # E2E against the public (Pages) edition in Chromium, with network audit
+pnpm -C web test:e2e:pages:webkit   # the same in WebKit, in a Docker image
 cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest
 ```
 
 The E2E tests run against the real server (port 4273, `web/tests/server.mjs`). For WebKit, `test:e2e:webkit` uses the Playwright Docker image `mcr.microsoft.com/playwright`, so it needs Docker.
 
+### Branches and continuous integration
+
+Work happens on the branch **`dev`**; **`main` is the published state**. The CI (`.github/workflows/ci.yml`) runs on every push and checks Prettier, types, unit tests, server tests, the builds and the E2E tests (Chromium, WebKit, and the Pages edition including a network audit that makes sure the public version sends no requests to other servers).
+
 ### Publishing via GitHub Pages
 
-Every push to `main` starts the workflow `.github/workflows/pages.yml`: install dependencies, `pnpm -C web test`, then `pnpm -C web build` with two environment variables. After that `index.html` is copied to `404.html` (so that direct links work in the single-page app) and `web/build` is published.
+A push to `main` (a release, marked with a version tag `v*`) starts the workflow `.github/workflows/pages.yml`. It runs the CI first and only deploys if it is green: install dependencies, then `pnpm -C web build` with two environment variables. After that `index.html` is copied to `404.html` (so that direct links work in the single-page app) and `web/build` is published.
 
 | Variable | What it does |
 |---|---|

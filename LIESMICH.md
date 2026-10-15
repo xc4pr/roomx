@@ -131,9 +131,17 @@ Ein Projekt ist eine Wohnung, ein Haus oder ein einzelner Raum, mit allen Räume
 
 - **Neues Projekt:** Knopf unten rechts. Vergib einen Namen.
 - **Öffnen:** auf die Karte tippen. Das Vorschaubild zeigt dein Projekt in 3D.
-- **Menü (drei Punkte) auf der Karte:** Umbenennen, Backup (ZIP) erstellen, Löschen. Ein gelöschtes Projekt ist weg, mach vorher ein Backup, wenn du unsicher bist.
+- **Menü (drei Punkte) auf der Karte:** Umbenennen, Backup (ZIP) erstellen, Löschen.
+- **Löschen landet im Papierkorb.** Ein gelöschtes Projekt ist nicht weg: «In den Papierkorb» legt es in den **Papierkorb** unten in der Projektliste, wo es **30 Tage** bleibt. «Rückgängig» in der Meldung unten holt es sofort zurück. Im Papierkorb holt «Wiederherstellen» es zurück, «Endgültig löschen» entfernt es für immer; nach 30 Tagen entfernt roomx es von selbst. Dasselbe «Rückgängig» gibt es beim Löschen eines Fotos.
 - **Oben im Projekt:** Die Reiter «Plan», «3D», «Einrichten» und «Export / Import» wechseln den Bereich. Daneben stehen «Rückgängig», «Wiederholen» und «3D erstellen».
 - **Zahnrad oben rechts:** [Einstellungen](#einstellungen).
+
+<p align="center">
+  <img src=".github/assets/screenshots/trash.webp" alt="Projektliste mit geöffnetem Papierkorb: ein gelöschtes Projekt mit Wiederherstellen und Endgültig löschen, dazu die Meldung mit Rückgängig" width="760">
+</p>
+
+> [!NOTE]
+> In der selbst gehosteten Version mit eingeschaltetem Abgleich erreicht eine Löschung deine anderen Geräte erst, wenn du das Projekt endgültig löschst.
 
 ### Räume erfassen
 
@@ -172,11 +180,16 @@ Eine Wohnung besteht aus mehreren Räumen. Damit roomx weiss, wie sie zusammenh�
 1. Ziehe einen Raum an einen Nachbarraum heran.
 2. Er **rastet wie ein Magnet ein**. Zwischen den Räumen liegt dann eine gemeinsame Wand.
 3. Auf der gemeinsamen Wand erscheint ein Verbindungssymbol. Im Panel zeigt der Bereich «Nachbarn», welche Wand an welchen Raum grenzt und wie lang das gemeinsame Stück ist. Mit einem Tipp wechselst du in den Nachbarraum.
+4. Unter jedem Nachbarn zeigt **«Wandstärke zu …»**, wie dick die gemeinsame Wand ist. Wähle 10, 12, 15, 20, 25 oder 30 cm; roomx verschiebt den Nachbarraum entsprechend. 3D und Plan zeichnen die Wand mit dieser Stärke.
+
+<p align="center">
+  <img src=".github/assets/screenshots/neighbours.webp" alt="Raum-Panel mit dem Bereich Nachbarn: zwei Nachbarräume mit Wandstärken von 10 bis 30 cm zur Auswahl und der Schalter Bewusst separat" width="860">
+</p>
 
 **Türen und Fenster in der gemeinsamen Wand führen in beide Räume.** Setzt du eine Tür in die Wand zwischen Wohnzimmer und Schlafzimmer, erscheint sie automatisch auch im Schlafzimmer, mit gespiegeltem Anschlag. In der Elementliste des Nachbarraums steht sie mit dem Vermerk «von Wohnzimmer»; geändert wird sie im Raum, zu dem sie gehört.
 
 > [!IMPORTANT]
-> **Unverbundene Räume werden gemeldet.** Wenn in einem Projekt mit mehreren Räumen ein Raum keinen Nachbarn hat, weist dich roomx beim Erstellen der 3D-Ansicht und beim Exportieren des KI-Pakets darauf hin. Du kannst trotzdem weitermachen. Das ist sinnvoll bei Räumen, die bewusst getrennt liegen, etwa Keller oder Garage.
+> **Unverbundene Räume werden gemeldet.** Wenn in einem Projekt mit mehreren Räumen ein Raum keinen Nachbarn hat, weist dich roomx beim Erstellen der 3D-Ansicht und beim Exportieren des KI-Pakets darauf hin. Du kannst trotzdem weitermachen. Bei Räumen, die bewusst getrennt liegen, etwa Keller, Garage, Estrich oder Aussenbereich, schaltest du unten im Bereich «Nachbarn» des Raum-Panels **«Bewusst separat»** ein: roomx meldet diesen Raum dann nicht mehr.
 
 ### Türen, Fenster und Elektro
 
@@ -228,7 +241,7 @@ Die Foto-Tour führt dich Schritt für Schritt durch einen Raum, damit später k
 
 Zusätzlich kannst du jederzeit ein **freies Foto** mit Notiz machen, zum Beispiel von Problemstellen.
 
-Fotos werden direkt auf dem Gerät verkleinert und ohne Metadaten gespeichert.
+Fotos werden direkt auf dem Gerät verkleinert und ohne Metadaten gespeichert. Hast du ein Foto aus Versehen gelöscht, holt «Rückgängig» in der Meldung unten es zurück.
 
     </td>
     <td valign="top" width="260">
@@ -287,7 +300,7 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 - Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
 
 > [!NOTE]
-> Preise im Katalog sind **Richtpreise in CHF**. Nur wenige Masse sind auf den Herstellerseiten geprüft; bei diesen Artikeln führt ein Link zur Herstellerseite. Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
+> Die Masse im Katalog sind **Richtwerte**. Artikel, deren Masse nicht beim Hersteller geprüft sind, tragen den Vermerk **«Masse ungeprüft»**. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen als «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
 
 **Möbel bewegen.** Zieh ein Möbel an seinen Platz. Der Drehgriff dreht frei, die Knöpfe im Panel drehen um 90° oder 15°, oder du tippst die Gradzahl ein. Im Plan zeigen gepunktete Linien den Abstand zu Wänden und anderen Möbeln. Mit «Fixieren» sperrst du ein Möbel gegen versehentliches Verschieben. Duplizieren und Löschen findest du in der Leiste unter dem gewählten Möbel.
 
@@ -337,7 +350,7 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 
 ### Mit dem KI-Assistenten einrichten
 
-Du kannst deine Räume von einem KI-Assistenten einrichten lassen. roomx bereitet dafür ein **KI-Paket** vor und liest die Antwort des Assistenten wieder ein. Das funktioniert mit jedem KI-Assistenten, der Dateien annimmt. Du musst nichts zusätzlich installieren.
+Du kannst deine Räume von einem KI-Assistenten einrichten lassen. roomx bereitet dafür ein **KI-Paket** vor und liest die Antwort des Assistenten wieder ein. Das funktioniert mit jedem KI-Assistenten, der Dateien annimmt. Du musst nichts zusätzlich installieren: Das Paket enthält bereits die Anleitung, das Plan-Schema, den Katalog und einen fertigen Startprompt.
 
 > [!NOTE]
 > «3D erstellen» ist davon unabhängig: Damit siehst du deine Räume nur selbst in 3D. Das KI-Paket brauchst du nur, wenn ein Assistent dir einen Plan machen soll.
@@ -354,21 +367,29 @@ Du kannst deine Räume von einem KI-Assistenten einrichten lassen. roomx bereite
 
 **Schritt für Schritt:**
 
-1. **KI-Paket erstellen.** Öffne den Reiter «Export / Import». Wähle «Ganzes Projekt» oder «Einzelne Räume» und tippe auf «KI-Paket erstellen». roomx zeigt vorher die geschätzte Grösse und weist auf Lücken im Plan hin, etwa [unverbundene Räume](#räume-verbinden) oder fehlende Pflichtfotos. Mit «Trotzdem exportieren» geht es weiter. Danach «Teilen» oder «Herunterladen».
+1. **KI-Paket erstellen.** Öffne den Reiter «Export / Import». Wähle «Ganzes Projekt» oder «Einzelne Räume» und tippe auf «KI-Paket erstellen». roomx zeigt vorher die geschätzte Grösse und den Hinweis **«Was du teilst»** und weist dann auf Lücken im Plan hin, etwa [unverbundene Räume](#räume-verbinden) oder fehlende Pflichtfotos. Mit «Trotzdem exportieren» geht es weiter. Danach «Teilen» oder «Herunterladen». Willst du keine Bilder deiner Wohnung weitergeben, schalte **«Ohne Fotos exportieren»** ein.
 2. **Im Chat hochladen.** Öffne einen Chat mit einem KI-Assistenten deiner Wahl und lade **alle Dateien** des Pakets hoch. Tippe in roomx auf **«Prompt kopieren»** und füge den Text in den Chat ein. Unter «So geht es weiter» zeigt dir roomx diese Schritte und den fertigen Prompt gleich an.
 3. **Fragen beantworten.** Der Assistent fragt nach, was er noch wissen muss, zum Beispiel nach Stil, Budget oder Wünschen. Beantworte die Fragen.
 4. **Plan als JSON zurück.** Am Ende gibt der Assistent den Einrichtungsplan als JSON im Format `roomx-plan` aus. Kopiere die **ganze Antwort**, oder speichere den Plan als Datei.
-5. **Plan importieren.** Gehe in roomx auf «Export / Import», Bereich «Plan importieren»: Text einfügen («Aus Zwischenablage» hilft) oder die Datei wählen. Die Antwort darf weiteren Text enthalten, roomx findet das JSON selbst.
+5. **Plan importieren.** Gehe in roomx auf «Export / Import», Bereich «Plan importieren»: Text einfügen («Aus Zwischenablage» hilft) oder die Datei wählen. roomx ist hier tolerant: Die Antwort darf weiteren Text, einen Codeblock oder Kommentare im JSON enthalten, roomx findet das JSON selbst.
 6. **Vorschau prüfen.** roomx zeigt pro Variante die Summe und listet Konflikte (zum Beispiel «versperrt die Tür»), Hinweise und alles, was nicht übernommen werden kann.
 7. **Als Variante übernehmen.** «Als neue Variante übernehmen» legt den Plan als Variante an. Nichts wird überschrieben. Wähle bei Bedarf, ob auch der Bedarf aus dem Plan übernommen wird.
 8. **Anpassen und erneut exportieren.** Sieh dir die Variante in «Einrichten» an und ändere, was dir nicht gefällt. Willst du eine zweite Runde, erstelle ein neues KI-Paket: Es enthält jetzt deine angepasste Einrichtung.
 
 <p align="center">
-  <img src=".github/assets/screenshots/export.webp" alt="Export und Import: Karte KI-Paket mit Umfang und Knopf zum Erstellen, darunter Backup" width="760">
+  <img src=".github/assets/screenshots/export.webp" alt="Export und Import: Karte KI-Paket mit Umfang, dem Hinweis Was du teilst, dem Schalter Ohne Fotos exportieren und dem Knopf zum Erstellen" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import.webp" alt="Plan importieren: eingefügtes JSON und die Vorschau" width="760">
+  <img src=".github/assets/screenshots/package-ready.webp" alt="KI-Paket bereit: die fünf Dateien, die Knöpfe Herunterladen und KI-Paket als ZIP sowie die Schritte mit dem Prompt und dem Knopf Prompt kopieren" width="760">
+</p>
+
+<p align="center">
+  <img src=".github/assets/screenshots/import.webp" alt="Plan importieren: eingefügte Antwort mit JSON und die Vorschau mit Summe und Hinweisen" width="760">
+</p>
+
+<p align="center">
+  <img src=".github/assets/screenshots/import-corrections.webp" alt="Import-Vorschau mit einem nicht übernommenen Möbel und dem Kasten mit dem Knopf Korrekturen kopieren" width="760">
 </p>
 
 > [!TIP]
@@ -378,10 +399,10 @@ Du kannst deine Räume von einem KI-Assistenten einrichten lassen. roomx bereite
 > **Bei grossen Wohnungen** exportierst du die Räume einzeln («Einzelne Räume»). Zeigt roomx an, dass das Paket gross wird, und nimmt der Assistent es nicht an, ist das der beste Weg.
 
 > [!TIP]
-> **Fehlermeldung beim Import?** Gibt es Fehler oder bricht die Antwort mitten im JSON ab, zeigt roomx die genauen Stellen. Mit «Fehlerliste kopieren» schickst du die Liste an den Assistenten und bittest ihn um eine korrigierte, vollständige Antwort.
+> **Nach dem Import stimmt etwas nicht?** Unter der Vorschau kopiert «Korrekturen kopieren» einen fertigen Text für den KI-Assistenten. Er beginnt mit «Bitte korrigiere den Plan:», listet auf, was nicht übernommen werden konnte, dazu die Hinweise, und bittet um den ganzen korrigierten Plan. Füge ihn im Chat ein. Dasselbe geht, wenn das JSON fehlerhaft ist oder die Antwort mitten im JSON abbricht.
 
 > [!IMPORTANT]
-> Das KI-Paket enthält deine Raumdaten und, falls aufgenommen, deine **Fotos**. Du gibst sie selbst an den Anbieter des Assistenten weiter, und es gelten dessen Bedingungen. Prüfe die Fotos vorher auf Personen, Dokumente und Privates. Mit «Einzelne Räume» gibst du nur weiter, was nötig ist.
+> Das KI-Paket enthält deine Raumdaten und, falls aufgenommen, deine **Fotos**. Du gibst sie selbst an den Anbieter des Assistenten weiter, und es gelten dessen Bedingungen. Prüfe die Fotos vorher auf Personen, Dokumente und Privates. Mit «Einzelne Räume» oder «Ohne Fotos exportieren» gibst du nur weiter, was nötig ist.
 
 ### Sichern und Umziehen
 
@@ -389,15 +410,23 @@ Du kannst deine Räume von einem KI-Assistenten einrichten lassen. roomx bereite
 
 **Rückgängig und Wiederholen.** Die Pfeile oben (oder `Strg`/`Cmd` + `Z`) machen den letzten Schritt rückgängig. Auch das Löschen von Räumen und Möbeln lässt sich zurücknehmen. Ein Ziehen zählt als ein Schritt.
 
-**Backup (ZIP).** Unter «Export / Import» oder im Menü der Projektkarte erstellst du ein Backup: das ganze Projekt in einer ZIP-Datei, mit Projektdaten und Originalfotos. Optional legst du das KI-Paket und das 3D-Modell bei. roomx merkt sich den Zeitpunkt des letzten Backups und erinnert dich, wenn es mehr als 14 Tage her ist.
+**Backup eines Projekts (ZIP).** Unter «Export / Import» oder im Menü der Projektkarte erstellst du ein Backup: das ganze Projekt in einer ZIP-Datei, mit Projektdaten und Originalfotos. Optional legst du das KI-Paket und das 3D-Modell bei.
 
-**Wiederherstellen.** Wähle unter «Wiederherstellen» die ZIP-Datei. Gibt es das Projekt auf diesem Gerät schon, fragt roomx, ob du es **ersetzen** oder **als Kopie anlegen** willst. Fehlen Fotos oder sind sie beschädigt, meldet roomx, wie viele.
+**Ein Projekt wiederherstellen.** Wähle unter «Wiederherstellen» die ZIP-Datei. Gibt es das Projekt auf diesem Gerät schon, **überschreibt** roomx es **nie**, sondern legt es als Kopie an. Fehlen Fotos oder sind sie beschädigt, meldet roomx, wie viele.
+
+**Alles sichern.** In den [Einstellungen](#einstellungen) sichert «Alles sichern» **alle Projekte mit ihren Fotos** in einer ZIP-Datei. «Alles wiederherstellen» liest eine solche Datei wieder ein. Dabei wird nie etwas überschrieben: Ein Projekt, das es schon gibt, kommt als Kopie dazu. Ein Projekt, das sich nicht öffnen lässt, geht nicht verloren: Es kommt unverändert als Rohdaten mit ins Backup. roomx merkt sich den Zeitpunkt des letzten Backups und erinnert dich, wenn es mehr als 14 Tage her ist; auf iPhone und iPad erscheint zusätzlich eine Erinnerung, weil Safari Daten löschen kann.
+
+<p align="center">
+  <img src=".github/assets/screenshots/settings.webp" alt="Einstellungen: Karte Sichern mit Alles sichern und Alles wiederherstellen, darunter die Karte Speicher mit Belegung" width="760">
+</p>
 
 **Auf ein anderes Gerät oder in die installierte App umziehen:**
 
 1. Erstelle am alten Ort ein Backup (ZIP).
 2. Übertrage die Datei, zum Beispiel per AirDrop, Mail oder Cloud-Ordner.
 3. Öffne roomx am neuen Ort und stelle das Backup wieder her.
+
+**Speichern und Speicherplatz.** Klappt das Speichern nicht, etwa weil der Speicher voll ist oder der Browser es verbietet, sagt roomx das offen und bietet **«Jetzt sichern»** an; es scheitert nie still. Kurz bevor der Speicher voll ist, warnt roomx. Öffnest du dasselbe Projekt in einem zweiten Tab oder Fenster, zeigt dieser Tab es nur an («Nur lesen») und aktualisiert sich von selbst; «Hier bearbeiten» übernimmt das Bearbeiten.
 
 **3D-Modell (.glb).** Unter «Export / Import» exportierst du die gewählten Räume mit der aktiven Variante als `.glb`-Datei. Damit kannst du das Modell in Programmen wie Blender oder in einer AR-Ansicht öffnen.
 
@@ -412,9 +441,17 @@ Du erreichst sie über das Zahnrad oben rechts in der Projektliste.
 |---|---|
 | **Sprache** | Deutsch oder English. Standard ist die Sprache deines Browsers. |
 | **Einheit für Längen** | Zentimeter oder Meter. |
+| **Sichern** | «Alles sichern» und «Alles wiederherstellen», siehe [Sichern und Umziehen](#sichern-und-umziehen). Zeigt, wann du zuletzt ein Backup gemacht hast. |
+| **App installieren** | In Chrome und Edge erscheint hier der Knopf «App installieren». Auf iPhone und iPad erklärt roomx «Zum Home-Bildschirm», weil Safari die Daten von Websites löschen kann, die sieben Tage lang nicht geöffnet wurden. |
 | **Speicher** | Zeigt, ob der Browser die Daten **dauerhaft sichert** («Dauerhaft gesichert») oder bei Platzmangel löschen darf, und wie viel Platz belegt ist. «Erneut anfragen» versucht die dauerhafte Sicherung noch einmal. Mit der App auf dem Home-Bildschirm klappt sie eher. |
 | **Hilfe** | «Tour starten» spielt die Einführung noch einmal ab (zehn Schritte, jederzeit überspringbar, wahlweise mit einem Beispielzimmer). «Tastaturkürzel anzeigen» öffnet die Übersicht. |
-| **Datenschutz & Haftung** | Öffnet die Seite mit der Datenschutzerklärung und dem Haftungsausschluss. |
+| **Version und Diagnose** | Zeigt Version und Build-Datum. «Diagnose kopieren» kopiert technische Angaben zu Gerät und App, **ohne Projektdaten**, Namen oder Fotos, damit du sie in eine Meldung einfügen kannst. «Fehler melden oder Wunsch äussern» öffnet die GitHub-Issues (Vorlagen auf Deutsch und Englisch); dafür brauchst du ein GitHub-Konto, und du solltest keine privaten Angaben oder Fotos hinzufügen. |
+| **Alles zurücksetzen** | «Alle lokalen Daten löschen» entfernt alle Projekte, Fotos und Einstellungen von diesem Gerät. roomx bietet vorher an, zuerst zu sichern. Das lässt sich nicht rückgängig machen. |
+| **Datenschutz & Haftung** | Öffnet die Seite mit der Datenschutzerklärung, dem Haftungsausschluss und den **Open-Source-Lizenzen** der verwendeten Bausteine (auch unter `/rechtliches`). |
+
+<p align="center">
+  <img src=".github/assets/screenshots/settings-diagnostics.webp" alt="Einstellungen: Version, Build-Datum, Diagnose kopieren, Link zum Melden eines Fehlers und die Karte Alles zurücksetzen" width="760">
+</p>
 
 ### Tastaturkürzel
 
@@ -466,6 +503,18 @@ Die Fotos stecken im PDF des Pakets. roomx selbst sendet nichts: Du lädst die D
 </details>
 
 <details>
+<summary><b>Ich habe ein Projekt aus Versehen gelöscht.</b></summary>
+
+Öffne die Projektliste und unten den **Papierkorb**: Gelöschte Projekte lassen sich dort 30 Tage lang wiederherstellen. Gleich nach dem Löschen hilft auch «Rückgängig» in der Meldung.
+</details>
+
+<details>
+<summary><b>Wie melde ich einen Fehler oder mache einen Vorschlag?</b></summary>
+
+In den Einstellungen unter «Version und Diagnose» auf «Fehler melden oder Wunsch äussern» tippen. Das öffnet die Issues auf GitHub (Konto nötig). Füge bei Bedarf das Ergebnis von «Diagnose kopieren» ein, aber keine privaten Angaben.
+</details>
+
+<details>
 <summary><b>Kostet das etwas?</b></summary>
 
 Nein. roomx ist kostenlos und braucht kein Konto. Wenn du einen KI-Assistenten nutzt, gelten die Konditionen seines Anbieters.
@@ -480,19 +529,19 @@ Ja, nach dem ersten Laden. Die App legt ihre Dateien im Browser ab und startet a
 <details>
 <summary><b>Auf dem iPhone sind meine Projekte verschwunden. Was ist passiert?</b></summary>
 
-Safari räumt die Daten von Websites auf, die man länger nicht geöffnet hat. Installiere roomx deshalb über «Zum Home-Bildschirm», dann passiert das seltener. Mit einem Backup (ZIP) holst du Projekte zurück, siehe [Sichern und Umziehen](#sichern-und-umziehen). Die Einstellungen zeigen unter «Speicher», ob dein Browser die Daten dauerhaft sichert.
+Safari kann die Daten von Websites löschen, die man sieben Tage lang nicht geöffnet hat. Installiere roomx deshalb über «Zum Home-Bildschirm»: Installierte Apps sind davon ausgenommen. Auf iPhone und iPad erinnert dich roomx auch daran. Mit einem Backup (ZIP) holst du Projekte zurück, siehe [Sichern und Umziehen](#sichern-und-umziehen). Die Einstellungen zeigen unter «Speicher», ob dein Browser die Daten dauerhaft sichert.
 </details>
 
 <details>
 <summary><b>Stimmen die Möbelmasse und Preise?</b></summary>
 
-Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF, und nur wenige Masse sind auf den Herstellerseiten geprüft. Prüfe beides beim Händler, bevor du kaufst.
+Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF (Stand Oktober 2026), und Artikel mit ungeprüften Massen tragen den Vermerk «Masse ungeprüft». Prüfe beides beim Händler, bevor du kaufst.
 </details>
 
 <details>
 <summary><b>Der Assistent liefert einen Plan, den roomx nicht lesen kann.</b></summary>
 
-Tippe in der Fehlermeldung auf «Fehlerliste kopieren», füge sie im Chat ein und bitte den Assistenten um eine korrigierte, vollständige Ausgabe. Bei sehr grossen Wohnungen hilft es, die Räume einzeln zu exportieren.
+Tippe auf «Korrekturen kopieren» (unter der Import-Vorschau und bei jeder Fehlermeldung), füge den Text im Chat ein und bitte den Assistenten um eine korrigierte, vollständige Ausgabe. Bei sehr grossen Wohnungen hilft es, die Räume einzeln zu exportieren.
 </details>
 
 <details>
@@ -591,14 +640,20 @@ pnpm -C web preview      # gebautes Ergebnis ansehen
 pnpm -C web test                # Unit-Tests
 pnpm -C web test:e2e            # E2E in Chromium (Desktop und iPad quer), baut vorher
 pnpm -C web test:e2e:webkit     # E2E in WebKit (iPad quer und hoch) im Docker-Image
+pnpm -C web test:e2e:pages      # E2E gegen die öffentliche (Pages-)Version in Chromium, mit Netzwerk-Audit
+pnpm -C web test:e2e:pages:webkit   # dasselbe in WebKit, im Docker-Image
 cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest
 ```
 
 Die E2E-Tests laufen gegen den echten Server (Port 4273, `web/tests/server.mjs`). Für WebKit nutzt `test:e2e:webkit` das Playwright-Docker-Image `mcr.microsoft.com/playwright`, es braucht also Docker.
 
+### Branches und Continuous Integration
+
+Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push und prüft Prettier, Typen, Unit-Tests, Server-Tests, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
+
 ### Veröffentlichung über GitHub Pages
 
-Jeder Push auf `main` startet den Workflow `.github/workflows/pages.yml`: Abhängigkeiten installieren, `pnpm -C web test`, dann `pnpm -C web build` mit zwei Umgebungsvariablen, anschliessend wird `index.html` als `404.html` kopiert (damit Direktlinks in der Single-Page-App funktionieren) und `web/build` veröffentlicht.
+Ein Push auf `main` (ein Release, mit Versions-Tag `v*`) startet den Workflow `.github/workflows/pages.yml`. Er führt zuerst die CI aus und veröffentlicht nur, wenn sie grün ist: Abhängigkeiten installieren, dann `pnpm -C web build` mit zwei Umgebungsvariablen, anschliessend wird `index.html` als `404.html` kopiert (damit Direktlinks in der Single-Page-App funktionieren) und `web/build` veröffentlicht.
 
 | Variable | Wirkung |
 |---|---|
