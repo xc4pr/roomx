@@ -25,6 +25,14 @@ export const LookRowSchema = z
 	})
 	.strict();
 
+// A vertical part of the front with its own rows, for fronts that differ side by side (doors left, drawers right).
+export const LookSectionSchema = z
+	.object({
+		weight: z.number().positive().max(10).optional(),
+		rows: z.array(LookRowSchema).min(1).max(12)
+	})
+	.strict();
+
 // How a catalog article is built, so that the generic model of its type resembles the original.
 // `base`: none = body on the floor, plinth = recessed toe kick, feet = short feet, legs = tall legs,
 // frame = metal tube frame carrying the body. `sides`: ladder = open frame sides (IVAR). Heights in mm.
@@ -35,6 +43,7 @@ export const LookSchema = z
 		baseMaterial: z.enum(['wood', 'metal']).optional(),
 		handle: z.enum(LOOK_HANDLES).optional(),
 		rows: z.array(LookRowSchema).min(1).max(12).optional(),
+		sections: z.array(LookSectionSchema).min(1).max(6).optional(),
 		frontStyle: z.enum(['flat', 'frame']).optional(),
 		sides: z.enum(['panel', 'ladder']).optional(),
 		wheels: z.boolean().optional(),
@@ -72,6 +81,7 @@ export const CatalogSchema = z.array(CatalogEntrySchema);
 export type CatalogEntry = z.infer<typeof CatalogEntrySchema>;
 export type Look = z.infer<typeof LookSchema>;
 export type LookRow = z.infer<typeof LookRowSchema>;
+export type LookSection = z.infer<typeof LookSectionSchema>;
 export type CatalogLookup = (id: string) => CatalogEntry | undefined;
 export type CatalogAliases = Readonly<Record<string, string>>;
 
