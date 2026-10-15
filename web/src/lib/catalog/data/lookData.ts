@@ -9,7 +9,10 @@ export const seriesLooks: Record<string, Look> = {
 		top: 'flush'
 	},
 	'IKEA|BILLY|shelf': {
-		top: 'flush'
+		base: 'plinth',
+		baseHeight: 70,
+		top: 'flush',
+		books: true
 	},
 	'IKEA|BRIMNES|dresser': {
 		base: 'plinth',
@@ -68,7 +71,8 @@ export const seriesLooks: Record<string, Look> = {
 		baseHeight: 360,
 		baseMaterial: 'wood',
 		handle: 'knob',
-		frontStyle: 'flat'
+		frontStyle: 'flat',
+		accentColor: '#d9b98a'
 	},
 	'IKEA|HEMNES|shelf': {
 		base: 'legs',
@@ -90,7 +94,8 @@ export const seriesLooks: Record<string, Look> = {
 		sides: 'ladder'
 	},
 	'IKEA|KALLAX|cubeShelf': {
-		top: 'flush'
+		top: 'flush',
+		books: true
 	},
 	'IKEA|LACK|nightstand': {
 		base: 'legs',
@@ -135,7 +140,8 @@ export const seriesLooks: Record<string, Look> = {
 		base: 'plinth',
 		baseHeight: 60,
 		handle: 'none',
-		frontStyle: 'flat'
+		frontStyle: 'flat',
+		bodyColor: '#c8a572'
 	},
 	'JYSK|FANDRUP|wardrobe': {
 		base: 'plinth',
@@ -147,12 +153,14 @@ export const seriesLooks: Record<string, Look> = {
 	'JYSK|HORSENS|shelf': {
 		base: 'plinth',
 		baseHeight: 40,
-		frontStyle: 'flat'
+		frontStyle: 'flat',
+		books: false
 	},
 	'JYSK|JANNERUP|shelf': {
 		base: 'feet',
 		baseHeight: 60,
-		baseMaterial: 'wood'
+		baseMaterial: 'wood',
+		books: false
 	},
 	'JYSK|JENSLEV|dresser': {
 		base: 'plinth',
@@ -176,6 +184,9 @@ export const seriesLooks: Record<string, Look> = {
 		frameColor: '#ffffff'
 	},
 	'JYSK|KORUP|nightstand': {
+		base: 'feet',
+		baseHeight: 50,
+		baseMaterial: 'wood',
 		handle: 'bar',
 		frontStyle: 'flat'
 	},
@@ -222,10 +233,14 @@ export const seriesLooks: Record<string, Look> = {
 		top: 'overhang'
 	},
 	'JYSK|MOSBJERG|shelf': {
+		base: 'plinth',
+		baseHeight: 80,
 		sides: 'panel',
 		top: 'flush'
 	},
 	'JYSK|ODDER|wardrobe': {
+		base: 'plinth',
+		baseHeight: 80,
 		rows: [
 			{
 				kind: 'slide',
@@ -243,18 +258,26 @@ export const seriesLooks: Record<string, Look> = {
 	},
 	'JYSK|OLSKER|nightstand': {
 		base: 'legs',
-		baseHeight: 400,
+		baseHeight: 100,
 		baseMaterial: 'wood',
 		handle: 'bar',
 		rows: [
 			{
 				kind: 'drawer',
-				cols: 1
+				cols: 1,
+				weight: 4
+			},
+			{
+				kind: 'open',
+				cols: 1,
+				weight: 6
 			}
 		],
 		frontStyle: 'flat'
 	},
 	'JYSK|RABERG|wardrobe': {
+		base: 'plinth',
+		baseHeight: 80,
 		rows: [
 			{
 				kind: 'slide',
@@ -266,6 +289,8 @@ export const seriesLooks: Record<string, Look> = {
 		top: 'flush'
 	},
 	'JYSK|TANGE|dresser': {
+		base: 'plinth',
+		baseHeight: 80,
 		handle: 'recessTop',
 		rows: [
 			{
@@ -297,6 +322,8 @@ export const seriesLooks: Record<string, Look> = {
 		top: 'flush'
 	},
 	'JYSK|VIBY|wardrobe': {
+		base: 'plinth',
+		baseHeight: 80,
 		handle: 'bar',
 		rows: [
 			{
@@ -610,7 +637,7 @@ export const entryLooks: Record<string, Look> = {
 				cols: 1
 			}
 		],
-		books: false
+		books: true
 	},
 	'ikea-hemnes-dresser-3-108x50x96': {
 		rows: [
@@ -739,10 +766,6 @@ export const entryLooks: Record<string, Look> = {
 	},
 	'ikea-ivar-174x30x124': {
 		rows: [
-			{
-				kind: 'open',
-				cols: 2
-			},
 			{
 				kind: 'open',
 				cols: 2
@@ -1274,6 +1297,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-100x60x201': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1282,6 +1306,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-100x60x236': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1290,6 +1315,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-150x60x201': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1298,6 +1324,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-150x60x236': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1306,6 +1333,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-220x60x201': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1314,6 +1342,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-235x60x236': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1322,6 +1351,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-forsand-schrank-250x60x201': {
+		handle: 'bar',
 		rows: [
 			{
 				kind: 'door',
@@ -1330,6 +1360,7 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'ikea-pax-sliding-150x66x201': {
+		handle: 'none',
 		rows: [
 			{
 				kind: 'slide',
@@ -1339,6 +1370,7 @@ export const entryLooks: Record<string, Look> = {
 		frontStyle: 'frame'
 	},
 	'ikea-pax-sliding-150x66x236': {
+		handle: 'none',
 		rows: [
 			{
 				kind: 'slide',
@@ -1396,16 +1428,41 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'jysk-fandrup-wardrobe-97x50x176': {
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 2,
-				weight: 7
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1,
+						weight: 1
+					}
+				]
 			},
 			{
-				kind: 'drawer',
-				cols: 2,
-				weight: 3
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1,
+						weight: 7
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					}
+				]
 			}
 		]
 	},
@@ -1491,26 +1548,64 @@ export const entryLooks: Record<string, Look> = {
 			{
 				kind: 'drawer',
 				cols: 1,
-				weight: 3
+				weight: 1
 			},
 			{
 				kind: 'open',
 				cols: 1,
-				weight: 2
+				weight: 1
 			},
 			{
 				kind: 'open',
 				cols: 1,
-				weight: 2
+				weight: 1
 			}
 		]
 	},
 	'jysk-jenslev-sideboard-118x36x89': {
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 2,
-				weight: 1
+				weight: 10,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 10,
+				rows: [
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					}
+				]
+			},
+			{
+				weight: 9,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
@@ -1561,26 +1656,119 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'jysk-limfjorden-sideboard-181x48x78': {
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 2
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'drawer',
+						cols: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
 	'jysk-limfjorden-tv-182x45x42': {
-		rows: [
+		sections: [
 			{
-				kind: 'drawer',
-				cols: 3
+				weight: 1,
+				rows: [
+					{
+						kind: 'drawer',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'drawer',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
 	'jysk-limfjorden-wardrobe-180x58x200': {
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 3
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1,
+						weight: 6
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
@@ -1602,10 +1790,39 @@ export const entryLooks: Record<string, Look> = {
 		books: false
 	},
 	'jysk-lintrup-tv-180x40x50': {
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 2
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'open',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'open',
+						cols: 1,
+						weight: 2
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
@@ -1645,10 +1862,44 @@ export const entryLooks: Record<string, Look> = {
 		base: 'feet',
 		baseHeight: 60,
 		baseMaterial: 'wood',
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 2
+				weight: 1.1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1,
+				rows: [
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					},
+					{
+						kind: 'drawer',
+						cols: 1,
+						weight: 1
+					}
+				]
+			},
+			{
+				weight: 0.9,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
@@ -1656,10 +1907,33 @@ export const entryLooks: Record<string, Look> = {
 		base: 'legs',
 		baseHeight: 150,
 		baseMaterial: 'wood',
-		rows: [
+		sections: [
 			{
-				kind: 'door',
-				cols: 2
+				weight: 1,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 1.3,
+				rows: [
+					{
+						kind: 'open',
+						cols: 1
+					}
+				]
+			},
+			{
+				weight: 0.9,
+				rows: [
+					{
+						kind: 'door',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
@@ -2587,14 +2861,32 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'tchibo-cn3-sideboard-2-flaps-115x40x82': {
-		rows: [
+		sections: [
 			{
-				kind: 'flap',
-				cols: 1
+				weight: 3,
+				rows: [
+					{
+						kind: 'flap',
+						cols: 1
+					},
+					{
+						kind: 'flap',
+						cols: 1
+					}
+				]
 			},
 			{
-				kind: 'flap',
-				cols: 1
+				weight: 2,
+				rows: [
+					{
+						kind: 'open',
+						cols: 1
+					},
+					{
+						kind: 'open',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
@@ -2967,21 +3259,53 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'tchibo-cn3-system-cabinet-115x40x195': {
-		rows: [
+		sections: [
 			{
-				kind: 'flap',
-				cols: 2,
-				weight: 2
+				weight: 5,
+				rows: [
+					{
+						kind: 'flap',
+						cols: 1
+					},
+					{
+						kind: 'open',
+						cols: 1,
+						weight: 4
+					},
+					{
+						kind: 'flap',
+						cols: 1
+					}
+				]
 			},
 			{
-				kind: 'open',
-				cols: 2,
-				weight: 3
-			},
-			{
-				kind: 'drawer',
-				cols: 2,
-				weight: 2
+				weight: 4,
+				rows: [
+					{
+						kind: 'flap',
+						cols: 1
+					},
+					{
+						kind: 'open',
+						cols: 1
+					},
+					{
+						kind: 'flap',
+						cols: 1
+					},
+					{
+						kind: 'flap',
+						cols: 1
+					},
+					{
+						kind: 'flap',
+						cols: 1
+					},
+					{
+						kind: 'flap',
+						cols: 1
+					}
+				]
 			}
 		]
 	},
