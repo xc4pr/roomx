@@ -21,6 +21,7 @@
 		type WallElement
 	} from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
+	import { connections, originalId } from '#lib/features/board/connections.svelte.ts';
 	import { getViewport, type RoomLayerProps } from '#lib/features/board/viewport.ts';
 	import { elementKindNames } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -56,6 +57,7 @@
 		look: Look;
 		suggestion: boolean;
 		area: number;
+		source?: string;
 	}
 
 	interface Drag {
@@ -114,6 +116,15 @@
 			if (visible(element)) {
 				list.push({ element, look: element.status, suggestion: false, area: areaOf(element) });
 			}
+		}
+		for (const entry of connections.mirroredIn(room.id)) {
+			list.push({
+				element: entry.element,
+				look: entry.element.status,
+				suggestion: false,
+				area: areaOf(entry.element),
+				source: entry.sourceRoomId
+			});
 		}
 		for (const element of suggestions) {
 			if (visible(element)) {
@@ -358,6 +369,15 @@
 		event.stopPropagation();
 	}
 
+	function pickSource(event: PointerEvent, entry: Drawable): void {
+		if (event.pointerType === 'mouse' && event.button !== 0) return;
+		event.stopPropagation();
+		if (!entry.source) return;
+		selectRoom(entry.source);
+		ui.selectedElementId = originalId(entry.element.id);
+		ui.panelTab = 'elements';
+	}
+
 	function handlers(element: RoomElement, mode: DragMode, editable: boolean) {
 		return {
 			onpointerdown: (event: PointerEvent) => startDrag(event, element, mode, editable),
@@ -528,6 +548,7 @@
 				look={entry.look}
 				selected={entry.element.id === ui.selectedElementId}
 				warn={issueIds.has(entry.element.id)}
+				shared={connections.sharedIds.has(entry.element.id)}
 			/>
 		</g>
 	{/each}
@@ -586,9 +607,18 @@
 						width={hb.x1 - hb.x0}
 						height={hb.y1 - hb.y0}
 						fill="transparent"
-						style="cursor: {dragging ? 'grabbing' : 'grab'}; touch-action: none"
+						style="cursor: {entry.source
+							? 'pointer'
+							: dragging
+								? 'grabbing'
+								: 'grab'}; touch-action: none"
 						data-hit={element.id}
-						{...handlers(element, 'move', editable)}
+						{...entry.source
+							? {
+									onpointerdown: (event: PointerEvent) => pickSource(event, entry),
+									onclick: swallow
+								}
+							: handlers(element, 'move', editable)}
 					/>
 				</g>
 			{:else}

@@ -118,13 +118,16 @@ function buildWall(
 	group.position.set(frame.start.x * MM, 0, -frame.start.y * MM);
 	group.rotation.y = Math.atan2(frame.direction.y, frame.direction.x);
 
-	const openings = wallOpenings(room, frame);
+	const openings = wallOpenings(room, frame, options.shared?.covered);
 	const profile = wallProfile(room, frame);
 	const wallTop = profileMax(profile);
+	const wallColor = room.wallColor ?? PALETTE.wall;
 	const body = new Mesh(buildWallGeometry(frame, openings, profile), [
-		materials.get({ color: room.wallColor ?? PALETTE.wall, roughness: 0.95 }),
-		materials.get({ color: PALETTE.wallOuter, roughness: 0.95 }),
-		materials.get({ color: PALETTE.wallTop, roughness: 0.9 })
+		materials.get({ color: wallColor, roughness: 0.95 }),
+		materials.get({ color: PALETTE.wallOuter, roughness: 0.95, push: true }),
+		materials.get({ color: PALETTE.wallTop, roughness: 0.9 }),
+		materials.get({ color: wallColor, roughness: 0.95 }),
+		materials.get({ color: wallColor, roughness: 0.95, push: true })
 	]);
 	body.name = 'body';
 	body.userData.part = 'wallBody';
@@ -174,6 +177,7 @@ function buildWall(
 		}
 	};
 	for (const element of wallElements(room, frame.number)) {
+		if (options.shared?.silent.has(element.id)) continue;
 		switch (element.kind) {
 			case 'door':
 				addDoor(ctx, element);
@@ -221,12 +225,16 @@ function buildWall(
 	return group;
 }
 
-function buildDoorMarks(room: Room, materials: MaterialSet): Group {
+function buildDoorMarks(
+	room: Room,
+	materials: MaterialSet,
+	silent: ReadonlySet<string> | undefined
+): Group {
 	const group = new Group();
 	group.name = 'floorMarks';
 	const parts = new GeometryBuilder(2);
 	for (const element of room.elements) {
-		if (element.kind !== 'door') continue;
+		if (element.kind !== 'door' || silent?.has(element.id)) continue;
 		const swing = doorSwing(room.polygon, element, 16);
 		if (!swing) continue;
 		const outline = swing.polygon;
@@ -352,7 +360,7 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	base.receiveShadow = true;
 	root.add(base);
 
-	root.add(buildDoorMarks(room, materials));
+	root.add(buildDoorMarks(room, materials, options.shared?.silent));
 
 	for (const frame of frames) {
 		const wall = buildWall(room, frame, options, materials, lamps);

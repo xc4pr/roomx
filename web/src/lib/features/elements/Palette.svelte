@@ -65,7 +65,7 @@
 </script>
 
 <section class="flex flex-col gap-3" data-testid="element-palette">
-	<div class="grid grid-cols-5 gap-1.5">
+	<div class="grid grid-cols-5 gap-1.5 pointer-coarse:grid-cols-4">
 		{#each PALETTE_KINDS as kind (kind)}
 			{@const Icon = KIND_ICONS[kind]}
 			<button
@@ -77,7 +77,7 @@
 				onpointermove={move}
 				onpointerup={up}
 				onpointercancel={cancel}
-				class="flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-md border px-1 py-1.5 text-[11px] leading-tight font-semibold transition duration-(--duration-fast) ease-soft select-none active:scale-95 {ui.placingKind ===
+				class="flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-md border px-1 py-1.5 text-[11px] leading-tight font-semibold transition duration-(--duration-fast) ease-soft select-none active:scale-95 pointer-coarse:text-sm {ui.placingKind ===
 				kind
 					? 'border-accent bg-accent-soft text-accent'
 					: 'border-border bg-surface text-text hover:bg-surface-2'}"

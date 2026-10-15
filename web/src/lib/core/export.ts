@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { wallLinks, withMirroredOpenings, type WallLink } from './adjacency.ts';
 import { areaM2 } from './defaults.ts';
 import {
 	cornerLabel,
@@ -42,6 +43,7 @@ export const FORMAT_GUIDE = [
 	'"freeSpans" lists the stretches of each wall not occupied by doors, windows, built-ins, obstacles or radiators.',
 	'"doorSwings" and "windowZones" are floor areas that must stay clear.',
 	'Furniture items give "x","y" (centre of the footprint), "rotation" (degrees counter-clockwise, 0 = front faces +y), "dims" (w = width of the front, d = depth, h = height), "elevation" and the four "footprint" corners.',
+	'Walls may list "neighbours": the room on the other side of that wall, the shared stretch "from"-"to" along this wall and the "thickness" of the shared wall. Rooms with "separate": true are deliberately not connected to others (cellar, garage). A door or window in a shared wall appears in both rooms; in the neighbour it carries "sharedFrom" with the id of the original element.',
 	'Element status is "existing" (built), "planned" (decided by the user) or "suggested" (proposal, not yet accepted).',
 	'Rooms under a roof may list "slopes": the ceiling starts on that wall at "kneeHeight" and rises into the room at "angleDeg" until it meets the flat ceiling at "fullHeightAt" mm from the wall; "standingHeightAt" is the distance from the wall where 2000 mm clear height is reached. Furniture must fit under the slope.',
 	'A furnishing plan is returned in the "roomx-plan" format and refers to rooms by "id"; items with "locked": true must not be moved or removed.'
@@ -66,7 +68,8 @@ export const ExportWallElementSchema = z.object({
 	gang: z.number().int().optional(),
 	usb: z.boolean().optional(),
 	portType: z.enum(['lan', 'tv', 'both']).optional(),
-	note: z.string().optional()
+	note: z.string().optional(),
+	sharedFrom: z.string().optional()
 });
 
 export const ExportWallSchema = z.object({
@@ -79,7 +82,18 @@ export const ExportWallSchema = z.object({
 	directionDeg: z.number(),
 	inwardNormalDeg: z.number(),
 	elements: z.array(ExportWallElementSchema),
-	freeSpans: z.array(SpanSchema)
+	freeSpans: z.array(SpanSchema),
+	neighbours: z
+		.array(
+			z.object({
+				roomId: z.string(),
+				roomName: z.string(),
+				wall: z.number().int(),
+				from: Mm,
+				to: Mm
+			})
+		)
+		.optional()
 });
 
 export const ExportPhotoSchema = z.object({
@@ -138,6 +152,7 @@ export const ExportRoomSchema = z.object({
 			})
 		)
 		.optional(),
+	separate: z.boolean().optional(),
 	floorColor: z.string().optional(),
 	wallColor: z.string().optional(),
 	notes: z.string().optional(),
@@ -183,8 +198,10 @@ export const STANDING_HEIGHT = 2000;
 
 function exportWallElement(element: WallElement, wallLength: number): ExportWallElement {
 	const { wall: _wall, offset, reason: _reason, ...rest } = element;
+	const shared = element.id.indexOf('@');
 	return {
 		...rest,
+		...(shared > 0 ? { sharedFrom: element.id.slice(0, shared) } : {}),
 		offsetFromStart: offset,
 		offsetFromEnd: wallLength - offset - element.width,
 		top: element.elevation + element.height
@@ -193,7 +210,9 @@ function exportWallElement(element: WallElement, wallLength: number): ExportWall
 
 export function exportRoom(
 	room: Room,
-	photoPages: Readonly<Record<string, number>> = {}
+	photoPages: Readonly<Record<string, number>> = {},
+	links: readonly WallLink[] = [],
+	names: ReadonlyMap<string, string> = new Map()
 ): ExportRoom {
 	const roomWalls = walls(room.polygon);
 	return {
@@ -226,7 +245,8 @@ export function exportRoom(
 				freeSpans: freeWallSpans(room, target.number).map((span) => ({
 					...span,
 					length: span.to - span.from
-				}))
+				})),
+				...neighboursOf(links, names, room.id, target.number)
 			};
 		}),
 		ceilingElements: room.elements.flatMap((element) =>
@@ -288,6 +308,7 @@ export function exportRoom(
 					})
 				}
 			: {}),
+		...(room.separate ? { separate: true } : {}),
 		...(room.floorColor ? { floorColor: room.floorColor } : {}),
 		...(room.wallColor ? { wallColor: room.wallColor } : {}),
 		...(room.notes ? { notes: room.notes } : {}),
@@ -302,6 +323,25 @@ export function exportRoom(
 	};
 }
 
+function neighboursOf(
+	links: readonly WallLink[],
+	names: ReadonlyMap<string, string>,
+	roomId: string,
+	wallNumber: number
+): { neighbours?: ExportWall['neighbours'] } {
+	const found = links
+		.filter((link) => link.roomId === roomId && link.wall === wallNumber)
+		.map((link) => ({
+			roomId: link.otherRoomId,
+			roomName: names.get(link.otherRoomId) ?? '',
+			wall: link.otherWall,
+			from: link.from,
+			to: link.to,
+			thickness: link.thickness
+		}));
+	return found.length > 0 ? { neighbours: found } : {};
+}
+
 export interface ExportOptions {
 	roomIds?: readonly string[];
 	photoPages?: Readonly<Record<string, number>>;
@@ -313,6 +353,8 @@ export function buildExport(project: Project, options: ExportOptions = {}): Expo
 		(room) => !options.roomIds || options.roomIds.includes(room.id)
 	);
 	const included = new Set(rooms.map((room) => room.id));
+	const links = wallLinks(project.rooms);
+	const names = new Map(project.rooms.map((room) => [room.id, room.name]));
 	return {
 		format: EXPORT_FORMAT,
 		schemaVersion: EXPORT_SCHEMA_VERSION,
@@ -321,7 +363,9 @@ export function buildExport(project: Project, options: ExportOptions = {}): Expo
 		formatGuide: FORMAT_GUIDE,
 		project: { id: project.id, name: project.name },
 		...(project.brief ? { brief: project.brief } : {}),
-		rooms: rooms.map((room) => exportRoom(room, options.photoPages)),
+		rooms: withMirroredOpenings(project.rooms)
+			.filter((room) => included.has(room.id))
+			.map((room) => exportRoom(room, options.photoPages, links, names)),
 		variants: project.variants.map((variant) => {
 			const items = variant.items.filter((item) => included.has(item.roomId));
 			const roomNotes = Object.fromEntries(

@@ -74,7 +74,7 @@
 		<span class="min-w-0 flex-1">{t(messages, 'slopes')}</span>
 		{#if count > 0}
 			<span
-				class="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent normal-case"
+				class="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent normal-case pointer-coarse:text-sm"
 			>
 				{count}
 			</span>

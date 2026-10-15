@@ -209,3 +209,65 @@ describe('buildRoom', () => {
 		expect(wall?.z).toBeGreaterThan(-0.3);
 	});
 });
+
+describe('shared openings', () => {
+	function fixtureMeshes(room: Room, shared?: RoomBuildOptions['shared']): number {
+		const root = buildRoom(room, { ...OPTIONS, shared });
+		let count = 0;
+		root.traverse((object) => {
+			if (object instanceof Mesh && object.parent?.name === 'fixtures') count++;
+		});
+		return count;
+	}
+
+	function withDoor(swing: 'in' | 'out'): Room {
+		const room = rectangleRoom('r', 4000, 3000);
+		room.elements = [
+			{
+				id: 'door@r',
+				kind: 'door',
+				status: 'existing',
+				wall: 2,
+				offset: 1000,
+				width: 900,
+				height: 2050,
+				elevation: 0,
+				hinge: 'start',
+				swing
+			}
+		];
+		return room;
+	}
+
+	it('cuts the hole but builds no leaf for a silent opening', () => {
+		const room = withDoor('in');
+		const full = fixtureMeshes(room);
+		const silent = fixtureMeshes(room, {
+			silent: new Set(['door@r']),
+			covered: new Set(['door@r'])
+		});
+		expect(full).toBeGreaterThan(0);
+		expect(silent).toBe(0);
+		const body = meshes(buildRoom(room, OPTIONS), 'wallBody');
+		const silentBody = meshes(
+			buildRoom(room, { ...OPTIONS, shared: { silent: new Set(['door@r']), covered: new Set() } }),
+			'wallBody'
+		);
+		const positions = (list: Mesh[]) =>
+			list.reduce((sum, mesh) => sum + mesh.geometry.getAttribute('position').count, 0);
+		expect(positions(silentBody)).toBe(positions(body));
+	});
+
+	it('moves the reveals of a covered opening behind the neighbour', () => {
+		const room = withDoor('out');
+		const groups = (covered: string[]) =>
+			meshes(
+				buildRoom(room, { ...OPTIONS, shared: { silent: new Set(), covered: new Set(covered) } }),
+				'wallBody'
+			)
+				.flatMap((mesh) => mesh.geometry.groups.map((group) => group.materialIndex))
+				.filter((index) => index === 3 || index === 4);
+		expect(new Set(groups([]))).toEqual(new Set([3]));
+		expect(new Set(groups(['door@r']))).toEqual(new Set([4]));
+	});
+});

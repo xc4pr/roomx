@@ -19,7 +19,7 @@
 	const width = $derived(Math.round(box.maxY - box.minY));
 </script>
 
-<div class="grid grid-cols-[minmax(0,1fr)] gap-4">
+<div class="grid grid-cols-[minmax(0,1fr)] gap-4" data-testid="rect-form">
 	<NumberField
 		label={t(messages, 'length')}
 		hint={t(messages, 'lengthHint')}

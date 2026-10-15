@@ -94,7 +94,7 @@
 						</span>
 						<span class="min-w-0 flex-1">
 							<span class="block text-sm font-semibold">{t(elementKindNames, element.kind)}</span>
-							<span class="block text-xs text-muted">{place(element)}</span>
+							<span class="block text-xs text-muted pointer-coarse:text-sm">{place(element)}</span>
 							{#if element.reason}
 								<span class="mt-1 block text-sm">{element.reason}</span>
 							{/if}

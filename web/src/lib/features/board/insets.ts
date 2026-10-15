@@ -1,3 +1,4 @@
+import { PANEL_MAX_FRACTION } from '#lib/ui/panelWidth.ts';
 import { SHEET_FRACTIONS, type SheetSnap } from '#lib/ui/sheet.ts';
 import { NO_INSETS, type Insets } from './camera.ts';
 
@@ -11,6 +12,7 @@ export interface CoverInput {
 	height: number;
 	wide: boolean;
 	panelOpen: boolean;
+	panelWidth: number;
 	snap: SheetSnap;
 	fab: boolean;
 }
@@ -19,7 +21,7 @@ export function coverInsets(input: CoverInput): Insets {
 	if (input.width === 0 || input.height === 0) return NO_INSETS;
 	const insets: Insets = { ...NO_INSETS, left: CONTROLS_INSET };
 	if (input.panelOpen && input.wide) {
-		insets.right = Math.min(380, input.width * 0.46) + 24;
+		insets.right = Math.min(input.panelWidth, input.width * PANEL_MAX_FRACTION) + 24;
 		if (input.fab) insets.bottom = FAB_INSET;
 	} else if (input.panelOpen) {
 		insets.bottom = input.height * Math.min(SHEET_FRACTIONS[input.snap], SHEET_MAX_COVER);

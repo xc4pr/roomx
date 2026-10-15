@@ -65,41 +65,45 @@
 
 {#if room}
 	<div class="grid grid-cols-[minmax(0,1fr)] gap-4 pb-2">
-		<TextField
-			id={nameId}
-			label={t(messages, 'name')}
-			placeholder={t(messages, 'namePlaceholder')}
-			value={room.name}
-			maxlength={60}
-			oninput={(name) => store.updateRoom(roomId, { name }, { coalesce: `name-${roomId}` })}
-			onchange={() => store.sealHistory()}
-			onenter={() => (document.activeElement as HTMLElement | null)?.blur()}
-			data-testid="room-name"
-		/>
-
-		<div
-			data-type-row
-			class="-mx-5 no-scrollbar flex gap-2 overflow-x-auto px-5 py-0.5"
-			role="group"
-			aria-label={t(messages, 'roomType')}
-		>
-			{#each ROOM_TYPES as type (type)}
-				<Chip
-					selected={room.type === type}
-					onclick={() => setRoomType(roomId, type)}
-					data-testid="room-type-{type}"
-				>
-					{t(roomTypeNames, type)}
-				</Chip>
-			{/each}
+		<div class="sticky -top-1 z-10 -mx-5 -mt-1 bg-surface px-5 pt-2">
+			<Tabs
+				items={tabs}
+				value={ui.panelTab}
+				label={t(messages, 'tabsLabel')}
+				onchange={(value) => (ui.panelTab = value as PanelTab)}
+			/>
 		</div>
 
-		<Tabs
-			items={tabs}
-			value={ui.panelTab}
-			label={t(messages, 'tabsLabel')}
-			onchange={(value) => (ui.panelTab = value as PanelTab)}
-		/>
+		{#if ui.panelTab === 'dims'}
+			<TextField
+				id={nameId}
+				label={t(messages, 'name')}
+				placeholder={t(messages, 'namePlaceholder')}
+				value={room.name}
+				maxlength={60}
+				oninput={(name) => store.updateRoom(roomId, { name }, { coalesce: `name-${roomId}` })}
+				onchange={() => store.sealHistory()}
+				onenter={() => (document.activeElement as HTMLElement | null)?.blur()}
+				data-testid="room-name"
+			/>
+
+			<div
+				data-type-row
+				class="-mx-5 no-scrollbar flex gap-2 overflow-x-auto px-5 py-0.5"
+				role="group"
+				aria-label={t(messages, 'roomType')}
+			>
+				{#each ROOM_TYPES as type (type)}
+					<Chip
+						selected={room.type === type}
+						onclick={() => setRoomType(roomId, type)}
+						data-testid="room-type-{type}"
+					>
+						{t(roomTypeNames, type)}
+					</Chip>
+				{/each}
+			</div>
+		{/if}
 
 		{#if ui.panelTab === 'elements'}
 			<ElementsPanel {roomId} />

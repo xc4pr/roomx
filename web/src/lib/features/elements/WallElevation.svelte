@@ -4,6 +4,7 @@
 	import { cornerLabel, walls, wallSlope } from '#lib/core/geometry.ts';
 	import { isElectrical, isWallElement, type WallElement } from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
+	import { connections } from '#lib/features/board/connections.svelte.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
@@ -106,6 +107,17 @@
 	});
 
 	const selected = $derived(elements.find((element) => element.id === ui.selectedElementId));
+
+	const shared = $derived(
+		connections
+			.mirroredIn(roomId)
+			.filter((entry) => entry.element.wall === wallNumber)
+			.map((entry) => ({
+				element: entry.element,
+				room: store.room(entry.sourceRoomId)?.name ?? ''
+			}))
+	);
+	const withShared = $derived(room ? connections.withNeighbourOpenings(room) : undefined);
 
 	let dragging = $state(false);
 	let snapNow = $state<{ x: SnapKind; y: SnapKind } | null>(null);
@@ -296,7 +308,7 @@
 		if (event.shiftKey && !current.axis) current.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
 		if (!event.shiftKey) current.axis = null;
 		const threshold = SNAP_PX / scale;
-		const neighbors = room.elements
+		const neighbors = (withShared ?? room).elements
 			.filter(isWallElement)
 			.filter((other) => other.wall === wallNumber && other.id !== element.id);
 		const patch: Partial<Pick<WallElement, 'offset' | 'elevation'>> = {};
@@ -308,7 +320,7 @@
 				offset: current.offset + screenDeltaToAlong(dx, scale),
 				width: element.width,
 				wallLength: length,
-				neighbors: neighborSpans(room, wallNumber, element.id),
+				neighbors: neighborSpans(withShared ?? room, wallNumber, element.id),
 				threshold
 			});
 			patch.offset = snapped.value;
@@ -774,6 +786,12 @@
 					style="stroke: var(--color-muted); stroke-width: 1.25"
 				/>
 
+				{#each shared as entry (entry.element.id)}
+					<g opacity="0.7" style="pointer-events: none" data-testid="wall-shared">
+						{@render glyph(entry.element, kindColor(entry.element.kind))}
+					</g>
+				{/each}
+
 				{#each elements as element (element.id)}
 					{@const color =
 						element.status === 'suggested' ? 'var(--color-suggested)' : kindColor(element.kind)}
@@ -866,6 +884,11 @@
 					{@render pill(entry.x, entry.y, entry.text, entry.tone)}
 				{/each}
 
+				{#each shared as entry (entry.element.id)}
+					{@const b = symbolBox(entry.element)}
+					{@render pill(b.cx, b.y + b.h - 14, t(messages, 'fromRoom', { room: entry.room }))}
+				{/each}
+
 				{#each elements as element (element.id)}
 					{@const h = hitBox(element)}
 					<rect
@@ -886,7 +909,7 @@
 				{/each}
 			</svg>
 		</div>
-		<p class="text-xs text-muted">
+		<p class="text-xs text-muted pointer-coarse:text-sm">
 			{t(messages, 'viewFromInside', { n: wallNumber })}
 			{t(messages, 'elevationHint')}
 		</p>

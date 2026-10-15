@@ -29,6 +29,7 @@
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import Fab from '#lib/ui/Fab.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
+	import { WIDE_QUERY } from '#lib/ui/layout.ts';
 	import { longpress } from '#lib/ui/longpress.ts';
 	import Menu, { type MenuItem } from '#lib/ui/Menu.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
@@ -60,8 +61,9 @@
 		roomsBox,
 		snapToCentimetre
 	} from './rooms.ts';
-	import { offsetPolygon } from './shape.ts';
-	import { snapPolygon, type Guide } from './snap.ts';
+	import DockMarks from './DockMarks.svelte';
+	import LinkMarks from './LinkMarks.svelte';
+	import { magnetRange, magnetSnap, slideDecay, type MagnetContact } from './magnet.ts';
 	import { setViewport } from './viewport.ts';
 
 	let { mode }: { mode: 'build' | 'furnish' } = $props();
@@ -72,13 +74,12 @@
 	let svg: SVGSVGElement | undefined = $state();
 	let width = $state(0);
 	let height = $state(0);
-	let wide = $state(
-		typeof matchMedia === 'undefined'
-			? false
-			: matchMedia('(min-width: 900px) and (orientation: landscape)').matches
-	);
+	let wide = $state(typeof matchMedia === 'undefined' ? false : matchMedia(WIDE_QUERY).matches);
 	let cam = $state<Camera>({ x: -1000, y: 3500, k: 0.15 });
-	let guides = $state<Guide[]>([]);
+	let contacts = $state<MagnetContact[]>([]);
+	let flash = $state<MagnetContact[]>([]);
+	let pulse = $state(0);
+	let slide = $state<{ roomId: string; x: number; y: number } | null>(null);
 	let draggingRoomId = $state<string | null>(null);
 	let grabbing = $state(false);
 
@@ -105,13 +106,15 @@
 	const gridMinor = $derived(gridSteps(cam.k).minor);
 	const gridMajor = $derived(gridSteps(cam.k).major);
 
-	const fabVisible = $derived(build && rooms.length > 0 && !placing);
+	const sheetFull = $derived(build && !wide && ui.selectedRoomId !== null && panel.snap === 'full');
+	const fabVisible = $derived(build && rooms.length > 0 && !placing && !sheetFull);
 	const insets = $derived.by((): Insets =>
 		coverInsets({
 			width,
 			height,
 			wide,
 			panelOpen: ui.selectedRoomId !== null,
+			panelWidth: panel.width,
 			snap: panel.snap,
 			fab: fabVisible
 		})
@@ -151,7 +154,7 @@
 	}
 
 	$effect(() => {
-		const query = matchMedia('(min-width: 900px) and (orientation: landscape)');
+		const query = matchMedia(WIDE_QUERY);
 		wide = query.matches;
 		const listener = (event: MediaQueryListEvent) => (wide = event.matches);
 		query.addEventListener('change', listener);
@@ -234,10 +237,13 @@
 	});
 
 	let lastSnap = panel.snap;
+	let lastPanelWidth = panel.settledWidth;
 	$effect(() => {
 		const snap = panel.snap;
-		if (snap === lastSnap) return;
+		const panelWidth = panel.settledWidth;
+		if (snap === lastSnap && panelWidth === lastPanelWidth) return;
 		lastSnap = snap;
+		lastPanelWidth = panelWidth;
 		const id = untrack(() => ui.selectedRoomId);
 		if (!id) return;
 		clearTimeout(revealTimer);
@@ -331,8 +337,51 @@
 
 	function finishRoomDrag(): void {
 		if (drag?.kind === 'room' && drag.moved) store.sealHistory();
-		guides = [];
+		if (contacts.length > 0) {
+			flash = contacts;
+			clearTimeout(flashTimer);
+			flashTimer = setTimeout(() => (flash = []), 1100);
+		}
+		contacts = [];
+		heldKeys = [];
+		lastDelta = { x: 0, y: 0 };
 		draggingRoomId = null;
+	}
+
+	let heldKeys: string[] = [];
+	let lastDelta: Vec = { x: 0, y: 0 };
+	let flashTimer: ReturnType<typeof setTimeout> | undefined;
+	let slideFrame = 0;
+	let slideTime = 0;
+
+	function slideStep(now: number): void {
+		const current = slide;
+		if (!current) {
+			slideFrame = 0;
+			return;
+		}
+		const next = slideDecay(current, Math.min(0.05, (now - slideTime) / 1000));
+		slideTime = now;
+		if (next.x === 0 && next.y === 0) {
+			slide = null;
+			slideFrame = 0;
+			return;
+		}
+		slide = { roomId: current.roomId, ...next };
+		slideFrame = requestAnimationFrame(slideStep);
+	}
+
+	function glide(roomId: string, jump: Vec): void {
+		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		slide = {
+			roomId,
+			x: (slide?.roomId === roomId ? slide.x : 0) - jump.x,
+			y: (slide?.roomId === roomId ? slide.y : 0) - jump.y
+		};
+		if (slideFrame === 0) {
+			slideTime = performance.now();
+			slideFrame = requestAnimationFrame(slideStep);
+		}
 	}
 
 	function onpointerdown(event: PointerEvent): void {
@@ -412,18 +461,29 @@
 			x: snapToCentimetre(origin.x + (point.x - start.x) / cam.k),
 			y: snapToCentimetre(origin.y - (point.y - start.y) / cam.k)
 		};
-		const others = rooms
+		const neighbours = rooms
 			.filter((other) => other.id !== roomId)
-			.map((other) => offsetPolygon(boardPolygon(other), WALL_THICKNESS));
+			.map((other) => ({ id: other.id, polygon: boardPolygon(other) }));
 		const moving = boardPolygon({ boardPos: candidate, polygon: room.polygon });
-		const snap = snapPolygon(moving, others, 12 / cam.k);
+		const snap = magnetSnap(moving, neighbours, {
+			range: magnetRange(cam.k),
+			held: heldKeys
+		});
 		const final: BoardPos = {
 			...candidate,
 			x: Math.round(candidate.x + snap.delta.x),
 			y: Math.round(candidate.y + snap.delta.y)
 		};
-		if (snap.guides.length > 0 && guides.length === 0) navigator.vibrate?.(8);
-		guides = snap.guides;
+		if (snap.held.join() !== heldKeys.join()) {
+			glide(roomId, { x: snap.delta.x - lastDelta.x, y: snap.delta.y - lastDelta.y });
+			if (heldKeys.length === 0) {
+				navigator.vibrate?.(8);
+				pulse++;
+			}
+		}
+		heldKeys = snap.held;
+		lastDelta = snap.delta;
+		contacts = snap.contacts;
 		store.moveRoom(roomId, final, { coalesce: `move-${roomId}` });
 	}
 
@@ -666,6 +726,7 @@
 
 <div
 	class="absolute inset-0 overflow-hidden bg-bg"
+	style:--panel-width="{panel.width}px"
 	bind:clientWidth={width}
 	bind:clientHeight={height}
 	data-testid="board"
@@ -743,44 +804,30 @@
 						focused={isFocused}
 						dimmed={ui.focusRoomId !== null && !isFocused}
 						lifted={draggingRoomId === room.id}
+						shift={slide?.roomId === room.id ? slide : undefined}
 						elementsInteractive={build && isSelected && (isFocused || ui.panelTab === 'elements')}
 						furnishInteractive={!build && isSelected}
 						handles={build && isSelected && !placing && draggingRoomId === null}
 					/>
 				{/each}
-				{#each guides as guide, i (i)}
-					{#if guide.a.x === guide.b.x && guide.a.y === guide.b.y}
-						<circle
-							cx={guide.a.x}
-							cy={guide.a.y}
-							r={5 / cam.k}
-							class="fill-accent"
-							pointer-events="none"
-						/>
-					{:else}
-						<line
-							x1={guide.a.x}
-							y1={guide.a.y}
-							x2={guide.b.x}
-							y2={guide.b.y}
-							class="stroke-accent"
-							stroke-width="2.5"
-							stroke-dasharray="6 5"
-							stroke-linecap="round"
-							vector-effect="non-scaling-stroke"
-							pointer-events="none"
-						/>
-					{/if}
-				{/each}
+				<LinkMarks {rooms} k={cam.k} dimmed={ui.focusRoomId !== null || draggingRoomId !== null} />
+				{#if contacts.length > 0}
+					<DockMarks {contacts} k={cam.k} {pulse} />
+				{:else if flash.length > 0}
+					<DockMarks contacts={flash} k={cam.k} {pulse} fading />
+				{/if}
 			</g>
 		</svg>
 	</div>
 
 	<div
-		class="pointer-events-none absolute top-[max(0.75rem,var(--safe-top))] left-[max(0.75rem,var(--safe-left))] z-10 flex flex-col gap-2"
+		class="pointer-events-none absolute top-[max(0.75rem,var(--safe-top))] left-[max(0.75rem,var(--safe-left))] z-10 flex flex-col gap-2 {sheetFull
+			? 'invisible'
+			: ''}"
 	>
 		<div
 			class="pointer-events-auto flex flex-col rounded-full border border-border bg-surface/90 p-1 shadow-soft backdrop-blur"
+			data-testid="zoom-controls"
 		>
 			<IconButton
 				icon={Plus}
@@ -858,7 +905,7 @@
 			class={selectedId === null
 				? ''
 				: wide
-					? 'right-[calc(min(380px,46%)+2.25rem)]!'
+					? 'right-[calc(var(--panel-width)+2.25rem)]!'
 					: 'top-3! right-3! bottom-auto!'}
 		/>
 	{/if}

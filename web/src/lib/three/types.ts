@@ -99,8 +99,16 @@ export interface SceneViewer {
 	dispose(): void;
 }
 
+export interface SharedOpenings {
+	// Openings in a shared wall whose door leaf or window the neighbour room builds; here only the hole is cut.
+	silent: ReadonlySet<string>;
+	// Openings that the neighbour room cuts at the very same place; their reveals sit slightly behind.
+	covered: ReadonlySet<string>;
+}
+
 export interface RoomBuildOptions extends SceneOptions {
 	wallHeightFactor: number;
+	shared?: SharedOpenings;
 }
 
 export type RoomBuilder = (room: Room, options: RoomBuildOptions) => Object3D;

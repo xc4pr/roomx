@@ -11,3 +11,4 @@ export * from './anchor.ts';
 export * from './planResolve.ts';
 export * from './checks.ts';
 export * from './export.ts';
+export * from './adjacency.ts';

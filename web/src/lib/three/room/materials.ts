@@ -8,6 +8,7 @@ export interface MaterialSpec {
 	roughness?: number;
 	metalness?: number;
 	side?: 'back' | 'double';
+	push?: boolean;
 }
 
 export const PALETTE = {
@@ -43,7 +44,8 @@ export class MaterialSet {
 			spec.emissiveIntensity ?? 0,
 			spec.roughness ?? 0.9,
 			spec.metalness ?? 0,
-			spec.side ?? ''
+			spec.side ?? '',
+			spec.push ? 'push' : ''
 		].join('|');
 		const cached = this.#cache.get(key);
 		if (cached) return cached;
@@ -55,7 +57,10 @@ export class MaterialSet {
 			transparent: opacity < 1,
 			opacity,
 			depthWrite: opacity >= 1,
-			side: spec.side === 'double' ? DoubleSide : spec.side === 'back' ? BackSide : FrontSide
+			side: spec.side === 'double' ? DoubleSide : spec.side === 'back' ? BackSide : FrontSide,
+			polygonOffset: spec.push === true,
+			polygonOffsetFactor: spec.push ? 1 : 0,
+			polygonOffsetUnits: spec.push ? 1 : 0
 		});
 		if (spec.emissive) {
 			material.emissive.set(spec.emissive);

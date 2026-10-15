@@ -113,7 +113,7 @@
 	{@const next = room.polygon[(i + 1) % room.polygon.length]}
 	{@const length = Math.hypot(next.x - corner.x, next.y - corner.y)}
 	{@const out = wallNormal(room.polygon, i)}
-	{#if length * viewport.pxPerMm > 90}
+	{#if length * viewport.pxPerMm > 96}
 		<g
 			transform="translate({(corner.x + next.x) / 2 - (out.x * WALL_THICKNESS) / 2} {(corner.y +
 				next.y) /
@@ -121,7 +121,7 @@
 				(out.y * WALL_THICKNESS) / 2}) rotate({-rot}) scale(1 -1)"
 		>
 			<circle
-				r={20 * u}
+				r={22 * u}
 				fill="transparent"
 				class="cursor-copy"
 				role="button"

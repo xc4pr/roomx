@@ -6,6 +6,7 @@ const base = {
 	height: 820,
 	wide: true,
 	panelOpen: false,
+	panelWidth: 380,
 	snap: 'half',
 	fab: true
 } as const;
@@ -24,6 +25,30 @@ describe('coverInsets', () => {
 		const insets = coverInsets({ ...base, panelOpen: true });
 		expect(insets.right).toBeCloseTo(404);
 		expect(insets.bottom).toBe(FAB_INSET);
+	});
+
+	it('follows the actual panel width', () => {
+		const narrow = coverInsets({ ...base, panelOpen: true, panelWidth: 320 });
+		const wider = coverInsets({ ...base, panelOpen: true, panelWidth: 600 });
+		expect(narrow.right).toBeCloseTo(344);
+		expect(wider.right).toBeCloseTo(624);
+	});
+
+	it('never reserves more than 60 percent of the board', () => {
+		const insets = coverInsets({ ...base, width: 900, panelOpen: true, panelWidth: 720 });
+		expect(insets.right).toBeCloseTo(540 + 24);
+	});
+
+	it('ignores the panel width in sheet mode', () => {
+		const sheet = coverInsets({
+			...base,
+			wide: false,
+			width: 820,
+			height: 1180,
+			panelOpen: true,
+			panelWidth: 700
+		});
+		expect(sheet.right).toBe(0);
 	});
 
 	it('follows the sheet snap on narrow screens', () => {

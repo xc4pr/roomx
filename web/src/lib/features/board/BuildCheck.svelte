@@ -2,6 +2,9 @@
 	import Eye from '@lucide/svelte/icons/eye';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import { untrack } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import type { Room, RoomElement } from '#lib/core/schema.ts';
 	import { tourProgress } from '#lib/features/photos/tour.ts';
 	import { common, elementKindNames } from '#lib/i18n/common.ts';
@@ -10,12 +13,22 @@
 	import { selectRoom, ui } from '#lib/state/ui.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import Dialog from '#lib/ui/Dialog.svelte';
-	import { collectWarnings, type CheckWarning } from './buildCheck.ts';
+	import { collectWarnings, isError, type CheckWarning } from './buildCheck.ts';
 	import { messages } from './i18n.ts';
 
-	let { open = $bindable(false), onproceed }: { open: boolean; onproceed: () => void } = $props();
+	interface Props {
+		open: boolean;
+		onproceed: () => void;
+		title?: string;
+		proceedLabel?: string;
+		roomIds?: readonly string[];
+	}
 
-	const warnings = $derived(open ? collectWarnings(store.project?.rooms ?? [], tourProgress) : []);
+	let { open = $bindable(false), onproceed, title, proceedLabel, roomIds }: Props = $props();
+
+	const warnings = $derived(
+		open ? collectWarnings(store.project?.rooms ?? [], tourProgress, roomIds) : []
+	);
 
 	$effect(() => {
 		if (!open) return;
@@ -37,6 +50,7 @@
 		if (warning.kind === 'noRooms') return t(messages, 'warnNoRooms');
 		const room = store.room(warning.roomId);
 		if (!room) return '';
+		if (warning.kind === 'unconnected') return t(messages, 'warnUnconnected', { room: room.name });
 		if (warning.kind === 'photos') {
 			return t(messages, 'warnPhotos', {
 				room: room.name,
@@ -83,7 +97,12 @@
 			return;
 		}
 		open = false;
-		ui.panelTab = warning.kind === 'photos' ? 'photos' : 'elements';
+		const id = store.project?.id;
+		if (id && page.url.pathname !== resolve('/p/[id]', { id })) {
+			void goto(resolve('/p/[id]', { id }));
+		}
+		ui.panelTab =
+			warning.kind === 'photos' ? 'photos' : warning.kind === 'unconnected' ? 'dims' : 'elements';
 		selectRoom(warning.roomId);
 		if (warning.kind === 'issue' && warning.issue.elementIds[0]) {
 			ui.selectedElementId = warning.issue.elementIds[0];
@@ -100,7 +119,7 @@
 {#if warnings.length > 0}
 	<Dialog
 		bind:open
-		title={t(messages, 'checkTitle')}
+		title={title ?? t(messages, 'checkTitle')}
 		description={warnings.length === 1
 			? t(messages, 'checkIntroOne')
 			: t(messages, 'checkIntroMany', { n: warnings.length })}
@@ -109,11 +128,26 @@
 	>
 		<ul class="grid gap-2.5" data-testid="check-list">
 			{#each warnings as warning, i (i)}
-				<li class="flex items-center gap-3 rounded-lg bg-warning-soft p-3.5">
-					<TriangleAlert class="size-6 shrink-0 text-warning" />
+				<li
+					class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 rounded-lg p-3.5 sm:flex {isError(
+						warning
+					)
+						? 'bg-danger-soft'
+						: 'bg-warning-soft'}"
+					data-severity={isError(warning) ? 'error' : 'warning'}
+				>
+					<TriangleAlert
+						class="size-6 shrink-0 {isError(warning) ? 'text-danger' : 'text-warning'}"
+					/>
 					<p class="min-w-0 grow text-base font-medium">{describe(warning)}</p>
 					{#if warning.kind !== 'noRooms'}
-						<Button variant="ghost" size="sm" icon={Eye} onclick={() => show(warning)}>
+						<Button
+							variant="ghost"
+							size="sm"
+							icon={Eye}
+							class="col-start-2 -ml-3.5 justify-self-start sm:ml-0"
+							onclick={() => show(warning)}
+						>
 							{t(messages, 'checkShow')}
 						</Button>
 					{/if}
@@ -123,7 +157,7 @@
 		{#snippet actions()}
 			<Button variant="ghost" onclick={() => (open = false)}>{t(messages, 'checkBack')}</Button>
 			<Button variant="primary" onclick={proceed} data-testid="check-proceed">
-				{t(messages, 'checkProceed')}
+				{proceedLabel ?? t(messages, 'checkProceed')}
 			</Button>
 		{/snippet}
 	</Dialog>

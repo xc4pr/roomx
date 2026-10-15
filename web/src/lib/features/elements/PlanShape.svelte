@@ -17,9 +17,19 @@
 		look: Look;
 		selected?: boolean;
 		warn?: boolean;
+		shared?: boolean;
 	}
 
-	let { element, wall, pxPerMm, hatchId, look, selected = false, warn = false }: Props = $props();
+	let {
+		element,
+		wall,
+		pxPerMm,
+		hatchId,
+		look,
+		selected = false,
+		warn = false,
+		shared = false
+	}: Props = $props();
 
 	const T = WALL_THICKNESS;
 	const px = (n: number): number => n / pxPerMm;
@@ -192,7 +202,7 @@
 						y2={-T * 0.3}
 						style="stroke-width: {strokeWidth * 1.6}"
 					/>
-				{:else}
+				{:else if !shared || element.swing === 'in'}
 					<line
 						x1={geo.hingeX}
 						y1={0}

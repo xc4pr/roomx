@@ -7,6 +7,8 @@ import { flatProfile, profileTop, type ProfilePoint } from './profile.ts';
 export const BUCKET_INNER = 0;
 export const BUCKET_OUTER = 1;
 export const BUCKET_CAP = 2;
+export const BUCKET_REVEAL = 3;
+export const BUCKET_REVEAL_PUSHED = 4;
 
 type Interval = readonly [number, number];
 
@@ -95,12 +97,29 @@ export function buildWallGeometry(
 		typeof heightOrProfile === 'number'
 			? flatProfile(frame.length, heightOrProfile)
 			: heightOrProfile;
-	const builder = new GeometryBuilder(3);
+	const builder = new GeometryBuilder(5);
 	const points = breakpoints(frame, openings, profile);
 	const thickness = frame.thickness * MM;
 	const strips = points.slice(0, -1).map((from, index) => ({ from, to: points[index + 1] }));
 	const point = (u: number, h: number, z: number): V3 => [u * MM, h * MM, z];
 	const topAt = (u: number) => profileTop(profile, u);
+
+	const allPushed = (list: readonly WallOpening[]) =>
+		list.length > 0 && list.every((opening) => opening.pushed === true);
+	const revealOf = (strip: { from: number; to: number }) => {
+		const middle = (strip.from + strip.to) / 2;
+		return allPushed(openings.filter((opening) => opening.from <= middle && opening.to >= middle))
+			? BUCKET_REVEAL_PUSHED
+			: BUCKET_REVEAL;
+	};
+	const jambOf = (u: number) =>
+		allPushed(
+			openings.filter(
+				(opening) => Math.abs(opening.from - u) < 0.01 || Math.abs(opening.to - u) < 0.01
+			)
+		)
+			? BUCKET_REVEAL_PUSHED
+			: BUCKET_REVEAL;
 
 	const inner = strips.filter((strip) => strip.from >= -0.01 && strip.to <= frame.length + 0.01);
 	const outer = strips.filter(
@@ -141,7 +160,7 @@ export function buildWallGeometry(
 		for (const { lo, hi } of spans) {
 			if (lo > 0.5) {
 				builder.quad(
-					BUCKET_INNER,
+					revealOf(strip),
 					point(strip.from, lo, 0),
 					point(strip.to, lo, 0),
 					point(strip.to, lo, thickness),
@@ -151,7 +170,7 @@ export function buildWallGeometry(
 			}
 			if (hi !== TOP && hi < middleTop - 0.5) {
 				builder.quad(
-					BUCKET_INNER,
+					revealOf(strip),
 					point(strip.from, hi, 0),
 					point(strip.to, hi, 0),
 					point(strip.to, hi, thickness),
@@ -169,7 +188,7 @@ export function buildWallGeometry(
 		const right = resolve(spansFor(outer[index + 1]), top);
 		for (const [y0, y1] of subtract(left, right)) {
 			builder.quad(
-				BUCKET_INNER,
+				jambOf(u),
 				point(u, y0, 0),
 				point(u, y0, thickness),
 				point(u, y1, thickness),
@@ -179,7 +198,7 @@ export function buildWallGeometry(
 		}
 		for (const [y0, y1] of subtract(right, left)) {
 			builder.quad(
-				BUCKET_INNER,
+				jambOf(u),
 				point(u, y0, 0),
 				point(u, y0, thickness),
 				point(u, y1, thickness),

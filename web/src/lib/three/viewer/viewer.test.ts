@@ -12,6 +12,8 @@ import {
 	floorAt,
 	nearestBoundaryPoint,
 	roomFrames,
+	sceneRooms,
+	sharedOpenings,
 	worldToRoom
 } from './layout.ts';
 import {
@@ -277,7 +279,7 @@ describe('walking through doors', () => {
 			{ x: 0, y: -3 },
 			{ x: -4, y: -3 }
 		],
-		doors: [{ a: { x: 0, y: -1 }, b: { x: 0, y: -1.9 } }]
+		doors: [{ a: { x: 0, y: -1 }, b: { x: 0, y: -1.9 }, id: 'd', roomId: 'left' }]
 	};
 	const right = {
 		polygon: [
@@ -286,7 +288,7 @@ describe('walking through doors', () => {
 			{ x: 4, y: -3 },
 			{ x: 0.3, y: -3 }
 		],
-		doors: [{ a: { x: 0.3, y: -1 }, b: { x: 0.3, y: -1.9 } }]
+		doors: [{ a: { x: 0.3, y: -1 }, b: { x: 0.3, y: -1.9 }, id: 'd@right', roomId: 'right' }]
 	};
 
 	it('opens a passage between rooms with facing doors', () => {
@@ -323,7 +325,10 @@ describe('walking through doors', () => {
 	});
 
 	it('does not connect doors that do not overlap enough', () => {
-		const off = { ...right, doors: [{ a: { x: 0.3, y: -2.5 }, b: { x: 0.3, y: -2.9 } }] };
+		const off = {
+			...right,
+			doors: [{ a: { x: 0.3, y: -2.5 }, b: { x: 0.3, y: -2.9 }, id: 'd@right', roomId: 'right' }]
+		};
 		expect(buildWalkMap([left, off], 0.22).portals).toHaveLength(0);
 	});
 
@@ -441,12 +446,12 @@ describe('fitting the view', () => {
 });
 
 describe('walk map from room frames', () => {
-	function apartment(gap: number, second: number) {
+	function apartment(gap: number, withNeighbourDoor = false) {
 		const ids = sequentialIds('d');
 		const a = createRoom('a', 'A', 'living', { x: 0, y: 0, rot: 0 });
 		const b = createRoom('b', 'B', 'office', { x: 4000 + gap, y: 0, rot: 0 });
 		a.elements.push(createElement('door', a, 2, 1500, ids));
-		b.elements.push(createElement('door', b, 4, second, ids));
+		if (withNeighbourDoor) b.elements.push(createElement('door', b, 4, 1500, ids));
 		return {
 			id: 'p',
 			name: 'p',
@@ -459,23 +464,69 @@ describe('walk map from room frames', () => {
 		};
 	}
 
-	it('links aligned doors of adjacent rooms, also across a small gap', () => {
-		for (const gap of [0, 300, 600]) {
-			const frames = roomFrames({ project: apartment(gap, 1500), roomIds: ['a', 'b'] });
-			const map = buildWalkMap(walkInputs(frames), 0.22);
-			expect(map.portals).toHaveLength(1);
-			const mid = { x: 4 + gap / 2000, y: -1.5 };
-			expect(standable(map, mid, 0.22)).toBe(true);
+	it('opens a passage through a door in a shared wall', () => {
+		const frames = roomFrames({ project: apartment(150), roomIds: ['a', 'b'] });
+		const map = buildWalkMap(walkInputs(frames), 0.22);
+		expect(map.portals).toHaveLength(1);
+		expect(standable(map, { x: 4.075, y: -1.5 }, 0.22)).toBe(true);
+		expect(standable(map, { x: 5, y: -1.5 }, 0.22)).toBe(true);
+		expect(standable(map, { x: 4.075, y: -0.4 }, 0.22)).toBe(false);
+	});
+
+	it('does not link rooms that do not share a wall, even with doors facing each other', () => {
+		for (const gap of [0, 450, 600]) {
+			const frames = roomFrames({ project: apartment(gap, true), roomIds: ['a', 'b'] });
+			expect(buildWalkMap(walkInputs(frames), 0.22).portals).toHaveLength(0);
 		}
 	});
 
-	it('does not link rooms when the doors are not facing each other', () => {
-		const frames = roomFrames({ project: apartment(0, 2700), roomIds: ['a', 'b'] });
+	it('keeps a single room closed', () => {
+		const frames = roomFrames({ project: apartment(150), roomIds: ['a'] });
 		expect(buildWalkMap(walkInputs(frames), 0.22).portals).toHaveLength(0);
 	});
+});
 
-	it('keeps a single room closed', () => {
-		const frames = roomFrames({ project: apartment(0, 1500), roomIds: ['a'] });
-		expect(buildWalkMap(walkInputs(frames), 0.22).portals).toHaveLength(0);
+describe('shared openings', () => {
+	function neighbours(swing: 'in' | 'out' | 'sliding') {
+		const a = createRoom('a', 'A', 'living', { x: 0, y: 0, rot: 0 });
+		const b = createRoom('b', 'B', 'office', { x: 4150, y: 0, rot: 0 });
+		const door = createElement('door', a, 2, 1500, sequentialIds('d'));
+		if (door.kind === 'door') door.swing = swing;
+		a.elements.push(door);
+		return {
+			id: 'p',
+			name: 'p',
+			schemaVersion: 1 as const,
+			rev: 0,
+			createdAt: '',
+			updatedAt: '',
+			rooms: [a, b],
+			variants: []
+		};
+	}
+
+	it('adds the neighbour opening to a room that is shown alone', () => {
+		const rooms = sceneRooms({ project: neighbours('in'), roomIds: ['b'] });
+		expect(rooms).toHaveLength(1);
+		expect(rooms[0].elements.map((element) => element.id)).toEqual(['d-1@b']);
+	});
+
+	it('builds the door leaf in the room it opens into', () => {
+		const inward = sharedOpenings({ project: neighbours('in'), roomIds: ['a', 'b'] });
+		expect([...(inward.get('b')?.silent ?? [])]).toEqual(['d-1@b']);
+		expect(inward.get('a')?.silent.size ?? 0).toBe(0);
+		expect([...(inward.get('b')?.covered ?? [])]).toEqual(['d-1@b']);
+
+		const outward = sharedOpenings({ project: neighbours('out'), roomIds: ['a', 'b'] });
+		expect([...(outward.get('a')?.silent ?? [])]).toEqual(['d-1']);
+		expect(outward.get('b')?.silent.size ?? 0).toBe(0);
+
+		const sliding = sharedOpenings({ project: neighbours('sliding'), roomIds: ['a', 'b'] });
+		expect([...(sliding.get('b')?.silent ?? [])]).toEqual(['d-1@b']);
+	});
+
+	it('keeps every leaf when the neighbour is not part of the scene', () => {
+		expect(sharedOpenings({ project: neighbours('out'), roomIds: ['a'] }).size).toBe(0);
+		expect(sharedOpenings({ project: neighbours('in'), roomIds: ['b'] }).size).toBe(0);
 	});
 });

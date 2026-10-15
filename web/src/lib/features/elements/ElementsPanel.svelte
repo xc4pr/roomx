@@ -2,13 +2,14 @@
 	import PanelTopOpen from '@lucide/svelte/icons/panel-top-open';
 	import PanelTopClose from '@lucide/svelte/icons/panel-top-close';
 	import { walls } from '#lib/core/geometry.ts';
+	import { connections, originalId } from '#lib/features/board/connections.svelte.ts';
 	import { isWallElement, type RoomElement, type WallElement } from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
 	import { elementKindNames } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
-	import { ui } from '#lib/state/ui.svelte.ts';
+	import { selectRoom, ui } from '#lib/state/ui.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import Select from '#lib/ui/Select.svelte';
@@ -25,11 +26,16 @@
 	const room = $derived(store.room(roomId));
 	const wallList = $derived(room ? walls(room.polygon) : []);
 	const selected = $derived(room?.elements.find((element) => element.id === ui.selectedElementId));
+	const mirrored = $derived(connections.mirroredIn(roomId));
+	const sources = $derived(
+		new Map(mirrored.map((entry) => [entry.element.id, store.room(entry.sourceRoomId)]))
+	);
+	const total = $derived((room?.elements.length ?? 0) + mirrored.length);
 	const groups = $derived.by(() => {
 		if (!room) return [];
 		const byWall = new Map<number, WallElement[]>();
 		const ceiling: RoomElement[] = [];
-		for (const element of room.elements) {
+		for (const element of [...room.elements, ...mirrored.map((entry) => entry.element)]) {
 			if (!isWallElement(element)) ceiling.push(element);
 			else byWall.set(element.wall, [...(byWall.get(element.wall) ?? []), element]);
 		}
@@ -93,6 +99,13 @@
 	}
 
 	function select(element: RoomElement): void {
+		const source = sources.get(element.id);
+		if (source) {
+			selectRoom(source.id);
+			ui.selectedElementId = originalId(element.id);
+			ui.placingKind = null;
+			return;
+		}
 		ui.selectedElementId = element.id;
 		ui.placingKind = null;
 		if (isWallElement(element) && ui.wallViewWall !== null) ui.wallViewWall = element.wall;
@@ -135,8 +148,8 @@
 		</section>
 
 		<section class="flex flex-col gap-3" data-testid="element-list">
-			<h3 class="text-sm font-bold">{t(messages, 'listTitle', { n: room.elements.length })}</h3>
-			{#if room.elements.length === 0}
+			<h3 class="text-sm font-bold">{t(messages, 'listTitle', { n: total })}</h3>
+			{#if total === 0}
 				<EmptyState
 					class="rounded-lg bg-surface-2 py-5!"
 					title={t(messages, 'listEmptyTitle')}
@@ -149,11 +162,13 @@
 			{#each groups as group (group.key)}
 				<div class="flex flex-col gap-1.5">
 					<div class="flex items-center justify-between gap-2 px-1">
-						<h4 class="text-xs font-bold tracking-wide text-muted uppercase">{group.title}</h4>
+						<h4 class="text-xs font-bold tracking-wide text-muted uppercase pointer-coarse:text-sm">
+							{group.title}
+						</h4>
 						{#if group.wall > 0}
 							<button
 								type="button"
-								class="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-accent hover:bg-accent-soft"
+								class="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-accent hover:bg-accent-soft pointer-coarse:text-sm"
 								onclick={() => (ui.wallViewWall = group.wall)}
 							>
 								<PanelTopOpen class="size-4" />
@@ -182,11 +197,23 @@
 										<span class="block truncate text-sm font-semibold">
 											{t(elementKindNames, element.kind)}
 										</span>
-										<span class="block truncate text-xs text-muted">{describe(element)}</span>
+										<span class="block truncate text-xs text-muted pointer-coarse:text-sm"
+											>{describe(element)}</span
+										>
 									</span>
-									{#if element.status === 'planned'}
+									{#if sources.get(element.id)}
 										<span
-											class="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-muted"
+											class="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-muted pointer-coarse:text-sm"
+											title={t(messages, 'fromRoomHint', {
+												room: sources.get(element.id)?.name ?? ''
+											})}
+											data-testid="mirrored-badge"
+										>
+											{t(messages, 'fromRoom', { room: sources.get(element.id)?.name ?? '' })}
+										</span>
+									{:else if element.status === 'planned'}
+										<span
+											class="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-muted pointer-coarse:text-sm"
 										>
 											{t(messages, 'statusPlanned')}
 										</span>

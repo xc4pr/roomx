@@ -76,7 +76,7 @@
 	}
 </script>
 
-<div class="grid grid-cols-[minmax(0,1fr)] gap-4">
+<div class="grid grid-cols-[minmax(0,1fr)] gap-4" data-testid="template-form">
 	<div class="grid grid-cols-3 gap-2" role="group" aria-label={t(messages, 'templatePick')}>
 		{#each TEMPLATE_IDS as id (id)}
 			{@const on = id === selected}
@@ -85,7 +85,7 @@
 				aria-pressed={on}
 				onclick={() => pick(id)}
 				data-testid="template-{id}"
-				class="flex min-h-20 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs font-semibold transition duration-(--duration-fast) ease-soft select-none active:scale-95 {on
+				class="flex min-h-20 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs font-semibold transition duration-(--duration-fast) ease-soft select-none active:scale-95 pointer-coarse:text-sm {on
 					? 'border-accent bg-accent-soft text-accent'
 					: 'border-border bg-surface hover:bg-surface-2'}"
 			>

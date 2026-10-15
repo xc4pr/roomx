@@ -84,6 +84,8 @@ export function bestStandPoint(polygon: readonly Point[], radius: number): Vec |
 export interface WalkDoor {
 	a: Vec;
 	b: Vec;
+	id?: string;
+	roomId?: string;
 }
 
 export interface WalkRoomInput {
@@ -164,7 +166,13 @@ function cutSegments(polygon: readonly Vec[], openings: readonly WalkDoor[]): Se
 	return segments;
 }
 
-// Doors of neighbouring rooms that face each other open a passage; doors to the outside stay closed.
+// A door in a shared wall exists twice: the original and its mirror in the neighbour ("<id>@<roomId>").
+function twins(x: WalkDoor, y: WalkDoor): boolean {
+	if (x.id === undefined || y.id === undefined) return false;
+	return x.id === `${y.id}@${x.roomId}` || y.id === `${x.id}@${y.roomId}`;
+}
+
+// Doors in a wall that two rooms share open a passage; doors to the outside stay closed.
 export function buildWalkMap(inputs: readonly WalkRoomInput[], radius: number): WalkMap {
 	const connected = inputs.map(() => new Set<WalkDoor>());
 	const portals: Portal[] = [];
@@ -177,6 +185,7 @@ export function buildWalkMap(inputs: readonly WalkRoomInput[], radius: number): 
 			inputs.forEach((other, j) => {
 				if (i === j) return;
 				for (const match of other.doors) {
+					if (!twins(door, match)) continue;
 					const otherTangent = unit(sub(match.b, match.a));
 					if (Math.abs(dot(tangent, otherTangent)) < 0.97) continue;
 					if (dot(normal, outwardNormal(other.polygon, match)) > -0.9) continue;
@@ -283,7 +292,9 @@ export function walkInputs(frames: readonly RoomFrame[]): WalkRoomInput[] {
 			const at = (along: number) => add(edge.start, scale(edge.direction, along));
 			doors.push({
 				a: toWorldPoint(at(element.offset)),
-				b: toWorldPoint(at(element.offset + element.width))
+				b: toWorldPoint(at(element.offset + element.width)),
+				id: element.id,
+				roomId: frame.room.id
 			});
 		}
 		return { polygon, doors };

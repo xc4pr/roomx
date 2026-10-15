@@ -3,6 +3,11 @@ import { defineMessages } from '#lib/i18n/index.svelte.ts';
 export const messages = defineMessages({
 	de: {
 		newRoomName: 'Raum {n}',
+		neighbours: 'Nachbarn',
+		neighbourLine: 'Wand {n} grenzt an {room} (Wand {m}), {length} gemeinsam',
+		neighbourJump: 'Zu {room} wechseln',
+		neighboursHint:
+			'Zieh den Raum im Plan an einen anderen heran, er rastet ein. Die Wand gehört dann beiden Räumen, und Türen darin führen in beide.',
 		slopes: 'Dachschrägen',
 		slopesHint:
 			'Die Decke beginnt an der Wand auf Kniestockhöhe und steigt mit der Neigung in den Raum, bis sie die Raumhöhe erreicht.',
@@ -88,6 +93,11 @@ export const messages = defineMessages({
 	},
 	en: {
 		newRoomName: 'Room {n}',
+		neighbours: 'Neighbours',
+		neighbourLine: 'Wall {n} borders {room} (wall {m}), {length} shared',
+		neighbourJump: 'Go to {room}',
+		neighboursHint:
+			'Drag the room next to another one on the plan and it snaps into place. The wall then belongs to both rooms, and doors in it lead into both.',
 		slopes: 'Sloped ceilings',
 		slopesHint:
 			'The ceiling starts at the wall at knee wall height and rises into the room at the given angle until it reaches the room height.',

@@ -17,6 +17,7 @@
 	import AppearanceSection from './AppearanceSection.svelte';
 	import FreeForm from './FreeForm.svelte';
 	import { messages } from './i18n.ts';
+	import NeighboursSection from './NeighboursSection.svelte';
 	import RectForm from './RectForm.svelte';
 	import SlopeSection from './SlopeSection.svelte';
 	import TemplateForm from './TemplateForm.svelte';
@@ -147,6 +148,8 @@
 		onchange={seal}
 		data-testid="room-height"
 	/>
+
+	<NeighboursSection {room} />
 
 	{#key room.id}
 		<SlopeSection {room} />

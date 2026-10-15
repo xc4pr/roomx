@@ -22,6 +22,7 @@ export interface WallOpening {
 	to: number;
 	bottom: number;
 	top: number;
+	pushed?: boolean;
 }
 
 const MIN_MITRE_DENOMINATOR = 0.15;
@@ -65,7 +66,11 @@ export function wallFrames(
 	});
 }
 
-export function wallOpenings(room: Room, frame: WallFrame): WallOpening[] {
+export function wallOpenings(
+	room: Room,
+	frame: WallFrame,
+	covered: ReadonlySet<string> = new Set()
+): WallOpening[] {
 	const lo = Math.max(0, frame.outerFrom);
 	const hi = Math.min(frame.length, frame.outerTo);
 	const result: WallOpening[] = [];
@@ -78,7 +83,7 @@ export function wallOpenings(room: Room, frame: WallFrame): WallOpening[] {
 		const bottom = Math.max(0, opening.elevation);
 		const top = Math.min(room.height, opening.elevation + opening.height);
 		if (to - from < 1 || top - bottom < 1) continue;
-		result.push({ id: opening.id, from, to, bottom, top });
+		result.push({ id: opening.id, from, to, bottom, top, pushed: covered.has(opening.id) });
 	}
 	return result;
 }

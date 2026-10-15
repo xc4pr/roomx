@@ -1,4 +1,5 @@
 import { Box3, Vector3 } from 'three';
+import { mirroredOpenings, withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 import {
 	add,
@@ -11,7 +12,7 @@ import {
 } from '#lib/core/geometry.ts';
 import type { Room, Variant } from '#lib/core/schema.ts';
 import { MM, roomOrigin, toWorld } from '../coords.ts';
-import type { FloorHit, SceneContent } from '../types.ts';
+import type { FloorHit, SceneContent, SharedOpenings } from '../types.ts';
 
 export interface RoomFrame {
 	room: Room;
@@ -28,9 +29,12 @@ export function sceneVariant(content: SceneContent): Variant | undefined {
 
 export function sceneRooms(content: SceneContent): Room[] {
 	const variant = sceneVariant(content);
+	const connected = new Map(
+		withMirroredOpenings(content.project.rooms).map((room) => [room.id, room])
+	);
 	const rooms: Room[] = [];
 	for (const id of content.roomIds) {
-		const room = content.project.rooms.find((candidate) => candidate.id === id);
+		const room = connected.get(id);
 		if (!room) continue;
 		const extra = (variant?.suggestions ?? [])
 			.filter((suggestion) => suggestion.roomId === room.id)
@@ -38,6 +42,34 @@ export function sceneRooms(content: SceneContent): Room[] {
 		rooms.push(extra.length > 0 ? { ...room, elements: [...room.elements, ...extra] } : room);
 	}
 	return rooms;
+}
+
+// Where two rooms of the scene share a wall, the door leaf (or window) is built once, in the room it opens into.
+// The hole is cut in both walls.
+export function sharedOpenings(content: SceneContent): Map<string, SharedOpenings> {
+	const present = new Set(content.roomIds);
+	const byId = new Map(content.project.rooms.map((room) => [room.id, room]));
+	const result = new Map<string, { silent: Set<string>; covered: Set<string> }>();
+	const entry = (roomId: string) => {
+		let found = result.get(roomId);
+		if (!found) {
+			found = { silent: new Set(), covered: new Set() };
+			result.set(roomId, found);
+		}
+		return found;
+	};
+	for (const mirrored of mirroredOpenings(content.project.rooms)) {
+		if (!present.has(mirrored.roomId) || !present.has(mirrored.sourceRoomId)) continue;
+		const original = byId
+			.get(mirrored.sourceRoomId)
+			?.elements.find((element) => element.id === mirrored.element.id.split('@')[0]);
+		if (!original || (original.kind !== 'door' && original.kind !== 'window')) continue;
+		entry(mirrored.roomId).covered.add(mirrored.element.id);
+		const opensIntoNeighbour = original.kind === 'door' && original.swing === 'out';
+		if (opensIntoNeighbour) entry(mirrored.sourceRoomId).silent.add(original.id);
+		else entry(mirrored.roomId).silent.add(mirrored.element.id);
+	}
+	return result;
 }
 
 export function roomFrames(content: SceneContent): RoomFrame[] {

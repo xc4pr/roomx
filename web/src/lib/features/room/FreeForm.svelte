@@ -148,7 +148,7 @@
 	const canEdit = $derived(closed && !problem);
 </script>
 
-<div class="grid grid-cols-[minmax(0,1fr)] gap-4">
+<div class="grid grid-cols-[minmax(0,1fr)] gap-4" data-testid="free-form">
 	<PolygonPreview
 		points={trace.points}
 		end={closed ? undefined : trace.end}

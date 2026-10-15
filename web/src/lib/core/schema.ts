@@ -347,6 +347,7 @@ export const RoomSchema = z.object({
 	elements: z.array(ElementSchema),
 	photos: z.array(PhotoSchema),
 	slopes: z.array(SlopeSchema).optional(),
+	separate: z.boolean().optional(),
 	floorColor: z.string().optional(),
 	wallColor: z.string().optional(),
 	notes: z.string().optional()

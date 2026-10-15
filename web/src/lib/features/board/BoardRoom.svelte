@@ -29,6 +29,7 @@
 		focused: boolean;
 		dimmed: boolean;
 		lifted: boolean;
+		shift?: { x: number; y: number };
 		elementsInteractive: boolean;
 		furnishInteractive: boolean;
 		handles: boolean;
@@ -42,6 +43,7 @@
 		focused,
 		dimmed,
 		lifted,
+		shift,
 		elementsInteractive,
 		furnishInteractive,
 		handles
@@ -87,7 +89,8 @@
 </script>
 
 <g
-	transform="translate({room.boardPos.x} {room.boardPos.y}) rotate({rot})"
+	transform="translate({room.boardPos.x + (shift?.x ?? 0)} {room.boardPos.y +
+		(shift?.y ?? 0)}) rotate({rot})"
 	opacity={dimmed ? 0.28 : 1}
 	class="transition-opacity duration-(--duration-base) ease-soft"
 	data-room-id={room.id}
@@ -106,7 +109,12 @@
 		{#if selected}
 			<path d={floor} class="fill-accent/7" pointer-events="none" />
 		{/if}
-		<path d={band} fill-rule="evenodd" class="fill-text" opacity="0.84" pointer-events="none" />
+		<path
+			d={band}
+			fill-rule="evenodd"
+			style="fill: color-mix(in srgb, var(--color-text) 84%, var(--color-bg))"
+			pointer-events="none"
+		/>
 		{#if selected}
 			<path
 				d={outline}
