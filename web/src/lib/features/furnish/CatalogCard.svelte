@@ -182,7 +182,16 @@
 			{pick(entry.name)}
 		</span>
 		<span class="truncate text-[11px] text-muted tabular-nums pointer-coarse:text-sm">{dims}</span>
-		{#if !entry.verified}
+		{#if entry.discontinued}
+			<span
+				class="flex items-center gap-1.5 text-[11px] text-muted pointer-coarse:text-sm"
+				title={t(messages, 'discontinuedHint')}
+				data-testid="discontinued"
+			>
+				<span class="size-1.5 shrink-0 rounded-full bg-muted" aria-hidden="true"></span>
+				<span class="truncate">{t(messages, 'discontinued')}</span>
+			</span>
+		{:else if !entry.verified}
 			<span
 				class="flex items-center gap-1.5 text-[11px] text-muted pointer-coarse:text-sm"
 				title={t(messages, 'unverifiedHint')}

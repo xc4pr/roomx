@@ -108,6 +108,9 @@ export const messages = defineMessages({
 		takeDown: 'Herunternehmen',
 		size: 'Masse',
 		catalogSize: 'Katalogmasse. Für eigene Masse ein eigenes Möbel anlegen.',
+		discontinued: 'Nicht mehr im Sortiment',
+		discontinuedHint:
+			'Der Händler führt diesen Artikel online nicht mehr. Er bleibt im Katalog, damit bestehende Pläne weiter laden.',
 		unverified: 'Masse ungeprüft',
 		unverifiedHint:
 			'Diese Masse sind Richtwerte und nicht beim Hersteller geprüft. Bitte vor dem Kauf beim Händler nachmessen.',
@@ -278,6 +281,9 @@ export const messages = defineMessages({
 		takeDown: 'Take off',
 		size: 'Dimensions',
 		catalogSize: 'Catalogue dimensions. Add your own furniture for custom dimensions.',
+		discontinued: 'No longer available',
+		discontinuedHint:
+			'The retailer no longer sells this article online. It stays in the catalogue so that existing plans still load.',
 		unverified: 'Dimensions unverified',
 		unverifiedHint:
 			'These dimensions are guide values and have not been checked with the manufacturer. Please measure with the retailer before buying.',

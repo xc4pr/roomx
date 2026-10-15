@@ -74,6 +74,8 @@ export const CatalogEntrySchema = z.object({
 	url: HttpUrlSchema.optional(),
 	articleNo: LabelTextSchema.optional(),
 	verified: z.boolean(),
+	// true: the retailer no longer sells it online; the entry stays so that old projects and plans still load.
+	discontinued: z.boolean().optional(),
 	look: LookSchema.optional()
 });
 

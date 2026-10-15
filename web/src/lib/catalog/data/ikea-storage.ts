@@ -802,7 +802,8 @@ export const ikeaStorage: CatalogEntry[] = [
 		model: 'dresser',
 		dims: cm(80, 48, 55),
 		colors: [C.white, C.blackBrown, C.birch],
-		front: 900
+		front: 900,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-malm-dresser-3-80x48x78',
@@ -813,7 +814,8 @@ export const ikeaStorage: CatalogEntry[] = [
 		model: 'dresser',
 		dims: cm(80, 48, 78),
 		colors: [C.white, C.blackBrown, C.birch],
-		front: 900
+		front: 900,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-malm-dresser-4-80x48x100',
@@ -823,8 +825,12 @@ export const ikeaStorage: CatalogEntry[] = [
 		category: 'dresser',
 		model: 'dresser',
 		dims: cm(80, 48, 100),
-		colors: [C.white, C.blackBrown, C.birch],
-		front: 900
+		colors: [C.white, C.blackBrown, C.grey, C.offWhite],
+		front: 900,
+		priceChf: 109,
+		url: 'https://www.ikea.com/ch/de/p/malm-kommode-mit-4-schubladen-eichenfurnier-weiss-lasiert-70403574/',
+		articleNo: '704.035.74',
+		verified: true
 	}),
 	ikea({
 		id: 'ikea-malm-dresser-6-160x48x78',
@@ -835,7 +841,8 @@ export const ikeaStorage: CatalogEntry[] = [
 		model: 'dresser',
 		dims: cm(160, 48, 78),
 		colors: [C.white, C.blackBrown, C.birch],
-		front: 900
+		front: 900,
+		discontinued: true
 	}),
 	ikea({
 		id: 'ikea-brimnes-dresser-3-78x46x95',

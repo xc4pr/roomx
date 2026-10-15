@@ -22,6 +22,7 @@ export interface CompactCatalogEntry {
 	clearance: { front: number; side: number };
 	priceChf?: number;
 	verified: boolean;
+	discontinued?: true;
 }
 
 export function compactEntry(entry: CatalogEntry, language: Language): CompactCatalogEntry {
@@ -37,7 +38,8 @@ export function compactEntry(entry: CatalogEntry, language: Language): CompactCa
 		power: entry.power,
 		clearance: entry.clearance,
 		...(entry.priceChf !== undefined ? { priceChf: entry.priceChf } : {}),
-		verified: entry.verified
+		verified: entry.verified,
+		...(entry.discontinued ? { discontinued: true as const } : {})
 	};
 }
 
@@ -71,6 +73,7 @@ export function catalogJson(
 			tr('catalogNote2'),
 			tr('catalogNote3'),
 			tr('catalogNote4', { date: formatMonthYear(CATALOG_PRICES_AS_OF, language) }),
+			tr('catalogNote5'),
 			...(excerpt ? [tr('catalogExcerpt', { count: entries.length, total: excerpt.total })] : [])
 		]
 	};

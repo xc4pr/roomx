@@ -5,7 +5,6 @@ export const prices: Record<string, number> = {
 	'ikea-hemnes-shoe-cabinet-107x30x127': 170,
 	'ikea-malm-dresser-2-80x48x55': 80,
 	'ikea-malm-dresser-3-80x48x78': 110,
-	'ikea-malm-dresser-4-80x48x100': 130,
 	'ikea-malm-dresser-6-160x48x78': 260,
 	'ikea-nordli-dresser-5-80x47x99': 220,
 	'ikea-malm-bed-140x200': 200,
