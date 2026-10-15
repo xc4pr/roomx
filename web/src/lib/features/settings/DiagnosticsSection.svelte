@@ -3,7 +3,7 @@
 	import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
 	import ExternalLink from '@lucide/svelte/icons/external-link';
 	import Mail from '@lucide/svelte/icons/mail';
-	import { BUILD_DATE, LOCAL_ONLY, VERSION } from '#lib/edition.ts';
+	import { BUILD_DATE, IS_FREE, VERSION } from '#lib/edition.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { copyText } from '#lib/diagnostics/copy.ts';
 	import { browserEnv } from '#lib/diagnostics/env.ts';
@@ -58,7 +58,7 @@
 			<dd data-testid="diag-build">{BUILD_DATE}</dd>
 			<dt class="text-muted">{t(messages, 'edition')}</dt>
 			<dd data-testid="diag-edition">
-				{LOCAL_ONLY ? t(messages, 'editionPublic') : t(messages, 'editionServer')}
+				{IS_FREE ? t(messages, 'editionPublic') : t(messages, 'editionServer')}
 			</dd>
 		</dl>
 

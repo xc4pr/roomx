@@ -13,7 +13,7 @@ export interface WebglSnapshot {
 export interface DiagnosticsEnv {
 	version: string;
 	buildDate: string;
-	localOnly: boolean;
+	serverSync: boolean;
 	schemaVersion: number;
 	userAgent: string;
 	platform: string;
@@ -85,7 +85,7 @@ export async function collectDiagnostics(env: DiagnosticsEnv): Promise<Diagnosti
 	return {
 		version: cleanText(env.version) || 'unknown',
 		buildDate: cleanText(env.buildDate) || 'unknown',
-		edition: env.localOnly ? 'public' : 'server',
+		edition: env.serverSync ? 'server' : 'public',
 		userAgent: cleanText(env.userAgent) || 'unknown',
 		platform: cleanText(env.platform) || 'unknown',
 		screen: `${size(env.screenWidth, env.screenHeight)} @${Math.round(env.pixelRatio * 100) / 100}x, window ${size(env.windowWidth, env.windowHeight)}`,
@@ -122,7 +122,7 @@ function webglLine(webgl: WebglSnapshot | null): string {
 
 export function formatDiagnostics(report: DiagnosticsReport): string {
 	return [
-		'roomx diagnostics',
+		'RoomX diagnostics',
 		`Version: ${report.version}`,
 		`Build date: ${report.buildDate}`,
 		`Edition: ${report.edition === 'public' ? 'public (local only)' : 'own server'}`,

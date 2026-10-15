@@ -7,7 +7,7 @@
 	import { tick, untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { LOCAL_ONLY } from '#lib/edition.ts';
+	import { IS_FREE } from '#lib/edition.ts';
 	import { openShortcuts } from '#lib/features/settings/shortcuts.svelte.ts';
 	import { isTypingTarget } from '#lib/features/settings/shortcuts.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -81,8 +81,8 @@
 	const first = $derived(isFirstStep(tour.step));
 	const last = $derived(isLastStep(tour.step));
 	const keyboard = keyboardLikely();
-	const title = $derived(t(messages, titleKey(step.id, LOCAL_ONLY)));
-	const text = $derived(t(messages, textKey(step.id, LOCAL_ONLY, keyboard)));
+	const title = $derived(t(messages, titleKey(step.id, IS_FREE)));
+	const text = $derived(t(messages, textKey(step.id, IS_FREE, keyboard)));
 	const guide = $derived(!centered || waiting ? null : showTarget(step, route, tour.sampleId));
 	const announcement = $derived(
 		t(messages, 'announce', { n: tour.step + 1, total: TOUR_TOTAL, title })

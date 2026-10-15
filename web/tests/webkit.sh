@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 export PW_PORT="${PW_PORT:-4273}"
 out="${PW_OUT:-$(mktemp -d)}"
 mkdir -p "$out"
-[ -n "${PW_SKIP_BUILD:-}" ] || pnpm exec vite build >/dev/null
+[ -n "${PW_SKIP_BUILD:-}" ] || EDITION=pro pnpm exec vite build >/dev/null
 
 node tests/server.mjs &
 server=$!

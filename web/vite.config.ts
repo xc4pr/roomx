@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { resolveEdition } from './src/lib/editionConfig.ts';
 import { cspDirectives } from './src/lib/security/csp.ts';
 
 function basePath(value: string | undefined): '' | `/${string}` {
@@ -10,9 +11,11 @@ function basePath(value: string | undefined): '' | `/${string}` {
 	return value as `/${string}`;
 }
 
+const EDITION = resolveEdition(process.env);
+
 export default defineConfig({
 	define: {
-		__ROOMX_LOCAL_ONLY__: JSON.stringify(process.env.LOCAL_ONLY === '1'),
+		__ROOMX_EDITION__: JSON.stringify(EDITION),
 		__ROOMX_VERSION__: JSON.stringify(process.env.ROOMX_VERSION ?? 'dev'),
 		__ROOMX_BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10))
 	},
@@ -28,7 +31,7 @@ export default defineConfig({
 			csp: {
 				mode: 'hash',
 				directives: cspDirectives({
-					localOnly: process.env.LOCAL_ONLY === '1',
+					localOnly: EDITION === 'free',
 					connectSrc: process.env.ROOMX_CONNECT_SRC
 				})
 			}

@@ -37,13 +37,13 @@ describe('tour steps', () => {
 		for (const language of ['de', 'en'] as const) {
 			const texts = messages[language] as Record<string, string>;
 			for (const id of TOUR_STEP_IDS) {
-				for (const localOnly of [false, true]) {
+				for (const free of [false, true]) {
 					for (const keyboard of [false, true]) {
-						const text = texts[textKey(id, localOnly, keyboard)];
+						const text = texts[textKey(id, free, keyboard)];
 						expect(text.length).toBeGreaterThan(20);
 						expect(text.length).toBeLessThan(260);
 					}
-					expect(texts[titleKey(id, localOnly)]).toBeTruthy();
+					expect(texts[titleKey(id, free)]).toBeTruthy();
 				}
 			}
 		}

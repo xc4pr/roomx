@@ -38,7 +38,7 @@ jobs:
       - run: pnpm -C web build
         env:
           BASE_PATH: /${{ github.event.repository.name }}
-          LOCAL_ONLY: '1'
+          EDITION: free
       - run: cp web/build/index.html web/build/404.html
       - uses: actions/upload-pages-artifact@v3
         with:

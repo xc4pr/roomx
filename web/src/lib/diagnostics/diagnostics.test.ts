@@ -4,6 +4,7 @@ import { sampleProject } from '#lib/core/fixtures.ts';
 import { SCHEMA_VERSION } from '#lib/core/schema.ts';
 import { db } from '#lib/state/db.ts';
 import { countProjects } from './env.ts';
+import { OPERATOR_EMAIL } from '#lib/features/legal/operator.ts';
 import { FEEDBACK_CHANNELS, feedbackChannels, isSafeFeedbackHref } from './feedback.ts';
 import { cleanText, collectDiagnostics, formatDiagnostics, type DiagnosticsEnv } from './report.ts';
 
@@ -11,7 +12,7 @@ function environment(overrides: Partial<DiagnosticsEnv> = {}): DiagnosticsEnv {
 	return {
 		version: 'v1.2.3',
 		buildDate: '2026-10-15',
-		localOnly: true,
+		serverSync: false,
 		schemaVersion: SCHEMA_VERSION,
 		userAgent: 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) Safari/605.1',
 		platform: 'iPad',
@@ -35,7 +36,7 @@ describe('collectDiagnostics', () => {
 		expect(report.buildDate).toBe('2026-10-15');
 		expect(report.edition).toBe('public');
 		expect(report.schemaVersion).toBe(SCHEMA_VERSION);
-		expect((await collectDiagnostics(environment({ localOnly: false }))).edition).toBe('server');
+		expect((await collectDiagnostics(environment({ serverSync: true }))).edition).toBe('server');
 	});
 
 	it('reports device facts', async () => {
@@ -99,7 +100,7 @@ describe('formatDiagnostics', () => {
 	it('prints a readable block for a bug report', async () => {
 		const text = formatDiagnostics(await collectDiagnostics(environment()));
 		expect(text.split('\n')).toEqual([
-			'roomx diagnostics',
+			'RoomX diagnostics',
 			'Version: v1.2.3',
 			'Build date: 2026-10-15',
 			'Edition: public (local only)',
@@ -116,7 +117,7 @@ describe('formatDiagnostics', () => {
 	});
 
 	it('names the own server edition', async () => {
-		const text = formatDiagnostics(await collectDiagnostics(environment({ localOnly: false })));
+		const text = formatDiagnostics(await collectDiagnostics(environment({ serverSync: true })));
 		expect(text).toContain('Edition: own server');
 	});
 
@@ -201,6 +202,12 @@ describe('feedback channels', () => {
 	it('offers the issue form of the public repository', () => {
 		expect(feedbackChannels().map((channel) => channel.kind)).toContain('issues');
 		expect(feedbackChannels()[0]?.href).toBe('https://github.com/xc4pr/roomx/issues/new/choose');
+	});
+
+	it('offers an email channel to the operator', () => {
+		const email = feedbackChannels().find((channel) => channel.kind === 'email');
+		expect(email?.href).toBe(`mailto:${OPERATOR_EMAIL}?subject=RoomX`);
+		expect(OPERATOR_EMAIL).toBe('julian-5@gmx.ch');
 	});
 
 	it('only uses safe links', () => {

@@ -37,6 +37,7 @@ describe('cspDirectives', () => {
 	it('is wired into the SvelteKit options as hashes in a meta tag', () => {
 		expect(config).toMatch(/csp:\s*\{[^}]*mode:\s*'hash'/);
 		expect(config).toContain('cspDirectives(');
-		expect(config).toContain("process.env.LOCAL_ONLY === '1'");
+		expect(config).toContain('resolveEdition(process.env)');
+		expect(config).toContain("localOnly: EDITION === 'free'");
 	});
 });

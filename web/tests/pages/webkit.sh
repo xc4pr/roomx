@@ -5,7 +5,7 @@ export PAGES_PORT="${PAGES_PORT:-4274}"
 out="${PW_OUT:-$(mktemp -d)}"
 mkdir -p "$out"
 if [ -z "${PW_SKIP_BUILD:-}" ]; then
-	LOCAL_ONLY=1 BASE_PATH=/roomx pnpm exec vite build >/dev/null
+	EDITION=free BASE_PATH=/roomx pnpm exec vite build >/dev/null
 	cp build/index.html build/404.html
 fi
 

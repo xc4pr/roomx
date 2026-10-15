@@ -3,7 +3,7 @@
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { LOCAL_ONLY } from '#lib/edition.ts';
+	import { IS_FREE } from '#lib/edition.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import IconButton from '#lib/ui/IconButton.svelte';
@@ -16,7 +16,7 @@
 
 	const WIDE_QUERY = '(min-width: 64rem)';
 
-	const doc = $derived(visibleDocument(legalContent[locale.language], currentEdition(LOCAL_ONLY)));
+	const doc = $derived(visibleDocument(legalContent[locale.language], currentEdition(IS_FREE)));
 
 	let cameFromApp = false;
 	let firstNavigation = true;

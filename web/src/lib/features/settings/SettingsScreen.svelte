@@ -5,7 +5,7 @@
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import type { Snippet } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { LOCAL_ONLY } from '#lib/edition.ts';
+	import { IS_FREE } from '#lib/edition.ts';
 	import type { Language, LengthUnit } from '#lib/core/units.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -154,7 +154,7 @@
 				</Button>
 			</div>
 		{/snippet}
-		{#if LOCAL_ONLY}
+		{#if IS_FREE}
 			{@render section(t(messages, 'localData'), localData)}
 		{:else}
 			{@render section(t(messages, 'device'), device)}
@@ -241,7 +241,7 @@
 				</Button>
 			</div>
 		{/snippet}
-		{#if !LOCAL_ONLY}
+		{#if !IS_FREE}
 			{@render section(t(messages, 'server'), server)}
 		{/if}
 
@@ -305,7 +305,7 @@
 				<p class="px-1 text-sm text-muted">{t(messages, 'legalHint')}</p>
 			</div>
 		{/snippet}
-		{#if !LOCAL_ONLY}
+		{#if !IS_FREE}
 			{@render section(t(messages, 'about'), aboutBody)}
 		{/if}
 

@@ -11,7 +11,7 @@
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { goto } from '$app/navigation';
 	import { asset, resolve } from '$app/paths';
-	import { LOCAL_ONLY } from '#lib/edition.ts';
+	import { IS_FREE } from '#lib/edition.ts';
 	import { messages as legalMessages } from '#lib/features/legal/i18n.ts';
 	import { requestPersistence } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
@@ -307,7 +307,7 @@
 				/>
 			</div>
 			<div class="flex items-center gap-1">
-				{#if !LOCAL_ONLY}
+				{#if !IS_FREE}
 					<span
 						role="img"
 						aria-label={t(messages, syncLabels[syncState.status])}

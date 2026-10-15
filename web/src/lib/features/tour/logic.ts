@@ -80,13 +80,13 @@ export function anchorExpected(step: TourStep, route: ParsedRoute, arriving: boo
 export type TitleKey = `title_${TourStepId}` | 'title_safe_local';
 export type TextKey = `text_${TourStepId}` | 'text_safe_local' | 'text_safe_phone';
 
-export function titleKey(id: TourStepId, localOnly: boolean): TitleKey {
-	return localOnly && id === 'safe' ? 'title_safe_local' : `title_${id}`;
+export function titleKey(id: TourStepId, free: boolean): TitleKey {
+	return free && id === 'safe' ? 'title_safe_local' : `title_${id}`;
 }
 
-export function textKey(id: TourStepId, localOnly: boolean, keyboard: boolean): TextKey {
+export function textKey(id: TourStepId, free: boolean, keyboard: boolean): TextKey {
 	if (id !== 'safe') return `text_${id}`;
-	if (localOnly) return 'text_safe_local';
+	if (free) return 'text_safe_local';
 	return keyboard ? 'text_safe' : 'text_safe_phone';
 }
 

@@ -31,11 +31,8 @@ jobs:
       - run: pnpm -C web lint
       - run: pnpm -C web check
       - run: pnpm -C web test
-      - run: pnpm -C web build
-      - run: pnpm -C web build
-        env:
-          LOCAL_ONLY: "1"
-          BASE_PATH: /roomx
+      - run: pnpm -C web build:server
+      - run: pnpm -C web build:pages
 
   server:
     runs-on: ubuntu-latest
@@ -123,7 +120,7 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
       - run: pnpm -C web install --frozen-lockfile
       - run: pnpm -C web exec playwright install --with-deps chromium webkit
-      - run: LOCAL_ONLY=1 BASE_PATH=/roomx pnpm -C web exec vite build && cp web/build/index.html web/build/404.html
+      - run: pnpm -C web build:pages
       - run: pnpm -C web exec playwright test -c playwright.pages.config.ts
       - if: failure()
         uses: actions/upload-artifact@v4

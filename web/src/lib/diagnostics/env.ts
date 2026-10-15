@@ -1,5 +1,5 @@
 import { SCHEMA_VERSION } from '#lib/core/schema.ts';
-import { BUILD_DATE, LOCAL_ONLY, VERSION } from '#lib/edition.ts';
+import { BUILD_DATE, IS_FREE, VERSION } from '#lib/edition.ts';
 import { listProjects } from '#lib/state/persistence.ts';
 import type { DiagnosticsEnv, StorageSnapshot, WebglSnapshot } from './report.ts';
 
@@ -55,7 +55,7 @@ export function browserEnv(): DiagnosticsEnv {
 	return {
 		version: VERSION,
 		buildDate: BUILD_DATE,
-		localOnly: LOCAL_ONLY,
+		serverSync: !IS_FREE,
 		schemaVersion: SCHEMA_VERSION,
 		userAgent: navigator.userAgent,
 		platform: navigator.platform,
