@@ -1,4 +1,5 @@
 import { Group } from 'three';
+import type { Look } from '#lib/core/catalog.ts';
 import {
 	accent,
 	ball,
@@ -15,8 +16,9 @@ import {
 	soft,
 	type Palette
 } from './kit.ts';
+import { framedMirror, shaped } from './mirror.ts';
 
-type Build = (w: number, d: number, h: number, p: Palette) => Group;
+type Build = (w: number, d: number, h: number, p: Palette, look?: Look) => Group;
 
 function leafTones(color: string): string[] {
 	return [color, shade(color, 0.07), shade(color, -0.08)];
@@ -151,7 +153,8 @@ const picture: Build = (w, d, h, p) => {
 	return g;
 };
 
-const mirror: Build = (w, d, h, p) => {
+const mirror: Build = (w, d, h, p, look) => {
+	if (look && shaped(look)) return framedMirror(w, d, h, p, look);
 	const g = new Group();
 	const frame = mat('wood', p.main);
 	const glass = mat('metal', '#cfdde6');

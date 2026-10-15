@@ -4,15 +4,18 @@ import {
 	Color,
 	CylinderGeometry,
 	DoubleSide,
+	ExtrudeGeometry,
 	Float32BufferAttribute,
 	Group,
 	IcosahedronGeometry,
 	LatheGeometry,
 	Mesh,
 	MeshStandardMaterial,
+	Shape,
 	SphereGeometry,
 	TorusGeometry,
-	Vector2
+	Vector2,
+	Vector3
 } from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
@@ -359,6 +362,72 @@ export function ball(
 		y,
 		z
 	);
+	parent.add(mesh);
+	return mesh;
+}
+
+const UP = new Vector3(0, 1, 0);
+
+// A rod or beam running from point a to point b; `round` picks a cylinder, otherwise a square beam.
+export function strut(
+	parent: Group,
+	material: MeshStandardMaterial,
+	a: Vec3,
+	b: Vec3,
+	thickness: number,
+	round = true
+): Mesh {
+	const dir = new Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+	const length = Math.max(dir.length(), MIN_SIZE);
+	const mesh = new Mesh(
+		round
+			? cached('cyl8|1', () => new CylinderGeometry(0.5, 0.5, 1, 8))
+			: cached('box', () => new BoxGeometry(1, 1, 1)),
+		material
+	);
+	mesh.scale.set(thickness, length, thickness);
+	mesh.position.set((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2);
+	if (dir.lengthSq() > 0) mesh.quaternion.setFromUnitVectors(UP, dir.normalize());
+	parent.add(mesh);
+	return mesh;
+}
+
+function archPath(w: number, h: number, inset: number): Shape {
+	const r = Math.max(Math.min(w / 2, h * 0.9) - inset, 0.001);
+	const half = r;
+	const top = h - inset - r;
+	const shape = new Shape();
+	shape.moveTo(-half, inset);
+	shape.lineTo(half, inset);
+	shape.lineTo(half, Math.max(top, inset));
+	shape.absarc(0, Math.max(top, inset), r, 0, Math.PI, false);
+	shape.lineTo(-half, inset);
+	return shape;
+}
+
+// An arched panel (flat bottom, semicircular top), `y` is the bottom edge; with `rim` > 0 it is a frame of that width.
+export function arch(
+	parent: Group,
+	material: MeshStandardMaterial,
+	w: number,
+	h: number,
+	depth: number,
+	x: number,
+	y: number,
+	z: number,
+	rim = 0
+): Mesh {
+	const mm = (n: number): number => Math.round(n * 10000);
+	const geometry = cached(`arch|${mm(w)}|${mm(h)}|${mm(rim)}`, () => {
+		const shape = archPath(w, h, 0);
+		if (rim > 0) shape.holes.push(archPath(w, h, rim));
+		const solid = new ExtrudeGeometry(shape, { depth: 1, bevelEnabled: false, curveSegments: 12 });
+		solid.translate(0, 0, -0.5);
+		return solid;
+	});
+	const mesh = new Mesh(geometry, material);
+	mesh.scale.set(1, 1, Math.max(depth, MIN_SIZE));
+	mesh.position.set(x, y, z);
 	parent.add(mesh);
 	return mesh;
 }
