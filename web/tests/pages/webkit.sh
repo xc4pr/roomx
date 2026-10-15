@@ -5,14 +5,17 @@ export PAGES_PORT="${PAGES_PORT:-4274}"
 out="${PW_OUT:-$(mktemp -d)}"
 mkdir -p "$out"
 if [ -z "${PW_SKIP_BUILD:-}" ]; then
-	EDITION=free BASE_PATH=/roomx pnpm exec vite build >/dev/null
+	ROOMX_MIRROR_RELAYS=ws://127.0.0.1:4275 ROOMX_MIRROR_STUN=none EDITION=free BASE_PATH=/roomx pnpm exec vite build >/dev/null
 	cp build/index.html build/404.html
 fi
 
 node tests/pages/server.mjs &
 server=$!
-trap 'kill "$server" 2>/dev/null || true' EXIT
+node tests/mirror/relay.mjs >/dev/null &
+relay=$!
+trap 'kill "$server" "$relay" 2>/dev/null || true' EXIT
 until curl -fs "http://127.0.0.1:${PAGES_PORT}/healthz" >/dev/null; do sleep 0.5; done
+until curl -fs "http://127.0.0.1:4275/healthz" >/dev/null; do sleep 0.5; done
 
 projects=(--project=pages-webkit)
 for arg in "$@"; do

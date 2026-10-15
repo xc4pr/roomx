@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseRoute } from './route.ts';
+import { onPhoneRoute, parseRoute } from './route.ts';
 
 describe('parseRoute', () => {
 	it('recognises the top-level screens', () => {
@@ -24,5 +24,19 @@ describe('parseRoute', () => {
 			screen: 'furnish',
 			projectId: 'x'
 		});
+	});
+});
+
+describe('onPhoneRoute', () => {
+	it('is true for the photo pages and pairing links', () => {
+		expect(onPhoneRoute('/m/abc')).toBe(true);
+		expect(onPhoneRoute('/app/m/abc', '/app')).toBe(true);
+		expect(onPhoneRoute('/', '', '#pair=xyz')).toBe(true);
+	});
+
+	it('is false elsewhere', () => {
+		expect(onPhoneRoute('/')).toBe(false);
+		expect(onPhoneRoute('/p/m/abc')).toBe(false);
+		expect(onPhoneRoute('/', '', '#other')).toBe(false);
 	});
 });

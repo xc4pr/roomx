@@ -3,6 +3,8 @@ declare global {
 	const __ROOMX_EDITION__: 'free' | 'pro';
 	const __ROOMX_VERSION__: string;
 	const __ROOMX_BUILD_DATE__: string;
+	const __ROOMX_MIRROR_RELAYS__: string[];
+	const __ROOMX_MIRROR_STUN__: string[];
 	namespace App {}
 }
 

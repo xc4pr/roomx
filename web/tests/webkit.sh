@@ -4,12 +4,15 @@ cd "$(dirname "$0")/.."
 export PW_PORT="${PW_PORT:-4273}"
 out="${PW_OUT:-$(mktemp -d)}"
 mkdir -p "$out"
-[ -n "${PW_SKIP_BUILD:-}" ] || EDITION=pro pnpm exec vite build >/dev/null
+[ -n "${PW_SKIP_BUILD:-}" ] || ROOMX_MIRROR_RELAYS=ws://127.0.0.1:4275 ROOMX_MIRROR_STUN=none EDITION=pro pnpm exec vite build >/dev/null
 
 node tests/server.mjs &
 server=$!
-trap 'kill "$server" 2>/dev/null || true' EXIT
+node tests/mirror/relay.mjs >/dev/null &
+relay=$!
+trap 'kill "$server" "$relay" 2>/dev/null || true' EXIT
 until curl -fs "http://127.0.0.1:${PW_PORT}/api/health" >/dev/null; do sleep 0.5; done
+until curl -fs "http://127.0.0.1:4275/healthz" >/dev/null; do sleep 0.5; done
 
 projects=(--project=ipad-landscape --project=ipad-portrait)
 for arg in "$@"; do

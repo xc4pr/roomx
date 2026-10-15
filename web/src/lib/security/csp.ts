@@ -3,16 +3,23 @@ export type CspDirectives = Record<string, string[]>;
 export interface CspOptions {
 	localOnly: boolean;
 	connectSrc?: string;
+	// Signaling relays of the phone mirror; the app opens them only while a photo job is open.
+	mirrorRelays?: readonly string[];
 }
 
 // The self-hosted edition reaches a sync server whose address the user types in at runtime, so a static policy cannot name it. Unless a build lists explicit origins, that edition may connect to any http(s) origin; scripts, frames and objects stay locked down either way.
-export function cspDirectives({ localOnly, connectSrc }: CspOptions): CspDirectives {
+export function cspDirectives({
+	localOnly,
+	connectSrc,
+	mirrorRelays = []
+}: CspOptions): CspDirectives {
 	const extra = (connectSrc ?? '').split(/\s+/).filter(Boolean);
 	const connect = localOnly
 		? ['self']
 		: extra.length > 0
 			? ['self', ...extra]
 			: ['self', 'http:', 'https:'];
+	connect.push(...mirrorRelays);
 	return {
 		'default-src': ['self'],
 		'script-src': ['self'],

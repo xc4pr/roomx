@@ -34,10 +34,25 @@ describe('cspDirectives', () => {
 		expect(named['connect-src']).toEqual(['self', 'https://sync.example', 'https://b.example']);
 	});
 
+	it('adds only the fixed mirror relays to connect-src in both editions', () => {
+		const relays = ['wss://relay.example', 'wss://other.example'];
+		expect(cspDirectives({ localOnly: true, mirrorRelays: relays })['connect-src']).toEqual([
+			'self',
+			...relays
+		]);
+		const server = cspDirectives({ localOnly: false, mirrorRelays: relays });
+		expect(server['connect-src']).toEqual(['self', 'http:', 'https:', ...relays]);
+		expect({ ...server, 'connect-src': [] }).toEqual({
+			...cspDirectives({ localOnly: true }),
+			'connect-src': []
+		});
+	});
+
 	it('is wired into the SvelteKit options as hashes in a meta tag', () => {
 		expect(config).toMatch(/csp:\s*\{[^}]*mode:\s*'hash'/);
 		expect(config).toContain('cspDirectives(');
 		expect(config).toContain('resolveEdition(process.env)');
 		expect(config).toContain("localOnly: EDITION === 'free'");
+		expect(config).toContain('mirrorRelays: MIRROR.relays');
 	});
 });

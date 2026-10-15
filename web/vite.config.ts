@@ -4,6 +4,7 @@ import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { resolveEdition } from './src/lib/editionConfig.ts';
 import { cspDirectives } from './src/lib/security/csp.ts';
+import { resolveMirrorNetwork } from './src/lib/mirror/config.ts';
 
 function basePath(value: string | undefined): '' | `/${string}` {
 	if (!value) return '';
@@ -12,12 +13,15 @@ function basePath(value: string | undefined): '' | `/${string}` {
 }
 
 const EDITION = resolveEdition(process.env);
+const MIRROR = resolveMirrorNetwork(process.env);
 
 export default defineConfig({
 	define: {
 		__ROOMX_EDITION__: JSON.stringify(EDITION),
 		__ROOMX_VERSION__: JSON.stringify(process.env.ROOMX_VERSION ?? 'dev'),
-		__ROOMX_BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10))
+		__ROOMX_BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+		__ROOMX_MIRROR_RELAYS__: JSON.stringify(MIRROR.relays),
+		__ROOMX_MIRROR_STUN__: JSON.stringify(MIRROR.stun)
 	},
 	plugins: [
 		tailwindcss(),
@@ -32,7 +36,8 @@ export default defineConfig({
 				mode: 'hash',
 				directives: cspDirectives({
 					localOnly: EDITION === 'free',
-					connectSrc: process.env.ROOMX_CONNECT_SRC
+					connectSrc: process.env.ROOMX_CONNECT_SRC,
+					mirrorRelays: MIRROR.relays
 				})
 			}
 		})

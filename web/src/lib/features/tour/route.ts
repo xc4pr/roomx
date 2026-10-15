@@ -17,3 +17,9 @@ export function parseRoute(pathname: string, base = ''): ParsedRoute {
 		projectId: decodeURIComponent(match[1])
 	};
 }
+
+export function onPhoneRoute(pathname: string, base = '', hash = ''): boolean {
+	if (hash.startsWith('#pair=')) return true;
+	const local = base && pathname.startsWith(base) ? pathname.slice(base.length) : pathname;
+	return local.startsWith('/m/');
+}

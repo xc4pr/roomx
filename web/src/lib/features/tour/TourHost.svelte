@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import TourOverlay from './TourOverlay.svelte';
-	import { autostartTour, tour } from './tour.svelte.ts';
+	import { autostartTour, onPhonePage, tour } from './tour.svelte.ts';
 
 	const START_DELAY = 500;
 
@@ -11,6 +11,6 @@
 	});
 </script>
 
-{#if tour.active}
+{#if tour.active && !onPhonePage()}
 	<TourOverlay />
 {/if}

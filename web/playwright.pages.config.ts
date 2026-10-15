@@ -29,13 +29,22 @@ export default defineConfig({
 	},
 	webServer: external
 		? undefined
-		: {
-				command: 'node tests/pages/server.mjs',
-				url: `http://127.0.0.1:${port}/healthz`,
-				reuseExistingServer: false,
-				timeout: 30_000,
-				gracefulShutdown: { signal: 'SIGTERM', timeout: 5000 }
-			},
+		: [
+				{
+					command: 'node tests/pages/server.mjs',
+					url: `http://127.0.0.1:${port}/healthz`,
+					reuseExistingServer: false,
+					timeout: 30_000,
+					gracefulShutdown: { signal: 'SIGTERM', timeout: 5000 }
+				},
+				{
+					command: 'node tests/mirror/relay.mjs',
+					url: 'http://127.0.0.1:4275/healthz',
+					reuseExistingServer: false,
+					timeout: 30_000,
+					gracefulShutdown: { signal: 'SIGTERM', timeout: 5000 }
+				}
+			],
 	projects: [
 		{ name: 'pages-chromium', use: { ...devices['Desktop Chrome'] } },
 		{ name: 'pages-webkit', use: { ...devices['Desktop Safari'] } }

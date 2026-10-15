@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import type { Project } from '#lib/core/schema.ts';
+import type { MirrorJob, Shot } from '#lib/mirror/types.ts';
 import { reportStorageError, StorageBlockedError } from './storageErrors.ts';
 
 export const DB_NAME = 'roomx';
@@ -44,6 +45,8 @@ export class RoomxDatabase extends Dexie {
 	previews!: Table<StoredPreview, string>;
 	kv!: Table<KeyValue, string>;
 	trash!: Table<TrashRecord, string>;
+	mirrorJobs!: Table<MirrorJob, string>;
+	mirrorShots!: Table<Shot, string>;
 
 	constructor(name = DB_NAME) {
 		super(name);
@@ -56,6 +59,10 @@ export class RoomxDatabase extends Dexie {
 		});
 		this.version(2).stores({
 			trash: 'projectId'
+		});
+		this.version(3).stores({
+			mirrorJobs: 'id, role, projectId',
+			mirrorShots: 'id, jobId'
 		});
 	}
 }

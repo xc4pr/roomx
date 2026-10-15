@@ -123,6 +123,7 @@ You can add RoomX to your home screen or app folder like any other app. It then 
 - [Connect rooms](#connect-rooms)
 - [Doors, windows and electrical](#doors-windows-and-electrical)
 - [Photo tour](#photo-tour)
+- [Take photos with your phone](#take-photos-with-your-phone)
 - [Build and view 3D](#build-and-view-3d)
 - [Furnish](#furnish)
 - [Furnish with an AI assistant](#furnish-with-an-ai-assistant)
@@ -270,6 +271,23 @@ Photos are shrunk on the device and saved without metadata. If you delete a phot
 
 > [!NOTE]
 > Some browsers cannot read images in HEIC format. In that case set the camera to “Most Compatible” (iPhone: Settings, Camera, Formats) or pick a JPEG. A single image can be at most 80 MB.
+
+### Take photos with your phone
+
+Most people plan on a PC or laptop but photograph with a phone. “Take photos with your phone” sends the photo pages of the chosen rooms to the phone. You photograph there, now or days later, and the photos come back to the right room and step on their own. No account is needed.
+
+1. On the PC, open the **Photos** tab of a room, or the plan view for several rooms, and tap “Take photos with your phone”. A QR code and a link appear.
+2. Scan the QR code with the phone’s camera. Choose “Take photos now” or “Later”. The job is stored on the phone, so taking photos also works offline.
+3. The live camera opens with a small map showing where to stand and where to point. After each shot it moves on to the next step.
+4. When RoomX is open on the PC and on the phone at the same time, the phone connects by itself and the photos arrive automatically. Both devices show, for example, “Connected, 7 of 14 transferred”. The phone deletes a photo only after the PC has confirmed it.
+
+**No connection?** After about 30 seconds the phone offers “Send photos instead”. Share the JPEG files by AirDrop, Quick Share, email or cloud. On the PC, choose “Photos from files” (or drag the files into the app): RoomX sorts them into the right rooms and steps and skips duplicates.
+
+**Duration and ending:** A job is valid for 7 days. “End job” on the PC makes it invalid at once; photos still on the phone can then no longer be transferred. Open jobs stay visible in the project, with their QR code and status.
+
+**iPhone and iPad:** The link opens in Safari, not in the installed app, and the two keep separate storage. To continue later, open the same link again (scan the QR code again) or open RoomX in Safari and choose “Open photo jobs”. Safari deletes website data after 7 days without a visit, so transfer the photos soon.
+
+**Limits:** Both devices must be open at the same time; a transfer in the background is not possible. Company networks or mobile data can prevent the direct connection. Then use “Send photos instead”. Which services help the devices find each other is described under [Privacy](#privacy).
 
 ### Build and view 3D
 
@@ -503,7 +521,7 @@ For computers and iPads with a keyboard. On a Mac, use `Cmd` instead of `Ctrl`. 
 <details>
 <summary><b>Where is my data?</b></summary>
 
-In your device’s browser (IndexedDB). The public version talks to no server. There is no account and no copy in a cloud. Data only leaves your device when you yourself share an AI package, a backup or another export.
+In your device’s browser (IndexedDB). The public version talks to no server; the only exception is an open photo job (see “Take photos with your phone”). There is no account and no copy in a cloud. Data only leaves your device when you yourself share an AI package, a backup or another export.
 </details>
 
 <details>
@@ -540,6 +558,12 @@ No. RoomX is free and needs no account. Anyone may use the published app, privat
 <summary><b>Does it work offline?</b></summary>
 
 Yes, after the first load. The app stores its files in the browser and also starts without a network, best as an installed app. Nothing is lost offline; only links to furniture stores and uploading to an AI assistant need the internet.
+</details>
+
+<details>
+<summary><b>Why don’t the photos arrive?</b></summary>
+
+Check, in this order: RoomX must be open on the PC (in the project with the open job) and on the phone at the same time, and both must be online. The job must not have expired (7 days) or been ended. On an iPhone, the link must be open in Safari, not in the installed app. Company networks or mobile data can block the direct connection: then use “Send photos instead” on the phone and “Photos from files” on the PC.
 </details>
 
 <details>
@@ -580,9 +604,10 @@ In short: **your data stays on your device.**
 
 - No accounts, no cookies, no tracking, no advertising or analytics services, no third-party fonts or scripts.
 - Projects, photos and settings live in your device’s browser (IndexedDB and localStorage). The operator has no access to them and cannot restore them.
-- The public version of RoomX sends **no data to any server**. There is no syncing.
+- Apart from taking photos with your phone (see below), the public version of RoomX sends **no data to any server**. There is no syncing.
 - Data only leaves your device when **you** pass it on: with an AI package, a backup or another export.
 - When you add photos, they are shrunk in the browser and saved without metadata such as the location where they were taken.
+- **Taking photos with your phone** is the one exception to “no server”. Only while a photo job is open and RoomX is open on the device, PC and phone connect through public relay services (Nostr relays: nos.lol, relay.damus.io, relay.primal.net, relay.snort.social, nostr.data.haus) and public STUN servers (Cloudflare, Google). Otherwise no request goes out. These services see IP addresses and encrypted connection data, never photos, room data or projects. Photos travel directly between your own devices and are additionally end-to-end encrypted (AES-256-GCM, the key is only in the QR code and the link). The link contains the room names and floor plans: share it only with people you trust with them. A job is valid for 7 days, and “End job” invalidates it at once. Photos you send through the share menu instead travel through the service you choose.
 - GitHub Pages serves the app’s files. When you open the app, GitHub processes technical access data such as your IP address. The operator of RoomX does not receive it.
 - Links to furniture stores (“View at retailer”) only open, in a new tab, when you tap them. RoomX makes no requests to the stores, and no project data is passed on.
 - The data in the browser is not additionally encrypted. Lock your device.

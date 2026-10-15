@@ -123,6 +123,7 @@ Du kannst RoomX wie eine normale App auf den Startbildschirm oder in den Program
 - [Räume verbinden](#räume-verbinden)
 - [Türen, Fenster und Elektro](#türen-fenster-und-elektro)
 - [Foto-Tour](#foto-tour)
+- [Mit dem Handy fotografieren](#mit-dem-handy-fotografieren)
 - [3D erstellen und ansehen](#3d-erstellen-und-ansehen)
 - [Einrichten](#einrichten)
 - [Mit dem KI-Assistenten einrichten](#mit-dem-ki-assistenten-einrichten)
@@ -270,6 +271,23 @@ Fotos werden direkt auf dem Gerät verkleinert und ohne Metadaten gespeichert. H
 
 > [!NOTE]
 > Manche Browser können Bilder im HEIC-Format nicht lesen. Stelle dann die Kamera auf «Maximale Kompatibilität» (iPhone: Einstellungen, Kamera, Formate) oder wähle ein JPEG. Ein einzelnes Bild darf höchstens 80 MB gross sein.
+
+### Mit dem Handy fotografieren
+
+Die meisten planen am PC oder Laptop, fotografieren aber mit dem Handy. «Mit dem Handy fotografieren» schickt die Foto-Seiten der gewählten Räume aufs Handy. Du fotografierst dort, jetzt oder erst Tage später, und die Fotos kommen von selbst am richtigen Raum und Schritt an. Ein Konto brauchst du nicht.
+
+1. Öffne am PC den Tab **Fotos** eines Raums oder die Planansicht für mehrere Räume und tippe auf «Mit dem Handy fotografieren». Es erscheinen ein QR-Code und ein Link.
+2. Scanne den QR-Code mit der Kamera des Handys. Wähle «Jetzt fotografieren» oder «Später». Der Auftrag liegt auf dem Handy, deshalb geht das Fotografieren auch offline.
+3. Die Live-Kamera öffnet sich mit einem kleinen Plan, der zeigt, wo du stehst und wohin du zielst. Nach jedem Foto geht es zum nächsten Schritt weiter.
+4. Sind RoomX am PC und auf dem Handy gleichzeitig offen, verbindet sich das Handy von selbst und die Fotos kommen automatisch an. Beide Geräte zeigen zum Beispiel «Verbunden, 7 von 14 übertragen». Das Handy löscht ein Foto erst, nachdem der PC es bestätigt hat.
+
+**Keine Verbindung?** Nach etwa 30 Sekunden bietet das Handy «Fotos stattdessen senden» an. Teile die JPEG-Dateien per AirDrop, Quick Share, E-Mail oder Cloud. Am PC wählst du «Fotos aus Dateien» (oder ziehst die Dateien in die App): RoomX ordnet sie den richtigen Räumen und Schritten zu und überspringt Duplikate.
+
+**Dauer und Beenden:** Ein Auftrag gilt 7 Tage. «Auftrag beenden» am PC macht ihn sofort ungültig; Fotos, die noch auf dem Handy liegen, lassen sich dann nicht mehr übertragen. Offene Aufträge bleiben im Projekt sichtbar, mit QR-Code und Status.
+
+**iPhone und iPad:** Der Link öffnet sich in Safari, nicht in der installierten App, und beide haben getrennten Speicher. Zum Weitermachen öffnest du denselben Link wieder (QR-Code erneut scannen) oder RoomX in Safari und wählst «Offene Foto-Aufträge». Safari löscht Daten einer Webseite nach 7 Tagen ohne Besuch. Übertrage die Fotos deshalb bald.
+
+**Grenzen:** Beide Geräte müssen gleichzeitig offen sein; eine Übertragung im Hintergrund ist nicht möglich. Firmennetze oder Mobilfunk können die direkte Verbindung verhindern. Dann hilft «Fotos stattdessen senden». Welche Dienste den Geräten beim Finden helfen, steht unter [Datenschutz](#datenschutz).
 
 ### 3D erstellen und ansehen
 
@@ -503,7 +521,7 @@ Für Computer und iPad mit Tastatur. Auf dem Mac nimmst du `Cmd` statt `Strg`. I
 <details>
 <summary><b>Wo sind meine Daten?</b></summary>
 
-Im Browser deines Geräts (IndexedDB). Die öffentliche Version spricht mit keinem Server. Es gibt kein Konto und keine Kopie in einer Cloud. Daten verlassen dein Gerät nur, wenn du selbst ein KI-Paket, ein Backup oder einen anderen Export teilst.
+Im Browser deines Geräts (IndexedDB). Die öffentliche Version spricht mit keinem Server; einzige Ausnahme ist ein offener Foto-Auftrag (siehe «Mit dem Handy fotografieren»). Es gibt kein Konto und keine Kopie in einer Cloud. Daten verlassen dein Gerät nur, wenn du selbst ein KI-Paket, ein Backup oder einen anderen Export teilst.
 </details>
 
 <details>
@@ -540,6 +558,12 @@ Nein. RoomX ist kostenlos und braucht kein Konto. Die veröffentlichte App darf 
 <summary><b>Funktioniert es offline?</b></summary>
 
 Ja, nach dem ersten Laden. Die App legt ihre Dateien im Browser ab und startet auch ohne Netz, am besten als installierte App. Ohne Netz geht nichts verloren, nur Links zu Möbelhäusern und das Hochladen bei einem KI-Assistenten brauchen Internet.
+</details>
+
+<details>
+<summary><b>Warum kommen die Fotos nicht an?</b></summary>
+
+Prüfe der Reihe nach: RoomX muss am PC (im Projekt mit dem offenen Auftrag) und auf dem Handy gleichzeitig offen sein, und beide müssen online sein. Der Auftrag darf nicht abgelaufen (7 Tage) oder beendet sein. Auf dem iPhone muss der Link in Safari offen sein, nicht in der installierten App. Firmennetze oder Mobilfunk können die direkte Verbindung blockieren: Nutze dann «Fotos stattdessen senden» am Handy und «Fotos aus Dateien» am PC.
 </details>
 
 <details>
@@ -580,9 +604,10 @@ Kurz gesagt: **Deine Daten bleiben auf deinem Gerät.**
 
 - Keine Konten, keine Cookies, kein Tracking, keine Werbe- oder Analysedienste, keine Schriften oder Skripte von Drittanbietern.
 - Projekte, Fotos und Einstellungen liegen im Browser deines Geräts (IndexedDB und localStorage). Der Betreiber hat keinen Zugriff darauf und kann sie nicht wiederherstellen.
-- Die öffentliche Version von RoomX sendet **keine Daten an einen Server**. Es gibt keinen Abgleich.
+- Abgesehen vom Fotografieren mit dem Handy (siehe unten) sendet die öffentliche Version von RoomX **keine Daten an einen Server**. Es gibt keinen Abgleich.
 - Daten verlassen dein Gerät nur, wenn **du** sie weitergibst: mit einem KI-Paket, einem Backup oder einem anderen Export.
 - Fotos werden beim Hinzufügen im Browser verkleinert und ohne Metadaten wie den Aufnahmeort gespeichert.
+- **Mit dem Handy fotografieren** ist die einzige Ausnahme von «kein Server». Nur solange ein Foto-Auftrag offen ist und RoomX auf dem Gerät offen ist, verbinden sich PC und Handy über öffentliche Vermittlungsdienste (Nostr-Relays: nos.lol, relay.damus.io, relay.primal.net, relay.snort.social, nostr.data.haus) und öffentliche STUN-Server (Cloudflare, Google). Sonst geht keine Anfrage nach aussen. Diese Dienste sehen IP-Adressen und verschlüsselte Verbindungsdaten, nie Fotos, Raumdaten oder Projekte. Die Fotos gehen direkt zwischen deinen eigenen Geräten und sind zusätzlich Ende-zu-Ende verschlüsselt (AES-256-GCM, der Schlüssel steht nur im QR-Code und im Link). Der Link enthält Raumnamen und Grundrisse: Teile ihn nur mit Personen, denen du diese anvertraust. Ein Auftrag gilt 7 Tage, «Auftrag beenden» macht ihn sofort ungültig. Fotos, die du stattdessen über das Teilen-Menü sendest, laufen über den Dienst, den du wählst.
 - Die Dateien der App liefert GitHub Pages aus. Beim Aufruf verarbeitet GitHub technische Zugriffsdaten wie die IP-Adresse. Der Betreiber von RoomX erhält sie nicht.
 - Links zu Möbelhäusern («Beim Händler ansehen») öffnen sich nur in einem neuen Tab, wenn du sie antippst. RoomX macht keine Anfragen an die Händler, und es werden keine Projektdaten übergeben.
 - Die Daten im Browser sind nicht zusätzlich verschlüsselt. Sperre dein Gerät.

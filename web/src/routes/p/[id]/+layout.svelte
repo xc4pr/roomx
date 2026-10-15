@@ -20,6 +20,7 @@
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import type { Project } from '#lib/core/schema.ts';
+	import { mirrorHost } from '#lib/mirror/host.svelte.ts';
 	import { putPreview } from '#lib/state/persistence.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { resetUi, ui } from '#lib/state/ui.svelte.ts';
@@ -56,6 +57,12 @@
 			void store.flush();
 			if (leaving && leaving.id === id) void savePreview(leaving);
 		};
+	});
+
+	$effect(() => {
+		if (status !== 'ready' || store.readOnly) return;
+		const id = projectId;
+		return untrack(() => mirrorHost.start(id));
 	});
 
 	async function load(id: string): Promise<void> {
