@@ -5,6 +5,11 @@ from pathlib import Path
 
 MAX_PROJECT_BYTES = 10 * 1024 * 1024
 MAX_PHOTO_BYTES = 15 * 1024 * 1024
+MIRROR_MAX_SHOT_BYTES = 16 * 1024 * 1024 + 64 * 1024
+MIRROR_MAX_SHOTS = 300
+MIRROR_MAX_BYTES = 3 * 512 * 1024 * 1024
+MIRROR_MAX_BOXES = 100
+MIRROR_MAX_TTL_MS = 8 * 24 * 60 * 60 * 1000
 
 ORIGIN = re.compile(r"^https?://(?:[a-z0-9-]+(?:\.[a-z0-9-]+)*|\[[0-9a-f:.]+\])(?::\d{1,5})?$")
 
@@ -33,6 +38,11 @@ class Config:
     max_project_bytes: int = MAX_PROJECT_BYTES
     max_photo_bytes: int = MAX_PHOTO_BYTES
     allowed_origins: tuple[str, ...] = ()
+    mirror_max_shot_bytes: int = MIRROR_MAX_SHOT_BYTES
+    mirror_max_shots: int = MIRROR_MAX_SHOTS
+    mirror_max_bytes: int = MIRROR_MAX_BYTES
+    mirror_max_boxes: int = MIRROR_MAX_BOXES
+    mirror_max_ttl_ms: int = MIRROR_MAX_TTL_MS
 
     def __post_init__(self) -> None:
         parse_origins(",".join(self.allowed_origins))

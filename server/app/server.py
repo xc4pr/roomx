@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 from . import __version__
 from .config import Config
+from .mirror import register as register_mirror
 from .storage import Store, valid_hash, valid_id
 
 mimetypes.add_type("application/manifest+json", ".webmanifest")
@@ -61,8 +62,8 @@ def create_app(config: Config) -> FastAPI:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=list(config.allowed_origins),
-            allow_methods=["GET", "HEAD", "PUT"],
-            allow_headers=["Authorization", "Content-Type"],
+            allow_methods=["GET", "HEAD", "PUT", "DELETE"],
+            allow_headers=["Authorization", "Content-Type", "X-Roomx-Mailbox"],
             max_age=600,
         )
 
@@ -176,6 +177,8 @@ def create_app(config: Config) -> FastAPI:
         return JSONResponse(
             {"hash": digest, "created": created}, status_code=201 if created else 200
         )
+
+    register_mirror(app, config, authorize, read_limited)
 
     static_root = config.static.resolve() if config.static else None
 
