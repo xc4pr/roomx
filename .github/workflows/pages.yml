@@ -7,18 +7,24 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 12.11.2
@@ -28,7 +34,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: web/pnpm-lock.yaml
       - run: pnpm -C web install --frozen-lockfile
-      - run: pnpm -C web test
+      - run: echo "ROOMX_VERSION=$(git describe --tags --always)" >> "$GITHUB_ENV"
       - run: pnpm -C web build
         env:
           BASE_PATH: /${{ github.event.repository.name }}
@@ -41,6 +47,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.workflow == 'CI' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm -C web install --frozen-lockfile
+      - run: pnpm -C web lint
+      - run: pnpm -C web check
+      - run: pnpm -C web test
+      - run: pnpm -C web build
+      - run: pnpm -C web build
+        env:
+          LOCAL_ONLY: '1'
+          BASE_PATH: /roomx
+
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m venv server/.venv
+      - run: server/.venv/bin/pip install -e 'server[dev]'
+      - run: .venv/bin/pytest
+        working-directory: server
+      - run: .venv/bin/ruff check
+        working-directory: server
+
+  e2e-chromium:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m venv server/.venv
+      - run: server/.venv/bin/pip install -e 'server[dev]'
+      - run: pnpm -C web install --frozen-lockfile
+      - run: pnpm -C web exec playwright install --with-deps chromium
+      - run: pnpm -C web test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-chromium-report
+          path: |
+            web/playwright-report
+            web/test-results
+          retention-days: 7
+
+  e2e-webkit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m venv server/.venv
+      - run: server/.venv/bin/pip install -e 'server[dev]'
+      - run: pnpm -C web install --frozen-lockfile
+      - run: pnpm -C web exec playwright install --with-deps webkit
+      - run: pnpm -C web exec vite build && pnpm -C web exec playwright test --project=ipad-landscape --project=ipad-portrait
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-webkit-report
+          path: |
+            web/playwright-report
+            web/test-results
+          retention-days: 7
