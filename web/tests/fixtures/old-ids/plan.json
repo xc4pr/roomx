@@ -1,0 +1,25 @@
+{
+	"format": "roomx-plan",
+	"schemaVersion": 1,
+	"projectId": "__PROJECT__",
+	"variants": [
+		{
+			"name": "A: alte IDs",
+			"rooms": [
+				{
+					"roomId": "__ROOM__",
+					"items": [
+						{
+							"id": "frisiertisch",
+							"catalogId": "ikea-malm-vanity-100x41x78",
+							"x": "__X__",
+							"y": "__Y__"
+						}
+					],
+					"electrical": [],
+					"notes": ""
+				}
+			]
+		}
+	]
+}
