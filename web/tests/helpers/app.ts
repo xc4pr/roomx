@@ -262,3 +262,11 @@ export async function selectRoomOnBoard(page: Page): Promise<void> {
 	await tapAt(page, box.x + box.width / 2, box.y + box.height / 2);
 	await expect(page.getByTestId('tab-dims')).toHaveCount(1);
 }
+
+// Fills a field and makes sure the value stuck; a stray blur or re-render can swallow it silently.
+export async function fillChecked(locator: Locator, value: string): Promise<void> {
+	await expect(async () => {
+		await locator.fill(value);
+		await expect(locator).toHaveValue(value, { timeout: 1000 });
+	}).toPass();
+}

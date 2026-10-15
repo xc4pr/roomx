@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import {
 	addRoom,
 	createProject,
+	fillChecked,
 	jpegUpload,
 	lPolygon,
 	makeJpeg,
@@ -100,8 +101,7 @@ test('Projekt anlegen bis Plan-Import und Re-Export', async ({ page }, testInfo)
 	const plan = buildPlan(first);
 	expect(validate(plan, planSchema)).toEqual([]);
 
-	await page.getByTestId('seg-share').click();
-	await page.getByTestId('import-text').fill(planMessage(plan));
+	await fillChecked(page.getByTestId('import-text'), planMessage(plan));
 	await expect(page.getByTestId('import-preview')).toBeVisible();
 	await expect(page.getByTestId('import-variant')).toHaveCount(1);
 	const summary = ((await page.getByTestId('import-room').first().innerText()).split(':')[1] ?? '')

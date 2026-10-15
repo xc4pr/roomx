@@ -6,6 +6,7 @@ import { catalogAliases, lookup } from '#lib/catalog/index.ts';
 import {
 	addRoom,
 	createProject,
+	fillChecked,
 	openProjects,
 	readProject,
 	waitForProject,
@@ -62,7 +63,7 @@ test('Plan mit alter Katalog-ID wird importiert, Name und Preis kommen vom neuen
 
 	await page.getByTestId('seg-share').click();
 	await expect(page.getByTestId('import-panel')).toBeVisible();
-	await page.getByTestId('import-text').fill(plan);
+	await fillChecked(page.getByTestId('import-text'), plan);
 	await expect(page.getByTestId('import-preview')).toBeVisible();
 	await expect(page.getByTestId('import-invalid')).toHaveCount(0);
 	await expect(page.getByTestId('import-unreadable')).toHaveCount(0);

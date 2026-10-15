@@ -41,6 +41,17 @@
 		onchange?.(next);
 	}
 
+	function onclick(event: MouseEvent): void {
+		if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+			return;
+		const target = new URL((event.currentTarget as HTMLAnchorElement).href);
+		// Same URL: SvelteKit would still navigate and blur the focused element. Other
+		// query strings (e.g. /3d?build=1) keep navigating.
+		if (target.pathname === location.pathname && target.search === location.search) {
+			event.preventDefault();
+		}
+	}
+
 	function onkeydown(event: KeyboardEvent): void {
 		const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 		if (!keys.includes(event.key) || !root) return;
@@ -75,6 +86,7 @@
 				data-testid="seg-{item.value}"
 				class="{base} {full ? 'grow' : ''} {active ? on : off}"
 				aria-current={active ? 'page' : undefined}
+				{onclick}
 				aria-label={collapse ? item.label : undefined}
 				title={collapse ? item.label : undefined}
 			>
