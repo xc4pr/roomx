@@ -74,7 +74,8 @@ const STRUCTURE = [
 	'sides',
 	'wheels',
 	'top',
-	'accentColor'
+	'accentColor',
+	'bodyColor'
 ] as const;
 
 function structural(look: Look): boolean {

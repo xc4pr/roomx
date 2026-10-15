@@ -50,7 +50,8 @@ export const LookSchema = z
 		top: z.enum(['flush', 'overhang']).optional(),
 		books: z.boolean().optional(),
 		frameColor: HexColorSchema.optional(),
-		accentColor: HexColorSchema.optional()
+		accentColor: HexColorSchema.optional(),
+		bodyColor: HexColorSchema.optional()
 	})
 	.strict();
 

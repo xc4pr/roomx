@@ -170,7 +170,7 @@ export function makePlan(g: Group, p: Palette, o: CabinetOptions): Plan {
 		yB: lift + plinthH,
 		yT: o.h - slabT - ins,
 		metal,
-		body: mat('wood', p.main),
+		body: mat('wood', look.bodyColor ?? p.main),
 		fronts: mat('wood', p.light),
 		handles: mat('metal', metal),
 		dark: mat('matte', mix(p.light, '#1c1a18', 0.72))

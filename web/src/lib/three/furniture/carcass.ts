@@ -46,7 +46,7 @@ function hollow(c: Plan): void {
 		for (const sx of [-1, 1]) {
 			box(c.g, c.body, t, height, c.backZ - c.fz, sx * (c.cw / 2 - t / 2), c.lift, zc);
 		}
-		const back = mat('matte', shade(c.p.main, -0.1));
+		const back = mat('matte', shade(c.look.bodyColor ?? c.p.main, -0.1));
 		box(c.g, back, c.span, height, 0.008, 0, c.lift, c.backZ - 0.004);
 	}
 	boards(c);

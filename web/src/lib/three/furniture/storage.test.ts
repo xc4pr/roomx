@@ -255,7 +255,8 @@ describe('every look field changes the model', () => {
 			dresser,
 			{ top: 'overhang' },
 			{ top: 'overhang', accentColor: '#aa5500' }
-		]
+		],
+		['bodyColor', 'dresser', dresser, { top: 'flush' }, { top: 'flush', bodyColor: '#aa5500' }]
 	];
 	for (const [name, model, dims, before, after] of cases) {
 		it(name, () => {
