@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 	import { areaMm2, boundingBox, centroid, cornerLabel, walls } from '#lib/core/geometry.ts';
 	import { isWallElement, type Room } from '#lib/core/schema.ts';
 	import { formatArea, formatLength } from '#lib/core/units.ts';
@@ -12,14 +11,9 @@
 	import CornerHandles from './CornerHandles.svelte';
 	import SlopeLayer from './SlopeLayer.svelte';
 	import { pickLabelAlong, type Span } from './labelSlots.ts';
-	import {
-		cornerLabelPosition,
-		offsetPolygon,
-		pathOf,
-		wallBandPath,
-		wallMiddle,
-		wallNormal
-	} from './shape.ts';
+	import { connections } from './connections.svelte.ts';
+	import { cornerLabelPosition, pathOf, wallMiddle, wallNormal } from './shape.ts';
+	import { bandPaths, thicknessAt } from './wallBands.ts';
 
 	interface Props {
 		room: Room;
@@ -60,8 +54,10 @@
 	const floor = $derived(pathOf(room.polygon));
 	const tint = $derived(floorTint(room.floorColor));
 	const popping = $derived(fresh.roomId === room.id);
-	const band = $derived(wallBandPath(room.polygon, WALL_THICKNESS));
-	const outline = $derived(pathOf(offsetPolygon(room.polygon, WALL_THICKNESS)));
+	const roomLinks = $derived(connections.roomLinks(room.id));
+	const paths = $derived(bandPaths(room.polygon, roomLinks));
+	const band = $derived(paths.band);
+	const outline = $derived(paths.outline);
 	const middle = $derived(centroid(room.polygon));
 	const sides = $derived(walls(room.polygon));
 	const area = $derived(formatArea(areaMm2(room.polygon), locale.language));
@@ -218,12 +214,13 @@
 					</g>
 				{/if}
 			{/each}
-			{#each sides as _side, i (i)}
+			{#each sides as side, i (i)}
 				{@const at = wallMiddle(room.polygon, i)}
 				{@const inward = wallNormal(room.polygon, i)}
+				{@const reach = thicknessAt(roomLinks, i + 1, side.length / 2, 0)}
 				<g
-					transform="translate({at.x - inward.x * (WALL_THICKNESS + 15 * u)} {at.y -
-						inward.y * (WALL_THICKNESS + 15 * u)}) rotate({-rot}) scale(1 -1)"
+					transform="translate({at.x - inward.x * (reach + 15 * u)} {at.y -
+						inward.y * (reach + 15 * u)}) rotate({-rot}) scale(1 -1)"
 					pointer-events="none"
 				>
 					<circle r={9.5 * u} class={emphasised ? 'fill-accent' : 'fill-text'} opacity="0.9" />

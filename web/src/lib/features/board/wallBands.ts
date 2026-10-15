@@ -1,0 +1,119 @@
+import type { WallLink } from '#lib/core/adjacency.ts';
+import { WALL_THICKNESS } from '#lib/core/defaults.ts';
+import { walls, type Vec } from '#lib/core/geometry.ts';
+import { pathOf } from './shape.ts';
+
+export interface WallPiece {
+	wall: number;
+	from: number;
+	to: number;
+	thickness: number;
+}
+
+// Splits every wall into stretches: the shared part of a linked wall gets the real thickness
+// (the gap to the neighbour), the rest keeps the default.
+export function wallPieces(
+	polygon: readonly Vec[],
+	links: readonly WallLink[],
+	base = WALL_THICKNESS
+): WallPiece[] {
+	const pieces: WallPiece[] = [];
+	for (const side of walls(polygon)) {
+		const shared = links
+			.filter((link) => link.wall === side.number)
+			.map((link) => ({
+				from: Math.max(0, Math.min(link.from, side.length)),
+				to: Math.max(0, Math.min(link.to, side.length)),
+				thickness: link.thickness
+			}))
+			.filter((span) => span.to - span.from > 1)
+			.sort((a, b) => a.from - b.from);
+		let at = 0;
+		const add = (from: number, to: number, thickness: number): void => {
+			if (to - from < 1e-6) return;
+			const last = pieces[pieces.length - 1];
+			if (last && last.wall === side.number && last.thickness === thickness && last.to === from) {
+				last.to = to;
+			} else {
+				pieces.push({ wall: side.number, from, to, thickness });
+			}
+		};
+		for (const span of shared) {
+			if (span.from < at) continue;
+			add(at, span.from, base);
+			add(span.from, span.to, span.thickness);
+			at = span.to;
+		}
+		add(at, side.length, base);
+	}
+	return pieces;
+}
+
+// Outer edge of the wall band. Where thickness changes along one wall the edge steps;
+// at corners the two offset lines are intersected.
+export function bandOutline(polygon: readonly Vec[], pieces: readonly WallPiece[]): Vec[] {
+	const sides = walls(polygon);
+	const edges = pieces.map((piece) => {
+		const side = sides[piece.wall - 1];
+		const out = { x: -side.inward.x, y: -side.inward.y };
+		return {
+			start: {
+				x: side.start.x + side.direction.x * piece.from,
+				y: side.start.y + side.direction.y * piece.from
+			},
+			end: {
+				x: side.start.x + side.direction.x * piece.to,
+				y: side.start.y + side.direction.y * piece.to
+			},
+			out,
+			d: piece.thickness
+		};
+	});
+	const result: Vec[] = [];
+	edges.forEach((next, i) => {
+		const prev = edges[(i - 1 + edges.length) % edges.length];
+		const corner = next.start;
+		const det = prev.out.x * next.out.y - prev.out.y * next.out.x;
+		if (Math.abs(det) < 1e-3) {
+			const a = { x: corner.x + prev.out.x * prev.d, y: corner.y + prev.out.y * prev.d };
+			const b = { x: corner.x + next.out.x * next.d, y: corner.y + next.out.y * next.d };
+			result.push(a);
+			if (Math.hypot(a.x - b.x, a.y - b.y) > 1e-6) result.push(b);
+			return;
+		}
+		const x = (prev.d * next.out.y - next.d * prev.out.y) / det;
+		const y = (prev.out.x * next.d - next.out.x * prev.d) / det;
+		const reach = 4 * Math.max(prev.d, next.d);
+		const length = Math.hypot(x, y);
+		const k = length > reach ? reach / length : 1;
+		result.push({ x: corner.x + x * k, y: corner.y + y * k });
+	});
+	return result;
+}
+
+export function bandPaths(
+	polygon: readonly Vec[],
+	links: readonly WallLink[],
+	base = WALL_THICKNESS
+): { band: string; outline: string } {
+	const outer = bandOutline(polygon, wallPieces(polygon, links, base));
+	return {
+		band: `${pathOf(outer)} ${pathOf([...polygon].reverse())}`,
+		outline: pathOf(outer)
+	};
+}
+
+// Thickness of the wall behind an element: the shared stretch it sits in, else the default.
+export function thicknessAt(
+	links: readonly WallLink[],
+	wall: number,
+	offset: number,
+	width: number,
+	base = WALL_THICKNESS
+): number {
+	const centre = offset + width / 2;
+	const link = links.find(
+		(entry) => entry.wall === wall && centre >= entry.from && centre <= entry.to
+	);
+	return link?.thickness ?? base;
+}

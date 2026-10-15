@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 	import type { MagnetContact } from './magnet.ts';
 
 	interface Props {
@@ -15,15 +14,15 @@
 
 	function strip(contact: MagnetContact): string {
 		const { a, b, normal } = contact;
-		const dx = normal.x * WALL_THICKNESS;
-		const dy = normal.y * WALL_THICKNESS;
+		const dx = normal.x * contact.thickness;
+		const dy = normal.y * contact.thickness;
 		return `${a.x},${a.y} ${b.x},${b.y} ${b.x + dx},${b.y + dy} ${a.x + dx},${a.y + dy}`;
 	}
 
 	function centre(contact: MagnetContact): { x: number; y: number } {
 		return {
-			x: (contact.a.x + contact.b.x) / 2 + (contact.normal.x * WALL_THICKNESS) / 2,
-			y: (contact.a.y + contact.b.y) / 2 + (contact.normal.y * WALL_THICKNESS) / 2
+			x: (contact.a.x + contact.b.x) / 2 + (contact.normal.x * contact.thickness) / 2,
+			y: (contact.a.y + contact.b.y) / 2 + (contact.normal.y * contact.thickness) / 2
 		};
 	}
 </script>

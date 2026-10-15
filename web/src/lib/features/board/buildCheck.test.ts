@@ -64,6 +64,16 @@ describe('unconnected rooms', () => {
 	it('does not complain about a single room', () => {
 		expect(collectWarnings([createRoom('a', 'Allein')], none)).toEqual([]);
 	});
+
+	it('stays quiet for a room marked as deliberately separate', () => {
+		const rooms = apart(900);
+		rooms[1].separate = true;
+		expect(collectWarnings(rooms, none).filter((w) => w.kind === 'unconnected')).toEqual([
+			{ kind: 'unconnected', roomId: 'a' }
+		]);
+		rooms[0].separate = true;
+		expect(collectWarnings(rooms, none)).toEqual([]);
+	});
 });
 
 describe('collectWarnings for a scope of rooms', () => {

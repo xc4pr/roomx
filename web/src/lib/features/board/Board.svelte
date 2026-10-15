@@ -61,9 +61,16 @@
 		roomsBox,
 		snapToCentimetre
 	} from './rooms.ts';
+	import { connections } from './connections.svelte.ts';
 	import DockMarks from './DockMarks.svelte';
 	import LinkMarks from './LinkMarks.svelte';
-	import { magnetRange, magnetSnap, slideDecay, type MagnetContact } from './magnet.ts';
+	import {
+		keptThicknesses,
+		magnetRange,
+		magnetSnap,
+		slideDecay,
+		type MagnetContact
+	} from './magnet.ts';
 	import { setViewport } from './viewport.ts';
 
 	let { mode }: { mode: 'build' | 'furnish' } = $props();
@@ -344,11 +351,13 @@
 		}
 		contacts = [];
 		heldKeys = [];
+		keptThickness = new Map();
 		lastDelta = { x: 0, y: 0 };
 		draggingRoomId = null;
 	}
 
 	let heldKeys: string[] = [];
+	let keptThickness: ReadonlyMap<string, number> = new Map();
 	let lastDelta: Vec = { x: 0, y: 0 };
 	let flashTimer: ReturnType<typeof setTimeout> | undefined;
 	let slideFrame = 0;
@@ -400,6 +409,7 @@
 		const board = screenToBoard(cam, point);
 		const room = placing ? undefined : hitRoom(ordered, board, Math.max(150, 10 / cam.k));
 		const movable = room !== undefined && canMoveRooms();
+		if (movable && room) keptThickness = keptThicknesses(connections.roomLinks(room.id));
 		drag = {
 			id: event.pointerId,
 			start: point,
@@ -467,7 +477,8 @@
 		const moving = boardPolygon({ boardPos: candidate, polygon: room.polygon });
 		const snap = magnetSnap(moving, neighbours, {
 			range: magnetRange(cam.k),
-			held: heldKeys
+			held: heldKeys,
+			thickness: keptThickness
 		});
 		const final: BoardPos = {
 			...candidate,

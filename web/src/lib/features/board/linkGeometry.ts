@@ -1,5 +1,4 @@
 import type { MirroredOpening, WallLink } from '#lib/core/adjacency.ts';
-import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 import { roomToBoard, rotate, walls, type Vec } from '#lib/core/geometry.ts';
 import { isWallElement, type Room } from '#lib/core/schema.ts';
 import { pickLabelAlong, type Span } from './labelSlots.ts';
@@ -69,8 +68,8 @@ export function linkSpans(
 			outward: { x: -inward.x, y: -inward.y },
 			symbol: base
 				? {
-						x: base.x - (inward.x * WALL_THICKNESS) / 2,
-						y: base.y - (inward.y * WALL_THICKNESS) / 2
+						x: base.x - (inward.x * link.thickness) / 2,
+						y: base.y - (inward.y * link.thickness) / 2
 					}
 				: null,
 			angle: Math.atan2(direction.y, direction.x)

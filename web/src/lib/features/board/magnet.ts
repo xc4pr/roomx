@@ -1,5 +1,5 @@
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
-import { MIN_LINK_LENGTH } from '#lib/core/adjacency.ts';
+import { MIN_LINK_LENGTH, type WallLink } from '#lib/core/adjacency.ts';
 import { cross, dot, sub, type Vec } from '#lib/core/geometry.ts';
 
 export const MAGNET_MIN_RANGE = 300;
@@ -24,6 +24,7 @@ export interface MagnetContact {
 	a: Vec;
 	b: Vec;
 	normal: Vec;
+	thickness: number;
 }
 
 export interface MagnetResult {
@@ -37,6 +38,21 @@ export interface MagnetOptions {
 	range: number;
 	held?: readonly string[];
 	release?: number;
+	thickness?: ReadonlyMap<string, number>;
+}
+
+export function wallContactKey(otherId: string, movingWall: number, otherWall: number): string {
+	return `wall:${otherId}:${movingWall - 1}:${otherWall - 1}`;
+}
+
+// Walls the moving room already shares keep their thickness when it docks to them again.
+export function keptThicknesses(links: readonly WallLink[]): Map<string, number> {
+	return new Map(
+		links.map((link) => [
+			wallContactKey(link.otherRoomId, link.wall, link.otherWall),
+			link.thickness
+		])
+	);
 }
 
 interface Edge {
@@ -58,6 +74,7 @@ interface Candidate {
 	shift: number;
 	overlap: number;
 	held: boolean;
+	thickness: number;
 }
 
 export function magnetRange(pxPerMm: number): number {
@@ -102,7 +119,8 @@ function candidatesFor(
 	kind: ContactKind,
 	range: number,
 	release: number,
-	held: ReadonlySet<string>
+	held: ReadonlySet<string>,
+	kept: ReadonlyMap<string, number>
 ): Candidate[] {
 	const found: Candidate[] = [];
 	const movingEdges = edgesOf(moving);
@@ -111,9 +129,9 @@ function candidatesFor(
 			if (Math.abs(cross(m.direction, o.direction)) > PARALLEL) continue;
 			const facing = dot(m.direction, o.direction) < 0;
 			if (facing !== (kind === 'wall')) continue;
-			const gap = kind === 'wall' ? WALL_THICKNESS : 0;
-			const shift = gap - dot(sub(m.a, o.a), o.outward);
 			const key = `${kind}:${neighbour.id}:${m.index}:${o.index}`;
+			const thickness = kind === 'wall' ? (kept.get(key) ?? WALL_THICKNESS) : 0;
+			const shift = thickness - dot(sub(m.a, o.a), o.outward);
 			const isHeld = held.has(key);
 			if (Math.abs(shift) > (isHeld ? release : range)) continue;
 			const overlap = overlapOf(m, o, o.direction);
@@ -127,7 +145,8 @@ function candidatesFor(
 				normal: o.outward,
 				shift,
 				overlap,
-				held: isHeld
+				held: isHeld,
+				thickness
 			});
 		}
 	}
@@ -160,7 +179,8 @@ function contactOf(candidate: Candidate, delta: Vec): MagnetContact {
 			otherId: candidate.otherId,
 			a: at(Math.max(m0, o0)),
 			b: at(Math.min(m1, o1)),
-			normal: moving.outward
+			normal: moving.outward,
+			thickness: candidate.thickness
 		};
 	}
 	return {
@@ -169,7 +189,8 @@ function contactOf(candidate: Candidate, delta: Vec): MagnetContact {
 		otherId: candidate.otherId,
 		a: at(Math.min(m0, o0)),
 		b: at(Math.max(m1, o1)),
-		normal: moving.outward
+		normal: moving.outward,
+		thickness: 0
 	};
 }
 
@@ -181,10 +202,11 @@ export function magnetSnap(
 	const range = options.range;
 	const release = range * (options.release ?? MAGNET_RELEASE);
 	const held = new Set(options.held ?? []);
+	const kept = options.thickness ?? new Map<string, number>();
 	const none: MagnetResult = { delta: { x: 0, y: 0 }, kind: 'none', contacts: [], held: [] };
 
 	const walls = neighbours
-		.flatMap((neighbour) => candidatesFor(moving, neighbour, 'wall', range, release, held))
+		.flatMap((neighbour) => candidatesFor(moving, neighbour, 'wall', range, release, held, kept))
 		.sort(byPriority);
 	const first = walls[0];
 	if (!first) return none;
@@ -212,7 +234,9 @@ export function magnetSnap(
 		const shifted = moving.map((p) => ({ x: p.x + delta.x, y: p.y + delta.y }));
 		const flush = neighbours
 			.filter((neighbour) => docked.has(neighbour.id))
-			.flatMap((neighbour) => candidatesFor(shifted, neighbour, 'flush', range, release, held))
+			.flatMap((neighbour) =>
+				candidatesFor(shifted, neighbour, 'flush', range, release, held, kept)
+			)
 			.filter((candidate) => Math.abs(dot(candidate.normal, tangent)) > 1 - PERPENDICULAR)
 			.sort(byPriority)[0];
 		if (flush) {

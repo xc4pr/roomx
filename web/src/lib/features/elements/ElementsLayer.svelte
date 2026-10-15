@@ -47,6 +47,7 @@
 	import PlanShape from './PlanShape.svelte';
 	import { clampToProfile } from './profile.ts';
 	import { session } from './session.svelte.ts';
+	import { thicknessAt } from '#lib/features/board/wallBands.ts';
 	import { hitBounds, lateralMeasure, localBounds, symbolMetrics } from './shape.ts';
 
 	type Look = 'existing' | 'planned' | 'suggested';
@@ -84,6 +85,12 @@
 	const px = (n: number): number => n / pxPerMm;
 
 	const wallList = $derived(walls(room.polygon));
+	const roomLinks = $derived(connections.roomLinks(room.id));
+	function thicknessOf(element: RoomElement): number {
+		return isWallElement(element)
+			? thicknessAt(roomLinks, element.wall, element.offset, element.width)
+			: thicknessAt(roomLinks, 0, 0, 0);
+	}
 	const hatchId = $derived(`hatch-${room.id}`);
 	const isTarget = $derived(interactive && ui.selectedRoomId === room.id);
 	const issueIds = $derived(
@@ -100,7 +107,7 @@
 
 	function areaOf(element: RoomElement): number {
 		if (!isWallElement(element)) return 1;
-		const b = localBounds(element, pxPerMm);
+		const b = localBounds(element, pxPerMm, thicknessOf(element));
 		return (b.x1 - b.x0) * (b.y1 - b.y0);
 	}
 
@@ -511,7 +518,7 @@
 		if (!['door', 'window', 'builtin', 'obstacle', 'radiator'].includes(element.kind))
 			return undefined;
 		if (element.width * pxPerMm < 70) return undefined;
-		const b = localBounds(element, pxPerMm);
+		const b = localBounds(element, pxPerMm, thicknessOf(element));
 		const y = (b.y0 + b.y1) / 2;
 		return { start: { x: b.x0, y }, end: { x: b.x1, y } };
 	}
@@ -549,6 +556,7 @@
 				selected={entry.element.id === ui.selectedElementId}
 				warn={issueIds.has(entry.element.id)}
 				shared={connections.sharedIds.has(entry.element.id)}
+				thickness={thicknessOf(entry.element)}
 			/>
 		</g>
 	{/each}
@@ -571,12 +579,13 @@
 				{hatchId}
 				look="suggested"
 				selected
+				thickness={thicknessOf(ghost)}
 			/>
 		</g>
 	{/if}
 
 	{#if measured && measuredWall}
-		{@const lateral = lateralMeasure(measured, pxPerMm)}
+		{@const lateral = lateralMeasure(measured, pxPerMm, thicknessOf(measured))}
 		{@const fromEnd = Math.round(measuredWall.length) - measured.offset - measured.width}
 		<Dimension
 			a={wallPoint(measuredWall, 0, lateral)}
@@ -599,7 +608,7 @@
 			{@const element = entry.element}
 			{@const editable = !entry.suggestion}
 			{#if isWallElement(element)}
-				{@const hb = hitBounds(element, pxPerMm)}
+				{@const hb = hitBounds(element, pxPerMm, 44, thicknessOf(element))}
 				<g transform={frame(wallList[element.wall - 1])}>
 					<rect
 						x={hb.x0}

@@ -18,6 +18,7 @@
 		selected?: boolean;
 		warn?: boolean;
 		shared?: boolean;
+		thickness?: number;
 	}
 
 	let {
@@ -28,10 +29,11 @@
 		look,
 		selected = false,
 		warn = false,
-		shared = false
+		shared = false,
+		thickness = WALL_THICKNESS
 	}: Props = $props();
 
-	const T = WALL_THICKNESS;
+	const T = $derived(thickness);
 	const px = (n: number): number => n / pxPerMm;
 
 	const color = $derived(look === 'suggested' ? 'var(--color-suggested)' : kindColor(element.kind));
@@ -48,7 +50,7 @@
 	const gang = $derived(metrics.gang);
 	const total = $derived(metrics.total);
 
-	const bounds = $derived(isWallElement(element) ? localBounds(element, pxPerMm) : undefined);
+	const bounds = $derived(isWallElement(element) ? localBounds(element, pxPerMm, T) : undefined);
 	const labelVisible = $derived(
 		isWallElement(element) && element.width * pxPerMm > 78 && hasLabel(element.kind)
 	);

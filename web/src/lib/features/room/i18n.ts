@@ -8,6 +8,12 @@ export const messages = defineMessages({
 		neighbourJump: 'Zu {room} wechseln',
 		neighboursHint:
 			'Zieh den Raum im Plan an einen anderen heran, er rastet ein. Die Wand gehört dann beiden Räumen, und Türen darin führen in beide.',
+		thicknessLabel: 'Wandstärke zu {room}: {value}',
+		thicknessGroup: 'Wandstärke zu {room}',
+		thicknessMoved: '{room} wurde verschoben. Seine anderen Verbindungen sind gelöst.',
+		separate: 'Bewusst separat',
+		separateHint:
+			'Keller, Garage, Estrich oder Aussenbereich: Dieser Raum wird nicht als unverbunden gemeldet.',
 		slopes: 'Dachschrägen',
 		slopesHint:
 			'Die Decke beginnt an der Wand auf Kniestockhöhe und steigt mit der Neigung in den Raum, bis sie die Raumhöhe erreicht.',
@@ -98,6 +104,11 @@ export const messages = defineMessages({
 		neighbourJump: 'Go to {room}',
 		neighboursHint:
 			'Drag the room next to another one on the plan and it snaps into place. The wall then belongs to both rooms, and doors in it lead into both.',
+		thicknessLabel: 'Wall thickness to {room}: {value}',
+		thicknessGroup: 'Wall thickness to {room}',
+		thicknessMoved: '{room} was moved. Its other connections are no longer joined.',
+		separate: 'Deliberately separate',
+		separateHint: 'Cellar, garage, loft or outdoor area: this room is not reported as unconnected.',
 		slopes: 'Sloped ceilings',
 		slopesHint:
 			'The ceiling starts at the wall at knee wall height and rises into the room at the given angle until it reaches the room height.',

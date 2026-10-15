@@ -36,7 +36,7 @@ export const messages = defineMessages({
 		checkShow: 'Anzeigen',
 		warnNoRooms: 'Es gibt noch keinen Raum. Die 3D-Ansicht bleibt leer.',
 		warnUnconnected:
-			'Raum «{room}» ist mit keinem anderen Raum verbunden. Zieh ihn an einen Nachbarraum, bis er einrastet.',
+			'Raum «{room}» ist mit keinem anderen Raum verbunden. Zieh ihn an einen Nachbarraum, bis er einrastet, oder markiere ihn im Raum-Panel als «Bewusst separat».',
 		warnPolygon: '{room}: Der Grundriss ist ungültig. Wände kreuzen sich oder sind zu kurz.',
 		warnOutsideWall: '{room}: {element} ragt über Wand {wall} hinaus.',
 		warnOutsideRoom: '{room}: {element} liegt ausserhalb des Raums.',
@@ -82,7 +82,7 @@ export const messages = defineMessages({
 		checkShow: 'Show',
 		warnNoRooms: 'There is no room yet. The 3D view stays empty.',
 		warnUnconnected:
-			'Room “{room}” is not connected to any other room. Drag it next to a neighbouring room until it snaps in.',
+			'Room “{room}” is not connected to any other room. Drag it next to a neighbouring room until it snaps in, or mark it “Deliberately separate” in the room panel.',
 		warnPolygon: '{room}: The floor plan is invalid. Walls cross or are too short.',
 		warnOutsideWall: '{room}: {element} extends beyond wall {wall}.',
 		warnOutsideRoom: '{room}: {element} lies outside the room.',

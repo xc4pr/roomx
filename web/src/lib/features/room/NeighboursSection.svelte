@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import Link2 from '@lucide/svelte/icons/link-2';
+	import { WALL_THICKNESS_PRESETS, type WallLink } from '#lib/core/adjacency.ts';
 	import { formatLength } from '#lib/core/units.ts';
 	import type { Room } from '#lib/core/schema.ts';
 	import { connections } from '#lib/features/board/connections.svelte.ts';
@@ -8,7 +9,11 @@
 	import { settings } from '#lib/state/settings.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { selectRoom } from '#lib/state/ui.svelte.ts';
+	import Chip from '#lib/ui/Chip.svelte';
+	import Switch from '#lib/ui/Switch.svelte';
+	import { toasts } from '#lib/ui/toast.svelte.ts';
 	import { messages } from './i18n.ts';
+	import { changeThickness } from './thickness.ts';
 
 	let { room }: { room: Room } = $props();
 
@@ -19,6 +24,23 @@
 			.filter((row): row is { link: (typeof row)['link']; other: Room } => row.other !== undefined)
 			.sort((a, b) => a.link.wall - b.link.wall || a.link.from - b.link.from)
 	);
+
+	function show(mm: number): string {
+		return formatLength(mm, settings.unit, locale.language);
+	}
+
+	function choose(link: WallLink, other: Room, thickness: number): void {
+		const change = changeThickness(store.project?.rooms ?? [], link, thickness);
+		if (change.moves.length === 0) return;
+		store.mutate((project) => {
+			for (const move of change.moves) {
+				const target = project.rooms.find((candidate) => candidate.id === move.roomId);
+				if (target) target.boardPos = move.boardPos;
+			}
+		});
+		if (change.detached)
+			toasts.show({ message: t(messages, 'thicknessMoved', { room: other.name }) });
+	}
 </script>
 
 <section class="grid grid-cols-[minmax(0,1fr)] gap-2" data-testid="room-neighbours">
@@ -28,9 +50,9 @@
 			{t(messages, 'neighboursHint')}
 		</p>
 	{:else}
-		<ul class="grid gap-1.5">
+		<ul class="grid grid-cols-[minmax(0,1fr)] gap-1.5">
 			{#each rows as row (`${row.link.wall}-${row.link.otherRoomId}-${row.link.otherWall}`)}
-				<li>
+				<li class="min-w-0">
 					<button
 						type="button"
 						onclick={() => selectRoom(row.other.id)}
@@ -49,8 +71,38 @@
 						</span>
 						<ChevronRight class="size-5 shrink-0 text-muted" />
 					</button>
+					<p class="px-1 pt-2 pb-1 text-xs font-semibold text-muted">
+						{t(messages, 'thicknessLabel', {
+							room: row.other.name,
+							value: show(row.link.thickness)
+						})}
+					</p>
+					<div
+						class="flex flex-wrap gap-2 py-0.5"
+						role="group"
+						aria-label={t(messages, 'thicknessGroup', { room: row.other.name })}
+						data-testid="thickness-chips"
+					>
+						{#each WALL_THICKNESS_PRESETS as preset (preset)}
+							<Chip
+								selected={row.link.thickness === preset}
+								onclick={() => choose(row.link, row.other, preset)}
+								data-testid="thickness-{preset}"
+							>
+								{show(preset)}
+							</Chip>
+						{/each}
+					</div>
 				</li>
 			{/each}
 		</ul>
 	{/if}
+	<div class="mt-1 rounded-md bg-surface-2 px-4 py-1" data-testid="room-separate">
+		<Switch
+			checked={room.separate === true}
+			label={t(messages, 'separate')}
+			description={t(messages, 'separateHint')}
+			onchange={(separate) => store.updateRoom(room.id, { separate })}
+		/>
+	</div>
 </section>

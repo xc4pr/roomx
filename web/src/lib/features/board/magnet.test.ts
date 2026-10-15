@@ -5,7 +5,13 @@ import type { Vec } from '#lib/core/geometry.ts';
 import { rectangleRoom } from '#lib/core/fixtures.ts';
 import type { BoardPos } from '#lib/core/schema.ts';
 import { boardPolygon } from './rooms.ts';
-import { magnetRange, magnetSnap, slideDecay, type MagnetNeighbour } from './magnet.ts';
+import {
+	keptThicknesses,
+	magnetRange,
+	magnetSnap,
+	slideDecay,
+	type MagnetNeighbour
+} from './magnet.ts';
 
 const rect = (x: number, y: number, w: number, h: number): Vec[] => [
 	{ x, y },
@@ -148,6 +154,38 @@ describe('magnetSnap', () => {
 			const links = wallLinks([anchor, mover]);
 			expect(links.some((link) => link.roomId === 'a' && link.otherRoomId === 'b')).toBe(true);
 		}
+	});
+});
+
+describe('kept wall thickness', () => {
+	const anchor = { ...rectangleRoom('a', 4000, 3000), elements: [] };
+	const mover = (gap: number) => ({
+		...rectangleRoom('b', 2000, 2000),
+		elements: [],
+		boardPos: { x: 700, y: 3000 + gap, rot: 0 }
+	});
+
+	it('docks at the old thickness when the room was connected before', () => {
+		const linked = [anchor, mover(250)];
+		const kept = keptThicknesses(wallLinks(linked).filter((link) => link.roomId === 'b'));
+		const result = magnetSnap(
+			boardPolygon(mover(420)),
+			[{ id: 'a', polygon: boardPolygon(anchor) }],
+			{ range: 300, thickness: kept }
+		);
+		expect(result.delta.y).toBeCloseTo(-170);
+		expect(result.contacts[0].thickness).toBe(250);
+	});
+
+	it('uses 150 mm for a wall it was not connected to', () => {
+		const kept = keptThicknesses([]);
+		const result = magnetSnap(
+			boardPolygon(mover(420)),
+			[{ id: 'a', polygon: boardPolygon(anchor) }],
+			{ range: 300, thickness: kept }
+		);
+		expect(result.delta.y).toBeCloseTo(WALL_THICKNESS - 420);
+		expect(result.contacts[0].thickness).toBe(WALL_THICKNESS);
 	});
 });
 

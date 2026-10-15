@@ -28,7 +28,11 @@ export function symbolMetrics(element: RoomElement, pxPerMm: number): SymbolMetr
 	return { gang, cell, radius: cell / 2, total: cell * gang };
 }
 
-export function localBounds(element: WallElement, pxPerMm: number): Bounds {
+export function localBounds(
+	element: WallElement,
+	pxPerMm: number,
+	thickness = WALL_THICKNESS
+): Bounds {
 	const { total, radius } = symbolMetrics(element, pxPerMm);
 	const center = element.offset + element.width / 2;
 	switch (element.kind) {
@@ -37,7 +41,7 @@ export function localBounds(element: WallElement, pxPerMm: number): Bounds {
 			return {
 				x0: element.offset,
 				x1: element.offset + element.width,
-				y0: -WALL_THICKNESS,
+				y0: -thickness,
 				y1: 0
 			};
 		case 'builtin':
@@ -55,8 +59,13 @@ export function localBounds(element: WallElement, pxPerMm: number): Bounds {
 	}
 }
 
-export function hitBounds(element: WallElement, pxPerMm: number, minPx = 44): Bounds {
-	const bounds = localBounds(element, pxPerMm);
+export function hitBounds(
+	element: WallElement,
+	pxPerMm: number,
+	minPx = 44,
+	thickness = WALL_THICKNESS
+): Bounds {
+	const bounds = localBounds(element, pxPerMm, thickness);
 	const min = minPx / pxPerMm;
 	const growX = Math.max(0, min - (bounds.x1 - bounds.x0)) / 2;
 	const growY = Math.max(0, min - (bounds.y1 - bounds.y0)) / 2;
@@ -68,11 +77,15 @@ export function hitBounds(element: WallElement, pxPerMm: number, minPx = 44): Bo
 	};
 }
 
-export function lateralMeasure(element: WallElement, pxPerMm: number): number {
+export function lateralMeasure(
+	element: WallElement,
+	pxPerMm: number,
+	thickness = WALL_THICKNESS
+): number {
 	const px = (n: number) => n / pxPerMm;
 	if (element.kind === 'door' || element.kind === 'window') {
-		return -(WALL_THICKNESS + px(26));
+		return -(thickness + px(26));
 	}
-	const bounds = localBounds(element, pxPerMm);
+	const bounds = localBounds(element, pxPerMm, thickness);
 	return Math.max(bounds.y1, px(24)) + px(20);
 }
