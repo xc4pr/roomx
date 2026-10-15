@@ -79,6 +79,13 @@ test('Alle Bilder des kuratierten Katalogs entstehen ohne Fehler', async ({ page
 		const seen = new Set<string>();
 		await scrollBy(0);
 		for (;;) {
+			// The virtual grid draws the rows for the new position in the next frames.
+			await page.evaluate(
+				() =>
+					new Promise((resolve) =>
+						requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)))
+					)
+			);
 			await expect
 				.poll(async () => (await view()).missing, {
 					message: `Bilder ${label}`,
