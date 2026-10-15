@@ -4,6 +4,7 @@
 	import ImageOff from '@lucide/svelte/icons/image-off';
 	import Play from '@lucide/svelte/icons/play';
 	import Plus from '@lucide/svelte/icons/plus';
+	import Smartphone from '@lucide/svelte/icons/smartphone';
 	import { onDestroy } from 'svelte';
 	import { pick, t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
@@ -18,6 +19,9 @@
 	import { LIMITS } from '#lib/security/limits.ts';
 	import { errorMessage } from './errors.ts';
 	import { messages } from './i18n.ts';
+	import JobList from '#lib/features/mirror/JobList.svelte';
+	import MirrorDialog from '#lib/features/mirror/MirrorDialog.svelte';
+	import { messages as mirrorMessages } from '#lib/features/mirror/i18n.ts';
 	import PhotoViewer from './PhotoViewer.svelte';
 	import { addPhotoFromFile } from './process.ts';
 	import { ThumbCache } from './thumbs.svelte.ts';
@@ -38,6 +42,7 @@
 	let startKey = $state<string | undefined>();
 	let viewing = $state<string | null>(null);
 	let freeOpen = $state(false);
+	let mirrorOpen = $state(false);
 	let freeNote = $state('');
 	let freeBusy = $state(false);
 	let freeCamera: HTMLInputElement | undefined = $state();
@@ -204,7 +209,12 @@
 				>
 					{t(messages, 'freePhoto')}
 				</Button>
+				<Button icon={Smartphone} onclick={() => (mirrorOpen = true)} data-testid="mirror-open">
+					{t(mirrorMessages, 'open')}
+				</Button>
 			</div>
+
+			<JobList {roomId} />
 
 			{#if store.readOnly}
 				<p class="rounded-md bg-surface-2 p-3 text-sm text-muted" data-testid="photos-readonly">
@@ -276,6 +286,8 @@
 	{#if viewing}
 		<PhotoViewer {roomId} photoId={viewing} onclose={() => (viewing = null)} />
 	{/if}
+
+	<MirrorDialog bind:open={mirrorOpen} roomIds={[roomId]} />
 
 	<Dialog
 		bind:open={freeOpen}
