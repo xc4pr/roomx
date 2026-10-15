@@ -5,636 +5,636 @@
   </picture>
 </p>
 
-<p align="center"><em>Measure your rooms, see them in 3D and furnish them with an AI assistant: runs in your browser, no account, all data stays on your device.</em></p>
+<p align="center"><b>English</b> &nbsp;·&nbsp; <a href="LIESMICH.md">Deutsch</a></p>
 
-<h3 align="center">Die Sims fürs echte Leben: Räume erfassen, in 3D ansehen, einrichten.</h3>
+<h3 align="center">The Sims for real life: measure your rooms, see them in 3D, furnish them.</h3>
 
 <p align="center">
-  <a href="https://xc4pr.github.io/roomx/"><b>App öffnen</b></a>
+  <a href="https://xc4pr.github.io/roomx/"><b>Open the app</b></a>
   &nbsp;·&nbsp;
-  <a href="#handbuch"><b>Handbuch</b></a>
+  <a href="#manual"><b>Manual</b></a>
   &nbsp;·&nbsp;
-  <a href="https://xc4pr.github.io/roomx/rechtliches"><b>Datenschutz</b></a>
+  <a href="https://xc4pr.github.io/roomx/rechtliches"><b>Privacy</b></a>
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/hero.webp" alt="roomx auf Laptop und Smartphone: eine eingerichtete Wohnung in 3D, daneben die Möbelplanung auf dem Handy" width="900">
+  <img src=".github/assets/screenshots/hero.webp" alt="roomx on a laptop and a smartphone: a furnished apartment in 3D, next to the furniture plan on the phone" width="900">
 </p>
 
 ---
 
-## Was ist roomx?
+## What is roomx?
 
-roomx ist die Sims fürs echte Leben. Du misst deine Räume ein, baust sie in 3D nach und richtest sie mit Möbeln ein. Auf Wunsch macht dir ein KI-Assistent Einrichtungsvorschläge, die roomx wieder in deinen Plan übernimmt.
+roomx is The Sims for real life. You measure your rooms, rebuild them in 3D and furnish them. If you like, an AI assistant suggests how to furnish them, and roomx brings its suggestions back into your plan.
 
-Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt sich wie eine App installieren. Du brauchst kein Konto: Alle Projekte und Fotos bleiben auf deinem Gerät.
+The app runs in the browser on a computer, laptop, tablet or smartphone, and you can install it like an app. You do not need an account: all your projects and photos stay on your device.
 
 > [!NOTE]
-> roomx gibt es auf Deutsch und auf Englisch. Die Sprache stellst du in den Einstellungen um. Dieses Handbuch ist auf Deutsch.
+> roomx is available in German and English. You switch the language in the settings. This manual is in English; the German version is [LIESMICH.md](LIESMICH.md).
 
-## Das kann roomx
+## What roomx can do
 
 <table>
   <tr>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/plan-panel.webp" alt="Grundriss mit drei Räumen und dem Panel für die Masse" width="100%"><br>
-      <b>Räume erfassen</b><br>
-      Rechteck, Vorlagen (L, U, T, Erker, Nische), freie Formen mit Wänden und Winkeln, Dachschrägen. Räume rasten wie ein Magnet aneinander ein.
+      <img src=".github/assets/screenshots/plan-panel.webp" alt="Floor plan with three rooms and the panel for the dimensions" width="100%"><br>
+      <b>Capture rooms</b><br>
+      Rectangles, templates (L, U, T, bay, recess), free shapes with walls and angles, sloped ceilings. Rooms snap together like magnets.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/wall-view.webp" alt="Wandansicht mit Fenstern, Steckdosen und der Palette für Elemente" width="100%"><br>
-      <b>Türen, Fenster, Elektro</b><br>
-      Elemente aus der Palette auf die Wand setzen, in der Wandansicht auf den Zentimeter genau ausrichten, Steckdosen und Schalter einblenden.
+      <img src=".github/assets/screenshots/wall-view.webp" alt="Wall view with windows, sockets and the palette of elements" width="100%"><br>
+      <b>Doors, windows, electrical</b><br>
+      Place elements from the palette on a wall, line them up to the centimetre in the wall view, show sockets and switches.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht einer Wohnung mit drei Räumen" width="100%"><br>
-      <b>Wohnung in 3D</b><br>
-      Aufgeschnitten, hoch oder niedrig ansehen, Licht an und aus, durch die Räume gehen, Bild speichern.
+      <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Cutaway 3D view of an apartment with three rooms" width="100%"><br>
+      <b>Your apartment in 3D</b><br>
+      Cutaway, high or low walls, lights on and off, walk through the rooms, save an image.
     </td>
   </tr>
   <tr>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/furnish.webp" alt="Möbelkatalog neben dem Grundriss mit eingerichtetem Wohnzimmer" width="100%"><br>
-      <b>Einrichten</b><br>
-      Über 250 Möbel von IKEA, Tchibo und allgemeine Modelle. Ziehen, drehen, stapeln, eigene Möbel anlegen, Varianten vergleichen.
+      <img src=".github/assets/screenshots/furnish.webp" alt="Furniture catalogue next to the floor plan with a furnished living room" width="100%"><br>
+      <b>Furnish</b><br>
+      Over 250 pieces from IKEA, Tchibo and generic models. Drag, rotate, stack, add your own furniture, compare variants.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/furnish-hints.webp" alt="Ein Möbel in Rot mit dem Hinweis, dass es den Türbereich blockiert" width="100%"><br>
-      <b>Prüfungen</b><br>
-      Rot markiert, was nicht passt: Kollisionen, Türbereich, Dachschräge, zu weite Wege zur Steckdose.
+      <img src=".github/assets/screenshots/furnish-hints.webp" alt="A piece of furniture in red with the hint that it blocks the door area" width="100%"><br>
+      <b>Checks</b><br>
+      Red shows what does not fit: collisions, door area, sloped ceiling, sockets that are too far away.
     </td>
     <td width="33%" valign="top">
-      <img src=".github/assets/screenshots/export.webp" alt="Seite Export und Import mit dem KI-Paket" width="100%"><br>
-      <b>Mit KI-Assistent einrichten</b><br>
-      KI-Paket erstellen, im Chat hochladen, den Plan der KI als Variante importieren. Dazu Budget, Einkaufsliste und Backup.
+      <img src=".github/assets/screenshots/export.webp" alt="Export and Import page with the AI package" width="100%"><br>
+      <b>Furnish with an AI assistant</b><br>
+      Create an AI package, upload it in a chat, import the AI's plan as a variant. Plus budget, shopping list and backup.
     </td>
   </tr>
 </table>
 
-## Schnellstart
+## Quick start
 
-**1. App öffnen.** Gehe auf **<https://xc4pr.github.io/roomx/>**. Beim ersten Start zeigt dir eine kurze Tour die wichtigsten Stellen.
+**1. Open the app.** Go to **<https://xc4pr.github.io/roomx/>**. On first launch a short tour shows you the key places.
 
-**2. Projekt anlegen.** Tippe auf «Neues Projekt» und gib einen Namen ein, zum Beispiel «Meine Wohnung».
+**2. Create a project.** Tap “New project” and enter a name, for example “My apartment”.
 
-**3. Räume erfassen.** Tippe im Plan auf das Plus. Du bekommst einen Raum mit 4 × 3 m. Trage Länge, Breite und Höhe ein und schiebe die Räume zusammen, bis sie einrasten. Setze Türen, Fenster und Steckdosen.
+**3. Capture your rooms.** Tap the plus in the plan. You get a 4 × 3 m room. Enter length, width and height, and push the rooms together until they snap. Add doors, windows and sockets.
 
-**4. In 3D ansehen.** Tippe oben rechts auf «3D erstellen». roomx prüft den Plan und baut deine Wohnung nach.
+**4. View it in 3D.** Tap “Build 3D” at the top right. roomx checks the plan and rebuilds your apartment.
 
-**5. Einrichten.** Wechsle zu «Einrichten» und zieh Möbel aus dem Katalog in die Räume. Oder lass dir von einem KI-Assistenten einen Vorschlag machen (siehe [Mit dem KI-Assistenten einrichten](#mit-dem-ki-assistenten-einrichten)).
+**5. Furnish.** Switch to “Furnish” and drag furniture from the catalogue into the rooms. Or let an AI assistant make a suggestion (see [Furnish with an AI assistant](#furnish-with-an-ai-assistant)).
 
-### Als App installieren
+### Install as an app
 
-Du kannst roomx wie eine normale App auf den Startbildschirm oder in den Programmordner legen. Sie öffnet sich dann ohne Adressleiste und läuft nach dem ersten Laden auch ohne Netz.
+You can add roomx to your home screen or app folder like any other app. It then opens without an address bar and, after the first load, also works without a network connection.
 
-| Gerät | Browser | So geht es |
+| Device | Browser | How |
 |---|---|---|
-| iPhone, iPad | Safari | Unten (iPhone) oder oben (iPad) auf «Teilen» tippen, dann «Zum Home-Bildschirm» wählen. |
-| Android | Chrome | Menü (drei Punkte) öffnen, dann «App installieren» (oder «Zum Startbildschirm hinzufügen») wählen. |
-| Windows, Linux, ChromeOS, macOS | Chrome oder Edge | In der Adressleiste auf das Installieren-Symbol klicken, oder im Menü «roomx installieren» wählen. |
-| macOS | Safari | Im Menü «Ablage» oder über «Teilen» den Eintrag «Zum Dock hinzufügen» wählen. |
+| iPhone, iPad | Safari | Tap “Share” (at the bottom on iPhone, at the top on iPad), then choose “Add to Home Screen”. |
+| Android | Chrome | Open the menu (three dots), then choose “Install app” (or “Add to Home screen”). |
+| Windows, Linux, ChromeOS, macOS | Chrome or Edge | Click the install icon in the address bar, or choose “Install roomx” in the menu. |
+| macOS | Safari | In the “File” menu, or via “Share”, choose “Add to Dock”. |
 
 > [!IMPORTANT]
-> **iPhone und iPad:** Installiere roomx unbedingt über «Zum Home-Bildschirm». Safari löscht die Daten von Websites, die man länger nicht geöffnet hat. Bei einer installierten App passiert das viel seltener. Mach zusätzlich ab und zu ein [Backup](#sichern-und-umziehen).
+> **iPhone and iPad:** Please install roomx via “Add to Home Screen”. Safari deletes the data of websites you have not opened for a while. For an installed app this happens far less often. Also make a [backup](#back-up-and-move) every now and then.
 
 > [!NOTE]
-> Jede Adresse und jede installierte App hat ihren **eigenen Speicher**. Projekte, die du im Browser angelegt hast, siehst du in der installierten App nicht automatisch. Zum Umziehen dient das Backup, siehe [Sichern und Umziehen](#sichern-und-umziehen).
+> Every address and every installed app has its **own storage**. Projects you created in the browser do not show up in the installed app automatically. To move them, use a backup, see [Back up and move](#back-up-and-move).
 
 ---
 
-## Handbuch
+## Manual
 
-- [Projekte](#projekte)
-- [Räume erfassen](#räume-erfassen)
-- [Räume verbinden](#räume-verbinden)
-- [Türen, Fenster und Elektro](#türen-fenster-und-elektro)
-- [Foto-Tour](#foto-tour)
-- [3D erstellen und ansehen](#3d-erstellen-und-ansehen)
-- [Einrichten](#einrichten)
-- [Mit dem KI-Assistenten einrichten](#mit-dem-ki-assistenten-einrichten)
-- [Sichern und Umziehen](#sichern-und-umziehen)
-- [Einstellungen](#einstellungen)
-- [Tastaturkürzel](#tastaturkürzel)
-- [Tipps](#tipps)
+- [Projects](#projects)
+- [Capture rooms](#capture-rooms)
+- [Connect rooms](#connect-rooms)
+- [Doors, windows and electrical](#doors-windows-and-electrical)
+- [Photo tour](#photo-tour)
+- [Build and view 3D](#build-and-view-3d)
+- [Furnish](#furnish)
+- [Furnish with an AI assistant](#furnish-with-an-ai-assistant)
+- [Back up and move](#back-up-and-move)
+- [Settings](#settings)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Tips](#tips)
 - [FAQ](#faq)
-- [Datenschutz](#datenschutz)
-- [Haftungsausschluss](#haftungsausschluss)
-- [Für Entwickler](#für-entwickler)
+- [Privacy](#privacy)
+- [Disclaimer](#disclaimer)
+- [For developers](#for-developers)
 
-### Projekte
+### Projects
 
-Ein Projekt ist eine Wohnung, ein Haus oder ein einzelner Raum, mit allen Räumen, Fotos, Möbeln und Varianten. Die Projektliste ist die Startseite.
+A project is an apartment, a house or a single room, with all its rooms, photos, furniture and variants. The project list is the start page.
 
 <p align="center">
-  <img src=".github/assets/screenshots/projects.webp" alt="Projektliste mit drei Projekten und Vorschaubildern in 3D" width="760">
+  <img src=".github/assets/screenshots/projects.webp" alt="Project list with three projects and 3D preview images" width="760">
 </p>
 
-- **Neues Projekt:** Knopf unten rechts. Vergib einen Namen.
-- **Öffnen:** auf die Karte tippen. Das Vorschaubild zeigt dein Projekt in 3D.
-- **Menü (drei Punkte) auf der Karte:** Umbenennen, Backup (ZIP) erstellen, Löschen. Ein gelöschtes Projekt ist weg, mach vorher ein Backup, wenn du unsicher bist.
-- **Oben im Projekt:** Die Reiter «Plan», «3D», «Einrichten» und «Export / Import» wechseln den Bereich. Daneben stehen «Rückgängig», «Wiederholen» und «3D erstellen».
-- **Zahnrad oben rechts:** [Einstellungen](#einstellungen).
+- **New project:** button at the bottom right. Give it a name.
+- **Open:** tap the card. The preview image shows your project in 3D.
+- **Menu (three dots) on the card:** Rename, Backup (ZIP), Delete. A deleted project is gone, so make a backup first if you are unsure.
+- **At the top of a project:** the tabs “Plan”, “3D”, “Furnish” and “Export / Import” switch between areas. Next to them are “Undo”, “Redo” and “Build 3D”.
+- **Gear icon at the top right:** [Settings](#settings).
 
-### Räume erfassen
+### Capture rooms
 
-Im Reiter **Plan** zeichnest du den Grundriss. Alles wird in Zentimetern eingegeben (oder in Metern, siehe [Einstellungen](#einstellungen)).
+In the **Plan** tab you draw the floor plan. Everything is entered in centimetres (or in metres, see [Settings](#settings)).
 
-**Raum hinzufügen.** Tippe auf das Plus. Es erscheint ein Raum mit 4 × 3 m, den du an seinen Platz ziehst. Tippen wählt einen Raum aus und öffnet das Panel mit den drei Bereichen **Masse**, **Elemente** und **Fotos**. Doppelt tippen fokussiert den Raum, mit zwei Fingern oder dem Mausrad zoomst du, «Alles zeigen» passt den Ausschnitt an.
+**Add a room.** Tap the plus. A 4 × 3 m room appears, and you drag it into place. Tapping selects a room and opens the panel with its three sections **Dimensions**, **Elements** and **Photos**. Double-tapping focuses the room, you zoom with two fingers or the mouse wheel, and “Show everything” fits the view to your plan.
 
-**Raumtyp und Name.** Wähle einen Typ (Wohnzimmer, Schlafzimmer, Büro, Küche, Bad, Kinderzimmer, Flur, Esszimmer, Abstellraum oder Andere) und gib dem Raum einen Namen.
+**Room type and name.** Pick a type (Living room, Bedroom, Office, Kitchen, Bathroom, Children’s room, Hallway, Dining room, Storage room or Other) and give the room a name.
 
-Unter **Masse** gibt es drei Arten, die Form festzulegen:
+Under **Dimensions** there are three ways to set the shape:
 
-| Form | Wofür | So geht es |
+| Shape | Use it for | How |
 |---|---|---|
-| **Rechteck** | Die meisten Räume | Länge und Breite eintippen oder mit Plus und Minus anpassen. |
-| **Vorlage** | Häufige Sonderformen | Grundform wählen: L-Form, U-Form, T-Form, Schräge Ecke, Erker oder Nische. Danach stellst du die Masse auf den Zentimeter ein. Eine Vorschau zeigt den Grundriss. |
-| **Frei** | Alles andere | Wand für Wand die Länge und die Winkel eingeben. Die letzte Wand schliesst sich automatisch. Wände lassen sich teilen oder entfernen, «Gleichmässig verteilen» hilft bei schiefen Eingaben. |
+| **Rectangle** | Most rooms | Type in length and width, or adjust them with plus and minus. |
+| **Template** | Common special shapes | Pick a basic shape: L shape, U shape, T shape, Angled corner, Bay or Recess. Then set the dimensions to the centimetre. A preview shows the floor plan. |
+| **Free** | Everything else | Enter the length and the angles wall by wall. The last wall closes automatically. You can split or remove walls, and “Spread evenly” helps with uneven input. |
 
 > [!TIP]
-> Bei «Frei» kannst du die **Ecken auch direkt im Plan ziehen**. Das Plus mitten auf einer Wand fügt eine Ecke ein. Schliesst der Grundriss nicht, zeigt roomx an, wie viel fehlt.
+> With “Free” you can also **drag the corners directly on the plan**. The plus in the middle of a wall inserts a corner. If the floor plan does not close, roomx shows how much is missing.
 
-**Höhe.** Trage die Raumhöhe ein. Sie gilt für 3D, Prüfungen und das KI-Paket.
+**Height.** Enter the ceiling height. It is used for 3D, the checks and the AI package.
 
-**Dachschrägen.** Pro Wand kannst du eine Schräge einstellen: Gib die **Kniestockhöhe** (Deckenhöhe direkt an der Wand) und die **Neigung** an. roomx rechnet aus, ab welchem Abstand die volle Raumhöhe erreicht ist und wo die Stehhöhe von 2 m beginnt. Schrägen erscheinen schraffiert im Plan und in 3D, und Möbel, die nicht darunter passen, werden markiert.
+**Sloped ceilings.** For each wall you can set a slope: enter the **knee wall** height (ceiling height right at the wall) and the **angle**. roomx works out the distance from the wall at which the full room height is reached and where 2 m of headroom begins. Slopes appear hatched in the plan and in 3D, and furniture that does not fit underneath is flagged.
 
-**Weitere Einstellungen im Panel:**
+**More settings in the panel:**
 
-- **Aussehen:** Farbe für Boden (z. B. Eiche hell, Beton, Fliese) und Wände (z. B. Weiss, Sand, Salbei), oder eine eigene Farbe. Sie erscheint in 3D.
-- **Notizen** zum Raum, zum Beispiel «Parkett, Heizung links».
-- **Duplizieren** und **Löschen.** Über «Rückgängig» holst du einen gelöschten Raum zurück.
-- **Raum drehen:** im Menü des Raums «Um 90° drehen».
+- **Appearance:** a colour for the floor (for example light oak, concrete, tile) and the walls (for example white, sand, sage), or a custom colour. It shows up in 3D.
+- **Notes** about the room, for example “parquet, radiator on the left”.
+- **Duplicate** and **Delete.** “Undo” brings a deleted room back.
+- **Rotate room:** “Rotate by 90°” in the room menu.
 
-### Räume verbinden
+### Connect rooms
 
-Eine Wohnung besteht aus mehreren Räumen. Damit roomx weiss, wie sie zusammenhängen, schiebst du sie im Plan aneinander.
+An apartment is made of several rooms. So that roomx knows how they fit together, you push them against each other on the plan.
 
-1. Ziehe einen Raum an einen Nachbarraum heran.
-2. Er **rastet wie ein Magnet ein**. Zwischen den Räumen liegt dann eine gemeinsame Wand.
-3. Auf der gemeinsamen Wand erscheint ein Verbindungssymbol. Im Panel zeigt der Bereich «Nachbarn», welche Wand an welchen Raum grenzt und wie lang das gemeinsame Stück ist. Mit einem Tipp wechselst du in den Nachbarraum.
+1. Drag a room up to a neighbouring room.
+2. It **snaps in like a magnet**. The two rooms now share a wall.
+3. A connection symbol appears on the shared wall. In the panel, the “Neighbours” section shows which wall borders which room and how long the shared stretch is. One tap takes you to the neighbouring room.
 
-**Türen und Fenster in der gemeinsamen Wand führen in beide Räume.** Setzt du eine Tür in die Wand zwischen Wohnzimmer und Schlafzimmer, erscheint sie automatisch auch im Schlafzimmer, mit gespiegeltem Anschlag. In der Elementliste des Nachbarraums steht sie mit dem Vermerk «von Wohnzimmer»; geändert wird sie im Raum, zu dem sie gehört.
+**Doors and windows in the shared wall lead into both rooms.** If you put a door in the wall between the living room and the bedroom, it automatically appears in the bedroom as well, with the hinge mirrored. In the neighbouring room’s element list it is marked “from Living room”; you edit it in the room it belongs to.
 
 > [!IMPORTANT]
-> **Unverbundene Räume werden gemeldet.** Wenn in einem Projekt mit mehreren Räumen ein Raum keinen Nachbarn hat, weist dich roomx beim Erstellen der 3D-Ansicht und beim Exportieren des KI-Pakets darauf hin. Du kannst trotzdem weitermachen. Das ist sinnvoll bei Räumen, die bewusst getrennt liegen, etwa Keller oder Garage.
+> **Unconnected rooms are reported.** If a room in a project with several rooms has no neighbour, roomx points it out when you build the 3D view and when you export the AI package. You can carry on anyway. That makes sense for rooms that are deliberately separate, such as a cellar or garage.
 
-### Türen, Fenster und Elektro
+### Doors, windows and electrical
 
-Im Panel des Raums, Bereich **Elemente**, findest du die Palette:
+In the room panel, section **Elements**, you find the palette:
 
-| Gruppe | Elemente |
+| Group | Elements |
 |---|---|
-| Wand | Tür, Fenster, Einbau, Hindernis, Heizkörper |
-| Elektro | Steckdose, Schalter, Lampe (an der Wand), LAN / TV, Decke (Deckenlampe) |
+| Wall | Door, Window, Built-in, Obstacle, Radiator |
+| Electrical | Socket, Switch, Lamp (on the wall), LAN / TV, Ceiling (ceiling lamp) |
 
 <p align="center">
-  <img src=".github/assets/screenshots/wall-view.webp" alt="Plan mit gewähltem Raum, rechts die Palette und die Wandansicht der Wand 4" width="860">
+  <img src=".github/assets/screenshots/wall-view.webp" alt="Plan with a selected room, the palette on the right and the wall view of wall 4" width="860">
 </p>
 
-**Platzieren.** Wähle ein Element in der Palette und tippe auf eine Wand (bei der Deckenlampe in den Raum). Zieh es danach an die richtige Stelle. «Platzieren abbrechen» oder die Taste `Esc` bricht ab.
+**Place.** Choose an element in the palette and tap a wall (for the ceiling lamp, tap inside the room). Then drag it to the right spot. “Cancel placing” or the `Esc` key cancels.
 
-**Eigenschaften.** Wähle ein Element in der Liste oder im Plan. Je nach Art stellst du ein:
+**Properties.** Choose an element in the list or on the plan. Depending on its type you can set:
 
-- Wand, Abstand von der Ecke, Breite, Höhe und Unterkante ab Boden,
-- **Tür:** Anschlag und Öffnungsrichtung (nach innen, nach aussen, Schiebetür). Der Schwenkbereich ist im Plan sichtbar und muss frei bleiben.
-- **Fenster:** Dreh-Kipp, Schiebefenster, Festverglasung oder Balkontür,
-- **Steckdose:** Anzahl Plätze und USB-Anschluss, **LAN / TV:** Netzwerk, TV oder beides,
-- **Status:** «Bestehend» oder «Geplant», dazu eine Notiz.
+- wall, distance from the corner, width, height and bottom edge above the floor,
+- **Door:** hinge side and opening direction (in, out, sliding). The swing area is visible in the plan and has to stay clear.
+- **Window:** tilt and turn, sliding window, fixed pane or balcony door,
+- **Socket:** number of gangs and USB port, **LAN / TV:** network, TV or both,
+- **Status:** “Existing” or “Planned”, plus a note.
 
-Praktisch sind «Unter Fenster zentrieren» (zum Beispiel für den Heizkörper) und «Über Arbeitsfläche» (Mitte 115 cm) für Steckdosen in der Küche.
+“Centre under window” (for example for the radiator) and “Above worktop (centre 115 cm)” for kitchen sockets are handy.
 
-**Wandansicht.** Wähle eine Wand und tippe auf «Öffnen». Du siehst die Wand von innen, mit allen Elementen und ihren Höhen. Zieh Elemente an die richtige Stelle oder verschiebe sie mit den Pfeiltasten (`Umschalt` für 10 cm). Mit 1×, 2× und 4× vergrösserst du die Ansicht.
+**Wall view.** Choose a wall and tap “Open”. You see the wall from the inside, with all its elements and their heights. Drag elements into place or move them with the arrow keys (`Shift` for 10 cm). 1×, 2× and 4× enlarge the view.
 
-**Elektro-Ebene.** Der Schalter «Elektro-Ebene» blendet Steckdosen, Schalter und Lampen im Plan ein oder aus. Elektro-Elemente sind gelb, Fenster blau und Türen orange.
+**Electrical layer.** The “Electrical layer” switch shows or hides sockets, switches and lamps on the plan. Electrical elements are yellow, windows blue and doors orange.
 
-**Vorschläge annehmen.** Elektro-Elemente mit dem Status «Vorschlag» sind gestrichelt gezeichnet. Das sind zum Beispiel Steckdosen, die ein KI-Assistent in seinem Plan vorschlägt. Im Panel erscheint der Bereich «Vorschläge»: Du kannst jeden Vorschlag einzeln **annehmen** oder **ablehnen**, oder mit «Alle annehmen» alles übernehmen.
+**Accept suggestions.** Electrical elements with the status “Suggestion” are drawn dashed. These are, for example, sockets that an AI assistant proposes in its plan. The panel then shows a “Suggestions” section: you can **accept** or **reject** each suggestion individually, or take them all with “Accept all”.
 
 > [!NOTE]
-> roomx ersetzt keine Elektroplanung. Lass Steckdosen und Leitungen von Fachleuten planen und ausführen.
+> roomx does not replace electrical planning. Have sockets and wiring planned and installed by qualified professionals.
 
-### Foto-Tour
+### Photo tour
 
-Die Foto-Tour führt dich Schritt für Schritt durch einen Raum, damit später kein Blickwinkel fehlt. Die Fotos landen im KI-Paket und helfen dem Assistenten, deinen Raum zu verstehen.
+The photo tour guides you through a room step by step, so that no angle is missing later. The photos end up in the AI package and help the assistant understand your room.
 
 <table>
   <tr>
     <td valign="top">
 
-1. Öffne den Raum und wechsle im Panel zu **Fotos**.
-2. Tippe auf «Tour starten».
-3. Folge den Schritten. Eine kleine Karte zeigt, wo du stehen sollst und wohin du fotografierst: erst die Ecken, dann Wände, Decke, Boden, Details und die Elektro-Elemente der Wand.
-4. «Foto aufnehmen» öffnet die Kamera, «Aus Mediathek» nimmt ein vorhandenes Bild. Optionale Schritte kannst du **überspringen**.
-5. Am Ende zeigt die Galerie die Pflichtfotos. Fehlende Fotos sind markiert, «Tour fortsetzen» holt sie nach.
+1. Open the room and switch to **Photos** in the panel.
+2. Tap “Start tour”.
+3. Follow the steps. A small map shows where to stand and where to point the camera: first the corners, then walls, ceiling, floor, details and the electrical elements of each wall.
+4. “Take photo” opens the camera, “From library” picks an existing image. You can **skip** optional steps.
+5. At the end the gallery shows the required photos. Missing photos are marked, and “Resume tour” fills the gaps.
 
-Zusätzlich kannst du jederzeit ein **freies Foto** mit Notiz machen, zum Beispiel von Problemstellen.
+On top of that you can take a **free photo** with a note at any time, for example of problem spots.
 
-Fotos werden direkt auf dem Gerät verkleinert und ohne Metadaten gespeichert.
+Photos are shrunk on the device and saved without metadata.
 
     </td>
     <td valign="top" width="260">
-      <img src=".github/assets/screenshots/photo-tour.webp" alt="Foto-Tour auf dem Smartphone: Schritt 1 von 18, Ecke A mit Blick Richtung C" width="260">
+      <img src=".github/assets/screenshots/photo-tour.webp" alt="Photo tour on a smartphone: step 1 of 18, corner A looking towards C" width="260">
     </td>
   </tr>
 </table>
 
 > [!TIP]
-> Mit der Ultraweitwinkel-Kamera (0,5×) passt mehr von den Wänden ins Bild. Bei den Ecken stellst du dich in die markierte Ecke und fotografierst schräg in den Raum.
+> With the ultra-wide camera (0.5×) more of the walls fit into the picture. For the corners, stand in the marked corner and photograph diagonally into the room.
 
 > [!NOTE]
-> Manche Browser können Bilder im HEIC-Format nicht lesen. Stelle dann die Kamera auf «Maximale Kompatibilität» (iPhone: Einstellungen, Kamera, Formate) oder wähle ein JPEG. Ein einzelnes Bild darf höchstens 80 MB gross sein.
+> Some browsers cannot read images in HEIC format. In that case set the camera to “Most Compatible” (iPhone: Settings, Camera, Formats) or pick a JPEG. A single image can be at most 80 MB.
 
-### 3D erstellen und ansehen
+### Build and view 3D
 
-Tippe oben rechts auf **«3D erstellen»**. roomx prüft zuerst deinen Plan und nennt Probleme, zum Beispiel ungültige Grundrisse, Elemente, die über die Wand hinausragen, fehlende Pflichtfotos oder [unverbundene Räume](#räume-verbinden). Mit «Trotzdem erstellen» geht es weiter, mit «Zurück zum Plan» korrigierst du zuerst.
+Tap **“Build 3D”** at the top right. roomx first checks your plan and lists any problems, for example invalid floor plans, elements that stick out past the wall, missing required photos or [unconnected rooms](#connect-rooms). “Build 3D anyway” carries on, and “Back to the plan” lets you fix things first.
 
 <p align="center">
-  <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht der Wohnung mit Wohnzimmer, Schlafzimmer und Büro" width="860">
+  <img src=".github/assets/screenshots/3d-cutaway.webp" alt="Cutaway 3D view of the apartment with living room, bedroom and office" width="860">
 </p>
 
-**Ansicht steuern.** Ziehen dreht die Ansicht, Mausrad oder zwei Finger zoomen. Oben links wählst du **Ganze Wohnung** oder einen **einzelnen Raum**.
+**Controlling the view.** Dragging rotates the view, the mouse wheel or two fingers zoom. At the top left you choose **Whole apartment** or a **single room**.
 
-| Bedienelement | Wirkung |
+| Control | What it does |
 |---|---|
-| **Wände: Hoch, Aufgeschnitten, Niedrig** | Wände in voller Höhe, nur die hinteren Wände hoch oder alle niedrig. Aufgeschnitten zeigt am meisten. |
-| **Decke** | Decke ein- oder ausblenden. |
-| **Elektro** | Steckdosen, Schalter und Lampen anzeigen. |
-| **Licht** | Deckenlampen ein- und ausschalten. |
-| **Begehen** | Durch den Raum gehen, siehe unten. |
-| **Kamera zurücksetzen** | Zurück zur Startansicht. |
-| **Bild speichern** | Die aktuelle Ansicht als Bild sichern (auf dem Handy «Bild teilen»). |
+| **Walls: Up, Cutaway, Low** | Walls at full height, only the rear walls high, or all low. Cutaway shows the most. |
+| **Ceiling** | Show or hide the ceiling. |
+| **Electrical** | Show sockets, switches and lamps. |
+| **Lights** | Turn ceiling lamps on and off. |
+| **Walk** | Walk through the room, see below. |
+| **Reset camera** | Back to the starting view. |
+| **Save image** | Save the current view as an image (“Share image” on a phone). |
 
-**Begehen.** In diesem Modus stehst du im Raum, auf Augenhöhe. Am Computer gehst du mit `W` `A` `S` `D`, schaust mit den Pfeiltasten oder gezogener Maus um und beendest mit `Esc`. Auf Tablet und Handy gehst du mit dem Steuerkreuz links und wischst zum Umsehen.
+**Walk.** In this mode you stand in the room at eye level. On a computer you walk with `W` `A` `S` `D`, look around with the arrow keys or by dragging the mouse, and stop with `Esc`. On a tablet or phone you walk with the joystick on the left and swipe to look around.
 
 <p align="center">
-  <img src=".github/assets/screenshots/3d-walk.webp" alt="Begehen-Modus: Blick durch das Wohnzimmer auf Esstisch, Regale und Balkontür" width="760">
+  <img src=".github/assets/screenshots/3d-walk.webp" alt="Walk mode: view through the living room onto the dining table, shelves and balcony door" width="760">
 </p>
 
 > [!NOTE]
-> 3D braucht einen Browser mit WebGL. Zeigt die App «3D ist hier nicht verfügbar», lade die Seite neu oder probiere einen anderen Browser.
+> 3D needs a browser with WebGL. If the app shows “3D is not available here”, reload the page or try another browser.
 
-### Einrichten
+### Furnish
 
-Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst du zwischen Plan und 3D und wählst die Variante. Über die Knöpfe oben rechts öffnest du das Panel mit den Bereichen **Katalog**, **Möbel**, **Liste** und **Bedarf**.
+In the **Furnish** tab you place furniture in your rooms. At the top left you switch between Plan and 3D and choose the variant. The buttons at the top right open the panel with the sections **Catalogue**, **Furniture**, **List** and **Needs**.
 
 <p align="center">
-  <img src=".github/assets/screenshots/furnish.webp" alt="Einrichten: Plan mit eingerichteten Räumen, rechts der Möbelkatalog mit Suche und Markenfilter" width="860">
+  <img src=".github/assets/screenshots/furnish.webp" alt="Furnish: plan with furnished rooms, the furniture catalogue with search and brand filter on the right" width="860">
 </p>
 
-**Katalog.** Er enthält über 250 Artikel in den Marken **IKEA**, **Tchibo** (Serie CN3) und **Allgemein** (neutrale Möbel, Geräte, Deko, Lampen).
+**Catalogue.** It holds over 250 items from the brands **IKEA**, **Tchibo** (series CN3) and **Generic** (neutral furniture, appliances, decor, lamps).
 
-- Suche oben, zum Beispiel «Billy» oder «Schreibtisch».
-- Kategorien als Chips (Betten, Regale, Tische, Sofas, Lampen und mehr), dazu der Filter «Marke».
-- Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
+- Search at the top, for example “Billy” or “desk”.
+- Categories as chips (Beds, Shelves, Tables, Sofas, Lighting and more), plus the “Brand” filter.
+- **Drag** or **tap** furniture: tapping puts it into the room.
 
 > [!NOTE]
-> Preise im Katalog sind **Richtpreise in CHF**. Nur wenige Masse sind auf den Herstellerseiten geprüft; bei diesen Artikeln führt ein Link zur Herstellerseite. Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
+> Catalogue prices are **guide prices in Swiss francs (CHF)** from the Swiss market. Only a few dimensions have been checked against the manufacturers’ websites; for those items a link leads to the manufacturer’s page. Always check dimensions and price with the retailer before you buy.
 
-**Möbel bewegen.** Zieh ein Möbel an seinen Platz. Der Drehgriff dreht frei, die Knöpfe im Panel drehen um 90° oder 15°, oder du tippst die Gradzahl ein. Im Plan zeigen gepunktete Linien den Abstand zu Wänden und anderen Möbeln. Mit «Fixieren» sperrst du ein Möbel gegen versehentliches Verschieben. Duplizieren und Löschen findest du in der Leiste unter dem gewählten Möbel.
+**Move furniture.** Drag a piece into place. The rotation handle turns it freely, the buttons in the panel turn it by 90° or 15°, or you type in the angle. On the plan, dotted lines show the distance to walls and other furniture. “Lock” protects a piece from being moved by accident. Duplicate and Delete are in the bar under the selected piece.
 
-**Stapeln.** Möbel können auf anderen Möbeln stehen: ein Fernseher auf der TV-Bank, eine Lampe auf dem Nachttisch. Das Panel zeigt «Steht auf …» und die Höhe über dem Boden; mit «Herunternehmen» stellst du es wieder auf den Boden. Wird ein Möbel verschoben, wandert das Gestapelte mit.
+**Stacking.** Furniture can stand on other furniture: a TV on the TV unit, a lamp on the bedside table. The panel shows “Stands on …” and the height above the floor; “Take off” puts it back on the floor. When you move a piece, whatever stands on it moves along.
 
-**Eigene Möbel.** Mit «Eigenes Möbel» legst du ein Möbel mit eigenen Massen, Kategorie, Farbe und Preis an, zum Beispiel dein vorhandenes Sofa. Ein Preis ist nicht nötig. Markiere es mit «Fixieren», wenn es bleiben soll.
+**Own furniture.** “Own furniture” lets you add a piece with your own dimensions, category, colour and price, for example the sofa you already have. A price is optional. Use “Lock” if it is meant to stay put.
 
-**Prüfungen in Rot.** roomx prüft laufend und färbt ein Möbel **rot**, wenn etwas nicht passt. Das Panel «Möbel» nennt den Grund:
+**Checks in red.** roomx checks continuously and turns a piece **red** when something does not fit. The “Furniture” panel gives the reason:
 
 <table>
   <tr>
     <td valign="top">
 
-| Hinweis | Bedeutung |
+| Hint | Meaning |
 |---|---|
-| Steht nicht ganz im Raum | Das Möbel ragt über die Wand. |
-| Ist höher als der Raum | Zu hoch für die Raumhöhe. |
-| Passt nicht unter die Dachschräge | Die Schräge ist zu niedrig. |
-| Überschneidet sich mit … | Zwei Möbel stehen ineinander. |
-| Steht in einem Einbau | Kollision mit Einbau oder Vorsprung. |
-| Blockiert den Türbereich | Der Schwenkbereich der Tür ist nicht frei. |
-| Verstellt ein Fenster | Das Möbel steht vor dem Fenster. |
-| Verdeckt einen Heizkörper | Der Heizkörper ist zugestellt. |
-| Durchgang nur … breit | Zu wenig Platz zum Durchgehen. |
-| Steckdose ist … entfernt | Siehe unten. |
+| Does not fit inside the room | The piece extends beyond a wall. |
+| Taller than the room | Too tall for the ceiling height. |
+| Does not fit under the sloped ceiling | The slope is too low. |
+| Overlaps with … | Two pieces stand inside each other. |
+| Stands inside a built-in or projection | Collision with a built-in or projection. |
+| Blocks the door area | The door’s swing area is not clear. |
+| Blocks a window | The piece stands in front of the window. |
+| Covers a radiator | The radiator is blocked. |
+| Passage is only … wide | Not enough room to walk through. |
+| Nearest socket is … away | See below. |
 
     </td>
     <td valign="top" width="360">
-      <img src=".github/assets/screenshots/furnish-hints.webp" alt="Eine Pflanze steht im Schwenkbereich der Tür und ist rot markiert" width="360">
+      <img src=".github/assets/screenshots/furnish-hints.webp" alt="A plant stands in the swing area of the door and is marked red" width="360">
     </td>
   </tr>
 </table>
 
-**Steckdosen-Distanz.** Möbel, die Strom brauchen (Fernseher, Monitor, Lampen, Geräte), zeigen im Plan den Weg zur nächsten Steckdose. Ist sie mehr als 1,5 m entfernt oder gibt es im Raum gar keine erfasste Steckdose, erscheint ein Hinweis.
+**Socket distance.** Furniture that needs power (TV, monitor, lamps, appliances) shows the way to the nearest socket on the plan. If it is more than 1.5 m away, or if no socket has been recorded in the room at all, you get a hint.
 
-**Varianten.** Oben stehen die Varianten deiner Einrichtung, zum Beispiel «A» und «B». Mit dem Plus legst du eine neue Variante an, leer oder als Kopie einer bestehenden. Über das Menü benennst du Varianten um oder löschst sie. So probierst du zwei Einrichtungen aus, ohne etwas zu verlieren. Ein Plan vom KI-Assistenten kommt ebenfalls als Variante.
+**Variants.** At the top you find the variants of your furnishing, for example “A” and “B”. The plus creates a new variant, either empty or as a copy of an existing one. The menu lets you rename or delete variants. This way you can try two furnishings without losing anything. A plan from the AI assistant also arrives as a variant.
 
-**Budget, Liste und Bedarf.**
+**Budget, list and needs.**
 
 <p align="center">
-  <img src=".github/assets/screenshots/shopping-list.webp" alt="Einkaufsliste mit Gesamtsumme, Budgetbalken und Artikeln mit Richtpreis" width="860">
+  <img src=".github/assets/screenshots/shopping-list.webp" alt="Shopping list with total, budget bar and items with guide prices" width="860">
 </p>
 
-- **Budget:** Trage unter **Bedarf** dein Budget in CHF ein. Oben erscheint ein Balken mit der Summe der aktuellen Variante und dem Hinweis, wie viel noch im Budget ist oder wie viel darüber.
-- **Liste (Einkaufsliste):** alle Möbel der Variante mit Menge, Preis, Marke und Link, mit der Summe. Artikel mit Richtpreis sind gekennzeichnet, Artikel ohne Preis werden gezählt. «Als CSV exportieren» speichert die Liste für Excel oder Numbers (Spalten: Artikel, Marke, Menge, Einzelpreis CHF, Summe CHF, Richtpreis, Link).
-- **Bedarf:** Personen (Erwachsene, Kinder, Haustiere), Bettgrössen, Arbeitsplätze (Bildschirme, Laptop oder PC, höhenverstellbar), Stil, Budget, bevorzugte Händler und Wünsche. Der Bedarf geht ins KI-Paket und hilft dem Assistenten beim Vorschlag.
+- **Budget:** enter your budget in CHF under **Needs**. A bar at the top shows the total of the current variant and how much is left in the budget or how far over it you are.
+- **List (shopping list):** all furniture in the variant with quantity, price, brand and link, plus the total. Items with a guide price are marked, and items without a price are counted. “Export as CSV” saves the list for Excel or Numbers (columns: Item, Brand, Quantity, Unit price CHF, Total CHF, Estimate, Link).
+- **Needs:** people (adults, children, pets), bed sizes, workstations (monitors, laptop or PC, height-adjustable), style, budget, preferred retailers and wishes. The needs go into the AI package and help the assistant make its suggestion.
 
-### Mit dem KI-Assistenten einrichten
+### Furnish with an AI assistant
 
-Du kannst deine Räume von einem KI-Assistenten einrichten lassen. roomx bereitet dafür ein **KI-Paket** vor und liest die Antwort des Assistenten wieder ein. Das funktioniert mit jedem KI-Assistenten, der Dateien annimmt. Du musst nichts zusätzlich installieren.
+You can have an AI assistant furnish your rooms. For this, roomx prepares an **AI package** and reads the assistant’s answer back in. It works with any AI assistant that accepts files. You do not need to install anything extra.
 
 > [!NOTE]
-> «3D erstellen» ist davon unabhängig: Damit siehst du deine Räume nur selbst in 3D. Das KI-Paket brauchst du nur, wenn ein Assistent dir einen Plan machen soll.
+> “Build 3D” is independent of this: it only shows your rooms in 3D for yourself. You only need the AI package if you want an assistant to make a plan for you.
 
-**Das KI-Paket enthält:**
+**The AI package contains:**
 
-| Datei | Inhalt |
+| File | Contents |
 |---|---|
-| **Anleitung** (`roomx-anleitung-….md`) | Erklärt dem KI-Assistenten, wie er vorgehen und was er zurückgeben soll. |
-| **PDF** (`roomx-….pdf`) | Grundrisse mit Massen, Wandansichten, 3D-Ansichten, Möbel, deine Fotos und eine Lesehilfe. |
-| **Raumdaten** (`roomx-….json`) | Dieselben Angaben exakt und maschinenlesbar: Räume, Wände, Elemente, Nachbarräume, Dachschrägen, Möbel, Varianten und Bedarf. |
-| **Plan-Schema** (`roomx-plan.schema.json`) | Beschreibt das Format `roomx-plan`, in dem die Antwort zurückkommen muss. |
-| **Möbelkatalog** (`roomx-katalog.json`) | Die Artikel, die der Assistent verwenden kann. |
+| **Instructions** (`roomx-instructions-….md`) | Explains to the AI assistant how to proceed and what to return. |
+| **PDF** (`roomx-….pdf`) | Floor plans with dimensions, wall views, 3D views, furniture, your photos and a reading guide. |
+| **Room data** (`roomx-….json`) | The same information, exact and machine-readable: rooms, walls, elements, neighbouring rooms, sloped ceilings, furniture, variants and needs. |
+| **Plan schema** (`roomx-plan.schema.json`) | Describes the `roomx-plan` format in which the answer has to come back. |
+| **Furniture catalogue** (`roomx-katalog.json`) | The items the assistant can use. |
 
-**Schritt für Schritt:**
+**Step by step:**
 
-1. **KI-Paket erstellen.** Öffne den Reiter «Export / Import». Wähle «Ganzes Projekt» oder «Einzelne Räume» und tippe auf «KI-Paket erstellen». roomx zeigt vorher die geschätzte Grösse und weist auf Lücken im Plan hin, etwa [unverbundene Räume](#räume-verbinden) oder fehlende Pflichtfotos. Mit «Trotzdem exportieren» geht es weiter. Danach «Teilen» oder «Herunterladen».
-2. **Im Chat hochladen.** Öffne einen Chat mit einem KI-Assistenten deiner Wahl und lade **alle Dateien** des Pakets hoch. Tippe in roomx auf **«Prompt kopieren»** und füge den Text in den Chat ein. Unter «So geht es weiter» zeigt dir roomx diese Schritte und den fertigen Prompt gleich an.
-3. **Fragen beantworten.** Der Assistent fragt nach, was er noch wissen muss, zum Beispiel nach Stil, Budget oder Wünschen. Beantworte die Fragen.
-4. **Plan als JSON zurück.** Am Ende gibt der Assistent den Einrichtungsplan als JSON im Format `roomx-plan` aus. Kopiere die **ganze Antwort**, oder speichere den Plan als Datei.
-5. **Plan importieren.** Gehe in roomx auf «Export / Import», Bereich «Plan importieren»: Text einfügen («Aus Zwischenablage» hilft) oder die Datei wählen. Die Antwort darf weiteren Text enthalten, roomx findet das JSON selbst.
-6. **Vorschau prüfen.** roomx zeigt pro Variante die Summe und listet Konflikte (zum Beispiel «versperrt die Tür»), Hinweise und alles, was nicht übernommen werden kann.
-7. **Als Variante übernehmen.** «Als neue Variante übernehmen» legt den Plan als Variante an. Nichts wird überschrieben. Wähle bei Bedarf, ob auch der Bedarf aus dem Plan übernommen wird.
-8. **Anpassen und erneut exportieren.** Sieh dir die Variante in «Einrichten» an und ändere, was dir nicht gefällt. Willst du eine zweite Runde, erstelle ein neues KI-Paket: Es enthält jetzt deine angepasste Einrichtung.
+1. **Create the AI package.** Open the “Export / Import” tab. Choose “Whole project” or “Selected rooms” and tap “Create AI package”. Beforehand roomx shows the estimated size and points out gaps in the plan, such as [unconnected rooms](#connect-rooms) or missing required photos. “Export anyway” carries on. Then “Share” or “Download”.
+2. **Upload it in a chat.** Open a chat with an AI assistant of your choice and upload **all files** of the package. In roomx, tap **“Copy prompt”** and paste the text into the chat. Under “What to do next”, roomx shows these steps and the ready-made prompt right away.
+3. **Answer the questions.** The assistant asks what else it needs to know, for example about style, budget or wishes. Answer them.
+4. **Get the plan back as JSON.** At the end the assistant outputs the furnishing plan as JSON in the `roomx-plan` format. Copy the **whole reply**, or save the plan as a file.
+5. **Import the plan.** In roomx go to “Export / Import”, section “Import plan”: paste the text (“From clipboard” helps) or choose the file. The reply may contain other text as well; roomx finds the JSON by itself.
+6. **Check the preview.** For each variant roomx shows the total and lists conflicts (for example “blocks the door”), notes and anything that cannot be imported.
+7. **Import as a variant.** “Import as new variant” adds the plan as a variant. Nothing is overwritten. If you like, choose whether the needs from the plan are taken over as well.
+8. **Adjust and export again.** Look at the variant in “Furnish” and change what you do not like. For a second round, create a new AI package: it now contains your adjusted furnishing.
 
 <p align="center">
-  <img src=".github/assets/screenshots/export.webp" alt="Export und Import: Karte KI-Paket mit Umfang und Knopf zum Erstellen, darunter Backup" width="760">
+  <img src=".github/assets/screenshots/export.webp" alt="Export and Import: AI package card with scope and a button to create it, backup below" width="760">
 </p>
 
 <p align="center">
-  <img src=".github/assets/screenshots/import.webp" alt="Plan importieren: eingefügtes JSON und die Vorschau" width="760">
+  <img src=".github/assets/screenshots/import.webp" alt="Import plan: pasted JSON and the preview" width="760">
 </p>
 
 > [!TIP]
-> **Blockiert dein Gerät mehrere Downloads auf einmal?** Dann nimm «KI-Paket als ZIP», entpacke die Datei und lade die einzelnen Dateien im Chat hoch.
+> **Does your device block several downloads at once?** Then use “AI package as ZIP”, unzip the file and upload the individual files in the chat.
 
 > [!TIP]
-> **Bei grossen Wohnungen** exportierst du die Räume einzeln («Einzelne Räume»). Zeigt roomx an, dass das Paket gross wird, und nimmt der Assistent es nicht an, ist das der beste Weg.
+> **For large apartments**, export the rooms one at a time (“Selected rooms”). If roomx says the package is getting large and the assistant will not accept it, this is the best way.
 
 > [!TIP]
-> **Fehlermeldung beim Import?** Gibt es Fehler oder bricht die Antwort mitten im JSON ab, zeigt roomx die genauen Stellen. Mit «Fehlerliste kopieren» schickst du die Liste an den Assistenten und bittest ihn um eine korrigierte, vollständige Antwort.
+> **Error message on import?** If there are errors or the reply breaks off in the middle of the JSON, roomx shows the exact places. With “Copy corrections” you send the list to the assistant and ask for a corrected, complete reply.
 
 > [!IMPORTANT]
-> Das KI-Paket enthält deine Raumdaten und, falls aufgenommen, deine **Fotos**. Du gibst sie selbst an den Anbieter des Assistenten weiter, und es gelten dessen Bedingungen. Prüfe die Fotos vorher auf Personen, Dokumente und Privates. Mit «Einzelne Räume» gibst du nur weiter, was nötig ist.
+> The AI package contains your room data and, if included, your **photos**. You pass them on yourself to the assistant’s provider, and its terms apply. Check the photos beforehand for people, documents and anything private. With “Selected rooms” you only share what is needed.
 
-### Sichern und Umziehen
+### Back up and move
 
-**Automatisch gespeichert.** roomx speichert jede Änderung selbst, kurz nach dem Tippen oder Ziehen. Es gibt keinen Speichern-Knopf.
+**Saved automatically.** roomx saves every change by itself, shortly after you type or drag. There is no Save button.
 
-**Rückgängig und Wiederholen.** Die Pfeile oben (oder `Strg`/`Cmd` + `Z`) machen den letzten Schritt rückgängig. Auch das Löschen von Räumen und Möbeln lässt sich zurücknehmen. Ein Ziehen zählt als ein Schritt.
+**Undo and Redo.** The arrows at the top (or `Ctrl`/`Cmd` + `Z`) undo the last step. Deleting rooms and furniture can be undone too. One drag counts as one step.
 
-**Backup (ZIP).** Unter «Export / Import» oder im Menü der Projektkarte erstellst du ein Backup: das ganze Projekt in einer ZIP-Datei, mit Projektdaten und Originalfotos. Optional legst du das KI-Paket und das 3D-Modell bei. roomx merkt sich den Zeitpunkt des letzten Backups und erinnert dich, wenn es mehr als 14 Tage her ist.
+**Backup (ZIP).** Under “Export / Import” or in the menu of the project card you create a backup: the whole project in one ZIP file, with project data and original photos. Optionally you add the AI package and the 3D model. roomx remembers when you last made a backup and reminds you when it is more than 14 days ago.
 
-**Wiederherstellen.** Wähle unter «Wiederherstellen» die ZIP-Datei. Gibt es das Projekt auf diesem Gerät schon, fragt roomx, ob du es **ersetzen** oder **als Kopie anlegen** willst. Fehlen Fotos oder sind sie beschädigt, meldet roomx, wie viele.
+**Restore.** Under “Restore” choose the ZIP file. If the project already exists on this device, roomx asks whether you want to **replace** it or **create it as a copy**. If photos are missing or damaged, roomx tells you how many.
 
-**Auf ein anderes Gerät oder in die installierte App umziehen:**
+**Moving to another device or to the installed app:**
 
-1. Erstelle am alten Ort ein Backup (ZIP).
-2. Übertrage die Datei, zum Beispiel per AirDrop, Mail oder Cloud-Ordner.
-3. Öffne roomx am neuen Ort und stelle das Backup wieder her.
+1. Create a backup (ZIP) in the old place.
+2. Transfer the file, for example by AirDrop, email or a cloud folder.
+3. Open roomx in the new place and restore the backup.
 
-**3D-Modell (.glb).** Unter «Export / Import» exportierst du die gewählten Räume mit der aktiven Variante als `.glb`-Datei. Damit kannst du das Modell in Programmen wie Blender oder in einer AR-Ansicht öffnen.
+**3D model (.glb).** Under “Export / Import” you export the selected rooms with the active variant as a `.glb` file. You can open the model in programs such as Blender or in an AR viewer.
 
 > [!IMPORTANT]
-> Deine Daten liegen nur im Browser deines Geräts. Es gibt keine Kopie bei uns, die man zurückholen könnte. Wer Website-Daten löscht, das Gerät verliert oder Safari die Daten räumen lässt, verliert die Projekte. **Erstelle regelmässig ein Backup** und bewahre es getrennt vom Gerät auf.
+> Your data lives only in your device’s browser. There is no copy with us that could be recovered. If you clear website data, lose the device or let Safari clean up the data, the projects are gone. **Make a backup regularly** and keep it apart from the device.
 
-### Einstellungen
+### Settings
 
-Du erreichst sie über das Zahnrad oben rechts in der Projektliste.
+You reach them with the gear icon at the top right of the project list.
 
-| Einstellung | Bedeutung |
+| Setting | What it does |
 |---|---|
-| **Sprache** | Deutsch oder English. Standard ist die Sprache deines Browsers. |
-| **Einheit für Längen** | Zentimeter oder Meter. |
-| **Speicher** | Zeigt, ob der Browser die Daten **dauerhaft sichert** («Dauerhaft gesichert») oder bei Platzmangel löschen darf, und wie viel Platz belegt ist. «Erneut anfragen» versucht die dauerhafte Sicherung noch einmal. Mit der App auf dem Home-Bildschirm klappt sie eher. |
-| **Hilfe** | «Tour starten» spielt die Einführung noch einmal ab (zehn Schritte, jederzeit überspringbar, wahlweise mit einem Beispielzimmer). «Tastaturkürzel anzeigen» öffnet die Übersicht. |
-| **Datenschutz & Haftung** | Öffnet die Seite mit der Datenschutzerklärung und dem Haftungsausschluss. |
+| **Language** | Deutsch or English. The default is your browser’s language. |
+| **Length unit** | Centimetres or metres. |
+| **Storage** | Shows whether the browser **keeps the data permanently** (“Stored permanently”) or may delete it when space runs low, and how much space is used. “Ask again” tries to get permanent storage once more. It is more likely to work with the app on your home screen. |
+| **Help** | “Start the tour” plays the introduction again (ten steps, skippable at any time, optionally with a sample room). “Show keyboard shortcuts” opens the overview. |
+| **Privacy & liability** | Opens the page with the privacy policy and the disclaimer. |
 
-### Tastaturkürzel
+### Keyboard shortcuts
 
-Für Computer und iPad mit Tastatur. Auf dem Mac nimmst du `Cmd` statt `Strg`. In der App zeigt die Taste `?` die Übersicht.
+For computers and iPads with a keyboard. On a Mac, use `Cmd` instead of `Ctrl`. In the app, the `?` key shows the overview.
 
-| Taste | Wirkung |
+| Key | What it does |
 |---|---|
-| `Strg` + `Z` | Rückgängig |
-| `Strg` + `Umschalt` + `Z` (oder `Strg` + `Y`) | Wiederholen |
-| `Esc` | Auswahl aufheben, Fokus verlassen, Platzieren abbrechen |
-| `?` | Übersicht der Kürzel ein- und ausblenden |
-| Pfeiltasten | Gewählten Raum oder gewähltes Element um 1 cm verschieben |
-| `Umschalt` + Pfeiltasten | Um 10 cm verschieben |
-| `R` | Raum um 90° drehen |
-| `Umschalt` + `R` | Raum um 90° zurückdrehen |
-| `Entf` | Gewählten Raum oder gewähltes Element löschen |
-| `+` und `-` | Hinein- und herauszoomen |
-| `0` | Alles zeigen |
+| `Ctrl` + `Z` | Undo |
+| `Ctrl` + `Shift` + `Z` (or `Ctrl` + `Y`) | Redo |
+| `Esc` | Clear selection, leave focus, cancel placing |
+| `?` | Show or hide the overview of shortcuts |
+| Arrow keys | Move the selected room or element by 1 cm |
+| `Shift` + arrow keys | Move by 10 cm |
+| `R` | Rotate room by 90° |
+| `Shift` + `R` | Rotate room back by 90° |
+| `Del` | Delete the selected room or element |
+| `+` and `-` | Zoom in and out |
+| `0` | Show everything |
 
-### Tipps
+### Tips
 
-- **Fang mit dem grössten Raum an** und arbeite dich nach aussen. Das Verbinden der Räume geht danach am schnellsten.
-- **Ecke A merken.** Alle Wände sind nummeriert und die Ecken heissen A, B, C … Notiere dir bei jedem Raum, wo Ecke A liegt, dann findest du dich in Plan, Wandansicht und PDF sofort zurecht.
-- **Lieber nachmessen als schätzen.** Ein Laser-Distanzmesser lohnt sich. Die Wandansicht hilft, Höhen von Fenstern und Steckdosen genau einzutragen.
-- **Vorhandene Möbel erfassen.** Leg sie als «Eigenes Möbel» an und markiere sie als fixiert. So plant der Assistent um sie herum.
-- **Varianten statt Überschreiben.** Probiere Ideen in einer Kopie aus, bevor du die Hauptvariante änderst.
-- **Wenige, gute Fotos** schlagen viele schlechte: Folge der Tour und fotografiere gerade, mit Licht.
-- **Backup vor jeder grossen Änderung**, und vor dem Import eines KI-Plans erst recht.
-- **Steckdosen eintragen**, bevor du einrichtest. Erst dann stimmen die Hinweise zur Steckdosen-Distanz.
+- **Start with the biggest room** and work outwards. Connecting the rooms is then quickest.
+- **Remember corner A.** All walls are numbered and the corners are called A, B, C … For each room, note where corner A is, and you will find your way around the plan, the wall view and the PDF straight away.
+- **Measure rather than guess.** A laser distance meter is worth it. The wall view helps you enter the heights of windows and sockets exactly.
+- **Record the furniture you already have.** Add it as “Own furniture” and lock it. That way the assistant plans around it.
+- **Variants instead of overwriting.** Try ideas in a copy before you change the main variant.
+- **A few good photos** beat many bad ones: follow the tour and photograph straight on, with good light.
+- **Back up before every big change**, and especially before importing an AI plan.
+- **Record sockets** before you furnish. Only then are the socket-distance hints correct.
 
 ### FAQ
 
 <details>
-<summary><b>Wo sind meine Daten?</b></summary>
+<summary><b>Where is my data?</b></summary>
 
-Im Browser deines Geräts (IndexedDB). Die öffentliche Version spricht mit keinem Server. Es gibt kein Konto und keine Kopie in einer Cloud. Daten verlassen dein Gerät nur, wenn du selbst ein KI-Paket, ein Backup oder einen anderen Export teilst.
+In your device’s browser (IndexedDB). The public version talks to no server. There is no account and no copy in a cloud. Data only leaves your device when you yourself share an AI package, a backup or another export.
 </details>
 
 <details>
-<summary><b>Warum sehe ich meine Projekte auf einem anderen Gerät nicht?</b></summary>
+<summary><b>Why can’t I see my projects on another device?</b></summary>
 
-Weil jedes Gerät, jeder Browser und jede installierte App einen eigenen Speicher hat. Das gilt auch für zwei verschiedene Adressen. Zieh mit einem Backup (ZIP) um, siehe [Sichern und Umziehen](#sichern-und-umziehen).
+Because every device, every browser and every installed app has its own storage. That also applies to two different addresses. Move your projects with a backup (ZIP), see [Back up and move](#back-up-and-move).
 </details>
 
 <details>
-<summary><b>Was passiert beim KI-Paket mit meinen Fotos?</b></summary>
+<summary><b>What happens to my photos in the AI package?</b></summary>
 
-Die Fotos stecken im PDF des Pakets. roomx selbst sendet nichts: Du lädst die Dateien selbst bei einem KI-Assistenten hoch, und dessen Anbieter verarbeitet sie nach seinen eigenen Bedingungen. Prüfe die Fotos vorher, und wähle bei Bedarf nur einzelne Räume.
+The photos are inside the package’s PDF. roomx itself sends nothing: you upload the files to an AI assistant yourself, and its provider processes them under its own terms. Check the photos beforehand, and choose individual rooms if you want.
 </details>
 
 <details>
-<summary><b>Kostet das etwas?</b></summary>
+<summary><b>Does it cost anything?</b></summary>
 
-Nein. roomx ist kostenlos und braucht kein Konto. Wenn du einen KI-Assistenten nutzt, gelten die Konditionen seines Anbieters.
+No. roomx is free and needs no account. If you use an AI assistant, its provider’s terms apply.
 </details>
 
 <details>
-<summary><b>Funktioniert es offline?</b></summary>
+<summary><b>Does it work offline?</b></summary>
 
-Ja, nach dem ersten Laden. Die App legt ihre Dateien im Browser ab und startet auch ohne Netz, am besten als installierte App. Ohne Netz geht nichts verloren, nur Links zu Möbelhäusern und das Hochladen bei einem KI-Assistenten brauchen Internet.
+Yes, after the first load. The app stores its files in the browser and also starts without a network, best as an installed app. Nothing is lost offline; only links to furniture stores and uploading to an AI assistant need the internet.
 </details>
 
 <details>
-<summary><b>Auf dem iPhone sind meine Projekte verschwunden. Was ist passiert?</b></summary>
+<summary><b>My projects disappeared on my iPhone. What happened?</b></summary>
 
-Safari räumt die Daten von Websites auf, die man länger nicht geöffnet hat. Installiere roomx deshalb über «Zum Home-Bildschirm», dann passiert das seltener. Mit einem Backup (ZIP) holst du Projekte zurück, siehe [Sichern und Umziehen](#sichern-und-umziehen). Die Einstellungen zeigen unter «Speicher», ob dein Browser die Daten dauerhaft sichert.
+Safari cleans up the data of websites you have not opened for a while. Install roomx via “Add to Home Screen” so that this happens less often. A backup (ZIP) brings projects back, see [Back up and move](#back-up-and-move). Under “Storage”, the settings show whether your browser keeps the data permanently.
 </details>
 
 <details>
-<summary><b>Stimmen die Möbelmasse und Preise?</b></summary>
+<summary><b>Are the furniture dimensions and prices correct?</b></summary>
 
-Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF, und nur wenige Masse sind auf den Herstellerseiten geprüft. Prüfe beides beim Händler, bevor du kaufst.
+They are guide values. Catalogue prices are guide prices in CHF, and only a few dimensions have been checked against the manufacturers’ websites. Check both with the retailer before you buy.
 </details>
 
 <details>
-<summary><b>Der Assistent liefert einen Plan, den roomx nicht lesen kann.</b></summary>
+<summary><b>The assistant gives me a plan that roomx cannot read.</b></summary>
 
-Tippe in der Fehlermeldung auf «Fehlerliste kopieren», füge sie im Chat ein und bitte den Assistenten um eine korrigierte, vollständige Ausgabe. Bei sehr grossen Wohnungen hilft es, die Räume einzeln zu exportieren.
+In the error message, tap “Copy corrections”, paste the list into the chat and ask the assistant for a corrected, complete output. For very large apartments it helps to export the rooms one at a time.
 </details>
 
 <details>
-<summary><b>Ich sehe keine 3D-Ansicht.</b></summary>
+<summary><b>I do not see a 3D view.</b></summary>
 
-Lade die Seite neu oder probiere einen anderen Browser. 3D braucht WebGL, das in sehr alten Browsern oder bei abgeschalteter Grafikbeschleunigung fehlt.
+Reload the page or try another browser. 3D needs WebGL, which is missing in very old browsers or when graphics acceleration is switched off.
 </details>
 
 <details>
-<summary><b>Kann ich mehrere Personen am gleichen Projekt arbeiten lassen?</b></summary>
+<summary><b>Can several people work on the same project?</b></summary>
 
-Nicht gleichzeitig: Es gibt keinen Abgleich zwischen Geräten. Du kannst ein Projekt aber als Backup (ZIP) oder als PDF und `.glb`-Datei weitergeben.
+Not at the same time: there is no syncing between devices. But you can pass a project on as a backup (ZIP), or as a PDF and a `.glb` file.
 </details>
 
 ---
 
-## Datenschutz
+## Privacy
 
-Kurz gesagt: **Deine Daten bleiben auf deinem Gerät.**
+In short: **your data stays on your device.**
 
-- Keine Konten, keine Cookies, kein Tracking, keine Werbe- oder Analysedienste, keine Schriften oder Skripte von Drittanbietern.
-- Projekte, Fotos und Einstellungen liegen im Browser deines Geräts (IndexedDB und localStorage). Der Betreiber hat keinen Zugriff darauf und kann sie nicht wiederherstellen.
-- Die öffentliche Version von roomx sendet **keine Daten an einen Server**. Es gibt keinen Abgleich.
-- Daten verlassen dein Gerät nur, wenn **du** sie weitergibst: mit einem KI-Paket, einem Backup oder einem anderen Export.
-- Fotos werden beim Hinzufügen im Browser verkleinert und ohne Metadaten wie den Aufnahmeort gespeichert.
-- Die Dateien der App liefert GitHub Pages aus. Beim Aufruf verarbeitet GitHub technische Zugriffsdaten wie die IP-Adresse. Der Betreiber von roomx erhält sie nicht.
-- Links zu Möbelhäusern öffnen sich nur, wenn du sie antippst. Dabei werden keine Projektdaten übergeben.
-- Die Daten im Browser sind nicht zusätzlich verschlüsselt. Sperre dein Gerät.
+- No accounts, no cookies, no tracking, no advertising or analytics services, no third-party fonts or scripts.
+- Projects, photos and settings live in your device’s browser (IndexedDB and localStorage). The operator has no access to them and cannot restore them.
+- The public version of roomx sends **no data to any server**. There is no syncing.
+- Data only leaves your device when **you** pass it on: with an AI package, a backup or another export.
+- When you add photos, they are shrunk in the browser and saved without metadata such as the location where they were taken.
+- GitHub Pages serves the app’s files. When you open the app, GitHub processes technical access data such as your IP address. The operator of roomx does not receive it.
+- Links to furniture stores only open when you tap them. No project data is passed on.
+- The data in the browser is not additionally encrypted. Lock your device.
 
-Die ausführliche Datenschutzerklärung steht in der App: in der Projektliste unten und unter Einstellungen auf der Seite [«Datenschutz & Haftung»](https://xc4pr.github.io/roomx/rechtliches).
+The full privacy policy is in the app: at the bottom of the project list and under Settings on the page [“Privacy & liability”](https://xc4pr.github.io/roomx/rechtliches).
 
-## Haftungsausschluss
+## Disclaimer
 
-roomx ist ein kostenloses Hilfsmittel und wird «wie besehen» zur Verfügung gestellt, ohne Garantie für Fehlerfreiheit oder Verfügbarkeit. Du nutzt es auf eigene Verantwortung.
+roomx is a free tool and is provided “as is”, without any guarantee that it is free of errors or always available. You use it at your own risk.
 
-- **Masse, Preise und Prüfungen sind Richtwerte.** Katalogangaben, Preise, Berechnungen und die roten Hinweise ersetzen das Nachmessen vor Ort nicht. Möbel in Plan und 3D sind vereinfacht dargestellt.
-- **KI-Vorschläge sind ungeprüft.** Du entscheidest, ob du sie übernimmst. Auf den Assistenten hat roomx keinen Einfluss.
-- **Keine Fachberatung.** roomx ersetzt keine Planung durch Fachleute, besonders bei Statik, Elektroinstallationen und Wandbefestigung.
-- **Prüfe vor Kauf und Umbau** Masse, Preise und Lieferbarkeit selbst.
-- **Datenverlust ist möglich**, wenn du Browserdaten löschst oder das Gerät verlierst. Mach regelmässig ein Backup.
-- Marken wie IKEA und Tchibo gehören ihren Inhabern. Es besteht keine Verbindung zu diesen Unternehmen.
+- **Dimensions, prices and checks are guide values.** Catalogue data, prices, calculations and the red hints do not replace measuring on site. Furniture in the plan and in 3D is shown in simplified form.
+- **AI suggestions are unchecked.** You decide whether to accept them. roomx has no influence on the assistant.
+- **No professional advice.** roomx does not replace planning by professionals, especially for structural work, electrical installations and wall fixings.
+- **Check before buying and building:** dimensions, prices and availability are yours to verify.
+- **Data loss is possible** if you clear browser data or lose your device. Make a backup regularly.
+- Brands such as IKEA and Tchibo belong to their owners. There is no connection to these companies.
 
-Den vollständigen Wortlaut findest du in der App auf der Seite [«Datenschutz & Haftung»](https://xc4pr.github.io/roomx/rechtliches).
+The full wording is in the app on the page [“Privacy & liability”](https://xc4pr.github.io/roomx/rechtliches).
 
 ---
 
-## Für Entwickler
+## For developers
 
 <details>
-<summary><b>Stack, Ordner, Entwicklung, Tests und Veröffentlichung</b></summary>
+<summary><b>Stack, folders, development, tests and publishing</b></summary>
 
 ### Stack
 
-- **App:** SvelteKit 3 als Single-Page-App (`ssr = false`, adapter-static mit Fallback `index.html`), Svelte 5 (Runes), Vite 8, Tailwind CSS 4, TypeScript (strict), Zod 4.
-- **3D:** three.js. **Daten im Browser:** Dexie (IndexedDB). **PDF:** pdf-lib, **ZIP:** fflate. **UI:** bits-ui, Lucide-Icons, Schrift Figtree.
-- **PWA:** eigener Service Worker (`web/src/service-worker`), der alle Dateien vorlädt.
-- **Server (optional):** FastAPI und uvicorn, nur für die selbst gehostete Version.
-- **Tests:** Vitest (Unit), Playwright (E2E), pytest (Server).
+- **App:** SvelteKit 3 as a single-page app (`ssr = false`, adapter-static with fallback `index.html`), Svelte 5 (runes), Vite 8, Tailwind CSS 4, TypeScript (strict), Zod 4.
+- **3D:** three.js. **Data in the browser:** Dexie (IndexedDB). **PDF:** pdf-lib, **ZIP:** fflate. **UI:** bits-ui, Lucide icons, Figtree typeface.
+- **PWA:** custom service worker (`web/src/service-worker`) that precaches all files.
+- **Server (optional):** FastAPI and uvicorn, only for the self-hosted version.
+- **Tests:** Vitest (unit), Playwright (E2E), pytest (server).
 
-### Ordnerstruktur
+### Folder structure
 
 ```text
 roomx/
-├─ web/                    SvelteKit-App (SPA und PWA)
-│  ├─ src/lib/core         Datenmodell, Geometrie, Prüfungen, Export- und Plan-Format (ohne UI)
-│  ├─ src/lib/state        Store, Speicher (IndexedDB), Einstellungen, Abgleich
-│  ├─ src/lib/features     Bereiche der App: board, room, elements, photos, viewer, furnish,
+├─ web/                    SvelteKit app (SPA and PWA)
+│  ├─ src/lib/core         Data model, geometry, checks, export and plan format (no UI)
+│  ├─ src/lib/state        Store, storage (IndexedDB), settings, sync
+│  ├─ src/lib/features     App areas: board, room, elements, photos, viewer, furnish,
 │  │                       export, import, projects, settings, tour, legal
-│  ├─ src/lib/three        3D: Räume, Möbelmodelle, Viewer, GLB-Export
-│  ├─ src/lib/catalog      Möbelkatalog (IKEA, Tchibo, Allgemein)
-│  ├─ src/lib/ui           Basis-Komponenten und Design-Tokens
-│  ├─ src/routes           Seiten (Projekte, Plan, 3D, Einrichten, Export/Import, Einstellungen)
-│  ├─ src/service-worker   Service Worker
-│  └─ tests                E2E-Tests (Playwright)
-├─ server/                 FastAPI-Server für den optionalen Abgleich
-├─ deploy/                 Dockerfile und compose.yaml
-└─ .github/                Workflow für GitHub Pages, Bilder für dieses README
+│  ├─ src/lib/three        3D: rooms, furniture models, viewer, GLB export
+│  ├─ src/lib/catalog      Furniture catalogue (IKEA, Tchibo, Generic)
+│  ├─ src/lib/ui           Base components and design tokens
+│  ├─ src/routes           Pages (projects, plan, 3D, furnish, export/import, settings)
+│  ├─ src/service-worker   Service worker
+│  └─ tests                E2E tests (Playwright)
+├─ server/                 FastAPI server for the optional sync
+├─ deploy/                 Dockerfile and compose.yaml
+└─ .github/                Workflow for GitHub Pages, images for this README
 ```
 
-### Entwicklung
+### Development
 
-Voraussetzungen: Node 24 und pnpm 12.
+Requirements: Node 24 and pnpm 12.
 
 ```bash
 pnpm -C web install
-pnpm -C web dev          # Dev-Server auf http://localhost:5173
-pnpm -C web check        # Typen und Svelte-Prüfung
-pnpm -C web test         # Unit-Tests (Vitest)
-pnpm -C web build        # statische Dateien in web/build
-pnpm -C web preview      # gebautes Ergebnis ansehen
+pnpm -C web dev          # dev server on http://localhost:5173
+pnpm -C web check        # type and Svelte checks
+pnpm -C web test         # unit tests (Vitest)
+pnpm -C web build        # static files in web/build
+pnpm -C web preview      # preview the built result
 ```
 
 ### Tests
 
 ```bash
-pnpm -C web test                # Unit-Tests
-pnpm -C web test:e2e            # E2E in Chromium (Desktop und iPad quer), baut vorher
-pnpm -C web test:e2e:webkit     # E2E in WebKit (iPad quer und hoch) im Docker-Image
+pnpm -C web test                # unit tests
+pnpm -C web test:e2e            # E2E in Chromium (desktop and iPad landscape), builds first
+pnpm -C web test:e2e:webkit     # E2E in WebKit (iPad landscape and portrait) in a Docker image
 cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest
 ```
 
-Die E2E-Tests laufen gegen den echten Server (Port 4273, `web/tests/server.mjs`). Für WebKit nutzt `test:e2e:webkit` das Playwright-Docker-Image `mcr.microsoft.com/playwright`, es braucht also Docker.
+The E2E tests run against the real server (port 4273, `web/tests/server.mjs`). For WebKit, `test:e2e:webkit` uses the Playwright Docker image `mcr.microsoft.com/playwright`, so it needs Docker.
 
-### Veröffentlichung über GitHub Pages
+### Publishing via GitHub Pages
 
-Jeder Push auf `main` startet den Workflow `.github/workflows/pages.yml`: Abhängigkeiten installieren, `pnpm -C web test`, dann `pnpm -C web build` mit zwei Umgebungsvariablen, anschliessend wird `index.html` als `404.html` kopiert (damit Direktlinks in der Single-Page-App funktionieren) und `web/build` veröffentlicht.
+Every push to `main` starts the workflow `.github/workflows/pages.yml`: install dependencies, `pnpm -C web test`, then `pnpm -C web build` with two environment variables. After that `index.html` is copied to `404.html` (so that direct links work in the single-page app) and `web/build` is published.
 
-| Variable | Wirkung |
+| Variable | What it does |
 |---|---|
-| `LOCAL_ONLY=1` | Öffentliche Version: Abgleich aus, keine Server-Prüfung, Server-Einstellungen ausgeblendet. Alle Daten bleiben im Browser. |
-| `BASE_PATH=/roomx` | Basispfad der App, hier der Name des Repositorys (die Seite liegt unter `https://<konto>.github.io/roomx/`). |
+| `LOCAL_ONLY=1` | Public version: sync off, no server check, server settings hidden. All data stays in the browser. |
+| `BASE_PATH=/roomx` | Base path of the app, here the name of the repository (the site lives at `https://<account>.github.io/roomx/`). |
 
-Lokal ausprobieren:
+Try it locally:
 
 ```bash
 LOCAL_ONLY=1 BASE_PATH=/roomx pnpm -C web build && pnpm -C web preview
 ```
 
-### Selbst gehostete Version mit Abgleich-Server
+### Self-hosted version with sync server
 
-Ohne `LOCAL_ONLY` kann die App Projekte und Fotos mit einem eigenen Server abgleichen. Der Server (`server/`) liefert dann auch die App aus. Er läuft per Docker:
+Without `LOCAL_ONLY`, the app can sync projects and photos with your own server. The server (`server/`) then also serves the app. It runs with Docker:
 
 ```bash
-cp deploy/.env.example deploy/.env      # ROOMX_TOKEN setzen (Pflicht), optional ROOMX_PORT (Standard 8422)
+cp deploy/.env.example deploy/.env      # set ROOMX_TOKEN (required), optionally ROOMX_PORT (default 8422)
 docker compose -f deploy/compose.yaml up -d --build
 ```
 
-- `ROOMX_TOKEN`: Zugangs-Token. Das Compose-File bricht ohne Token ab. Dasselbe Token trägst du in der App unter Einstellungen ein, dazu die Server-Adresse.
-- `ROOMX_DATA`: Datenordner im Container (Standard `/data`, als Volume `roomx-data`). `ROOMX_STATIC`: Ordner mit der gebauten App.
-- Prüfen: `GET /api/health`. Die Endpunkte `/api/projects` und `/api/photos/{digest}` verlangen das Token.
-- Kamera, Zwischenablage und Service Worker brauchen **HTTPS**, ausser auf `localhost`. Stelle den Server hinter einen HTTPS-Proxy, wenn du ihn ausserhalb von `localhost` nutzt.
+- `ROOMX_TOKEN`: access token. The compose file aborts without a token. You enter the same token in the app under Settings, together with the server address.
+- `ROOMX_DATA`: data folder inside the container (default `/data`, as the volume `roomx-data`). `ROOMX_STATIC`: folder with the built app.
+- Check with `GET /api/health`. The endpoints `/api/projects` and `/api/photos/{digest}` require the token.
+- Camera, clipboard and service worker need **HTTPS**, except on `localhost`. Put the server behind an HTTPS proxy if you use it anywhere other than `localhost`.
 
-Server ohne Docker (Entwicklung):
+Server without Docker (development):
 
 ```bash
 cd server
 python -m venv .venv && .venv/bin/pip install -e '.[dev]'
-ROOMX_TOKEN=geheim ROOMX_DATA=./data .venv/bin/uvicorn app.main:app
+ROOMX_TOKEN=secret ROOMX_DATA=./data .venv/bin/uvicorn app.main:app
 ```
 
 </details>
 
 ---
 
-<p align="center"><sub>roomx · Räume erfassen, in 3D ansehen, einrichten · <a href="https://xc4pr.github.io/roomx/">App öffnen</a> · <a href="https://xc4pr.github.io/roomx/rechtliches">Datenschutz &amp; Haftung</a></sub></p>
+<p align="center"><sub>roomx · Measure rooms, view them in 3D, furnish them · <a href="https://xc4pr.github.io/roomx/">Open the app</a> · <a href="https://xc4pr.github.io/roomx/rechtliches">Privacy &amp; liability</a></sub></p>
