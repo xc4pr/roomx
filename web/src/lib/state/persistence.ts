@@ -55,10 +55,43 @@ export async function loadAllProjects(): Promise<Project[]> {
 
 export async function loadActiveProjects(): Promise<Project[]> {
 	const [all, trashed] = await Promise.all([db.projects.toArray(), trashedIds()]);
-	return all
-		.filter((project) => !project.deleted && !trashed.has(project.id))
-		.map(migrateProject)
-		.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+	const projects: Project[] = [];
+	for (const raw of all) {
+		if (raw.deleted || trashed.has(raw.id)) continue;
+		try {
+			projects.push(migrateProject(raw));
+		} catch {
+			continue;
+		}
+	}
+	return projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+export interface UnreadableProject {
+	id: string;
+	name: string;
+	raw: unknown;
+	error: string;
+}
+
+export async function listUnreadableProjects(): Promise<UnreadableProject[]> {
+	const [all, trashed] = await Promise.all([db.projects.toArray(), trashedIds()]);
+	const unreadable: UnreadableProject[] = [];
+	for (const raw of all) {
+		if (raw.deleted || trashed.has(raw.id)) continue;
+		try {
+			migrateProject(raw);
+		} catch (error) {
+			const name = (raw as { name?: unknown }).name;
+			unreadable.push({
+				id: raw.id,
+				name: typeof name === 'string' && name !== '' ? name : raw.id,
+				raw,
+				error: error instanceof Error ? error.message : String(error)
+			});
+		}
+	}
+	return unreadable;
 }
 
 export interface ProjectTimes {

@@ -12,6 +12,8 @@ const modules = import.meta.glob<Record<string, unknown>>('./fixtures/project-v*
 	import: 'default'
 });
 
+import longText from './fixtures/long-text-v1.json';
+
 const fixtures = Object.entries(modules)
 	.map(([path, document]) => ({
 		version: Number(/project-v(\d+)\.json$/.exec(path)![1]),
@@ -81,6 +83,18 @@ describe.each(fixtures)('old data from schema version $version', ({ document }) 
 		expect(migrated.name).toBe(original.name);
 		expect(migrated.rooms).toEqual(original.rooms);
 		expect(migrated.updatedAt).toBe(original.updatedAt);
+	});
+});
+
+describe('old data with over-long texts', () => {
+	it('opens, keeps the note and cuts the caption to its limit', async () => {
+		const id = await store(longText);
+		const project = await loadProject(id);
+		expect(project?.rooms[0].notes).toHaveLength(6000);
+		const perspective = project?.rooms[0].photos[0].perspective;
+		expect(perspective && 'caption' in perspective ? perspective.caption.de : '').toHaveLength(
+			5000
+		);
 	});
 });
 

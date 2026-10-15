@@ -33,5 +33,26 @@ export function migrateProject(raw: unknown): Project {
 		document = { ...migrate(document), schemaVersion: version + 1 };
 		version += 1;
 	}
-	return ProjectSchema.parse(document);
+	const first = ProjectSchema.safeParse(document);
+	if (first.success) return first.data;
+	// Over-long strings from before the limits existed are cut instead of locking the project.
+	const repaired = structuredClone(document);
+	for (const issue of first.error.issues) {
+		if (issue.code !== 'too_big' || issue.origin !== 'string') continue;
+		truncateAt(repaired, issue.path, Number(issue.maximum));
+	}
+	return ProjectSchema.parse(repaired);
+}
+
+function truncateAt(root: RawDocument, path: PropertyKey[], maximum: number): void {
+	let node: unknown = root;
+	for (const key of path.slice(0, -1)) {
+		if (typeof node !== 'object' || node === null) return;
+		node = (node as Record<PropertyKey, unknown>)[key];
+	}
+	const last = path.at(-1);
+	if (last === undefined || typeof node !== 'object' || node === null) return;
+	const container = node as Record<PropertyKey, unknown>;
+	const value = container[last];
+	if (typeof value === 'string') container[last] = value.slice(0, maximum);
 }
