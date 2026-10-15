@@ -1,29 +1,74 @@
-import type { Perspective, Room } from '#lib/core/schema.ts';
+import { createElement } from '#lib/core/defaults.ts';
+import type { Perspective, PerspectiveKind, Room, RoomElement } from '#lib/core/schema.ts';
+import { generateTour } from '#lib/features/photos/tour.ts';
 import type { MirrorRoom } from './types.ts';
 
-// A schema-valid Room for generateTour and MiniPlan on the phone. Element ids are `e<index>`.
+const PHONE_ID = /^e(\d+)$/;
+
 export function roomFromMirror(room: MirrorRoom): Room {
-	void room;
-	throw new Error('not implemented');
+	const base = { polygon: room.polygon, height: room.height };
+	const elements = room.elements.map((element, index): RoomElement => {
+		const id = `e${index}`;
+		if (element.kind === 'ceilingLamp') {
+			const point = room.polygon[0];
+			return { id, kind: 'ceilingLamp', status: 'existing', x: point.x, y: point.y };
+		}
+		return {
+			...createElement(element.kind, base, element.wall, 0, () => id),
+			wall: element.wall,
+			offset: element.offset,
+			width: element.width
+		} as RoomElement;
+	});
+	return {
+		id: `mirror-${room.index}`,
+		name: room.name,
+		type: 'other',
+		polygon: room.polygon,
+		height: room.height,
+		boardPos: { x: 0, y: 0, rot: 0 },
+		elements,
+		photos: []
+	};
 }
 
-// `element:<real id>` -> `element:e3` (same for `electric:`); other keys stay as they are.
+function split(stepKey: string): { prefix: string; id: string } | null {
+	const match = /^(element|electric):(.+)$/.exec(stepKey);
+	return match ? { prefix: match[1], id: match[2] } : null;
+}
+
 export function toPhoneStepKey(stepKey: string, elementIds: readonly string[]): string {
-	void stepKey;
-	void elementIds;
-	throw new Error('not implemented');
+	const parts = split(stepKey);
+	if (!parts) return stepKey;
+	const index = elementIds.indexOf(parts.id);
+	return index < 0 ? stepKey : `${parts.prefix}:e${index}`;
 }
 
-// Inverse of toPhoneStepKey; null when the key points to an element index that does not exist.
 export function toHostStepKey(stepKey: string, elementIds: readonly string[]): string | null {
-	void stepKey;
-	void elementIds;
-	throw new Error('not implemented');
+	const parts = split(stepKey);
+	if (!parts) return stepKey;
+	const match = PHONE_ID.exec(parts.id);
+	if (!match) return null;
+	const id = elementIds[Number(match[1])];
+	return id === undefined ? null : `${parts.prefix}:${id}`;
 }
 
-// Perspective for a host step key in the room as it is now; a generic perspective when the step no longer exists.
+const PREFIX_KINDS: Record<string, PerspectiveKind> = {
+	corner: 'corner',
+	wall: 'wall',
+	ceiling: 'ceiling',
+	floor: 'floor',
+	element: 'element',
+	electric: 'element'
+};
+
 export function perspectiveFor(room: Room, stepKey: string): Perspective {
-	void room;
-	void stepKey;
-	throw new Error('not implemented');
+	const step = generateTour(room).find((candidate) => candidate.key === stepKey);
+	if (step) return step.perspective;
+	const kind = PREFIX_KINDS[stepKey.split(':')[0]] ?? 'free';
+	return {
+		kind,
+		stepKey,
+		caption: { de: 'Foto vom Handy', en: 'Photo from phone' }
+	};
 }

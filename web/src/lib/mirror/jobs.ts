@@ -1,84 +1,111 @@
+import { db } from '#lib/state/db.ts';
+import { deriveKeys } from './token.ts';
 import type { CameraJob, HostJob, JobPayload, MirrorJob, Shot } from './types.ts';
 
 export async function saveHostJob(job: HostJob): Promise<void> {
-	void job;
-	throw new Error('not implemented');
+	await db.mirrorJobs.put(job);
 }
 
-// Open (not revoked, not expired) host jobs of a project, oldest first.
 export async function listHostJobs(
 	projectId: string,
 	now: number = Date.now()
 ): Promise<HostJob[]> {
-	void projectId;
-	void now;
-	throw new Error('not implemented');
+	const jobs = await db.mirrorJobs.where('projectId').equals(projectId).toArray();
+	return jobs
+		.filter((job): job is HostJob => job.role === 'host')
+		.filter((job) => job.revokedAt === undefined && job.expiresAt > now)
+		.sort((a, b) => a.createdAt - b.createdAt);
 }
 
 export async function getJob(id: string): Promise<MirrorJob | undefined> {
-	void id;
-	throw new Error('not implemented');
+	return db.mirrorJobs.get(id);
 }
 
 export async function markReceived(jobId: string, hash: string): Promise<void> {
-	void jobId;
-	void hash;
-	throw new Error('not implemented');
+	await db.transaction('rw', db.mirrorJobs, async () => {
+		const job = await db.mirrorJobs.get(jobId);
+		if (job?.role !== 'host' || job.received.includes(hash)) return;
+		await db.mirrorJobs.put({ ...job, received: [...job.received, hash] });
+	});
 }
 
-// Ends a host job immediately: the record is deleted, the token is gone.
 export async function deleteHostJob(jobId: string): Promise<void> {
-	void jobId;
-	throw new Error('not implemented');
+	await db.transaction('rw', db.mirrorJobs, async () => {
+		const job = await db.mirrorJobs.get(jobId);
+		if (job?.role === 'host') await db.mirrorJobs.delete(jobId);
+	});
 }
 
-// Stores or merges one QR part on the phone (same token = same job); returns the merged job.
 export async function saveCameraPart(
 	token: string,
 	payload: JobPayload,
 	now: number = Date.now()
 ): Promise<CameraJob> {
-	void token;
-	void payload;
-	void now;
-	throw new Error('not implemented');
+	const { jobId } = await deriveKeys(token);
+	return db.transaction('rw', db.mirrorJobs, async () => {
+		const existing = await db.mirrorJobs.get(jobId);
+		if (existing?.role === 'host') throw new Error('host job');
+		const byIndex = new Map(existing?.rooms.map((room) => [room.index, room]));
+		for (const room of payload.rooms) byIndex.set(room.index, room);
+		const job: CameraJob = {
+			id: jobId,
+			role: 'camera',
+			token,
+			project: payload.project,
+			lang: payload.lang,
+			createdAt: existing?.createdAt ?? now,
+			expiresAt: payload.expiresAt,
+			parts: payload.parts,
+			partsSeen: [...new Set([...(existing?.partsSeen ?? []), payload.part])].sort((a, b) => a - b),
+			rooms: [...byIndex.values()].sort((a, b) => a.index - b.index)
+		};
+		if (existing?.revokedAt !== undefined) job.revokedAt = existing.revokedAt;
+		await db.mirrorJobs.put(job);
+		return job;
+	});
 }
 
-// Camera jobs on this device, including revoked ones that still hold photos; expired ones are left out.
 export async function listCameraJobs(now: number = Date.now()): Promise<CameraJob[]> {
-	void now;
-	throw new Error('not implemented');
+	const jobs = await db.mirrorJobs.where('role').equals('camera').toArray();
+	return jobs
+		.filter((job): job is CameraJob => job.role === 'camera' && job.expiresAt > now)
+		.sort((a, b) => a.createdAt - b.createdAt);
 }
 
 export async function markCameraRevoked(jobId: string, now: number = Date.now()): Promise<void> {
-	void jobId;
-	void now;
-	throw new Error('not implemented');
+	await db.transaction('rw', db.mirrorJobs, async () => {
+		const job = await db.mirrorJobs.get(jobId);
+		if (job?.role === 'camera') await db.mirrorJobs.put({ ...job, revokedAt: now });
+	});
 }
 
-// Deletes a camera job and all its photos.
 export async function deleteCameraJob(jobId: string): Promise<void> {
-	void jobId;
-	throw new Error('not implemented');
+	await db.transaction('rw', db.mirrorJobs, db.mirrorShots, async () => {
+		await db.mirrorShots.where('jobId').equals(jobId).delete();
+		const job = await db.mirrorJobs.get(jobId);
+		if (job?.role === 'camera') await db.mirrorJobs.delete(jobId);
+	});
 }
 
 export async function addShot(shot: Shot): Promise<void> {
-	void shot;
-	throw new Error('not implemented');
+	await db.mirrorShots.put(shot);
 }
 
 export async function listShots(jobId: string): Promise<Shot[]> {
-	void jobId;
-	throw new Error('not implemented');
+	const shots = await db.mirrorShots.where('jobId').equals(jobId).toArray();
+	return shots.sort((a, b) => a.takenAt.localeCompare(b.takenAt));
 }
 
 export async function deleteShot(id: string): Promise<void> {
-	void id;
-	throw new Error('not implemented');
+	await db.mirrorShots.delete(id);
 }
 
-// Removes expired jobs of both roles and their photos; returns the number of jobs removed.
 export async function purgeExpiredJobs(now: number = Date.now()): Promise<number> {
-	void now;
-	throw new Error('not implemented');
+	return db.transaction('rw', db.mirrorJobs, db.mirrorShots, async () => {
+		const expired = await db.mirrorJobs.filter((job) => job.expiresAt <= now).primaryKeys();
+		if (expired.length === 0) return 0;
+		await db.mirrorShots.where('jobId').anyOf(expired).delete();
+		await db.mirrorJobs.bulkDelete(expired);
+		return expired.length;
+	});
 }
