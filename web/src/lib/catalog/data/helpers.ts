@@ -74,4 +74,5 @@ function define(brand: string, spec: Spec): CatalogEntry {
 }
 
 export const ikea = (spec: Spec): CatalogEntry => define('IKEA', spec);
+export const tchibo = (spec: Spec): CatalogEntry => define('Tchibo', spec);
 export const generic = (spec: Spec): CatalogEntry => define('Generic', spec);

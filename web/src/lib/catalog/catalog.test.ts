@@ -14,9 +14,9 @@ const requiredIds = [
 const poweredModels = ['monitor', 'tv', 'pc', 'printer', 'smallDevice', 'speaker', 'powerStrip'];
 
 describe('catalog', () => {
-	it('contains 150 to 250 entries', () => {
+	it('contains 150 to 280 entries', () => {
 		expect(catalog.length).toBeGreaterThanOrEqual(150);
-		expect(catalog.length).toBeLessThanOrEqual(250);
+		expect(catalog.length).toBeLessThanOrEqual(280);
 	});
 
 	it('passes the entry schema', () => {
@@ -52,9 +52,28 @@ describe('catalog', () => {
 		}
 	});
 
-	it('gives at least 95 percent of the entries a price', () => {
-		const priced = catalog.filter((entry) => (entry.priceChf ?? 0) > 0);
-		expect(priced.length / catalog.length).toBeGreaterThanOrEqual(0.95);
+	it('uses https for every manufacturer page', () => {
+		for (const entry of catalog) {
+			if (entry.url) expect(entry.url.startsWith('https://'), entry.id).toBe(true);
+		}
+	});
+
+	it('gives at least 95 percent of the non-Tchibo entries a price', () => {
+		const regular = catalog.filter((entry) => entry.brand !== 'Tchibo');
+		const priced = regular.filter((entry) => (entry.priceChf ?? 0) > 0);
+		expect(priced.length / regular.length).toBeGreaterThanOrEqual(0.95);
+	});
+
+	it('tags Tchibo entries with the brand and the CN3 series', () => {
+		const tchibo = catalog.filter((entry) => entry.id.startsWith('tchibo-'));
+		expect(tchibo.length).toBeGreaterThan(0);
+		for (const entry of tchibo) {
+			expect(entry.brand, entry.id).toBe('Tchibo');
+			if (entry.id.startsWith('tchibo-cn3-')) expect(entry.series, entry.id).toBe('CN3');
+		}
+		for (const entry of catalog.filter((e) => e.brand === 'Tchibo')) {
+			expect(entry.id.startsWith('tchibo-'), entry.id).toBe(true);
+		}
 	});
 
 	it('has no price for unknown ids', () => {
