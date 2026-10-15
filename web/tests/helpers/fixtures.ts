@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const SEED = { coachMarksSeen: true, installHintSeen: true, language: 'de', unit: 'cm' };
+const SEED = { tourSeen: true, installHintSeen: true, language: 'de', unit: 'cm' };
 
 type LaunchContext = (options?: { colorScheme?: 'light' | 'dark' }) => Promise<BrowserContext>;
 

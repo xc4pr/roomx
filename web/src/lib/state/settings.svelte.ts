@@ -9,7 +9,7 @@ export interface Settings {
 	serverUrl: string;
 	token: string;
 	deviceName: string;
-	coachMarksSeen: boolean;
+	tourSeen: boolean;
 	tourStep: number | null;
 	tourSampleId: string | null;
 	installHintSeen: boolean;
@@ -23,7 +23,7 @@ function defaults(): Settings {
 		serverUrl: '',
 		token: '',
 		deviceName: '',
-		coachMarksSeen: false,
+		tourSeen: false,
 		tourStep: null,
 		tourSampleId: null,
 		installHintSeen: false,
@@ -34,7 +34,15 @@ function defaults(): Settings {
 function read(): Settings {
 	try {
 		const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
-		return { ...defaults(), ...(raw ? (JSON.parse(raw) as Partial<Settings>) : {}) };
+		const base = defaults();
+		const parsed: unknown = raw ? JSON.parse(raw) : null;
+		if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return base;
+		const stored = parsed as Record<string, unknown>;
+		const result: Record<string, unknown> = { ...base };
+		for (const key of Object.keys(base)) {
+			if (key in stored) result[key] = stored[key];
+		}
+		return result as unknown as Settings;
 	} catch {
 		return defaults();
 	}

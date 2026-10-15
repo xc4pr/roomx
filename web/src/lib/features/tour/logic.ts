@@ -27,12 +27,12 @@ export function progressLabel(index: number): string {
 }
 
 export interface TourSettings {
-	coachMarksSeen: boolean;
+	tourSeen: boolean;
 	tourStep: number | null;
 }
 
 export function shouldAutostart(settings: TourSettings): boolean {
-	return !settings.coachMarksSeen || isInterrupted(settings.tourStep);
+	return !settings.tourSeen || isInterrupted(settings.tourStep);
 }
 
 export function isInterrupted(tourStep: number | null): tourStep is number {

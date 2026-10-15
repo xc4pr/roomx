@@ -189,7 +189,10 @@ test('Konflikt-Hinweis ist sichtbar', async ({ launchContext, request }) => {
 	await expect(toast).toContainText(name);
 });
 
-test('Löschen in A lässt das Projekt in B verschwinden', async ({ launchContext, request }) => {
+test('Endgültig löschen in A lässt das Projekt in B verschwinden', async ({
+	launchContext,
+	request
+}) => {
 	const a = await (await launchContext()).newPage();
 	const b = await (await launchContext()).newPage();
 	await connect(b);
@@ -211,6 +214,10 @@ test('Löschen in A lässt das Projekt in B verschwinden', async ({ launchContex
 	await a.getByRole('menuitem').nth(2).click();
 	await a.getByTestId('confirm').click();
 	await expect(card).toHaveCount(0);
+	await a.getByTestId('trash-toggle').click();
+	await a.getByTestId('trash-item').filter({ hasText: name }).getByTestId('trash-purge').click();
+	await a.getByTestId('confirm').click();
+	await expect(a.getByTestId('trash-item').filter({ hasText: name })).toHaveCount(0);
 	await syncNow(a);
 	await expect
 		.poll(async () => (await serverProject(request, id))?.deleted, { timeout: 15_000 })

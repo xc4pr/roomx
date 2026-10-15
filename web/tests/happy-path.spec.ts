@@ -154,7 +154,7 @@ test('Projekt anlegen bis Plan-Import und Re-Export', async ({ page }, testInfo)
 	});
 	expect(variant.totalChf).toBeGreaterThan(0);
 
-	if (testInfo.project.name === 'desktop') {
+	if (testInfo.project.name === 'desktop' && process.env.ROOMX_SKILL_FIXTURES === '1') {
 		mkdirSync(SKILL_TEST_DIR, { recursive: true });
 		writeFileSync(resolve(SKILL_TEST_DIR, 'app-export.json'), first.jsonText);
 		writeFileSync(resolve(SKILL_TEST_DIR, 'app-plan.json'), `${JSON.stringify(plan, null, 2)}\n`);

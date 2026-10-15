@@ -51,10 +51,10 @@ describe('step order', () => {
 
 describe('autostart and resume', () => {
 	it('starts on first open and when interrupted', () => {
-		expect(shouldAutostart({ coachMarksSeen: false, tourStep: null })).toBe(true);
-		expect(shouldAutostart({ coachMarksSeen: true, tourStep: null })).toBe(false);
-		expect(shouldAutostart({ coachMarksSeen: true, tourStep: 4 })).toBe(true);
-		expect(shouldAutostart({ coachMarksSeen: true, tourStep: 0 })).toBe(true);
+		expect(shouldAutostart({ tourSeen: false, tourStep: null })).toBe(true);
+		expect(shouldAutostart({ tourSeen: true, tourStep: null })).toBe(false);
+		expect(shouldAutostart({ tourSeen: true, tourStep: 4 })).toBe(true);
+		expect(shouldAutostart({ tourSeen: true, tourStep: 0 })).toBe(true);
 	});
 
 	it('resumes at the stored step', () => {

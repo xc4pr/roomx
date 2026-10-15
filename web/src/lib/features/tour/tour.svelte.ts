@@ -215,7 +215,7 @@ function endTour(): void {
 	tour.active = false;
 	tour.arriving = false;
 	tour.sampleId = null;
-	updateSettings({ coachMarksSeen: true, tourStep: null });
+	updateSettings({ tourSeen: true, tourStep: null });
 	const back = returnTo;
 	returnTo = null;
 	if (back?.isConnected) back.focus({ preventScroll: true });
