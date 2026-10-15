@@ -15,7 +15,7 @@ describe('normalizeServerUrl', () => {
 	});
 
 	it('adds http for local addresses and https otherwise', () => {
-		expect(normalizeServerUrl('192.168.1.136:8422')).toBe('http://192.168.1.136:8422');
+		expect(normalizeServerUrl('192.168.1.20:8000')).toBe('http://192.168.1.20:8000');
 		expect(normalizeServerUrl('localhost:8000')).toBe('http://localhost:8000');
 		expect(normalizeServerUrl('nas.local')).toBe('http://nas.local');
 		expect(normalizeServerUrl('roomx.example.ch')).toBe('https://roomx.example.ch');
