@@ -2,13 +2,17 @@
 	import '@fontsource-variable/figtree';
 	import './layout.css';
 	import { onMount, untrack } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { consumePairFragment, pairErrorMessage } from '#lib/features/camera/pairing.ts';
 	import AppAlerts from '#lib/features/projects/AppAlerts.svelte';
 	import { watchInstall } from '#lib/features/projects/install.svelte.ts';
 	import { remindOnLeave, startReminders } from '#lib/features/settings/reminders.ts';
 	import ShortcutsDialog from '#lib/features/settings/ShortcutsDialog.svelte';
 	import TourHost from '#lib/features/tour/TourHost.svelte';
 	import { common } from '#lib/i18n/common.ts';
+	import { purgeExpiredJobs } from '#lib/mirror/jobs.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { sharedBus } from '#lib/state/channel.ts';
 	import { db } from '#lib/state/db.ts';
@@ -30,7 +34,20 @@
 		storageHealth.problem !== null || (store.readOnly && store.project !== null)
 	);
 
+	async function pairFromLink(): Promise<void> {
+		const outcome = await consumePairFragment();
+		if (!outcome) return;
+		if ('jobId' in outcome) {
+			await goto(resolve('/m/[job]', { job: outcome.jobId }), { replaceState: true });
+		} else {
+			toasts.show({ message: pairErrorMessage(outcome.error), kind: 'error' });
+		}
+	}
+
 	onMount(() => {
+		void pairFromLink();
+		const onHash = () => void pairFromLink();
+		window.addEventListener('hashchange', onHash);
 		watchForUpdates();
 		const stopInstall = watchInstall();
 		const stopKeyboard = watchKeyboard();
@@ -45,8 +62,10 @@
 		void probeStorage().then((ok) => {
 			if (!ok) return;
 			void purgeExpiredTrash().then(() => runCleanup());
+			void purgeExpiredJobs().catch(() => undefined);
 		});
 		return () => {
+			window.removeEventListener('hashchange', onHash);
 			stopInstall();
 			stopKeyboard();
 			stopSync();
