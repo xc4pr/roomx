@@ -9,7 +9,7 @@ import { FakeHub, type FakePeer } from './fakeTransport.ts';
 import { openMessage, sealMessage, type Message } from './frames.ts';
 import { getJob, listShots, saveCameraPart } from './jobs.ts';
 import { deriveKeys, newToken, type MirrorKeys } from './token.ts';
-import type { OpenTransport } from './types.ts';
+import { MAX_SHOTS_PER_JOB, type OpenTransport } from './types.ts';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -276,6 +276,28 @@ describe('CameraSession transfer', () => {
 		await tick(50);
 		expect(pc.count('photo')).toBe(1);
 		expect(await listShots(keys.jobId)).toEqual([]);
+	});
+});
+
+describe('CameraSession limits', () => {
+	it('refuses more photos than a job may hold', async () => {
+		await makeJob();
+		const camera = session();
+		const shot = await image('cap');
+		camera.shots = Array.from({ length: MAX_SHOTS_PER_JOB }, (_, i) => ({
+			id: `s${i}`,
+			jobId: keys.jobId,
+			room: 0,
+			stepKey: 'corner:A',
+			hash: shot.hash,
+			blob: shot.blob,
+			thumbnail: shot.thumbnail,
+			w: 64,
+			h: 48,
+			takenAt: new Date(1000 + i).toISOString()
+		}));
+		await expect(camera.addShot(0, 'corner:A', shot)).rejects.toMatchObject({ code: 'limit' });
+		expect(camera.shots).toHaveLength(MAX_SHOTS_PER_JOB);
 	});
 });
 

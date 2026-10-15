@@ -66,11 +66,22 @@ export async function saveCameraPart(
 	});
 }
 
+// Expired phone jobs that still hold unsent photos stay this long after expiry, like the trash.
+export const EXPIRED_KEEP_MS = 30 * 24 * 60 * 60 * 1000;
+
+async function holdsShots(jobId: string): Promise<boolean> {
+	return (await db.mirrorShots.where('jobId').equals(jobId).count()) > 0;
+}
+
 export async function listCameraJobs(now: number = Date.now()): Promise<CameraJob[]> {
 	const jobs = await db.mirrorJobs.where('role').equals('camera').toArray();
-	return jobs
-		.filter((job): job is CameraJob => job.role === 'camera' && job.expiresAt > now)
-		.sort((a, b) => a.createdAt - b.createdAt);
+	const kept: CameraJob[] = [];
+	for (const job of jobs) {
+		if (job.role !== 'camera') continue;
+		if (job.expiresAt > now) kept.push(job);
+		else if (job.expiresAt + EXPIRED_KEEP_MS > now && (await holdsShots(job.id))) kept.push(job);
+	}
+	return kept.sort((a, b) => a.createdAt - b.createdAt);
 }
 
 export async function markCameraRevoked(jobId: string, now: number = Date.now()): Promise<void> {
@@ -103,7 +114,15 @@ export async function deleteShot(id: string): Promise<void> {
 
 export async function purgeExpiredJobs(now: number = Date.now()): Promise<number> {
 	return db.transaction('rw', db.mirrorJobs, db.mirrorShots, async () => {
-		const expired = await db.mirrorJobs.filter((job) => job.expiresAt <= now).primaryKeys();
+		const lapsed = await db.mirrorJobs.filter((job) => job.expiresAt <= now).toArray();
+		const expired: string[] = [];
+		for (const job of lapsed) {
+			const keep =
+				job.role === 'camera' &&
+				job.expiresAt + EXPIRED_KEEP_MS > now &&
+				(await holdsShots(job.id));
+			if (!keep) expired.push(job.id);
+		}
 		if (expired.length === 0) return 0;
 		await db.mirrorShots.where('jobId').anyOf(expired).delete();
 		await db.mirrorJobs.bulkDelete(expired);

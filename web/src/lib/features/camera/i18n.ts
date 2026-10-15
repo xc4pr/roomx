@@ -46,6 +46,8 @@ export const messages = defineMessages({
 		endedTitle: 'Der Auftrag ist beendet',
 		endedText:
 			'Der Computer nimmt keine Fotos mehr an. Auf dem Handy liegen noch {n} ungesendete Fotos. Sende sie per Teilen-Menü oder lösche sie.',
+		expiredText:
+			'Der Auftrag ist abgelaufen. {n} Fotos wurden nicht übertragen. Sende sie per Teilen-Menü oder lösche sie. Der Auftrag bleibt noch 30 Tage nach dem Ablauf auf dem Handy.',
 		endedNone: 'Auf dem Handy liegen keine ungesendeten Fotos mehr. Du kannst den Auftrag löschen.',
 		fallbackTitle: 'Keine Verbindung zum PC',
 		fallbackText:
@@ -92,6 +94,7 @@ export const messages = defineMessages({
 		openJobsTitle: 'Offene Foto-Aufträge',
 		openJobsUnsent: '{n} ungesendete Fotos',
 		openJobsNone: 'Alle Fotos übertragen',
+		openJobsExpired: 'Abgelaufen, {n} Fotos nicht übertragen',
 		openJobsOpen: 'Öffnen'
 	},
 	en: {
@@ -136,6 +139,8 @@ export const messages = defineMessages({
 		endedTitle: 'The job has ended',
 		endedText:
 			'The computer no longer accepts photos. {n} unsent photos are still on this phone. Send them with the share sheet or delete them.',
+		expiredText:
+			'The job has expired. {n} photos were not transferred. Send them with the share sheet or delete them. The job stays on this phone for 30 days after it expired.',
 		endedNone: 'No unsent photos are left on this phone. You can delete the job.',
 		fallbackTitle: 'No connection to the PC',
 		fallbackText:
@@ -182,6 +187,7 @@ export const messages = defineMessages({
 		openJobsTitle: 'Open photo jobs',
 		openJobsUnsent: '{n} unsent photos',
 		openJobsNone: 'All photos transferred',
+		openJobsExpired: 'Expired, {n} photos not transferred',
 		openJobsOpen: 'Open'
 	}
 });

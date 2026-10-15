@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import Smartphone from '@lucide/svelte/icons/smartphone';
 	import { resolve } from '$app/paths';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -56,11 +57,21 @@
 					>
 						<span class="min-w-0 grow">
 							<span class="block truncate font-semibold">{job.project}</span>
-							<span class="block text-sm text-muted">
-								{unsent > 0
-									? t(messages, 'openJobsUnsent', { n: unsent })
-									: t(messages, 'openJobsNone')}
-							</span>
+							{#if job.expiresAt <= Date.now() && unsent > 0}
+								<span
+									class="flex items-center gap-1 text-sm font-semibold"
+									data-testid="open-camera-job-expired-{job.id}"
+								>
+									<TriangleAlert class="size-4 shrink-0" />
+									{t(messages, 'openJobsExpired', { n: unsent })}
+								</span>
+							{:else}
+								<span class="block text-sm text-muted">
+									{unsent > 0
+										? t(messages, 'openJobsUnsent', { n: unsent })
+										: t(messages, 'openJobsNone')}
+								</span>
+							{/if}
 						</span>
 						<ChevronRight class="size-5 shrink-0 text-muted" />
 					</a>

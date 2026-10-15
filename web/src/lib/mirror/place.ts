@@ -5,7 +5,7 @@ import { newPhotoId } from '#lib/features/photos/process.ts';
 import { reencodeImage, type Reencode } from '#lib/features/photos/reencode.ts';
 import { checkImageBytes } from '#lib/features/photos/sniff.ts';
 import { LIMITS } from '#lib/security/limits.ts';
-import { putPhoto } from '#lib/state/persistence.ts';
+import { loadProject, putPhoto } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
 import { markReceived } from './jobs.ts';
 import { perspectiveFor, toHostStepKey } from './room.ts';
@@ -17,6 +17,19 @@ function validTakenAt(value: string | undefined): string | undefined {
 	if (!value || value.length > 64 || !ISO_TIME.test(value)) return undefined;
 	const time = Date.parse(value);
 	return Number.isNaN(time) ? undefined : new Date(time).toISOString();
+}
+
+// The sender deletes its copy after an ok, so the photo must be in the saved project, not only in memory.
+async function isSaved(projectId: string, roomId: string, photoId: string): Promise<boolean> {
+	try {
+		await store.flush();
+		const saved = await loadProject(projectId);
+		return (
+			saved?.rooms.find((room) => room.id === roomId)?.photos.some((p) => p.id === photoId) ?? false
+		);
+	} catch {
+		return false;
+	}
 }
 
 // Puts a received photo into the open project: checks hash and magic bytes, re-encodes, stores the blob, adds the photo at the right room and perspective, remembers the transfer hash. Duplicates (by transfer hash) are reported, not added twice.
@@ -75,6 +88,10 @@ export async function placeShot(
 		takenAt: validTakenAt(shot.takenAt) ?? new Date().toISOString()
 	};
 	store.addPhoto(mapping.roomId, photo);
+	if (!(await isSaved(job.projectId, mapping.roomId, photo.id))) {
+		store.removePhoto(mapping.roomId, photo.id);
+		return { ok: false, reason: 'storage' };
+	}
 	if (!job.received.includes(transferHash)) job.received.push(transferHash);
 	try {
 		await markReceived(job.id, transferHash);

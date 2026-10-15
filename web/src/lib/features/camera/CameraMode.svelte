@@ -124,6 +124,9 @@
 			: 'open'
 	);
 	const unsent = $derived(session.shots.length);
+	const lapsed = $derived(
+		!!job && !status.revoked && !job.revokedAt && (status.expired || now >= job.expiresAt)
+	);
 	const kind = $derived(
 		statusKind({
 			status: status.status,
@@ -270,7 +273,7 @@
 				</div>
 			</header>
 
-			{#if phase === 'ask'}
+			{#if phase === 'ask' && jobState !== 'ended'}
 				<section class="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
 					<p class="text-lg font-bold">{t(messages, 'askTitle')}</p>
 					<p class="text-muted">{t(messages, 'askText', { rooms: job.rooms.length })}</p>
@@ -315,7 +318,9 @@
 							{t(messages, 'endedTitle')}
 						</p>
 						<p class="text-sm">
-							{unsent > 0 ? t(messages, 'endedText', { n: unsent }) : t(messages, 'endedNone')}
+							{unsent > 0
+								? t(messages, lapsed ? 'expiredText' : 'endedText', { n: unsent })
+								: t(messages, 'endedNone')}
 						</p>
 					</section>
 				{:else if jobState === 'soon' && unsent > 0}

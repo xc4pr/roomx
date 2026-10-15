@@ -121,7 +121,11 @@ export class MirrorHost {
 
 	// Tells connected phones, then deletes the job.
 	async revoke(jobId: string): Promise<void> {
-		const server = this.jobs.find((job) => job.id === jobId)?.server;
+		const ending = this.jobs.find((job) => job.id === jobId);
+		const server = ending?.server;
+		if (ending && server && mailbox.mailboxAvailable(this.#options.mailbox)) {
+			await this.#pollJob(ending, this.#generation);
+		}
 		const connection = this.#connections.get(jobId);
 		if (connection) {
 			if (connection.transport) {

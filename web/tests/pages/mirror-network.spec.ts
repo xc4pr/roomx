@@ -79,11 +79,10 @@ test('Spiegelung: ohne Auftrag keine Verbindung, mit Auftrag nur das lokale Rela
 	await page.getByRole('button', { name: 'Auftrag beenden' }).last().click();
 	await expect(page.getByTestId('mirror-link')).toHaveCount(0);
 	await page.waitForTimeout(1500);
+	await expect.poll(async () => (await relayStats(agent)).open, { timeout: 15_000 }).toBe(0);
 	const after = (await relayStats(agent)).connections;
 
-	await page.goto('./');
 	await page.reload();
-	await page.getByTestId('project-card').click();
 	await expect(page.getByTestId('board')).toBeVisible();
 	await selectRoom(page);
 	await page.getByTestId('tab-photos').click();

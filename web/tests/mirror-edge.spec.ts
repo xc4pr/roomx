@@ -40,7 +40,6 @@ test('Widerruf: Auftrag beenden bei verbundenem Handy zeigt dort das Ende', asyn
 
 	const phone = await world.phone();
 	await openLink(phone, link);
-	await phone.getByTestId('camera-later').click();
 	await expect(phone.getByTestId('camera-status')).toContainText('Verbunden', { timeout: 45_000 });
 	await expect(jobDialogStatus(desktop)).toContainText('Verbunden', { timeout: 45_000 });
 
@@ -106,4 +105,26 @@ test('Rückfall: ohne PC nach 30 s Teilen, Dateien am PC importieren', async ({
 	await expect(items.locator('[data-state="duplicate"]')).toHaveCount(2);
 	await expect(desktop.getByTestId('mirror-import-confirm')).toBeDisabled();
 	expect(photosOf(project)).toHaveLength(2);
+});
+
+test('Zweiter Auftrag nach dem Beenden des ersten verbindet sich wieder', async ({ world }) => {
+	test.setTimeout(150_000);
+	const desktop = await world.desktop();
+	await prepareProject(desktop);
+	await createJob(desktop);
+	await desktop.getByRole('dialog').getByTestId('mirror-revoke').click();
+	await desktop.getByRole('button', { name: 'Auftrag beenden' }).last().click();
+	await expect(desktop.getByTestId('mirror-link')).toHaveCount(0);
+	await desktop.waitForTimeout(1500);
+
+	const create = desktop.getByTestId('mirror-create');
+	if (!(await create.isVisible())) await desktop.getByTestId('mirror-open').click();
+	await create.click();
+	const link = desktop.getByTestId('mirror-link');
+	await expect(link).toHaveValue(/#pair=/);
+
+	const phone = await world.phone();
+	await openLink(phone, await link.inputValue());
+	await expect(phone.getByTestId('camera-status')).toContainText('Verbunden', { timeout: 45_000 });
+	await expect(jobDialogStatus(desktop)).toContainText('Verbunden', { timeout: 45_000 });
 });

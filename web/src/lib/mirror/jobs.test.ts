@@ -140,20 +140,42 @@ describe('camera jobs', () => {
 	});
 });
 
+const DAY = 24 * 60 * 60 * 1000;
+
 describe('purgeExpiredJobs', () => {
-	it('removes expired jobs of both roles with their photos', async () => {
-		const expired = await saveCameraPart(newToken(), payload(1, [room(0)], NOW + 5), NOW);
+	it('removes expired host jobs and empty expired phone jobs, keeps live ones', async () => {
+		const empty = await saveCameraPart(newToken(), payload(1, [room(0)], NOW + 5), NOW);
 		const live = await saveCameraPart(newToken(), payload(1, [room(0)], NOW + 500), NOW);
 		await saveHostJob(host('he', { expiresAt: NOW + 5 }));
 		await saveHostJob(host('hl', { expiresAt: NOW + 500 }));
-		await addShot(shot('s1', expired.id));
 		await addShot(shot('s2', live.id));
 		expect(await purgeExpiredJobs(NOW + 10)).toBe(2);
 		expect(await getJob('he')).toBeUndefined();
-		expect(await getJob(expired.id)).toBeUndefined();
+		expect(await getJob(empty.id)).toBeUndefined();
 		expect(await getJob('hl')).toBeDefined();
-		expect(await listShots(expired.id)).toEqual([]);
 		expect((await listShots(live.id)).length).toBe(1);
 		expect(await purgeExpiredJobs(NOW + 10)).toBe(0);
+	});
+
+	it('keeps an expired phone job with unsent photos for 30 days, then deletes it', async () => {
+		const held = await saveCameraPart(newToken(), payload(1, [room(0)], NOW + 5), NOW);
+		await addShot(shot('s1', held.id));
+		expect(await purgeExpiredJobs(NOW + 10)).toBe(0);
+		expect(await purgeExpiredJobs(NOW + 5 + 29 * DAY)).toBe(0);
+		expect(await getJob(held.id)).toBeDefined();
+		expect((await listCameraJobs(NOW + 5 + 29 * DAY)).map((job) => job.id)).toEqual([held.id]);
+		expect(await purgeExpiredJobs(NOW + 5 + 30 * DAY)).toBe(1);
+		expect(await getJob(held.id)).toBeUndefined();
+		expect(await listShots(held.id)).toEqual([]);
+	});
+
+	it('lists expired phone jobs only while they hold photos and the grace period runs', async () => {
+		const empty = await saveCameraPart(newToken(), payload(1, [room(0)], NOW + 5), NOW);
+		const held = await saveCameraPart(newToken(), payload(1, [room(0)], NOW + 5), NOW);
+		await addShot(shot('s1', held.id));
+		const ids = (await listCameraJobs(NOW + 10)).map((job) => job.id);
+		expect(ids).toContain(held.id);
+		expect(ids).not.toContain(empty.id);
+		expect(await listCameraJobs(NOW + 5 + 31 * DAY)).toEqual([]);
 	});
 });

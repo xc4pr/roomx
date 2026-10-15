@@ -10,10 +10,16 @@ import { db } from '#lib/state/db.ts';
 import { store } from '#lib/state/project.svelte.ts';
 
 const putPhoto = vi.hoisted(() => vi.fn(async () => undefined));
-vi.mock('#lib/state/persistence.ts', async (original) => ({
-	...(await original<Record<string, unknown>>()),
-	putPhoto
-}));
+const saveProject = vi.hoisted(() => vi.fn());
+vi.mock('#lib/state/persistence.ts', async (original) => {
+	const real = await original<typeof import('#lib/state/persistence.ts')>();
+	saveProject.mockImplementation(real.saveProject);
+	return {
+		...real,
+		putPhoto,
+		saveProject: (...args: Parameters<typeof real.saveProject>) => saveProject(...args)
+	};
+});
 
 const { placeShot } = await import('./place.ts');
 const { createHostJob } = await import('./job.ts');
@@ -156,6 +162,24 @@ describe('placeShot', () => {
 		});
 		expect(roomPhotos()).toHaveLength(before);
 		expect(job.received).toEqual([]);
+	});
+
+	it('does not report ok while the project could not be saved, and takes the photo back', async () => {
+		const job = await newJob();
+		const before = roomPhotos().length;
+		saveProject.mockRejectedValue(new Error('quota'));
+		const result = await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('g'), reencode);
+		expect(result).toEqual({ ok: false, reason: 'storage' });
+		expect(roomPhotos()).toHaveLength(before);
+		expect(job.received).toEqual([]);
+		const real = await vi.importActual<typeof import('#lib/state/persistence.ts')>(
+			'#lib/state/persistence.ts'
+		);
+		saveProject.mockImplementation(real.saveProject);
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('g'), reencode)).toEqual({
+			ok: true,
+			duplicate: false
+		});
 	});
 
 	it('keeps a valid takenAt and replaces an invalid one', async () => {

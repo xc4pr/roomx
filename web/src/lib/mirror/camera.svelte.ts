@@ -1,4 +1,5 @@
 import { sha256Hex } from '#lib/features/photos/hash.ts';
+import { PhotoError } from '#lib/features/photos/image.ts';
 import { newPhotoId } from '#lib/features/photos/process.ts';
 import type { ProcessedImage } from '#lib/features/photos/image.ts';
 import { openMessage, sealMessage, type Frame } from './frames.ts';
@@ -8,6 +9,7 @@ import { deriveKeys, type MirrorKeys } from './token.ts';
 import { openNostrTransport } from './transport.ts';
 import {
 	FALLBACK_AFTER_MS,
+	MAX_SHOTS_PER_JOB,
 	type CameraJob,
 	type CameraStatus,
 	type OpenTransport,
@@ -109,6 +111,7 @@ export class CameraSession {
 	}
 
 	async addShot(room: number, stepKey: string, image: ProcessedImage): Promise<Shot> {
+		if (this.shots.length >= MAX_SHOTS_PER_JOB) throw new PhotoError('limit');
 		const shot: Shot = {
 			id: newPhotoId(),
 			jobId: this.jobId,
@@ -441,7 +444,7 @@ export class CameraSession {
 
 	async #hello(link: Link, peer: string): Promise<void> {
 		if (link.closed) return;
-		const pending = this.shots.map((shot) => ({
+		const pending = this.shots.slice(0, MAX_SHOTS_PER_JOB).map((shot) => ({
 			hash: shot.hash,
 			room: shot.room,
 			stepKey: shot.stepKey,

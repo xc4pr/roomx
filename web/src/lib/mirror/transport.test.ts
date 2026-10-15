@@ -4,10 +4,23 @@ import { MIRROR_NETWORK } from './network.ts';
 
 const loaded = vi.hoisted(() => ({ count: 0 }));
 const joinRoom = vi.hoisted(() => vi.fn());
+const relay = vi.hoisted(() => ({
+	pause: vi.fn(),
+	resume: vi.fn(),
+	sockets: {} as Record<
+		string,
+		{ readyState: number; close: () => void; addEventListener: () => void }
+	>
+}));
 
 vi.mock('@trystero-p2p/nostr', () => {
 	loaded.count++;
-	return { joinRoom };
+	return {
+		joinRoom,
+		pauseRelayReconnection: relay.pause,
+		resumeRelayReconnection: relay.resume,
+		getRelaySockets: () => relay.sockets
+	};
 });
 
 interface FakeAction {
@@ -63,6 +76,49 @@ describe('openNostrTransport', () => {
 		expect(action.send).toHaveBeenCalledWith(bytes(9), { target: 'a' });
 		await transport.leave();
 		expect(room.leave).toHaveBeenCalled();
+	});
+});
+
+describe('relay sockets', () => {
+	function fakeRoom() {
+		return {
+			makeAction: () => ({ send: vi.fn(), onMessage: null }),
+			onPeerJoin: null,
+			onPeerLeave: null,
+			leave: vi.fn(async () => undefined)
+		};
+	}
+
+	it('closes the sockets after the last leave and wakes them for the next transport', async () => {
+		const { openNostrTransport } = await import('./transport.ts');
+		const socket = {
+			readyState: 1,
+			close: vi.fn(() => {
+				socket.readyState = 3;
+			}),
+			addEventListener: vi.fn()
+		};
+		relay.sockets = { 'ws://relay': socket };
+		relay.pause.mockClear();
+		relay.resume.mockClear();
+		joinRoom.mockImplementation(fakeRoom);
+
+		const first = await openNostrTransport({ topic: 'a', password: 'p' });
+		const second = await openNostrTransport({ topic: 'b', password: 'p' });
+		await first.leave();
+		await first.leave();
+		expect(relay.pause).not.toHaveBeenCalled();
+		await second.leave();
+		expect(relay.pause).toHaveBeenCalledTimes(1);
+		expect(socket.close).toHaveBeenCalledTimes(1);
+
+		socket.readyState = 0;
+		setTimeout(() => (socket.readyState = 1), 120);
+		const third = await openNostrTransport({ topic: 'c', password: 'p' });
+		expect(relay.resume).toHaveBeenCalledTimes(2);
+		expect(socket.readyState).toBe(1);
+		await third.leave();
+		expect(relay.pause).toHaveBeenCalledTimes(2);
 	});
 });
 
