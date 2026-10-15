@@ -1,7 +1,7 @@
 import type { Language } from '#lib/core/units.ts';
 import {
 	COPYRIGHT_YEAR,
-	CONTACT_URL,
+	LICENSE_URL,
 	OPERATOR_ADDRESS,
 	OPERATOR_EMAIL,
 	OPERATOR_NAME,
@@ -63,19 +63,16 @@ const licenses = (): LegalBlock => ({ kind: 'licenses' });
 
 function contactItems(labels: {
 	operator: string;
-	role: string;
 	address: string;
 	email: string;
-	contact: string;
 	source: string;
 }): string[] {
 	return [
-		`**${labels.operator}:** ${OPERATOR_NAME}, ${labels.role}`,
+		`**${labels.operator}:** ${OPERATOR_NAME}`,
 		...(OPERATOR_ADDRESS ? [`**${labels.address}:** ${OPERATOR_ADDRESS}`] : []),
 		...(OPERATOR_EMAIL
 			? [`**${labels.email}:** [${OPERATOR_EMAIL}](mailto:${OPERATOR_EMAIL})`]
 			: []),
-		`**${labels.contact}:** [GitHub Issues](${CONTACT_URL})`,
 		`**${labels.source}:** [${displayUrl(REPOSITORY_URL)}](${REPOSITORY_URL})`
 	];
 }
@@ -85,98 +82,46 @@ const de: LegalDocument = {
 	summary: 'Kurz gesagt: Deine Daten bleiben auf deinem Gerät.',
 	lead: [
 		p(
-			'roomx hat keine Konten, setzt keine Cookies und misst nichts. Projekte und Fotos liegen nur in deinem Browser. Was du mit einem KI-Assistenten oder als Backup weitergibst, entscheidest du selbst.',
+			'RoomX hat keine Konten, setzt keine Cookies und misst nichts. Projekte und Fotos liegen nur in deinem Browser. Was du mit einem KI-Assistenten oder als Backup weitergibst, entscheidest du selbst.',
 			'public'
 		),
 		p(
-			'roomx hat keine Konten, setzt keine Cookies und misst nichts. Projekte und Fotos liegen in deinem Browser. Nur wenn du einen Abgleich-Server einrichtest, liegen sie zusätzlich dort. Was du mit einem KI-Assistenten oder als Backup weitergibst, entscheidest du selbst.',
+			'RoomX hat keine Konten, setzt keine Cookies und misst nichts. Projekte und Fotos liegen in deinem Browser. Nur wenn du einen Abgleich-Server einrichtest, liegen sie zusätzlich dort. Was du mit einem KI-Assistenten oder als Backup weitergibst, entscheidest du selbst.',
 			'selfHosted'
 		)
 	],
 	parts: [
 		{
 			id: 'datenschutz',
-			title: 'Datenschutzerklärung',
+			title: 'Datenschutz',
 			intro:
-				'Diese Erklärung zeigt dir, wie roomx mit Daten umgeht. Sie richtet sich nach dem schweizerischen Datenschutzgesetz (DSG) und gilt sinngemäss auch für Nutzende in der EU und im EWR (DSGVO).',
+				'Kurz und schlicht: Was RoomX mit Daten macht. Grundlage ist das schweizerische Datenschutzgesetz (DSG); sinngemäss passt es auch für Nutzende in der EU (DSGVO).',
 			sections: [
 				{
 					id: 'verantwortlich',
 					title: 'Verantwortlicher und Kontakt',
 					blocks: [
-						p(
-							`Verantwortlich für die öffentliche Version von roomx unter [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}) ist der Betreiber:`
-						),
 						list(
 							contactItems({
-								operator: 'Betreiber',
-								role: 'Privatperson in der Schweiz',
+								operator: 'Verantwortlich',
 								address: 'Adresse',
-								email: 'E-Mail',
-								contact: 'Kontakt',
+								email: 'Kontakt',
 								source: 'Quellcode'
 							})
-						),
-						p(
-							'Fragen zum Datenschutz kannst du über den GitHub-Kontakt stellen. Meldungen dort sind öffentlich: Schreibe bitte keine persönlichen Angaben und keine Plandaten hinein.'
-						)
-					]
-				},
-				{
-					id: 'geltung',
-					title: 'Geltungsbereich',
-					blocks: [
-						p(
-							'Diese Erklärung gilt für die öffentliche Version von roomx. Daneben kann roomx selbst gehostet werden, zum Beispiel als private Instanz mit optionalem Abgleich-Server. Für eine solche Instanz ist deren Betreiberin oder Betreiber verantwortlich, nicht der Betreiber der öffentlichen Version.',
-							'public'
-						),
-						p(
-							'Du verwendest eine selbst gehostete Instanz von roomx. Für den Server dieser Instanz ist deren Betreiberin oder Betreiber verantwortlich. Für die App selbst gilt diese Erklärung sinngemäss.',
-							'selfHosted'
 						)
 					]
 				},
 				{
 					id: 'lokal',
-					title: 'Was auf deinem Gerät gespeichert wird',
-					blocks: [
-						p(
-							'roomx braucht kein Konto. Alles, was du eingibst, wird im Browser deines Geräts gespeichert:'
-						),
-						list([
-							'**Projekte:** Räume, Masse, Möbel, Notizen und Varianten (IndexedDB)',
-							'**Fotos:** deine Raumfotos und eine kleine Vorschau davon (IndexedDB)',
-							'**Einstellungen:** zum Beispiel Sprache, Einheit und welche Hinweise du schon gesehen hast (localStorage)',
-							'**App-Dateien:** der Browser legt die Dateien der App im Cache ab, damit roomx auch ohne Netz läuft'
-						]),
-						p(
-							'Diese Daten verlassen dein Gerät nicht, solange du sie nicht selbst weitergibst. Der Betreiber hat keinen Zugriff darauf und kann sie weder einsehen noch wiederherstellen.',
-							'public'
-						),
-						p(
-							'Ohne Abgleich-Server verlassen diese Daten dein Gerät nicht, solange du sie nicht selbst weitergibst.',
-							'selfHosted'
-						)
-					]
-				},
-				{
-					id: 'nicht',
-					title: 'Was nicht passiert',
+					title: 'Deine Daten bleiben bei dir',
 					blocks: [
 						list([
-							'Keine Konten und keine Anmeldung',
-							'Keine Cookies',
-							'Kein Tracking und keine Analyse- oder Werbedienste',
-							'Keine externen Schriften, Skripte oder CDNs: alles Nötige steckt in der App und kommt von derselben Adresse'
+							'Keine Konten, keine Cookies, kein Tracking',
+							'Keine externen Schriften, Skripte oder CDNs: alles Nötige steckt in der App',
+							'**Projektdaten** (Räume, Möbel, Notizen, Fotos, Einstellungen) liegen nur im Browser deines Geräts',
+							'**Fotos** werden lokal verkleinert; Standortdaten (GPS) und weitere Metadaten werden entfernt'
 						]),
-						p(
-							'**Die App sendet keine Daten an Server des Betreibers.** Es gibt keinen Abgleich und keine Nutzungsstatistik.',
-							'public'
-						),
-						p(
-							'Die App sendet nur dann Daten an einen Server, wenn du in den Einstellungen selbst einen Abgleich-Server einträgst.',
-							'selfHosted'
-						)
+						p('Der Betreiber hat keinen Zugriff auf diese Daten.', 'public')
 					]
 				},
 				{
@@ -185,33 +130,20 @@ const de: LegalDocument = {
 					edition: 'public',
 					blocks: [
 						p(
-							'Die Dateien der App liefert GitHub Pages aus, ein Dienst von GitHub (USA). Beim Aufruf verarbeitet GitHub technisch notwendige Zugriffsdaten in Server-Protokollen (Logs), insbesondere deine IP-Adresse, Datum und Uhrzeit, die aufgerufene Adresse und Angaben zu deinem Browser. Das geschieht auf den Servern von GitHub. Der Betreiber von roomx erhält diese Daten nicht.'
-						),
-						p(
-							`Dabei werden Daten in die USA übermittelt, möglicherweise auch in andere Länder. Es gelten die Bestimmungen von GitHub: [Datenschutzerklärung von GitHub](${GITHUB_PRIVACY_URL.de}). Die Seite wird verschlüsselt (HTTPS) ausgeliefert.`
-						)
-					]
-				},
-				{
-					id: 'hosting-instanz',
-					title: 'Hosting dieser Instanz',
-					edition: 'selfHosted',
-					blocks: [
-						p(
-							'Die Dateien der App liefert der Server dieser Instanz aus. Dessen Betreiberin oder Betreiber kann dabei technische Zugriffsdaten wie die IP-Adresse in Protokollen verarbeiten. Frage dort nach, wenn du Einzelheiten wissen willst.'
+							`Die App wird über GitHub Pages ausgeliefert (GitHub, USA). Dabei verarbeitet GitHub technisch notwendige Zugriffsdaten wie deine IP-Adresse in Server-Logs und übermittelt sie in die USA. Der Betreiber von RoomX erhält diese Daten nicht. Mehr dazu in der [Datenschutzerklärung von GitHub](${GITHUB_PRIVACY_URL.de}).`
 						)
 					]
 				},
 				{
 					id: 'server',
-					title: 'Abgleich-Server',
+					title: 'Hosting und Abgleich',
 					edition: 'selfHosted',
 					blocks: [
 						p(
-							'Auf selbst gehosteten Instanzen kannst du in den Einstellungen eine Server-Adresse und ein Zugangs-Token eintragen. Dann gleicht roomx deine Projekte und Fotos mit diesem Server ab. Ohne diese Angaben findet kein Abgleich statt.'
+							'Du verwendest eine selbst gehostete Version. Hosting und Abgleich liegen bei deren Betreiberin oder Betreiber, die oder der dafür verantwortlich ist. Der Server kann technische Zugriffsdaten wie die IP-Adresse protokollieren.'
 						),
 						p(
-							'Die abgeglichenen Daten liegen dann auf dem Server der Betreiberin oder des Betreibers dieser Instanz, nicht mehr nur auf deinem Gerät. Diese Person ist dafür verantwortlich. Auskunft, Berichtigung und Löschung verlangst du bei ihr. Löschungen in der App werden beim Abgleich in der Regel auch an den Server weitergegeben.'
+							'Trägst du in den Einstellungen einen Abgleich-Server ein, werden deine Projekte und Fotos dorthin übertragen. Ohne diese Angaben findet kein Abgleich statt. Auskunft und Löschung verlangst du bei der Betreiberin oder dem Betreiber.'
 						)
 					]
 				},
@@ -219,61 +151,17 @@ const de: LegalDocument = {
 					id: 'weitergabe',
 					title: 'Weitergabe nur durch dich',
 					blocks: [
-						p('Daten verlassen dein Gerät nur, wenn du das selbst auslöst:'),
-						list([
-							'**KI-Paket:** Du kannst ein Paket aus deinem Projekt erstellen (JSON, PDF mit Fotos und eine Anleitung) und mit einem KI-Assistenten deiner Wahl teilen. Dann verarbeitet dieser Anbieter die Daten nach seinen eigenen Bedingungen. Der Betreiber von roomx hat darauf keinen Einfluss.',
-							'**Backup und Export:** Eine Datei (zum Beispiel ZIP, PDF oder 3D-Modell), die du speicherst oder verschickst, liegt ausserhalb von roomx. Du entscheidest, wo sie landet und wer sie bekommt.'
-						]),
 						p(
-							'Prüfe vor dem Teilen, ob Fotos oder Angaben Personen, Dokumente oder Privates zeigen. Der Betreiber von roomx erfährt von diesen Weitergaben nichts.'
+							'Daten verlassen dein Gerät nur, wenn du selbst ein KI-Paket oder ein Backup teilst. Dann gelten die Bedingungen des Dienstes, den du wählst. Prüfe vorher, ob Fotos oder Angaben Personen oder Privates zeigen.'
 						)
 					]
 				},
 				{
-					id: 'fotos',
-					title: 'Fotos und Metadaten',
+					id: 'loeschen',
+					title: 'Löschen',
 					blocks: [
 						p(
-							'Fotos werden lokal auf deinem Gerät verarbeitet: Beim Hinzufügen werden sie direkt im Browser verkleinert und ohne Metadaten gespeichert. Standortdaten (GPS) sowie Aufnahmezeit und Kameramodell werden entfernt. Die Fotos werden dabei nirgendwohin hochgeladen.'
-						),
-						p(
-							'Auf den Bildern selbst können trotzdem Personen, Dokumente oder Einblicke in deine Wohnung zu sehen sein. Fotografiere andere Personen nur mit ihrem Einverständnis.'
-						)
-					]
-				},
-				{
-					id: 'links',
-					title: 'Externe Links',
-					blocks: [
-						p(
-							'Der Katalog verweist bei manchen Möbeln auf Seiten von Möbelhäusern, zum Beispiel IKEA oder Tchibo. Diese Seiten öffnen sich nur, wenn du einen Link antippst. Dann gilt die Datenschutzerklärung der jeweiligen Seite, und der Anbieter kann Daten wie deine IP-Adresse verarbeiten. roomx übergibt dabei keine Projektdaten.'
-						)
-					]
-				},
-				{
-					id: 'sicherheit',
-					title: 'Sicherheit',
-					blocks: [
-						p(
-							'Die Daten im Browser sind nicht zusätzlich verschlüsselt. Wer Zugriff auf dein Gerät und dein Browserprofil hat, kann sie lesen. Sperre dein Gerät und halte Browser und Betriebssystem aktuell.'
-						)
-					]
-				},
-				{
-					id: 'dauer',
-					title: 'Speicherdauer und Löschen',
-					blocks: [
-						p(
-							'Deine Daten bleiben auf deinem Gerät, bis du sie löschst. Der Browser kann sie allerdings entfernen, wenn der Speicher knapp wird (siehe Einstellungen, Abschnitt Speicher).'
-						),
-						list([
-							'**Ein Projekt löschen:** in der Projektliste im Menü des Projekts «Löschen» wählen.',
-							'**Alles löschen:** in den Einstellungen von roomx «Alle lokalen Daten löschen» wählen. Damit verschwinden Projekte, Fotos und Einstellungen von diesem Gerät. Du kannst auch die Website-Daten von roomx in den Einstellungen deines Browsers entfernen.',
-							'**Weitergegebene Daten:** Dateien, die du gespeichert oder verschickt hast, und Daten bei einem KI-Assistenten löschst du dort selbst.'
-						]),
-						p(
-							'Daten auf dem Abgleich-Server kannst du bei der Betreiberin oder dem Betreiber dieser Instanz löschen lassen.',
-							'selfHosted'
+							'In den Einstellungen löscht «Alle lokalen Daten löschen» alle Projekte, Fotos und Einstellungen von diesem Gerät. Geteilte Dateien löschst du dort, wo du sie abgelegt hast.'
 						)
 					]
 				},
@@ -282,27 +170,7 @@ const de: LegalDocument = {
 					title: 'Deine Rechte',
 					blocks: [
 						p(
-							'Nach dem DSG und sinngemäss nach der DSGVO kannst du Auskunft über deine Personendaten verlangen und sie berichtigen, löschen, einschränken oder herausgeben lassen. Du kannst der Bearbeitung auch widersprechen.'
-						),
-						p(
-							'Weil der Betreiber von roomx keine Personendaten über dich bearbeitet, liegen deine Daten bei dir selbst: Du kannst sie in der App jederzeit ansehen, als Backup exportieren und löschen. Für die Zugriffsdaten beim Hosting wendest du dich an GitHub.',
-							'public'
-						),
-						p(
-							'Die Daten auf deinem Gerät liegen bei dir selbst: Du kannst sie in der App jederzeit ansehen, als Backup exportieren und löschen. Für Daten auf dem Abgleich-Server wendest du dich an die Betreiberin oder den Betreiber dieser Instanz.',
-							'selfHosted'
-						),
-						p(
-							`Für Anliegen an den Betreiber von roomx nutze den oben genannten Kontakt. Du kannst dich auch bei einer Datenschutzbehörde beschweren, in der Schweiz beim [Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB)](${SUPERVISORY_URL}), in der EU bei der Aufsichtsbehörde deines Wohnorts.`
-						)
-					]
-				},
-				{
-					id: 'aenderungen',
-					title: 'Änderungen dieser Erklärung',
-					blocks: [
-						p(
-							`Der Betreiber kann diese Erklärung anpassen, zum Beispiel wenn roomx neue Funktionen erhält. Es gilt die Fassung, die in der App steht; das Datum oben zeigt den Stand. Frühere Fassungen findest du in der Versionsgeschichte des [Quellcodes](${REPOSITORY_URL}).`
+							`Du kannst Auskunft, Berichtigung und Löschung deiner Personendaten verlangen. Wende dich dafür an den Kontakt oben. Beschwerden gehen an den [Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB)](${SUPERVISORY_URL}), in der EU an die Aufsichtsbehörde deines Wohnorts.`
 						)
 					]
 				}
@@ -312,14 +180,14 @@ const de: LegalDocument = {
 			id: 'haftung',
 			title: 'Haftungsausschluss und Nutzungshinweise',
 			intro:
-				'roomx ist ein kostenloses Hilfsmittel, um Räume zu erfassen und einzurichten. Du nutzt es auf eigene Verantwortung.',
+				'RoomX ist ein kostenloses Hilfsmittel, um Räume zu erfassen und einzurichten. Du nutzt es auf eigene Verantwortung.',
 			sections: [
 				{
 					id: 'nutzung',
 					title: 'Nutzung auf eigene Verantwortung',
 					blocks: [
 						p(
-							'roomx wird kostenlos und «wie besehen» zur Verfügung gestellt, ohne Garantie für Fehlerfreiheit, Verfügbarkeit oder Eignung für einen bestimmten Zweck. Die App kann jederzeit geändert, eingeschränkt oder eingestellt werden.'
+							'RoomX wird kostenlos und «wie besehen» zur Verfügung gestellt, ohne Garantie für Fehlerfreiheit, Verfügbarkeit oder Eignung für einen bestimmten Zweck. Die App kann jederzeit geändert, eingeschränkt oder eingestellt werden.'
 						)
 					]
 				},
@@ -337,7 +205,7 @@ const de: LegalDocument = {
 					title: 'Vorschläge eines KI-Assistenten',
 					blocks: [
 						p(
-							'Wenn du ein KI-Paket mit einem KI-Assistenten nutzt, sind dessen Vorschläge nicht geprüft. Sie können falsch, unvollständig oder unpassend sein. Du entscheidest, ob du sie übernimmst. Auf den Assistenten und seine Antworten haben roomx und der Betreiber keinen Einfluss.'
+							'Wenn du ein KI-Paket mit einem KI-Assistenten nutzt, sind dessen Vorschläge nicht geprüft. Sie können falsch, unvollständig oder unpassend sein. Du entscheidest, ob du sie übernimmst. Auf den Assistenten und seine Antworten haben RoomX und der Betreiber keinen Einfluss.'
 						)
 					]
 				},
@@ -346,11 +214,11 @@ const de: LegalDocument = {
 					title: 'Keine Fachberatung',
 					blocks: [
 						note(
-							'roomx ersetzt keine Planungs-, Bau- oder Elektro-Fachberatung. Lass sicherheitsrelevante Fragen von Fachpersonen klären.'
+							'RoomX ersetzt keine Planungs-, Bau- oder Elektro-Fachberatung. Lass sicherheitsrelevante Fragen von Fachpersonen klären.'
 						),
 						list([
 							'**Statik:** Eingriffe in tragende Wände, Decken oder Böden dürfen nur nach Prüfung durch eine Fachperson erfolgen.',
-							'**Elektro:** Die Elektroplanung in roomx (Steckdosen, Anschlüsse, Lampen) ist nur eine Skizze. Installationen dürfen nur Fachleute mit der nötigen Bewilligung planen und ausführen, in der Schweiz gemäss NIV (Niederspannungs-Installationsverordnung).',
+							'**Elektro:** Die Elektroplanung in RoomX (Steckdosen, Anschlüsse, Lampen) ist nur eine Skizze. Installationen dürfen nur Fachleute mit der nötigen Bewilligung planen und ausführen, in der Schweiz gemäss NIV (Niederspannungs-Installationsverordnung).',
 							'**Wandmontage und Kippsicherung:** Hohe oder schwere Möbel musst du an der Wand sichern. Wähle Befestigungsmaterial passend zur Wand und beachte die Anleitung des Herstellers.',
 							'**Vorschriften:** Bau- und Brandschutzvorschriften sowie Vorgaben deiner Vermieterschaft oder Verwaltung musst du selbst klären.'
 						])
@@ -361,7 +229,7 @@ const de: LegalDocument = {
 					title: 'Prüfe vor Kauf und Umbau',
 					blocks: [
 						p(
-							'Miss Räume und Möbel vor einem Kauf oder Umbau selbst nach und prüfe Preise und Lieferbarkeit beim Anbieter. Verlasse dich nicht allein auf roomx, bevor du etwas kaufst, baust oder montierst.'
+							'Miss Räume und Möbel vor einem Kauf oder Umbau selbst nach und prüfe Preise und Lieferbarkeit beim Anbieter. Verlasse dich nicht allein auf RoomX, bevor du etwas kaufst, baust oder montierst.'
 						)
 					]
 				},
@@ -382,7 +250,7 @@ const de: LegalDocument = {
 					title: 'Externe Links',
 					blocks: [
 						p(
-							'roomx verlinkt auf Seiten Dritter, zum Beispiel auf Möbelhäuser. Für deren Inhalte, Angebote und Datenschutz sind allein die jeweiligen Betreiber verantwortlich. Wenn dir ein defekter oder unpassender Link auffällt, melde ihn über den Kontakt in der Datenschutzerklärung.'
+							'RoomX verlinkt auf Seiten Dritter, zum Beispiel auf Möbelhäuser. Für deren Inhalte, Angebote und Datenschutz sind allein die jeweiligen Betreiber verantwortlich. Wenn dir ein defekter oder unpassender Link auffällt, melde ihn über den Kontakt in der Datenschutzerklärung.'
 						)
 					]
 				},
@@ -391,7 +259,7 @@ const de: LegalDocument = {
 					title: 'Marken',
 					blocks: [
 						p(
-							'Namen wie IKEA, PAX, Tchibo, CN3 und weitere Marken-, Firmen- und Produktnamen gehören ihren jeweiligen Inhabern. roomx nennt sie nur, um Möbel zu beschreiben. Es besteht keine Verbindung zu diesen Unternehmen oder zu den Herstellern, und sie unterstützen oder empfehlen roomx nicht.'
+							'Namen wie IKEA, PAX, Tchibo, CN3 und weitere Marken-, Firmen- und Produktnamen gehören ihren jeweiligen Inhabern. RoomX nennt sie nur, um Möbel zu beschreiben. Es besteht keine Verbindung zu diesen Unternehmen oder zu den Herstellern, und sie unterstützen oder empfehlen RoomX nicht.'
 						)
 					]
 				},
@@ -400,7 +268,7 @@ const de: LegalDocument = {
 					title: 'Haftung',
 					blocks: [
 						p(
-							'Soweit gesetzlich zulässig, haftet der Betreiber nicht für Schäden, die aus der Nutzung von roomx oder aus dem Vertrauen auf Katalogangaben, Berechnungen oder KI-Vorschläge entstehen. Das gilt insbesondere für Fehlkäufe, Vermögens- und Folgeschäden, Datenverlust sowie Schäden an Gebäude, Möbeln oder Installationen.'
+							'Soweit gesetzlich zulässig, haftet der Betreiber nicht für Schäden, die aus der Nutzung von RoomX oder aus dem Vertrauen auf Katalogangaben, Berechnungen oder KI-Vorschläge entstehen. Das gilt insbesondere für Fehlkäufe, Vermögens- und Folgeschäden, Datenverlust sowie Schäden an Gebäude, Möbeln oder Installationen.'
 						),
 						p(
 							'Eine Haftung, die sich nach zwingendem Recht nicht ausschliessen lässt, bleibt bestehen, etwa bei Absicht oder grober Fahrlässigkeit oder bei Schäden an Leib und Leben.'
@@ -421,15 +289,20 @@ const de: LegalDocument = {
 		{
 			id: 'lizenzen',
 			title: 'Urheberrecht und Lizenzen',
-			intro: 'Wem roomx gehört und welche freie Software darin steckt.',
+			intro: 'Wem RoomX gehört und welche freie Software darin steckt.',
 			sections: [
 				{
 					id: 'urheberrecht',
-					title: 'Urheberrecht an roomx',
+					title: 'Urheberrecht und Lizenz',
 					blocks: [
-						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}, alle Rechte vorbehalten.**`),
+						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}**`),
+						list([
+							'Den Quellcode von RoomX darfst du für nicht kommerzielle Zwecke ansehen, kopieren und verändern.',
+							`Die veröffentlichte App unter [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}) darf jede Person und jedes Unternehmen nutzen, auch beruflich.`,
+							'Verkaufen, weitergeben oder als eigenen Dienst anbieten ist nicht erlaubt, ausser im Rahmen der Lizenz für nicht kommerzielle Zwecke.'
+						]),
 						p(
-							`Der Quellcode von roomx ist auf [GitHub](${REPOSITORY_URL}) einsehbar, aber nicht unter einer Open-Source-Lizenz freigegeben. Ohne ausdrückliche Erlaubnis darfst du ihn nicht kopieren, verändern oder weiterverbreiten. Die App kannst du kostenlos nutzen.`
+							`Massgeblich ist der Lizenztext: [LICENSE](${LICENSE_URL}) im Quellcode (PolyForm Noncommercial License 1.0.0 mit Zusatzerlaubnis).`
 						)
 					]
 				},
@@ -438,7 +311,7 @@ const de: LegalDocument = {
 					title: 'Schrift',
 					blocks: [
 						p(
-							'roomx verwendet die Schrift Figtree (SIL Open Font License 1.1). Sie ist in der App enthalten und wird nicht von einem fremden Server geladen.'
+							'RoomX verwendet die Schrift Figtree (SIL Open Font License 1.1). Sie ist in der App enthalten und wird nicht von einem fremden Server geladen.'
 						)
 					]
 				},
@@ -447,7 +320,7 @@ const de: LegalDocument = {
 					title: 'Open-Source-Software von Dritten',
 					blocks: [
 						p(
-							'roomx baut auf freier Software auf. Hier siehst du die Pakete, die in der App mitgeliefert werden, mit ihrer Lizenz und, wo vorhanden, dem Lizenztext. Die Liste wird beim Erstellen der App automatisch erzeugt.'
+							'RoomX baut auf freier Software auf. Hier siehst du die Pakete, die in der App mitgeliefert werden, mit ihrer Lizenz und, wo vorhanden, dem Lizenztext. Die Liste wird beim Erstellen der App automatisch erzeugt.'
 						),
 						licenses()
 					]
@@ -462,98 +335,46 @@ const en: LegalDocument = {
 	summary: 'In short: your data stays on your device.',
 	lead: [
 		p(
-			'roomx has no accounts, sets no cookies and measures nothing. Projects and photos are stored only in your browser. What you share with an AI assistant or as a backup is up to you.',
+			'RoomX has no accounts, sets no cookies and measures nothing. Projects and photos are stored only in your browser. What you share with an AI assistant or as a backup is up to you.',
 			'public'
 		),
 		p(
-			'roomx has no accounts, sets no cookies and measures nothing. Projects and photos are stored in your browser. Only if you set up a sync server are they stored there as well. What you share with an AI assistant or as a backup is up to you.',
+			'RoomX has no accounts, sets no cookies and measures nothing. Projects and photos are stored in your browser. Only if you set up a sync server are they stored there as well. What you share with an AI assistant or as a backup is up to you.',
 			'selfHosted'
 		)
 	],
 	parts: [
 		{
 			id: 'datenschutz',
-			title: 'Privacy policy',
+			title: 'Privacy',
 			intro:
-				'This policy explains how roomx handles data. It follows the Swiss Federal Act on Data Protection (FADP) and applies by analogy to users in the EU and the EEA (GDPR).',
+				'Short and plain: what RoomX does with data. It follows the Swiss Federal Act on Data Protection (FADP) and also fits users in the EU (GDPR).',
 			sections: [
 				{
 					id: 'verantwortlich',
 					title: 'Controller and contact',
 					blocks: [
-						p(
-							`The public version of roomx at [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}) is operated by:`
-						),
 						list(
 							contactItems({
-								operator: 'Operator',
-								role: 'private individual in Switzerland',
+								operator: 'Responsible',
 								address: 'Address',
-								email: 'Email',
-								contact: 'Contact',
+								email: 'Contact',
 								source: 'Source code'
 							})
-						),
-						p(
-							'You can ask privacy questions through the GitHub contact. Messages there are public, so please do not include personal details or plan data.'
-						)
-					]
-				},
-				{
-					id: 'geltung',
-					title: 'Scope',
-					blocks: [
-						p(
-							'This policy covers the public version of roomx. roomx can also be self-hosted, for example as a private instance with an optional sync server. The person who runs such an instance is responsible for it, not the operator of the public version.',
-							'public'
-						),
-						p(
-							'You are using a self-hosted instance of roomx. The person who runs this instance is responsible for its server. For the app itself, this policy applies by analogy.',
-							'selfHosted'
 						)
 					]
 				},
 				{
 					id: 'lokal',
-					title: 'What is stored on your device',
-					blocks: [
-						p(
-							'roomx needs no account. Everything you enter is stored in the browser on your device:'
-						),
-						list([
-							'**Projects:** rooms, dimensions, furniture, notes and variants (IndexedDB)',
-							'**Photos:** your room photos and a small preview of each (IndexedDB)',
-							'**Settings:** for example language, unit and which hints you have already seen (localStorage)',
-							'**App files:** the browser caches the files of the app so that roomx also works offline'
-						]),
-						p(
-							'This data does not leave your device unless you share it yourself. The operator has no access to it and can neither view nor restore it.',
-							'public'
-						),
-						p(
-							'Without a sync server, this data does not leave your device unless you share it yourself.',
-							'selfHosted'
-						)
-					]
-				},
-				{
-					id: 'nicht',
-					title: 'What does not happen',
+					title: 'Your data stays with you',
 					blocks: [
 						list([
-							'No accounts and no sign-in',
-							'No cookies',
-							'No tracking and no analytics or advertising services',
-							'No external fonts, scripts or CDNs: everything needed is part of the app and comes from the same address'
+							'No accounts, no cookies, no tracking',
+							'No external fonts, scripts or CDNs: everything needed is part of the app',
+							'**Project data** (rooms, furniture, notes, photos, settings) is stored only in the browser on your device',
+							'**Photos** are downsized locally; location data (GPS) and other metadata are removed'
 						]),
-						p(
-							'**The app sends no data to servers of the operator.** There is no sync and no usage statistics.',
-							'public'
-						),
-						p(
-							'The app only sends data to a server if you enter a sync server in the settings yourself.',
-							'selfHosted'
-						)
+						p('The operator has no access to this data.', 'public')
 					]
 				},
 				{
@@ -562,33 +383,20 @@ const en: LegalDocument = {
 					edition: 'public',
 					blocks: [
 						p(
-							'The files of the app are served by GitHub Pages, a service of GitHub (USA). When you open the app, GitHub processes technically necessary access data in server logs, in particular your IP address, date and time, the requested address and details about your browser. This happens on GitHub servers. The operator of roomx does not receive this data.'
-						),
-						p(
-							`Data is transferred to the USA and possibly to other countries. GitHub's terms apply: [GitHub privacy statement](${GITHUB_PRIVACY_URL.en}). The site is delivered over an encrypted connection (HTTPS).`
-						)
-					]
-				},
-				{
-					id: 'hosting-instanz',
-					title: 'Hosting of this instance',
-					edition: 'selfHosted',
-					blocks: [
-						p(
-							'The files of the app are served by the server of this instance. Whoever runs it may process technical access data such as the IP address in log files. Ask them if you want details.'
+							`The app is served through GitHub Pages (GitHub, USA). GitHub processes technically necessary access data such as your IP address in server logs and transfers it to the USA. The operator of RoomX does not receive this data. More in the [GitHub privacy statement](${GITHUB_PRIVACY_URL.en}).`
 						)
 					]
 				},
 				{
 					id: 'server',
-					title: 'Sync server',
+					title: 'Hosting and sync',
 					edition: 'selfHosted',
 					blocks: [
 						p(
-							'On self-hosted instances you can enter a server address and an access token in the settings. roomx then syncs your projects and photos with that server. Without these details, nothing is synced.'
+							'You are using a self-hosted version. Hosting and sync are run by its operator, who is responsible for them. The server may log technical access data such as the IP address.'
 						),
 						p(
-							'The synced data is then stored on the server of the person who runs this instance, not only on your device. That person is responsible for it. Ask them for access, correction and deletion. Deletions in the app are normally passed on to the server when syncing.'
+							'If you enter a sync server in the settings, your projects and photos are transferred to it. Without these details, nothing is synced. Ask the operator for access and deletion.'
 						)
 					]
 				},
@@ -596,61 +404,17 @@ const en: LegalDocument = {
 					id: 'weitergabe',
 					title: 'Sharing only by you',
 					blocks: [
-						p('Data leaves your device only when you trigger it yourself:'),
-						list([
-							'**AI package:** You can create a package from your project (JSON, PDF with photos and instructions) and share it with an AI assistant of your choice. That provider then processes the data under its own terms. The operator of roomx has no influence on this.',
-							'**Backup and export:** A file (for example ZIP, PDF or 3D model) that you save or send is outside of roomx. You decide where it ends up and who receives it.'
-						]),
 						p(
-							'Before sharing, check whether photos or details show people, documents or private matters. The operator of roomx does not learn about any of this sharing.'
+							'Data leaves your device only when you share an AI package or a backup yourself. The terms of the service you choose then apply. Before sharing, check whether photos or details show people or private matters.'
 						)
 					]
 				},
 				{
-					id: 'fotos',
-					title: 'Photos and metadata',
+					id: 'loeschen',
+					title: 'Deletion',
 					blocks: [
 						p(
-							'Photos are processed locally on your device: when you add them, they are downsized directly in your browser and stored without metadata. Location data (GPS), the time of capture and the camera model are removed. The photos are not uploaded anywhere.'
-						),
-						p(
-							'The images themselves can still show people, documents or glimpses of your home. Only photograph other people with their consent.'
-						)
-					]
-				},
-				{
-					id: 'links',
-					title: 'External links',
-					blocks: [
-						p(
-							'For some furniture, the catalogue links to the websites of furniture retailers, for example IKEA or Tchibo. These pages open only when you tap a link. The privacy policy of that site then applies, and the provider may process data such as your IP address. roomx passes no project data along.'
-						)
-					]
-				},
-				{
-					id: 'sicherheit',
-					title: 'Security',
-					blocks: [
-						p(
-							'The data in the browser is not additionally encrypted. Anyone with access to your device and your browser profile can read it. Lock your device and keep your browser and operating system up to date.'
-						)
-					]
-				},
-				{
-					id: 'dauer',
-					title: 'Retention and deletion',
-					blocks: [
-						p(
-							'Your data stays on your device until you delete it. The browser may remove it when storage runs low (see Settings, section Storage).'
-						),
-						list([
-							'**Delete a project:** in the project list, open the project menu and choose “Delete”.',
-							'**Delete everything:** in the roomx settings, choose “Delete all local data”. This removes projects, photos and settings from this device. You can also remove the site data of roomx in your browser settings.',
-							'**Data you shared:** you delete files you saved or sent, and data held by an AI assistant, there yourself.'
-						]),
-						p(
-							'You can have data on the sync server deleted by the person who runs this instance.',
-							'selfHosted'
+							'In the settings, “Delete all local data” removes all projects, photos and settings from this device. You delete shared files where you stored them.'
 						)
 					]
 				},
@@ -659,27 +423,7 @@ const en: LegalDocument = {
 					title: 'Your rights',
 					blocks: [
 						p(
-							'Under the FADP and, by analogy, the GDPR, you can request access to your personal data and have it corrected, deleted, restricted or handed over. You can also object to processing.'
-						),
-						p(
-							'Because the operator of roomx does not process personal data about you, your data is with you: you can view it in the app at any time, export it as a backup and delete it. For the access data at the hosting provider, contact GitHub.',
-							'public'
-						),
-						p(
-							'The data on your device is with you: you can view it in the app at any time, export it as a backup and delete it. For data on the sync server, contact the person who runs this instance.',
-							'selfHosted'
-						),
-						p(
-							`For requests to the operator of roomx, use the contact above. You can also lodge a complaint with a data protection authority: in Switzerland the [Federal Data Protection and Information Commissioner (FDPIC)](${SUPERVISORY_URL}), in the EU the supervisory authority where you live.`
-						)
-					]
-				},
-				{
-					id: 'aenderungen',
-					title: 'Changes to this policy',
-					blocks: [
-						p(
-							`The operator may update this policy, for example when roomx gets new features. The version shown in the app applies; the date above shows when it was last changed. Earlier versions are in the version history of the [source code](${REPOSITORY_URL}).`
+							`You can request access to, correction and deletion of your personal data. Use the contact above. Complaints go to the [Federal Data Protection and Information Commissioner (FDPIC)](${SUPERVISORY_URL}), in the EU to the supervisory authority where you live.`
 						)
 					]
 				}
@@ -689,14 +433,14 @@ const en: LegalDocument = {
 			id: 'haftung',
 			title: 'Disclaimer and usage notes',
 			intro:
-				'roomx is a free tool for capturing and furnishing rooms. You use it at your own risk.',
+				'RoomX is a free tool for capturing and furnishing rooms. You use it at your own risk.',
 			sections: [
 				{
 					id: 'nutzung',
 					title: 'Use at your own risk',
 					blocks: [
 						p(
-							'roomx is provided free of charge and “as is”, without any warranty of being error-free, available or fit for a particular purpose. The app may be changed, restricted or discontinued at any time.'
+							'RoomX is provided free of charge and “as is”, without any warranty of being error-free, available or fit for a particular purpose. The app may be changed, restricted or discontinued at any time.'
 						)
 					]
 				},
@@ -714,7 +458,7 @@ const en: LegalDocument = {
 					title: 'AI assistant suggestions',
 					blocks: [
 						p(
-							'If you use an AI package with an AI assistant, its suggestions are not verified. They may be wrong, incomplete or unsuitable. It is up to you whether to follow them. roomx and the operator have no influence on the assistant or its answers.'
+							'If you use an AI package with an AI assistant, its suggestions are not verified. They may be wrong, incomplete or unsuitable. It is up to you whether to follow them. RoomX and the operator have no influence on the assistant or its answers.'
 						)
 					]
 				},
@@ -723,11 +467,11 @@ const en: LegalDocument = {
 					title: 'No professional advice',
 					blocks: [
 						note(
-							'roomx does not replace professional planning, construction or electrical advice. Have safety-related questions answered by qualified professionals.'
+							'RoomX does not replace professional planning, construction or electrical advice. Have safety-related questions answered by qualified professionals.'
 						),
 						list([
 							'**Structure:** work on load-bearing walls, ceilings or floors may only be done after a professional has checked it.',
-							'**Electrical:** the electrical planning in roomx (sockets, connections, lamps) is only a sketch. Installations may only be planned and carried out by professionals with the required authorisation, in Switzerland under the NIV (low-voltage installations ordinance).',
+							'**Electrical:** the electrical planning in RoomX (sockets, connections, lamps) is only a sketch. Installations may only be planned and carried out by professionals with the required authorisation, in Switzerland under the NIV (low-voltage installations ordinance).',
 							'**Wall mounting and tip-over protection:** you must secure tall or heavy furniture to the wall. Choose fixings suited to the wall and follow the manufacturer’s instructions.',
 							'**Regulations:** you must clarify building and fire regulations and the rules of your landlord or property management yourself.'
 						])
@@ -738,7 +482,7 @@ const en: LegalDocument = {
 					title: 'Check before you buy or build',
 					blocks: [
 						p(
-							'Measure rooms and furniture yourself before buying or renovating, and check prices and availability with the retailer. Do not rely on roomx alone before you buy, build or install anything.'
+							'Measure rooms and furniture yourself before buying or renovating, and check prices and availability with the retailer. Do not rely on RoomX alone before you buy, build or install anything.'
 						)
 					]
 				},
@@ -759,7 +503,7 @@ const en: LegalDocument = {
 					title: 'External links',
 					blocks: [
 						p(
-							'roomx links to third-party websites, for example furniture retailers. Their operators alone are responsible for their content, offers and privacy practices. If you notice a broken or unsuitable link, report it through the contact in the privacy policy.'
+							'RoomX links to third-party websites, for example furniture retailers. Their operators alone are responsible for their content, offers and privacy practices. If you notice a broken or unsuitable link, report it through the contact in the privacy policy.'
 						)
 					]
 				},
@@ -768,7 +512,7 @@ const en: LegalDocument = {
 					title: 'Trademarks',
 					blocks: [
 						p(
-							'Names such as IKEA, PAX, Tchibo, CN3 and other trademarks, company names and product names belong to their respective owners. roomx mentions them only to describe furniture. There is no connection to these companies or to the manufacturers, and they neither support nor endorse roomx.'
+							'Names such as IKEA, PAX, Tchibo, CN3 and other trademarks, company names and product names belong to their respective owners. RoomX mentions them only to describe furniture. There is no connection to these companies or to the manufacturers, and they neither support nor endorse RoomX.'
 						)
 					]
 				},
@@ -777,7 +521,7 @@ const en: LegalDocument = {
 					title: 'Liability',
 					blocks: [
 						p(
-							'To the extent permitted by law, the operator is not liable for damage arising from the use of roomx or from relying on catalogue details, calculations or AI suggestions. This applies in particular to wrong purchases, financial and consequential loss, data loss, and damage to buildings, furniture or installations.'
+							'To the extent permitted by law, the operator is not liable for damage arising from the use of RoomX or from relying on catalogue details, calculations or AI suggestions. This applies in particular to wrong purchases, financial and consequential loss, data loss, and damage to buildings, furniture or installations.'
 						),
 						p(
 							'Liability that cannot be excluded under mandatory law remains, for example in cases of intent or gross negligence, or for injury to life or health.'
@@ -798,15 +542,20 @@ const en: LegalDocument = {
 		{
 			id: 'lizenzen',
 			title: 'Copyright and licences',
-			intro: 'Who owns roomx and which open-source software it contains.',
+			intro: 'Who owns RoomX and which open-source software it contains.',
 			sections: [
 				{
 					id: 'urheberrecht',
-					title: 'Copyright in roomx',
+					title: 'Copyright and licence',
 					blocks: [
-						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}, all rights reserved.**`),
+						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}**`),
+						list([
+							'You may view, copy and modify the source code of RoomX for noncommercial purposes.',
+							`Any person and any company may use the published app at [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}), including for work.`,
+							'Selling it, passing it on or offering it as a service of your own is not allowed, except within the licence for noncommercial purposes.'
+						]),
 						p(
-							`The source code of roomx can be viewed on [GitHub](${REPOSITORY_URL}) but is not released under an open-source licence. Without explicit permission you may not copy, modify or redistribute it. You can use the app free of charge.`
+							`The licence text is authoritative: [LICENSE](${LICENSE_URL}) in the source code (PolyForm Noncommercial License 1.0.0 with an additional permission).`
 						)
 					]
 				},
@@ -815,7 +564,7 @@ const en: LegalDocument = {
 					title: 'Typeface',
 					blocks: [
 						p(
-							'roomx uses the typeface Figtree (SIL Open Font License 1.1). It is included in the app and not loaded from an outside server.'
+							'RoomX uses the typeface Figtree (SIL Open Font License 1.1). It is included in the app and not loaded from an outside server.'
 						)
 					]
 				},
@@ -824,7 +573,7 @@ const en: LegalDocument = {
 					title: 'Third-party open-source software',
 					blocks: [
 						p(
-							'roomx is built on open-source software. Below are the packages shipped with the app, with their licence and, where available, the licence text. The list is generated automatically when the app is built.'
+							'RoomX is built on open-source software. Below are the packages shipped with the app, with their licence and, where available, the licence text. The list is generated automatically when the app is built.'
 						),
 						licenses()
 					]

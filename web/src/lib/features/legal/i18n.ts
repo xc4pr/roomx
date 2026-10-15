@@ -8,7 +8,7 @@ export const messages = defineMessages({
 		updated: 'Stand: {date}',
 		sections: '{n} Abschnitte anzeigen',
 		external: '(öffnet in neuem Tab)',
-		copyright: '© {year} {name}, alle Rechte vorbehalten',
+		copyright: '© {year} {name}',
 		licensesLoading: 'Lizenzen werden geladen',
 		licensesMissing:
 			'Die Liste der Pakete fehlt in dieser Entwicklungsversion. Sie wird beim Erstellen der App erzeugt.',
@@ -26,7 +26,7 @@ export const messages = defineMessages({
 		updated: 'Last updated: {date}',
 		sections: 'Show {n} sections',
 		external: '(opens in a new tab)',
-		copyright: '© {year} {name}, all rights reserved',
+		copyright: '© {year} {name}',
 		licensesLoading: 'Loading licences',
 		licensesMissing:
 			'The list of packages is missing in this development version. It is generated when the app is built.',

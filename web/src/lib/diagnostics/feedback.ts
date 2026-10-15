@@ -1,3 +1,5 @@
+import { OPERATOR_EMAIL } from '#lib/features/legal/operator.ts';
+
 export type FeedbackKind = 'issues' | 'email';
 
 export interface FeedbackChannel {
@@ -6,7 +8,8 @@ export interface FeedbackChannel {
 }
 
 export const FEEDBACK_CHANNELS: readonly FeedbackChannel[] = [
-	{ kind: 'issues', href: 'https://github.com/xc4pr/roomx/issues/new/choose' }
+	{ kind: 'issues', href: 'https://github.com/xc4pr/roomx/issues/new/choose' },
+	{ kind: 'email', href: `mailto:${OPERATOR_EMAIL}?subject=RoomX` }
 ];
 
 export function isSafeFeedbackHref(href: string): boolean {

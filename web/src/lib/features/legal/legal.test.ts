@@ -11,7 +11,7 @@ import {
 import { messages } from './i18n.ts';
 import { currentEdition, formatUpdated, parseInline, visibleDocument } from './logic.ts';
 import {
-	CONTACT_URL,
+	LICENSE_URL,
 	COPYRIGHT_YEAR,
 	OPERATOR_ADDRESS,
 	OPERATOR_EMAIL,
@@ -149,13 +149,13 @@ describe('legal content', () => {
 
 	it('only links to the operator constants and the two public authorities', () => {
 		const allowed = new Set([
-			CONTACT_URL,
+			LICENSE_URL,
 			REPOSITORY_URL,
 			PUBLIC_URL,
 			GITHUB_PRIVACY_URL.de,
 			GITHUB_PRIVACY_URL.en,
 			SUPERVISORY_URL,
-			...(OPERATOR_EMAIL ? [`mailto:${OPERATOR_EMAIL}`] : [])
+			`mailto:${OPERATOR_EMAIL}`
 		]);
 		for (const language of LANGUAGES) {
 			for (const text of allTexts(legalContent[language])) {
@@ -187,6 +187,13 @@ describe('required statements', () => {
 		expect(everything('en')).toContain('tip-over protection');
 	});
 
+	it('keeps the privacy part short', () => {
+		for (const language of LANGUAGES) {
+			const part = legalContent[language].parts[0]!;
+			expect(part.sections.length, language).toBeLessThanOrEqual(7);
+		}
+	});
+
 	it('explains hosting, the transfer to the USA and local photo processing', () => {
 		for (const language of LANGUAGES) {
 			const text = everything(language);
@@ -212,8 +219,30 @@ describe('required statements', () => {
 			).toBe(true);
 			expect(text, language).toContain('Figtree');
 		}
-		expect(everything('de')).toContain('alle Rechte vorbehalten');
-		expect(everything('en')).toContain('all rights reserved');
+	});
+
+	it('links the licence section to LICENSE and no longer reserves all rights', () => {
+		for (const language of LANGUAGES) {
+			const part = legalContent[language].parts.find((candidate) => candidate.id === 'lizenzen')!;
+			const section = part.sections.find((candidate) => candidate.id === 'urheberrecht')!;
+			const text = section.blocks.flatMap(texts).join('\n');
+			expect(links(text), language).toContain(LICENSE_URL);
+			expect(LICENSE_URL).toBe(`${REPOSITORY_URL}/blob/main/LICENSE`);
+			expect(text, language).toContain('PolyForm Noncommercial License 1.0.0');
+			expect(text, language).toContain(PUBLIC_URL);
+			expect(everything(language).toLowerCase(), language).not.toMatch(
+				/alle rechte vorbehalten|all rights reserved/
+			);
+		}
+	});
+
+	it('writes the product name as RoomX and never uses edition names', () => {
+		for (const language of LANGUAGES) {
+			const text = allTexts(legalContent[language]).join('\n');
+			expect(text, language).not.toMatch(/(?<![/.])\broomx\b/);
+			expect(text, language).toContain('RoomX');
+			expect(text, language).not.toMatch(/\b(Free|Pro)\b/);
+		}
 	});
 });
 
@@ -229,18 +258,16 @@ describe('operator constants', () => {
 		for (const language of LANGUAGES) {
 			const text = contact(language).join('\n');
 			expect(text, language).toContain(OPERATOR_NAME);
-			expect(text, language).toContain(CONTACT_URL);
 			expect(text, language).toContain(REPOSITORY_URL);
-			expect(text, language).toContain(PUBLIC_URL);
-			if (OPERATOR_EMAIL) expect(text, language).toContain(OPERATOR_EMAIL);
-			else expect(text, language).not.toContain('mailto:');
-			if (OPERATOR_ADDRESS) expect(text, language).toContain(OPERATOR_ADDRESS);
+			expect(text, language).toContain(`mailto:${OPERATOR_EMAIL}`);
+			expect(text, language).not.toContain('Postadresse');
 		}
 	});
 
-	it('default to the GitHub contact only', () => {
-		expect(OPERATOR_EMAIL).toBe('');
-		expect(CONTACT_URL).toBe('https://github.com/xc4pr/roomx/issues');
+	it('hold the real contact without a postal address', () => {
+		expect(OPERATOR_NAME).toBe('xc4pr');
+		expect(OPERATOR_EMAIL).toBe('julian-5@gmx.ch');
+		expect(OPERATOR_ADDRESS).toBe('');
 	});
 
 	it('shorten URLs for display', () => {
