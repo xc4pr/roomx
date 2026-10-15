@@ -1,22 +1,14 @@
-import { Group, type Mesh } from 'three';
-import { ball, box, cyl, lathe, luminance, mat, type Palette } from './kit.ts';
+import { Group } from 'three';
+import type { Look } from '#lib/core/catalog.ts';
+import { ball, box, cyl, lathe, mat, type Palette } from './kit.ts';
+import { DOME, lamps, markLight, styled, tones } from './lamps.ts';
 
-type Build = (w: number, d: number, h: number, p: Palette) => Group;
+type Build = (w: number, d: number, h: number, p: Palette, look?: Look) => Group;
 
 const BULB = '#ffe7b0';
-const SHADE = '#efe6d2';
 
-function markLight(mesh: Mesh): void {
-	mesh.userData.light = true;
-	mesh.castShadow = false;
-}
-
-function tones(p: Palette): { stand: string; shade: string } {
-	const bright = luminance(p.main) > 0.6;
-	return { stand: bright ? '#8a8d90' : p.main, shade: bright ? p.main : SHADE };
-}
-
-const floorLamp: Build = (w, d, h, p) => {
+const floorLamp: Build = (w, d, h, p, look) => {
+	if (look && styled(look)) return lamps.floorLamp(w, d, h, p, look);
 	const g = new Group();
 	const { stand, shade } = tones(p);
 	const metal = mat('metal', stand);
@@ -29,7 +21,8 @@ const floorLamp: Build = (w, d, h, p) => {
 	return g;
 };
 
-const tableLamp: Build = (w, d, h, p) => {
+const tableLamp: Build = (w, d, h, p, look) => {
+	if (look && styled(look)) return lamps.tableLamp(w, d, h, p, look);
 	const g = new Group();
 	const { stand, shade } = tones(p);
 	const baseH = h * 0.42;
@@ -44,17 +37,8 @@ const tableLamp: Build = (w, d, h, p) => {
 	return g;
 };
 
-const DOME: readonly (readonly [number, number])[] = [
-	[1, 0],
-	[0.99, 0.12],
-	[0.94, 0.3],
-	[0.83, 0.5],
-	[0.65, 0.7],
-	[0.4, 0.88],
-	[0.12, 1]
-];
-
-const pendantLamp: Build = (w, d, h, p) => {
+const pendantLamp: Build = (w, d, h, p, look) => {
+	if (look && styled(look)) return lamps.pendantLamp(w, d, h, p, look);
 	const g = new Group();
 	const { stand, shade } = tones(p);
 	const shadeH = Math.min(w * 0.55, h * 0.72);
@@ -65,7 +49,8 @@ const pendantLamp: Build = (w, d, h, p) => {
 	return g;
 };
 
-const wallLamp: Build = (w, d, h, p) => {
+const wallLamp: Build = (w, d, h, p, look) => {
+	if (look && styled(look)) return lamps.wallLamp(w, d, h, p, look);
 	const g = new Group();
 	const { stand, shade } = tones(p);
 	const metal = mat('metal', stand);
