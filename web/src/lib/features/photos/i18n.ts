@@ -55,6 +55,8 @@ export const messages = defineMessages({
 		deleteTitle: 'Foto löschen?',
 		deleteMessage: 'Das Foto wird aus diesem Raum entfernt.',
 		deleted: 'Foto gelöscht',
+		undoDelete: 'Rückgängig',
+		restoredPhoto: 'Foto wiederhergestellt',
 		viewerClose: 'Foto schliessen',
 		errorNotImage: '«{name}» ist kein Bild. Wähle ein Foto.',
 		errorHeic:
@@ -117,6 +119,8 @@ export const messages = defineMessages({
 		deleteTitle: 'Delete photo?',
 		deleteMessage: 'The photo will be removed from this room.',
 		deleted: 'Photo deleted',
+		undoDelete: 'Undo',
+		restoredPhoto: 'Photo restored',
 		viewerClose: 'Close photo',
 		errorNotImage: '“{name}” is not an image. Choose a photo.',
 		errorHeic:

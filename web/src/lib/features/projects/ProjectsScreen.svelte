@@ -4,6 +4,7 @@
 	import CloudAlert from '@lucide/svelte/icons/cloud-alert';
 	import CloudCheck from '@lucide/svelte/icons/cloud-check';
 	import CloudOff from '@lucide/svelte/icons/cloud-off';
+	import Download from '@lucide/svelte/icons/download';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Settings from '@lucide/svelte/icons/settings';
 	import Share from '@lucide/svelte/icons/share';
@@ -16,16 +17,26 @@
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import {
-		deleteProject,
 		listProjects,
 		loadProject,
 		onLocalChange,
+		onRemoteChange,
 		saveProject,
 		type ProjectSummary
 	} from '#lib/state/persistence.ts';
 	import { createProject } from '#lib/state/project.svelte.ts';
 	import { settings, updateSettings } from '#lib/state/settings.svelte.ts';
+	import { reportStorageError } from '#lib/state/storageErrors.ts';
 	import { syncState, type SyncStatus } from '#lib/state/sync.svelte.ts';
+	import {
+		listTrash,
+		purgeExpiredTrash,
+		purgeFromTrash,
+		restoreFromTrash,
+		TRASH_DAYS,
+		trashProject,
+		type TrashEntry
+	} from '#lib/state/trash.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
 	import Dialog from '#lib/ui/Dialog.svelte';
@@ -37,8 +48,10 @@
 	import TextField from '#lib/ui/TextField.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
 	import { messages } from './i18n.ts';
-	import { readEnvironment, shouldShowInstallHint } from './install.ts';
+	import { installState, promptInstall } from './install.svelte.ts';
+	import { needsInstallGate, readEnvironment, shouldShowInstallHint } from './install.ts';
 	import ProjectCard from './ProjectCard.svelte';
+	import TrashSection from './TrashSection.svelte';
 
 	let projects = $state<ProjectSummary[] | null>(null);
 	let creating = $state(false);
@@ -53,15 +66,36 @@
 	let menuY = $state(0);
 	let menuTarget = $state<ProjectSummary | null>(null);
 	let showInstallHint = $state(false);
+	let trash = $state<TrashEntry[]>([]);
+	let purging = $state<TrashEntry | null>(null);
+	let confirmingPurge = $state(false);
+	let gateOpen = $state(false);
+	let loadFailed = $state(false);
+	let installLater = $state(false);
 
 	async function refresh(): Promise<void> {
-		projects = await listProjects();
+		try {
+			await purgeExpiredTrash();
+			const [list, trashed] = await Promise.all([listProjects(), listTrash()]);
+			projects = list;
+			trash = trashed;
+			loadFailed = false;
+		} catch (error) {
+			reportStorageError(error);
+			projects = projects ?? [];
+			loadFailed = true;
+		}
 	}
 
 	$effect(() => {
 		void syncState.lastSyncedAt;
 		void refresh();
-		return onLocalChange(() => void refresh());
+		const stopLocal = onLocalChange(() => void refresh());
+		const stopRemote = onRemoteChange(() => void refresh());
+		return () => {
+			stopLocal();
+			stopRemote();
+		};
 	});
 
 	$effect(() => {
@@ -131,8 +165,28 @@
 	}
 
 	function startCreate(): void {
+		const gate = needsInstallGate(readEnvironment(), {
+			seen: settings.installHintSeen,
+			projectCount: projects?.length ?? 0
+		});
+		if (gate) {
+			gateOpen = true;
+			return;
+		}
 		newName = '';
 		creating = true;
+	}
+
+	function skipGate(): void {
+		updateSettings({ installHintSeen: true });
+		showInstallHint = false;
+		gateOpen = false;
+		newName = '';
+		creating = true;
+	}
+
+	async function installApp(): Promise<void> {
+		await promptInstall();
 	}
 
 	async function submitCreate(): Promise<void> {
@@ -183,10 +237,17 @@
 		deleting = null;
 		if (!target) return;
 		try {
-			await deleteProject(target.id);
+			await trashProject(target.id);
 			await refresh();
-			toasts.show({ message: t(messages, 'deleted', { name: target.name }), kind: 'success' });
-		} catch {
+			toasts.show({
+				message: t(messages, 'deleted', { name: target.name }),
+				kind: 'success',
+				actionLabel: t(messages, 'undo'),
+				onaction: () => void undoDelete(target),
+				duration: 10_000
+			});
+		} catch (error) {
+			reportStorageError(error);
 			toasts.show({
 				message: t(messages, 'deleteFailed'),
 				kind: 'error',
@@ -196,6 +257,34 @@
 					confirmingDelete = true;
 				}
 			});
+		}
+	}
+
+	async function undoDelete(target: { id: string; name: string }): Promise<void> {
+		try {
+			await restoreFromTrash(target.id);
+			await refresh();
+			toasts.show({
+				message: t(messages, 'restoredFromTrash', { name: target.name }),
+				kind: 'success'
+			});
+		} catch (error) {
+			reportStorageError(error);
+			toasts.show({ message: t(messages, 'restoreFailed'), kind: 'error' });
+		}
+	}
+
+	async function confirmPurge(): Promise<void> {
+		const target = purging;
+		purging = null;
+		if (!target) return;
+		try {
+			await purgeFromTrash(target.id);
+			await refresh();
+			toasts.show({ message: t(messages, 'purged', { name: target.name }), kind: 'success' });
+		} catch (error) {
+			reportStorageError(error);
+			toasts.show({ message: t(messages, 'deleteFailed'), kind: 'error' });
 		}
 	}
 </script>
@@ -266,7 +355,44 @@
 			</aside>
 		{/if}
 
-		{#if projects === null}
+		{#if installState.canPrompt && !installState.standalone && !installLater}
+			<aside
+				class="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-accent/30 bg-accent-soft p-4"
+				data-testid="install-prompt"
+			>
+				<Download class="size-6 shrink-0 text-accent" />
+				<div class="min-w-48 grow basis-0">
+					<p class="font-bold">{t(messages, 'installPromptTitle')}</p>
+					<p class="mt-0.5 text-sm text-muted">{t(messages, 'installPromptText')}</p>
+				</div>
+				<div class="flex gap-2">
+					<Button variant="ghost" size="sm" onclick={() => (installLater = true)}>
+						{t(messages, 'installPromptLater')}
+					</Button>
+					<Button
+						variant="primary"
+						size="sm"
+						onclick={() => void installApp()}
+						data-testid="install-app"
+					>
+						{t(messages, 'installPromptAction')}
+					</Button>
+				</div>
+			</aside>
+		{/if}
+
+		{#if loadFailed && (projects === null || projects.length === 0)}
+			<div
+				class="flex grow flex-col items-center justify-center gap-4 p-6 text-center"
+				data-testid="list-failed"
+			>
+				<div>
+					<p class="text-xl font-bold">{t(messages, 'listFailed')}</p>
+					<p class="mt-1.5 text-muted">{t(messages, 'listFailedText')}</p>
+				</div>
+				<Button variant="primary" onclick={() => void refresh()}>{t(messages, 'retry')}</Button>
+			</div>
+		{:else if projects === null}
 			<div class="flex grow items-center justify-center text-accent">
 				<ProgressRing size={40} />
 			</div>
@@ -285,6 +411,17 @@
 					<ProjectCard {project} onmenu={openMenu} />
 				{/each}
 			</div>
+		{/if}
+
+		{#if trash.length > 0}
+			<TrashSection
+				entries={trash}
+				onrestore={(entry) => void undoDelete(entry)}
+				onpurge={(entry) => {
+					purging = entry;
+					confirmingPurge = true;
+				}}
+			/>
 		{/if}
 
 		<footer class="mt-auto flex justify-center pt-8">
@@ -356,13 +493,49 @@
 <ConfirmDialog
 	bind:open={confirmingDelete}
 	title={t(messages, 'deleteTitle', { name: deleting?.name ?? '' })}
-	message={t(messages, 'deleteMessage')}
-	confirmLabel={t(common, 'delete')}
+	message={t(messages, 'deleteMessage', { days: TRASH_DAYS })}
+	confirmLabel={t(messages, 'toTrashAction')}
 	cancelLabel={t(common, 'cancel')}
 	closeLabel={t(common, 'close')}
 	danger
 	onconfirm={() => void confirmDelete()}
 	oncancel={() => (deleting = null)}
 />
+
+<ConfirmDialog
+	bind:open={confirmingPurge}
+	title={t(messages, 'purgeTitle', { name: purging?.name ?? '' })}
+	message={t(messages, 'purgeMessage')}
+	confirmLabel={t(messages, 'trashPurge')}
+	cancelLabel={t(common, 'cancel')}
+	closeLabel={t(common, 'close')}
+	danger
+	onconfirm={() => void confirmPurge()}
+	oncancel={() => (purging = null)}
+/>
+
+<Dialog
+	bind:open={gateOpen}
+	title={t(messages, 'gateTitle')}
+	closeLabel={t(common, 'close')}
+	size="sm"
+>
+	<div class="flex flex-col gap-3" data-testid="install-gate">
+		<div class="flex items-start gap-3">
+			<Share class="mt-0.5 size-6 shrink-0 text-accent" />
+			<p>{t(messages, 'gateText')}</p>
+		</div>
+		<p class="text-sm text-muted">{t(messages, 'gateSteps')}</p>
+		<p class="text-sm text-muted">{t(messages, 'gateSkipHint')}</p>
+	</div>
+	{#snippet actions()}
+		<Button variant="ghost" onclick={skipGate} data-testid="gate-skip">
+			{t(messages, 'gateSkip')}
+		</Button>
+		<Button variant="primary" onclick={() => (gateOpen = false)} data-testid="gate-install">
+			{t(messages, 'gateInstall')}
+		</Button>
+	{/snippet}
+</Dialog>
 
 <Menu bind:open={menuOpen} x={menuX} y={menuY} items={menuItems} label={t(messages, 'more')} />

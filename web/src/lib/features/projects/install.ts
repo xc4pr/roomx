@@ -26,3 +26,10 @@ export function readEnvironment(): InstallEnvironment {
 			matchMedia('(display-mode: standalone)').matches
 	};
 }
+
+export function needsInstallGate(
+	env: InstallEnvironment,
+	options: { seen: boolean; projectCount: number }
+): boolean {
+	return options.projectCount === 0 && shouldShowInstallHint(env, options.seen);
+}

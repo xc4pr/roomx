@@ -5,7 +5,6 @@ import { newId } from '#lib/core/ids.ts';
 import { LOCAL_ONLY } from '#lib/edition.ts';
 import { t } from '#lib/i18n/index.svelte.ts';
 import { toasts } from '#lib/ui/toast.svelte.ts';
-import { db } from './db.ts';
 import { onLocalChange } from './persistence.ts';
 import { store } from './project.svelte.ts';
 import { settings } from './settings.svelte.ts';
@@ -14,7 +13,6 @@ import { SyncController, type Resolution, type SyncSnapshot } from './sync/contr
 import { messages } from './sync/i18n.ts';
 import { createOriginChecker } from './sync/origin.ts';
 import { prefetchPhotos, setPhotoSource } from './sync/photos.ts';
-import { reminderDue } from './sync/reminder.ts';
 import { runSync, type Host, type RunResult } from './sync/runner.ts';
 import {
 	normalizeServerUrl,
@@ -30,23 +28,18 @@ export type { ConnectionResult } from './sync/connection.ts';
 const STORAGE_KEY = 'roomx.sync';
 const START_DELAY_MS = 400;
 const SETTINGS_DELAY_MS = 800;
-const REMINDER_DELAY_MS = 8_000;
 
 interface Persisted {
 	lastSyncedAt: string | null;
-	lastReminderAt: string | null;
 }
 
 function readPersisted(): Persisted {
 	try {
 		const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
 		const parsed = raw ? (JSON.parse(raw) as Partial<Persisted>) : {};
-		return {
-			lastSyncedAt: typeof parsed.lastSyncedAt === 'string' ? parsed.lastSyncedAt : null,
-			lastReminderAt: typeof parsed.lastReminderAt === 'string' ? parsed.lastReminderAt : null
-		};
+		return { lastSyncedAt: typeof parsed.lastSyncedAt === 'string' ? parsed.lastSyncedAt : null };
 	} catch {
-		return { lastSyncedAt: null, lastReminderAt: null };
+		return { lastSyncedAt: null };
 	}
 }
 
@@ -144,38 +137,9 @@ function announceConflicts(result: RunResult): void {
 	toasts.show({ id: 'sync-conflict', message, kind: 'info', duration: 10_000 });
 }
 
-async function checkReminder(): Promise<void> {
-	try {
-		const projects = (await db.projects.toArray()).filter((project) => !project.deleted);
-		const earliest = projects.map((project) => project.createdAt).sort()[0] ?? null;
-		const due = reminderDue({
-			now: Date.now(),
-			lastSyncedAt: syncState.lastSyncedAt,
-			lastBackupAt: settings.lastBackupAt,
-			earliestCreatedAt: earliest,
-			lastReminderAt: persisted.lastReminderAt
-		});
-		if (!due) return;
-		writePersisted({ lastReminderAt: new Date().toISOString() });
-		toasts.show({
-			id: 'backup-reminder',
-			message: t(messages, 'backupReminder'),
-			actionLabel: t(messages, 'backupAction'),
-			onaction: () => {
-				const latest = projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
-				void goto(latest ? resolve('/p/[id]/share', { id: latest.id }) : resolve('/'));
-			},
-			duration: 12_000
-		});
-	} catch {
-		return;
-	}
-}
-
 function onResult(result: RunResult): void {
 	announceConflicts(result);
 	if (result.photoHashes.length > 0) void prefetchPhotos(result.photoHashes);
-	void checkReminder();
 }
 
 function onReport(snapshot: SyncSnapshot): void {
@@ -199,10 +163,7 @@ export function testServerConnection(url: string, token: string): Promise<Connec
 
 export function startSync(): () => void {
 	if (typeof window === 'undefined') return () => {};
-	if (LOCAL_ONLY) {
-		void checkReminder();
-		return () => {};
-	}
+	if (LOCAL_ONLY) return () => {};
 	controller?.dispose();
 	originChecker.reset();
 	const active = new SyncController<Target>({
@@ -227,7 +188,6 @@ export function startSync(): () => void {
 	const onVisible = () => {
 		if (document.visibilityState !== 'visible') return;
 		active.foreground();
-		void checkReminder();
 	};
 	window.addEventListener('online', onOnline);
 	document.addEventListener('visibilitychange', onVisible);
@@ -241,10 +201,8 @@ export function startSync(): () => void {
 			first = false;
 		});
 	});
-	const reminderTimer = setTimeout(() => void checkReminder(), REMINDER_DELAY_MS);
 
 	return () => {
-		clearTimeout(reminderTimer);
 		stopSettings();
 		stopChanges();
 		window.removeEventListener('online', onOnline);

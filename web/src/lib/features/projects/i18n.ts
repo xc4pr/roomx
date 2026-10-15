@@ -11,10 +11,30 @@ export const messages = defineMessages({
 		renameAction: 'Umbenennen',
 		renameTitle: 'Projekt umbenennen',
 		saveAction: 'Speichern',
-		deleteTitle: '«{name}» löschen?',
+		deleteTitle: '«{name}» in den Papierkorb legen?',
 		deleteMessage:
-			'Das Projekt mit allen Räumen wird entfernt. Das lässt sich nicht rückgängig machen.',
-		deleted: '«{name}» gelöscht',
+			'Das Projekt bleibt {days} Tage im Papierkorb. Bis dahin kannst du es dort wiederherstellen.',
+		toTrashAction: 'In den Papierkorb',
+		deleted: '«{name}» in den Papierkorb gelegt',
+		undo: 'Rückgängig',
+		restoredFromTrash: '«{name}» wiederhergestellt',
+		trashTitle: 'Papierkorb',
+		trashHint: 'Gelöschte Projekte bleiben {days} Tage hier und werden dann endgültig entfernt.',
+		trashRestore: 'Wiederherstellen',
+		trashPurge: 'Endgültig löschen',
+		trashDaysLeft: 'Noch {n} Tage',
+		trashDayLeft: 'Noch 1 Tag',
+		trashToday: 'Wird heute entfernt',
+		trashShow: 'Papierkorb anzeigen',
+		trashHide: 'Papierkorb ausblenden',
+		purgeTitle: '«{name}» endgültig löschen?',
+		purgeMessage:
+			'Das Projekt mit allen Räumen und Fotos wird entfernt. Das lässt sich nicht rückgängig machen.',
+		purged: '«{name}» endgültig gelöscht',
+		restoreFailed: 'Das Projekt konnte nicht wiederhergestellt werden. Versuche es noch einmal.',
+		listFailed: 'Die Projekte konnten nicht geladen werden.',
+		listFailedText:
+			'Dein Browser lässt hier keinen Zugriff auf den Speicher zu. Prüfe, ob du im privaten Modus bist.',
 		roomsNone: 'Keine Räume',
 		roomsOne: '1 Raum',
 		roomsMany: '{n} Räume',
@@ -30,6 +50,20 @@ export const messages = defineMessages({
 		installText:
 			'Tippe unten im Safari auf «Teilen» und wähle «Zum Home-Bildschirm». So öffnet sich roomx als eigene App, auch ohne Netz.',
 		installDismiss: 'Verstanden',
+		gateTitle: 'Zuerst als App installieren?',
+		gateText:
+			'Safari löscht die Daten von Webseiten, die du sieben Tage lang nicht besuchst. Als App auf dem Home-Bildschirm gilt das nicht. Deine Projekte wären dort sicherer.',
+		gateSteps:
+			'Tippe in Safari auf «Teilen», dann auf «Zum Home-Bildschirm» und öffne roomx von dort.',
+		gateInstall: 'Ich installiere zuerst',
+		gateSkip: 'Trotzdem fortfahren',
+		gateSkipHint:
+			'Sichere deine Projekte dann regelmässig mit «Alles sichern» in den Einstellungen.',
+		installPromptTitle: 'roomx als App installieren',
+		installPromptText:
+			'Als App öffnet sich roomx in einem eigenen Fenster, auch ohne Netz, und der Browser schützt die Daten besser.',
+		installPromptAction: 'Installieren',
+		installPromptLater: 'Später',
 		openProject: 'Projekt öffnen',
 		backupZip: 'Backup (ZIP)',
 		createFailed: 'Das Projekt konnte nicht angelegt werden. Ist der Speicher voll?',
@@ -42,7 +76,26 @@ export const messages = defineMessages({
 		errorText:
 			'Die Seite konnte nicht angezeigt werden. Deine Projekte sind auf diesem Gerät sicher.',
 		errorHome: 'Zu den Projekten',
-		errorReload: 'Neu laden'
+		errorReload: 'Neu laden',
+		storageQuotaTitle: 'Speicher voll',
+		storageQuota:
+			'Auf diesem Gerät ist kein Platz mehr frei. Deine letzten Änderungen sind noch nicht gespeichert.',
+		storageUnavailableTitle: 'Speichern nicht möglich',
+		storageUnavailable:
+			'Dieser Browser erlaubt hier kein dauerhaftes Speichern, zum Beispiel im privaten Modus oder wegen einer Richtlinie. Änderungen gehen verloren, sobald du die Seite schliesst.',
+		storageBlockedTitle: 'Speichern blockiert',
+		storageBlocked:
+			'roomx ist in einem anderen Tab oder Fenster in einer älteren Version geöffnet. Schliesse die anderen roomx-Tabs und lade diese Seite neu.',
+		storageFailedTitle: 'Speichern fehlgeschlagen',
+		storageFailed:
+			'Deine letzten Änderungen konnten nicht gespeichert werden. roomx versucht es weiter.',
+		storageBackupNow: 'Jetzt sichern',
+		storageRetry: 'Erneut versuchen',
+		storageRecovered: 'Speichern klappt wieder.',
+		readOnlyTitle: 'Nur lesen',
+		readOnlyText:
+			'Dieses Projekt ist in einem anderen Tab oder Fenster geöffnet und wird dort bearbeitet. Hier siehst du den aktuellen Stand, Änderungen von dort erscheinen von selbst.',
+		takeOver: 'Hier bearbeiten'
 	},
 	en: {
 		title: 'Projects',
@@ -54,9 +107,30 @@ export const messages = defineMessages({
 		renameAction: 'Rename',
 		renameTitle: 'Rename project',
 		saveAction: 'Save',
-		deleteTitle: 'Delete “{name}”?',
-		deleteMessage: 'The project and all its rooms will be removed. This cannot be undone.',
-		deleted: '“{name}” deleted',
+		deleteTitle: 'Move “{name}” to the trash?',
+		deleteMessage:
+			'The project stays in the trash for {days} days. Until then you can restore it there.',
+		toTrashAction: 'Move to trash',
+		deleted: '“{name}” moved to the trash',
+		undo: 'Undo',
+		restoredFromTrash: '“{name}” restored',
+		trashTitle: 'Trash',
+		trashHint: 'Deleted projects stay here for {days} days and are then removed for good.',
+		trashRestore: 'Restore',
+		trashPurge: 'Delete for good',
+		trashDaysLeft: '{n} days left',
+		trashDayLeft: '1 day left',
+		trashToday: 'Removed today',
+		trashShow: 'Show trash',
+		trashHide: 'Hide trash',
+		purgeTitle: 'Delete “{name}” for good?',
+		purgeMessage:
+			'The project with all its rooms and photos will be removed. This cannot be undone.',
+		purged: '“{name}” deleted for good',
+		restoreFailed: 'The project could not be restored. Please try again.',
+		listFailed: 'The projects could not be loaded.',
+		listFailedText:
+			'Your browser does not allow access to storage here. Check whether you are in private mode.',
 		roomsNone: 'No rooms',
 		roomsOne: '1 room',
 		roomsMany: '{n} rooms',
@@ -72,6 +146,18 @@ export const messages = defineMessages({
 		installText:
 			'In Safari, tap “Share” and choose “Add to Home Screen”. roomx then opens as its own app and works offline.',
 		installDismiss: 'Got it',
+		gateTitle: 'Install as an app first?',
+		gateText:
+			'Safari deletes the data of websites you have not visited for seven days. An app on the Home Screen is exempt. Your projects would be safer there.',
+		gateSteps: 'In Safari, tap “Share”, then “Add to Home Screen”, and open roomx from there.',
+		gateInstall: 'I will install first',
+		gateSkip: 'Continue anyway',
+		gateSkipHint: 'Then back up your projects regularly with “Back up everything” in Settings.',
+		installPromptTitle: 'Install roomx as an app',
+		installPromptText:
+			'As an app, roomx opens in its own window, works offline and the browser protects the data better.',
+		installPromptAction: 'Install',
+		installPromptLater: 'Later',
 		openProject: 'Open project',
 		backupZip: 'Backup (ZIP)',
 		createFailed: 'The project could not be created. Is the storage full?',
@@ -83,6 +169,24 @@ export const messages = defineMessages({
 		errorTitle: 'Oops, something went wrong',
 		errorText: 'The page could not be displayed. Your projects are safe on this device.',
 		errorHome: 'Go to projects',
-		errorReload: 'Reload'
+		errorReload: 'Reload',
+		storageQuotaTitle: 'Storage full',
+		storageQuota:
+			'There is no free space left on this device. Your latest changes are not saved yet.',
+		storageUnavailableTitle: 'Saving is not possible',
+		storageUnavailable:
+			'This browser does not allow permanent storage here, for example in private mode or because of a policy. Changes are lost as soon as you close the page.',
+		storageBlockedTitle: 'Saving is blocked',
+		storageBlocked:
+			'roomx is open in an older version in another tab or window. Close the other roomx tabs and reload this page.',
+		storageFailedTitle: 'Saving failed',
+		storageFailed: 'Your latest changes could not be saved. roomx keeps trying.',
+		storageBackupNow: 'Back up now',
+		storageRetry: 'Try again',
+		storageRecovered: 'Saving works again.',
+		readOnlyTitle: 'Read only',
+		readOnlyText:
+			'This project is open in another tab or window and is edited there. Here you see the current state, changes from there appear on their own.',
+		takeOver: 'Edit here'
 	}
 });

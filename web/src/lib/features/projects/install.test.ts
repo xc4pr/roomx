@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { shouldShowInstallHint, type InstallEnvironment } from './install.ts';
+import { needsInstallGate, shouldShowInstallHint, type InstallEnvironment } from './install.ts';
 
 const safari: InstallEnvironment = {
 	userAgent:
@@ -29,5 +29,19 @@ describe('shouldShowInstallHint', () => {
 			standalone: false
 		};
 		expect(shouldShowInstallHint(desktop, false)).toBe(false);
+	});
+});
+
+describe('needsInstallGate', () => {
+	it('asks before the first project in iOS Safari', () => {
+		expect(needsInstallGate(safari, { seen: false, projectCount: 0 })).toBe(true);
+	});
+
+	it('lets the user skip it and never asks with existing projects', () => {
+		expect(needsInstallGate(safari, { seen: true, projectCount: 0 })).toBe(false);
+		expect(needsInstallGate(safari, { seen: false, projectCount: 2 })).toBe(false);
+		expect(
+			needsInstallGate({ ...safari, standalone: true }, { seen: false, projectCount: 0 })
+		).toBe(false);
 	});
 });

@@ -1,5 +1,8 @@
 import Dexie, { type Table } from 'dexie';
 import type { Project } from '#lib/core/schema.ts';
+import { reportStorageError, StorageBlockedError } from './storageErrors.ts';
+
+export const DB_NAME = 'roomx';
 
 export interface StoredPhoto {
 	hash: string;
@@ -8,6 +11,7 @@ export interface StoredPhoto {
 	w: number;
 	h: number;
 	uploaded: boolean;
+	storedAt?: number;
 }
 
 export interface SyncRecord {
@@ -23,6 +27,11 @@ export interface StoredPreview {
 	updatedAt: string;
 }
 
+export interface TrashRecord {
+	projectId: string;
+	trashedAt: string;
+}
+
 export interface KeyValue {
 	key: string;
 	value: unknown;
@@ -34,8 +43,9 @@ export class RoomxDatabase extends Dexie {
 	sync!: Table<SyncRecord, string>;
 	previews!: Table<StoredPreview, string>;
 	kv!: Table<KeyValue, string>;
+	trash!: Table<TrashRecord, string>;
 
-	constructor(name = 'roomx') {
+	constructor(name = DB_NAME) {
 		super(name);
 		this.version(1).stores({
 			projects: 'id, updatedAt',
@@ -44,7 +54,14 @@ export class RoomxDatabase extends Dexie {
 			previews: 'projectId',
 			kv: 'key'
 		});
+		this.version(2).stores({
+			trash: 'projectId'
+		});
 	}
 }
 
 export const db = new RoomxDatabase();
+
+db.on('blocked', () => {
+	reportStorageError(new StorageBlockedError());
+});

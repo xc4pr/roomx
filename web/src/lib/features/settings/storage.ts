@@ -51,3 +51,20 @@ export async function requestPersistence(): Promise<boolean> {
 		return false;
 	}
 }
+
+export const QUOTA_WARN_SHARE = 0.8;
+export const QUOTA_FULL_SHARE = 0.95;
+
+export type QuotaLevel = 'ok' | 'warn' | 'full' | 'unknown';
+
+export function quotaShare(info: Pick<StorageInfo, 'usage' | 'quota'>): number | null {
+	if (info.usage == null || !info.quota || info.quota <= 0) return null;
+	return info.usage / info.quota;
+}
+
+export function quotaLevel(info: Pick<StorageInfo, 'usage' | 'quota'>): QuotaLevel {
+	const share = quotaShare(info);
+	if (share === null) return 'unknown';
+	if (share >= QUOTA_FULL_SHARE) return 'full';
+	return share >= QUOTA_WARN_SHARE ? 'warn' : 'ok';
+}

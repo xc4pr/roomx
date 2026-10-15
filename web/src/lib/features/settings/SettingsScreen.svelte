@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import HardDrive from '@lucide/svelte/icons/hard-drive';
 	import Keyboard from '@lucide/svelte/icons/keyboard';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
 	import Sparkles from '@lucide/svelte/icons/sparkles';
@@ -22,23 +21,23 @@
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
 	import { keyboardLikely } from '#lib/ui/device.ts';
-	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import { isInterrupted, resumeStep } from '#lib/features/tour/logic.ts';
 	import { TOUR_TOTAL } from '#lib/features/tour/steps.ts';
 	import { startTour } from '#lib/features/tour/tour.svelte.ts';
+	import BackupCard from './BackupCard.svelte';
 	import { messages } from './i18n.ts';
 	import { openShortcuts } from './shortcuts.svelte.ts';
-	import { formatBytes, readStorage, type StorageInfo } from './storage.ts';
+	import DiagnosticsSection from './DiagnosticsSection.svelte';
+	import StorageCard from './StorageCard.svelte';
+	import WipeCard from './WipeCard.svelte';
 
 	const keyboard = keyboardLikely();
 
 	let deviceName = $state(settings.deviceName);
 	let serverUrl = $state(settings.serverUrl);
 	let token = $state(settings.token);
-	let storage = $state<StorageInfo | null>(null);
-	let asking = $state(false);
 	let testing = $state(false);
 	let testResult = $state<ConnectionResult | null>(null);
 
@@ -74,22 +73,6 @@
 		testResult = await testServerConnection(serverUrl, token);
 		testing = false;
 	}
-
-	$effect(() => {
-		void readStorage(true).then((info) => (storage = info));
-	});
-
-	async function askAgain(): Promise<void> {
-		asking = true;
-		storage = await readStorage(true);
-		asking = false;
-	}
-
-	const share = $derived(
-		storage?.usage != null && storage.quota
-			? Math.max(0.01, storage.usage / storage.quota)
-			: undefined
-	);
 </script>
 
 {#snippet section(title: string, body: Snippet)}
@@ -262,62 +245,8 @@
 			{@render section(t(messages, 'server'), server)}
 		{/if}
 
-		{#snippet storageBody()}
-			{#if storage === null}
-				<div class="flex justify-center py-2 text-accent"><ProgressRing size={32} /></div>
-			{:else}
-				<div class="flex items-start gap-4">
-					<div
-						class="flex size-12 shrink-0 items-center justify-center rounded-full {storage.persist ===
-						'persistent'
-							? 'bg-accent-soft text-accent'
-							: 'bg-warning-soft text-warning'}"
-					>
-						<HardDrive class="size-6" />
-					</div>
-					<div class="min-w-0">
-						<p class="font-bold" data-testid="persist-state">
-							{storage.persist === 'persistent'
-								? t(messages, 'persistOn')
-								: storage.persist === 'transient'
-									? t(messages, 'persistOff')
-									: t(messages, 'persistUnsupported')}
-						</p>
-						<p class="mt-0.5 text-sm text-muted">
-							{storage.persist === 'persistent'
-								? t(messages, 'persistOnText')
-								: storage.persist === 'transient'
-									? t(messages, 'persistOffText')
-									: t(messages, 'persistUnsupportedText')}
-						</p>
-					</div>
-				</div>
-				<div class="flex flex-col gap-2">
-					<div class="h-2 overflow-hidden rounded-full bg-surface-2">
-						<div
-							class="h-full rounded-full bg-accent transition-[width] duration-(--duration-slow) ease-soft"
-							style:width="{(share ?? 0) * 100}%"
-						></div>
-					</div>
-					<p class="text-sm text-muted">
-						{storage.usage != null && storage.quota != null
-							? t(messages, 'usage', {
-									used: formatBytes(storage.usage, locale.language),
-									quota: formatBytes(storage.quota, locale.language)
-								})
-							: t(messages, 'usageUnknown')}
-					</p>
-				</div>
-				{#if storage.persist === 'transient'}
-					<div>
-						<Button variant="secondary" loading={asking} onclick={() => void askAgain()}>
-							{t(messages, 'persistRequest')}
-						</Button>
-					</div>
-				{/if}
-			{/if}
-		{/snippet}
-		{@render section(t(messages, 'storage'), storageBody)}
+		<BackupCard />
+		<StorageCard />
 
 		{#snippet helpBody()}
 			<div class="flex flex-col gap-2">
@@ -379,5 +308,8 @@
 		{#if !LOCAL_ONLY}
 			{@render section(t(messages, 'about'), aboutBody)}
 		{/if}
+
+		<DiagnosticsSection />
+		<WipeCard />
 	</div>
 </div>

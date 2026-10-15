@@ -82,8 +82,20 @@
 	}
 
 	function remove(): void {
-		store.removePhoto(roomId, photoId);
-		toasts.show({ message: t(messages, 'deleted'), kind: 'success' });
+		const removed = store.removePhoto(roomId, photoId);
+		toasts.show({
+			message: t(messages, 'deleted'),
+			kind: 'success',
+			actionLabel: removed ? t(messages, 'undoDelete') : undefined,
+			onaction: removed
+				? () => {
+						if (store.restorePhoto(roomId, removed.photo, removed.index)) {
+							toasts.show({ message: t(messages, 'restoredPhoto'), kind: 'success' });
+						}
+					}
+				: undefined,
+			duration: 10_000
+		});
 		onclose();
 	}
 </script>

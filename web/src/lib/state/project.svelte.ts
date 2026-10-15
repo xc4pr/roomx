@@ -14,11 +14,21 @@ import {
 	type RoomType,
 	type Variant
 } from '#lib/core/schema.ts';
-import { emptyProject, loadProject, saveProject } from './persistence.ts';
+import { scheduleCleanup, setKeepProvider } from './cleanup.ts';
+import { emptyProject, loadProject, photoHashesOf, saveProject } from './persistence.ts';
+import { markSaved, markUnsaved } from './storageHealth.svelte.ts';
+import { createBrowserGuard, type TabGuard, type TabGuardOptions } from './tabs.ts';
 
 const HISTORY_LIMIT = 100;
 const SAVE_DELAY = 300;
 const ROOM_GAP = 500;
+const RETRY_DELAY = 5000;
+
+export type GuardHooks = Pick<
+	TabGuardOptions,
+	'projectId' | 'onMode' | 'onRemoteSave' | 'beforeYield'
+>;
+export type GuardFactory = (hooks: GuardHooks) => TabGuard | null;
 
 export interface MutateOptions {
 	// Consecutive mutations with the same key form one undo step until sealHistory() is called.
@@ -32,11 +42,17 @@ export type ItemPatch = Partial<Omit<Item, 'id'>>;
 
 export class ProjectStore {
 	project = $state<Project | null>(null);
+	readOnly = $state(false);
 	#undoStack = $state.raw<Project[]>([]);
 	#redoStack = $state.raw<Project[]>([]);
 	#openKey: string | null = null;
 	#saveTimer: ReturnType<typeof setTimeout> | null = null;
+	#retryTimer: ReturnType<typeof setTimeout> | null = null;
 	#saving: Promise<void> = Promise.resolve();
+	#pending = new Map<string, Project>();
+	#guard: TabGuard | null = null;
+	#token: symbol | null = null;
+	#createGuard: GuardFactory;
 
 	canUndo = $derived(this.#undoStack.length > 0);
 	canRedo = $derived(this.#redoStack.length > 0);
@@ -44,9 +60,33 @@ export class ProjectStore {
 		this.project?.variants.find((variant) => variant.id === this.project?.activeVariantId) ?? null
 	);
 
+	constructor(options: { createGuard?: GuardFactory } = {}) {
+		this.#createGuard = options.createGuard ?? createBrowserGuard;
+	}
+
 	async open(id: string): Promise<boolean> {
 		await this.flush();
+		this.#dropGuard();
+		const token = Symbol(id);
+		this.#token = token;
+		const guard = this.#createGuard({
+			projectId: id,
+			onMode: (mode, reason) => {
+				if (this.#token !== token) return;
+				this.readOnly = mode === 'readonly';
+				if (reason === 'lost') this.#discardPending();
+				if (reason === 'lost' || reason === 'taken') void this.#reloadFromDisk(id);
+			},
+			onRemoteSave: () => {
+				if (this.#token === token) void this.#reloadFromDisk(id);
+			},
+			beforeYield: () => this.flush()
+		});
+		this.#guard = guard;
+		if (guard) await guard.acquire();
+		else this.readOnly = false;
 		const project = await loadProject(id);
+		if (this.#token !== token) return project !== undefined;
 		this.project = project ?? null;
 		this.#undoStack = [];
 		this.#redoStack = [];
@@ -56,9 +96,54 @@ export class ProjectStore {
 
 	async close(): Promise<void> {
 		await this.flush();
+		this.#dropGuard();
 		this.project = null;
 		this.#undoStack = [];
 		this.#redoStack = [];
+	}
+
+	// Gives up the edit lock when no project screen is shown, so other tabs can edit it.
+	async releaseLock(): Promise<void> {
+		await this.flush();
+		this.#dropGuard();
+	}
+
+	// Drops the open project without saving, for when the local database is about to be erased.
+	abandon(): void {
+		this.#discardPending();
+		if (this.#retryTimer !== null) clearTimeout(this.#retryTimer);
+		this.#retryTimer = null;
+		for (const id of this.#pending.keys()) markSaved(id);
+		this.#pending.clear();
+		this.#dropGuard();
+		this.project = null;
+		this.#undoStack = [];
+		this.#redoStack = [];
+	}
+
+	async takeOver(): Promise<void> {
+		const guard = this.#guard;
+		const id = this.project?.id;
+		if (!guard || !id) return;
+		await guard.takeOver();
+		this.readOnly = false;
+		await this.#reloadFromDisk(id, true);
+	}
+
+	hasUnsaved(): boolean {
+		return this.#pending.size > 0;
+	}
+
+	referencedPhotoHashes(): Set<string> {
+		const hashes = new Set<string>();
+		const add = (project: Project | null) => {
+			if (project) for (const hash of photoHashesOf(project)) hashes.add(hash);
+		};
+		add(this.project);
+		for (const project of this.#undoStack) add(project);
+		for (const project of this.#redoStack) add(project);
+		for (const project of this.#pending.values()) add(project);
+		return hashes;
 	}
 
 	// Replaces the open document without history, e.g. after sync pulled a newer server state.
@@ -75,7 +160,7 @@ export class ProjectStore {
 
 	mutate(recipe: (project: Project) => void, options: MutateOptions = {}): void {
 		const project = this.project;
-		if (!project) return;
+		if (!project || this.readOnly) return;
 		if (!options.coalesce || options.coalesce !== this.#openKey) {
 			this.#undoStack = [...this.#undoStack, $state.snapshot(project) as Project].slice(
 				-HISTORY_LIMIT
@@ -93,6 +178,7 @@ export class ProjectStore {
 	}
 
 	undo(): void {
+		if (this.readOnly) return;
 		const previous = this.#undoStack.at(-1);
 		const current = this.snapshot();
 		if (!previous || !current) return;
@@ -102,6 +188,7 @@ export class ProjectStore {
 	}
 
 	redo(): void {
+		if (this.readOnly) return;
 		const next = this.#redoStack.at(-1);
 		const current = this.snapshot();
 		if (!next || !current) return;
@@ -111,16 +198,64 @@ export class ProjectStore {
 	}
 
 	// Saves run one after another, so a later state never gets overwritten by an earlier one.
+	// A failed save keeps its snapshot and is retried; the failure is reported by saveProject.
 	async flush(): Promise<void> {
 		if (this.#saveTimer !== null) {
 			clearTimeout(this.#saveTimer);
 			this.#saveTimer = null;
 			const project = this.snapshot();
-			if (project) {
-				this.#saving = this.#saving.then(() => saveProject(project)).catch(() => undefined);
-			}
+			if (project && !this.readOnly) this.#pending.set(project.id, project);
+		}
+		for (const project of [...this.#pending.values()]) {
+			this.#pending.delete(project.id);
+			this.#saving = this.#saving.then(() => this.#write(project));
 		}
 		await this.#saving;
+		if (this.#pending.size === 0 && this.#retryTimer !== null) {
+			clearTimeout(this.#retryTimer);
+			this.#retryTimer = null;
+		}
+	}
+
+	async #write(project: Project): Promise<void> {
+		try {
+			await saveProject(project);
+			markSaved(project.id);
+		} catch {
+			if (!this.#pending.has(project.id)) this.#pending.set(project.id, project);
+			markUnsaved(this.#pending.get(project.id)!);
+			this.#scheduleRetry();
+		}
+	}
+
+	#scheduleRetry(): void {
+		if (this.#retryTimer !== null) return;
+		this.#retryTimer = setTimeout(() => {
+			this.#retryTimer = null;
+			void this.flush();
+		}, RETRY_DELAY);
+	}
+
+	#discardPending(): void {
+		if (this.#saveTimer !== null) clearTimeout(this.#saveTimer);
+		this.#saveTimer = null;
+	}
+
+	#dropGuard(): void {
+		this.#token = null;
+		this.#guard?.release();
+		this.#guard = null;
+		this.readOnly = false;
+	}
+
+	async #reloadFromDisk(id: string, force = false): Promise<void> {
+		if (!force && !this.readOnly) return;
+		const fresh = await loadProject(id);
+		if (!fresh || this.project?.id !== id) return;
+		this.project = fresh;
+		this.#undoStack = [];
+		this.#redoStack = [];
+		this.#openKey = null;
 	}
 
 	#restore(project: Project): void {
@@ -248,6 +383,7 @@ export class ProjectStore {
 				if (variant.roomNotes) delete variant.roomNotes[roomId];
 			}
 		});
+		scheduleCleanup();
 	}
 
 	addElement(roomId: string, element: RoomElement): void {
@@ -295,11 +431,29 @@ export class ProjectStore {
 		);
 	}
 
-	removePhoto(roomId: string, photoId: string): void {
+	removePhoto(roomId: string, photoId: string): { photo: Photo; index: number } | undefined {
+		const room = this.room(roomId);
+		const index = room?.photos.findIndex((photo) => photo.id === photoId) ?? -1;
+		if (!room || index < 0 || this.readOnly) return undefined;
+		const photo = $state.snapshot(room.photos[index]) as Photo;
 		this.mutate((project) => {
-			const room = project.rooms.find((candidate) => candidate.id === roomId);
-			if (room) room.photos = room.photos.filter((photo) => photo.id !== photoId);
+			const target = project.rooms.find((candidate) => candidate.id === roomId);
+			if (target) target.photos = target.photos.filter((candidate) => candidate.id !== photoId);
 		});
+		scheduleCleanup();
+		return { photo, index };
+	}
+
+	restorePhoto(roomId: string, photo: Photo, index: number): boolean {
+		const room = this.room(roomId);
+		if (!room || this.readOnly || room.photos.some((candidate) => candidate.id === photo.id)) {
+			return false;
+		}
+		this.mutate((project) => {
+			const target = project.rooms.find((candidate) => candidate.id === roomId);
+			target?.photos.splice(Math.min(index, target.photos.length), 0, photo);
+		});
+		return true;
 	}
 
 	#ensureVariant(project: Project): Variant {
@@ -468,11 +622,21 @@ export class ProjectStore {
 
 export const store = new ProjectStore();
 
+setKeepProvider(async () => {
+	await store.flush();
+	return store.referencedPhotoHashes();
+});
+
 if (typeof window !== 'undefined') {
 	const saveNow = () => void store.flush();
 	window.addEventListener('pagehide', saveNow);
 	document.addEventListener('visibilitychange', () => {
 		if (document.visibilityState === 'hidden') saveNow();
+	});
+	window.addEventListener('beforeunload', (event) => {
+		if (!store.hasUnsaved()) return;
+		event.preventDefault();
+		event.returnValue = '';
 	});
 }
 

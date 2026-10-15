@@ -1,0 +1,161 @@
+{
+	"id": "fixture-v0",
+	"name": "Alte Wohnung",
+	"updatedAt": "2026-10-01T09:30:00.000Z",
+	"rooms": [
+		{
+			"id": "room-rect",
+			"name": "Schlafzimmer",
+			"type": "bedroom",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 4000,
+					"y": 0
+				},
+				{
+					"x": 4000,
+					"y": 3000
+				},
+				{
+					"x": 0,
+					"y": 3000
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 0,
+				"y": 0,
+				"rot": 0
+			},
+			"elements": [
+				{
+					"id": "door-1",
+					"kind": "door",
+					"status": "existing",
+					"wall": 1,
+					"offset": 200,
+					"width": 800,
+					"height": 2000,
+					"elevation": 0,
+					"hinge": "start",
+					"swing": "in"
+				},
+				{
+					"id": "window-1",
+					"kind": "window",
+					"status": "existing",
+					"wall": 3,
+					"offset": 1400,
+					"width": 1200,
+					"height": 1400,
+					"elevation": 900,
+					"windowType": "tiltTurn"
+				},
+				{
+					"id": "socket-1",
+					"kind": "socket",
+					"status": "existing",
+					"wall": 2,
+					"offset": 400,
+					"width": 160,
+					"height": 80,
+					"elevation": 260,
+					"gang": 2,
+					"usb": false
+				},
+				{
+					"id": "e-1",
+					"status": "existing",
+					"wall": 4,
+					"offset": 560,
+					"width": 80,
+					"height": 80,
+					"elevation": 260,
+					"kind": "socket",
+					"gang": 1,
+					"usb": false
+				},
+				{
+					"id": "builtin-1",
+					"kind": "builtin",
+					"status": "existing",
+					"wall": 1,
+					"offset": 1600,
+					"width": 1200,
+					"height": 2300,
+					"elevation": 0,
+					"depth": 600
+				},
+				{
+					"id": "lamp-1",
+					"kind": "ceilingLamp",
+					"status": "existing",
+					"x": 2000,
+					"y": 1500
+				}
+			],
+			"photos": [
+				{
+					"id": "photo-1",
+					"hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+					"perspective": {
+						"kind": "corner",
+						"ref": "A",
+						"caption": {
+							"de": "Ecke A, von der Tür aus",
+							"en": "Corner A, seen from the door"
+						}
+					},
+					"w": 64,
+					"h": 48,
+					"takenAt": "2026-01-01T00:00:00.000Z",
+					"note": "Heizung links"
+				}
+			]
+		},
+		{
+			"id": "room-l",
+			"name": "Wohnzimmer",
+			"type": "living",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 5000,
+					"y": 0
+				},
+				{
+					"x": 5000,
+					"y": 2000
+				},
+				{
+					"x": 2500,
+					"y": 2000
+				},
+				{
+					"x": 2500,
+					"y": 4000
+				},
+				{
+					"x": 0,
+					"y": 4000
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 5000,
+				"y": 0,
+				"rot": 0
+			},
+			"elements": [],
+			"photos": []
+		}
+	],
+	"schemaVersion": 0
+}

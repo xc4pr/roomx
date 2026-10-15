@@ -8,10 +8,7 @@ export const messages = defineMessages({
 		conflictToast:
 			'«{name}» wurde auf einem anderen Gerät geändert. Deine Änderungen liegen als Kopie «{copy}» vor.',
 		conflictToastMany:
-			'{n} Projekte wurden auf einem anderen Gerät geändert. Deine Änderungen liegen als Kopien vor.',
-		backupAction: 'Backup',
-		backupReminder:
-			'Seit über 14 Tagen weder abgeglichen noch gesichert. Erstelle ein ZIP-Backup deiner Projekte.'
+			'{n} Projekte wurden auf einem anderen Gerät geändert. Deine Änderungen liegen als Kopien vor.'
 	},
 	en: {
 		conflictLabel: 'Conflict',
@@ -20,9 +17,6 @@ export const messages = defineMessages({
 		conflictToast:
 			'“{name}” was changed on another device. Your changes are kept as the copy “{copy}”.',
 		conflictToastMany:
-			'{n} projects were changed on another device. Your changes are kept as copies.',
-		backupAction: 'Backup',
-		backupReminder:
-			'Neither synced nor backed up for over 14 days. Create a ZIP backup of your projects.'
+			'{n} projects were changed on another device. Your changes are kept as copies.'
 	}
 });
