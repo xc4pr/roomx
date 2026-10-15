@@ -179,11 +179,11 @@ export function makePlan(g: Group, p: Palette, o: CabinetOptions): Plan {
 
 function layout(parts: { weight: number; rows: Row[] }[], span: number): Section[] {
 	const total = parts.reduce((sum, s) => sum + s.weight, 0);
-	let x = -span / 2;
+	let x = span / 2;
 	return parts.map((s) => {
 		const w = (span * s.weight) / total;
-		x += w;
-		return { rows: s.rows, x: x - w / 2, w };
+		x -= w;
+		return { rows: s.rows, x: x + w / 2, w };
 	});
 }
 

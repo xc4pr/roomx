@@ -13,10 +13,10 @@ function solid(c: Plan): void {
 		seam,
 		c.cw - 0.006,
 		c.yT - c.yB - 0.006,
-		0.01,
+		c.slide ? 0.002 : 0.01,
 		0,
 		c.yB + 0.003,
-		c.fz + (c.raised ? 0.0175 : 0.009)
+		c.fz + (c.slide ? 0.025 : c.raised ? 0.0175 : 0.009)
 	);
 }
 

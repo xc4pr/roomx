@@ -267,3 +267,31 @@ describe('every look field changes the model', () => {
 		});
 	}
 });
+
+describe('sections run from the left as seen from the front', () => {
+	it('puts the first section on the viewer side +x (front faces -z)', () => {
+		const object = build(
+			'sideboard',
+			{ w: 1600, d: 450, h: 800 },
+			{
+				sections: [
+					{ rows: [{ kind: 'drawer', cols: 1 }] },
+					{ rows: [{ kind: 'open', cols: 1 }] },
+					{ rows: [{ kind: 'open', cols: 1 }] }
+				]
+			}
+		);
+		object.updateMatrixWorld(true);
+		const fronts: number[] = [];
+		object.traverse((node) => {
+			if (!(node instanceof Mesh)) return;
+			const box = new Box3().setFromObject(node, true);
+			const width = box.max.x - box.min.x;
+			if (box.min.z < -0.185 && box.max.z - box.min.z < 0.05 && width > 0.2 && width < 0.8) {
+				fronts.push((box.min.x + box.max.x) / 2);
+			}
+		});
+		expect(fronts.length).toBeGreaterThan(0);
+		for (const x of fronts) expect(x).toBeGreaterThan(0.2);
+	});
+});
