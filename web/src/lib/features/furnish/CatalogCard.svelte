@@ -143,14 +143,14 @@
 </script>
 
 <div
-	class="flex min-w-0 flex-col rounded-lg border border-border bg-surface transition duration-(--duration-fast) ease-soft hover:bg-surface-2 {session
+	class="flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-surface transition duration-(--duration-fast) ease-soft hover:bg-surface-2 {session
 		.drag?.entry.id === entry.id
 		? 'opacity-50'
 		: ''}"
 >
 	<button
 		type="button"
-		class="group flex min-w-0 flex-col gap-1.5 rounded-lg p-2 text-start select-none active:scale-[0.97]"
+		class="group flex min-w-0 grow flex-col gap-1.5 rounded-lg p-2 text-start select-none active:scale-[0.97]"
 		style="touch-action: pan-y; -webkit-touch-callout: none; user-select: none"
 		data-catalog-id={entry.id}
 		onpointerdown={down}
@@ -161,7 +161,7 @@
 		onclick={click}
 	>
 		<span
-			class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md bg-surface-2"
+			class="relative flex h-28 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-2"
 			use:lazyThumbnail={{ entry, onload: (next) => (url = next) }}
 		>
 			{#if url}
@@ -192,7 +192,7 @@
 				<span class="truncate">{t(messages, 'unverified')}</span>
 			</span>
 		{/if}
-		<span class="flex items-center justify-between gap-1 text-xs pointer-coarse:text-sm">
+		<span class="mt-auto flex items-center justify-between gap-1 text-xs pointer-coarse:text-sm">
 			<span
 				class="truncate font-bold tabular-nums"
 				title={t(messages, 'priceDate', { date: pricesAsOf() })}>{price}</span

@@ -20,3 +20,19 @@ export function withLooks(
 		return { ...entry, look: { ...base, ...entry.look, ...own } };
 	});
 }
+
+// Entries of the full catalog share the series look but not its fronts, which depend on the size.
+export function withSeriesLooks(
+	entries: CatalogEntry[],
+	series: Readonly<Record<string, Look>> = seriesLooks
+): CatalogEntry[] {
+	return entries.map((entry) => {
+		const base = entry.series ? series[lookKey(entry)] : undefined;
+		if (!base) return entry;
+		const shared: Look = { ...base };
+		delete shared.rows;
+		delete shared.sections;
+		if (Object.keys(shared).length === 0) return entry;
+		return { ...entry, look: { ...shared, ...entry.look } };
+	});
+}

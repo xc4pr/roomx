@@ -11,6 +11,7 @@
 	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { ensureFullCatalog, fullCatalog } from '#lib/catalog/full.svelte.ts';
 	import { lookup } from '#lib/catalog/index.ts';
 	import { formatChf } from '#lib/core/units.ts';
 	import SectionCard from '#lib/features/export/SectionCard.svelte';
@@ -40,8 +41,11 @@
 	let includeBrief = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 
+	void ensureFullCatalog();
+
 	const analysis = $derived.by((): Analysis => {
 		const project = store.project;
+		void fullCatalog.count;
 		if (!project) return { status: 'empty' };
 		return analyzePlanText(text, {
 			project,

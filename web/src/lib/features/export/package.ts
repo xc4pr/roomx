@@ -1,10 +1,21 @@
-import { catalogAliases, catalog as defaultCatalog } from '#lib/catalog/index.ts';
+import { ensureFullCatalog } from '#lib/catalog/full.svelte.ts';
+import {
+	catalogAliases,
+	catalog as curatedCatalog,
+	registeredEntries
+} from '#lib/catalog/index.ts';
 import { catalogLookup, type CatalogEntry } from '#lib/core/catalog.ts';
 import { buildExport, ExportSchema, type ExportDocument } from '#lib/core/export.ts';
 import { planJsonSchema } from '#lib/core/plan.ts';
 import type { Project, Room } from '#lib/core/schema.ts';
 import type { Language } from '#lib/core/units.ts';
-import { catalogJson } from './catalogFile.ts';
+import {
+	catalogJson,
+	fitCatalog,
+	orderForPackage,
+	retailerEntries,
+	type CatalogExcerpt
+} from './catalogFile.ts';
 import { buildInstructions, buildPrompt } from './instructions.ts';
 import { isTooLarge } from './layout.ts';
 import { buildPdf, type PdfFonts, type RoomImages } from './pdf.ts';
@@ -90,7 +101,21 @@ export async function buildPackage(
 		})
 	);
 	const encoder = new TextEncoder();
-	const entries = options.catalog ?? defaultCatalog;
+	let entries: readonly CatalogEntry[];
+	let excerpt: CatalogExcerpt | undefined;
+	if (options.catalog) entries = options.catalog;
+	else {
+		await ensureFullCatalog();
+		const fitted = fitCatalog(
+			orderForPackage(
+				curatedCatalog,
+				retailerEntries(registeredEntries(), project.brief?.retailers)
+			),
+			language
+		);
+		entries = fitted.entries;
+		excerpt = fitted.excerpt;
+	}
 	const fileNames = {
 		instructions: instructionsFileName(project.name, language, date),
 		pdf: exportFileName(project.name, 'pdf', date),
@@ -113,7 +138,7 @@ export async function buildPackage(
 		})
 	);
 	const schemaData = encoder.encode(`${JSON.stringify(planJsonSchema(), null, 2)}\n`);
-	const catalogData = encoder.encode(catalogJson(entries, language));
+	const catalogData = encoder.encode(catalogJson(entries, language, excerpt));
 	options.onProgress?.(1);
 	const instructions = {
 		name: fileNames.instructions,

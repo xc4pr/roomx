@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { ensureFullCatalog, fullCatalog } from '#lib/catalog/full.svelte.ts';
 	import BuildCheck from '#lib/features/board/BuildCheck.svelte';
 	import { messages as projectMessages } from '#lib/features/projects/i18n.ts';
 	import { openShortcuts } from '#lib/features/settings/shortcuts.svelte.ts';
@@ -22,6 +23,7 @@
 	import { putPreview } from '#lib/state/persistence.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { resetUi, ui } from '#lib/state/ui.svelte.ts';
+	import { toasts } from '#lib/ui/toast.svelte.ts';
 	import BottomNav from '#lib/ui/BottomNav.svelte';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
@@ -59,8 +61,13 @@
 	async function load(id: string): Promise<void> {
 		status = 'loading';
 		try {
-			const found = await store.open(id);
-			if (params.id === id) status = found ? 'ready' : 'missing';
+			const [found] = await Promise.all([store.open(id), ensureFullCatalog()]);
+			if (params.id === id) {
+				status = found ? 'ready' : 'missing';
+				if (found && fullCatalog.error) {
+					toasts.show({ message: fullCatalog.error, id: 'catalog-notice', kind: 'info' });
+				}
+			}
 		} catch {
 			if (params.id === id) status = 'failed';
 		}

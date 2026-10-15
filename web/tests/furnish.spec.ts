@@ -1,3 +1,4 @@
+import { catalogCard } from './helpers/catalog.ts';
 import {
 	addRoom,
 	createProject,
@@ -31,7 +32,7 @@ test('Möbel einrichten, bewegen, drehen, löschen, Budget und Variante kopieren
 	if (!(await panel.isVisible())) await fab.click();
 	await expect(panel).toHaveCount(1);
 	await expect(panel).toBeVisible();
-	await page.locator(`[data-catalog-id="${DESK}"]`).click();
+	await (await catalogCard(page, DESK)).click();
 	const first = await waitForProject(
 		page,
 		id,
@@ -42,7 +43,7 @@ test('Möbel einrichten, bewegen, drehen, löschen, Budget und Variante kopieren
 	const afterDesk = await budget.innerText();
 	await expect(budget).toHaveText(budgetText([DESK]));
 
-	await page.locator(`[data-catalog-id="${BED}"]`).click();
+	await (await catalogCard(page, BED)).click();
 	const second = await waitForProject(
 		page,
 		id,
@@ -136,7 +137,7 @@ test('Katalogkarte zeigt den Händler-Link sicher an', async ({ page }) => {
 	const fab = page.getByTestId('catalog-fab');
 	await expect(panel.or(fab)).toHaveCount(1);
 	if (!(await panel.isVisible())) await fab.click();
-	const card = page.locator('[data-catalog-id="ikea-billy-80x28x202"]');
+	const card = await catalogCard(page, 'ikea-billy-80x28x202');
 	const link = card.locator('xpath=..').getByTestId('catalog-link');
 	await link.scrollIntoViewIfNeeded();
 	await expect(link).toHaveAttribute('href', /^https:\/\/www\.ikea\.com\/ch\//);

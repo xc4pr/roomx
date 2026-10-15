@@ -1,3 +1,4 @@
+import { catalogCard } from './helpers/catalog.ts';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Page } from '@playwright/test';
@@ -122,8 +123,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		}
 		await expect(catalog).toBeVisible();
 		await shot('furnish-catalog');
-		await page.locator('[data-catalog-id="ikea-kivik-sofa-3-228x95x83"]').scrollIntoViewIfNeeded();
-		await page.locator('[data-catalog-id="ikea-kivik-sofa-3-228x95x83"]').click();
+		await (await catalogCard(page, 'ikea-kivik-sofa-3-228x95x83')).click();
 		await shot('furnish-sofa-selected');
 		await furnish.getByTestId('seg-3d').click();
 		await page.waitForTimeout(1500);

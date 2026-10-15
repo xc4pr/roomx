@@ -1,3 +1,4 @@
+import { lookup } from '#lib/catalog/index.ts';
 import type { Download, Request } from '@playwright/test';
 import {
 	addPhoto,
@@ -59,6 +60,7 @@ test('Netzwerk-Audit: ganzer Ablauf, nur eigene Origin', async ({
 	const panel = page.getByTestId('catalog-panel');
 	if (!(await panel.isVisible())) await page.getByTestId('catalog-fab').click();
 	await expect(panel).toBeVisible();
+	await page.getByTestId('catalog-search').fill(lookup('generic-desk-160x80')!.name.de);
 	await page.locator('[data-catalog-id="generic-desk-160x80"]').click();
 	await expect
 		.poll(async () => {

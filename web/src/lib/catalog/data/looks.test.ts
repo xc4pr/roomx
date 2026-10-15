@@ -3,7 +3,7 @@ import { CatalogEntrySchema, LookSchema, type CatalogEntry } from '#lib/core/cat
 import type { Item } from '#lib/core/schema.ts';
 import { furnitureSpec } from '#lib/three/types.ts';
 import { catalog } from '../index.ts';
-import { entryLooks, lookKey, seriesLooks, withLooks } from './looks.ts';
+import { entryLooks, lookKey, seriesLooks, withLooks, withSeriesLooks } from './looks.ts';
 
 const entry = (patch: Partial<CatalogEntry> = {}): CatalogEntry => ({
 	id: 'test-dresser-80x48x100',
@@ -74,5 +74,26 @@ describe('look', () => {
 		expect(furnitureSpec(item(), looked).look).toEqual({ handle: 'knob' });
 		expect(furnitureSpec(item({ model: 'sideboard' }), looked).look).toBeUndefined();
 		expect(furnitureSpec(item(), entry()).look).toBeUndefined();
+	});
+});
+
+describe('series looks for the full catalog', () => {
+	const series = {
+		'TEST|ALPHA|dresser': {
+			base: 'plinth' as const,
+			handle: 'knob' as const,
+			rows: [{ kind: 'drawer' as const, cols: 1 }]
+		}
+	};
+
+	it('keeps the shared features and leaves the fronts to the size', () => {
+		const [out] = withSeriesLooks([entry()], series);
+		expect(out.look).toEqual({ base: 'plinth', handle: 'knob' });
+	});
+
+	it('leaves entries of other series and models unchanged', () => {
+		const other = entry({ series: 'BETA' });
+		const shelf = entry({ model: 'shelf' });
+		expect(withSeriesLooks([other, shelf], series)).toEqual([other, shelf]);
 	});
 });

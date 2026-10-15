@@ -1,3 +1,4 @@
+import { catalogCard } from './helpers/catalog.ts';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
@@ -102,7 +103,7 @@ test('Projekt mit alter Katalog-ID in der Datenbank lädt ohne Fehler und zeigt 
 	const fab = page.getByTestId('catalog-fab');
 	await expect(panel.or(fab)).toHaveCount(1);
 	if (!(await panel.isVisible())) await fab.click();
-	await page.locator(`[data-catalog-id="${entry.id}"]`).click();
+	await (await catalogCard(page, entry.id)).click();
 	const project = await waitForProject(
 		page,
 		id,

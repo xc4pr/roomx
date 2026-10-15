@@ -1,7 +1,9 @@
 import { unzipSync } from 'fflate';
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
-import { catalog } from '#lib/catalog/index.ts';
+import { syntheticCatalog } from '../../../../tests/helpers/syntheticCatalog.ts';
+import { CATALOG_MAX_BYTES } from './catalogFile.ts';
+import { catalog, clearRegistered, registerEntries } from '#lib/catalog/index.ts';
 import { ExportSchema } from '#lib/core/export.ts';
 import { PlanSchema, planJsonSchema } from '#lib/core/plan.ts';
 import { zipPackage } from './deliver.ts';
@@ -135,5 +137,32 @@ describe('package contents', () => {
 		const entries = unzipSync(new Uint8Array(await blob.arrayBuffer()));
 		expect(Object.keys(entries).sort()).toEqual(result.files.map((file) => file.name).sort());
 		for (const file of result.files) expect(entries[file.name]).toEqual(file.data);
+	});
+});
+
+describe('package with the full catalog', () => {
+	it('adds the retailers of the brief and stays below the size limit', async () => {
+		registerEntries(syntheticCatalog(18000));
+		try {
+			const project = furnishedProject();
+			project.brief = {
+				persons: { adults: 2, children: 0 },
+				bedSizes: [],
+				workstations: [],
+				retailers: ['JYSK']
+			};
+			const result = await buildPackage({ project, language: 'de' }, deps);
+			expect(result.catalog.data.length).toBeLessThanOrEqual(CATALOG_MAX_BYTES);
+			const parsed = JSON.parse(new TextDecoder().decode(result.catalog.data));
+			expect(parsed.excerpt).toBe(true);
+			const brands = new Set(parsed.items.map((item: { id: string }) => item.id.split('-')[1]));
+			expect(brands.has('jysk')).toBe(true);
+			expect(brands.has('tchibo')).toBe(false);
+			expect(parsed.items.slice(0, catalog.length).map((item: { id: string }) => item.id)).toEqual(
+				catalog.map((entry) => entry.id)
+			);
+		} finally {
+			clearRegistered();
+		}
 	});
 });
