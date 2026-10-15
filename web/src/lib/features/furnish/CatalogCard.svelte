@@ -142,11 +142,13 @@
 	}
 </script>
 
+<!-- The whole card is observed, so a card whose picture has just scrolled out still loads it. -->
 <div
 	class="flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-surface transition duration-(--duration-fast) ease-soft hover:bg-surface-2 {session
 		.drag?.entry.id === entry.id
 		? 'opacity-50'
 		: ''}"
+	use:lazyThumbnail={{ entry, onload: (next) => (url = next) }}
 >
 	<button
 		type="button"
@@ -162,7 +164,6 @@
 	>
 		<span
 			class="relative flex h-28 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-2"
-			use:lazyThumbnail={{ entry, onload: (next) => (url = next) }}
 		>
 			{#if url}
 				<img
