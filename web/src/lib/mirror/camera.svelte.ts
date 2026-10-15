@@ -57,7 +57,9 @@ export class CameraSession {
 		failed: [],
 		fallbackSuggested: false,
 		revoked: false,
-		expired: false
+		expired: false,
+		uploaded: 0,
+		server: 'off'
 	});
 	#open: OpenTransport;
 	#options: Required<CameraOptions>;

@@ -34,6 +34,8 @@ export interface JobPayload {
 	project: string;
 	lang: Language;
 	expiresAt: number;
+	// Self-hosted edition: the phone may also upload to the encrypted mailbox on the same origin.
+	server?: boolean;
 	part: number;
 	parts: number;
 	rooms: MirrorRoom[];
@@ -59,6 +61,7 @@ export interface HostJob {
 	// Transfer hashes (SHA-256 of the received JPEG bytes) already placed in the project.
 	received: string[];
 	revokedAt?: number;
+	server?: boolean;
 }
 
 // Kept on the phone that scanned the job.
@@ -74,6 +77,7 @@ export interface CameraJob {
 	partsSeen: number[];
 	rooms: MirrorRoom[];
 	revokedAt?: number;
+	server?: boolean;
 }
 
 export type MirrorJob = HostJob | CameraJob;
@@ -90,6 +94,8 @@ export interface Shot {
 	w: number;
 	h: number;
 	takenAt: string;
+	// Mailbox id (SHA-256 of the sealed upload) once the server has stored it.
+	uploaded?: string;
 }
 
 export interface ShotInfo {
@@ -132,6 +138,9 @@ export interface CameraStatus {
 	fallbackSuggested: boolean;
 	revoked: boolean;
 	expired: boolean;
+	// Mailbox path: photos stored on the server and not yet fetched by the computer.
+	uploaded: number;
+	server: 'off' | 'ok' | 'unreachable';
 }
 
 export interface Transport {
