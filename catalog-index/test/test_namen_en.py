@@ -68,6 +68,14 @@ class Fein2(unittest.TestCase):
         self.assertEqual(ne.name_en('Pouf NYSTED 38x38 m/Stauraum Teddystoff', 'jysk', 'NYSTED', w, A),
                          'NYSTED pouf 38x38 with storage teddy fabric')
 
+    def test_aussen_und_ziffern_mit_slash(self):
+        w = dict(W, **{'2er-sitzgruppe': '2-seat seating set', '2er-sitzgruppe/außen': 'FALSCH', '2er-sofa': '2-seater sofa'})
+        f = lambda de: ne.name_en(de, 'ikea', 'HAVSTEN', w, A)
+        self.assertEqual(f('HAVSTEN / LÅGASKÄR 2er-Sitzgruppe/außen'), 'HAVSTEN / LÅGASKÄR outdoor 2-seat seating set')
+        self.assertEqual(f('HAVSTEN 2er-Sofa/außen 179x92x76 cm'), 'HAVSTEN outdoor 2-seater sofa 179x92x76 cm')
+        self.assertEqual(f('HAVSTEN Tisch 109/74 80x60/2 L190/280'), 'HAVSTEN table 109/74 80x60/2 L190/280')
+        self.assertEqual(f('HAVSTEN drinnen/draußen'), 'HAVSTEN indoor/outdoor')
+
     def test_pers_ohne_leerzeichen(self):
         self.assertEqual(en('Modul-Sofa LYBY 3Pers chaise'), 'LYBY modular sofa 3-seater chaise')
         self.assertEqual(en('Sofa 3Pers.', 'tchibo'), 'sofa 3-seater')

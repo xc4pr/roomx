@@ -98,15 +98,34 @@ def _zahlwort(vok, t):
     return f'{n} {r[0] + r[1]}' if r else None
 
 
+MASS_TOKEN = re.compile(r'[A-Za-zØ]{0,2}\d[\d.,xX×/+\-]*(?:cm|mm|m)?')
+AUSSEN = re.compile(r'(.+)/(außen|draußen)$', re.I)
+
+
 def _geteilt(vok, t, unbekannt):
-    """Token mit «/» oder «+»: Teile einzeln, Trennzeichen bleibt."""
+    """Token mit «/» oder «+»: Teile einzeln, Trennzeichen bleibt. Endet es auf «/außen», kommt «outdoor» davor."""
+    m = AUSSEN.match(t)
+    if m and m.group(1).lower() not in ('drinnen', 'innen'):
+        r = _suche(vok, [m.group(1)])
+        return 'outdoor ' + (r[0] + r[1] if r else _geteilt(vok, m.group(1), unbekannt))
     out = []
     for p in re.split(r'([/+])', t):
         if p in ('', '/', '+'):
             out.append(p)
+        elif (z := _zahlwort(vok, p)):
+            out.append(z)
+        elif re.search(r'\d', p):
+            r = _suche(vok, [p])
+            if r:
+                out.append(r[0] + r[1])
+            elif not MASS_TOKEN.fullmatch(p) and BIND_ZAHL.match(p):
+                out.append(_bindestrich(vok, p, unbekannt))
+            else:
+                out.append(p)
+        elif not any(c.isalpha() for c in p):
+            out.append(p)
         else:
-            z = _zahlwort(vok, p)
-            out.append(z if z else p if re.search(r'\d', p) or not any(c.isalpha() for c in p) else _wort(vok, p, unbekannt))
+            out.append(_wort(vok, p, unbekannt))
     return ''.join(out)
 
 
@@ -161,6 +180,13 @@ def _klassen(text, serie, vok, unbekannt):
             i += 1
         elif BIND_ZAHL.match(t):
             out.append(('wort', _bindestrich(vok, t, unbekannt)))
+            i += 1
+        elif AUSSEN.match(t) and AUSSEN.match(t).group(1).lower() not in ('drinnen', 'innen'):
+            out.append(('wort', _geteilt(vok, t, unbekannt)))
+            i += 1
+        elif re.search(r'[/+]', t) and re.search(r'\d', t) and _suche(vok, [t]):
+            r = _suche(vok, [t])
+            out.append(('wort', r[0] + r[1]))
             i += 1
         elif _zahlwort(vok, t):
             out.append(('wort', _zahlwort(vok, t)))

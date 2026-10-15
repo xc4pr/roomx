@@ -172,6 +172,15 @@ class Namen(unittest.TestCase):
                            FARBEN, {}, set(), set(), {}, {'kommode': 'chest'})[0]
         self.assertEqual(e[0]['name']['en'], 'MALM chest 80x48 cm')
 
+    def test_jysk_art_vor_serie(self):
+        a = {'5 Schubladen Kommode breit': 'chest of 5 drawers, wide', '3 Schubladen Kommode': 'chest of 3 drawers',
+             '5 Schubladen Kommode': 'chest of 5 drawers', '3+3 Schubladen Kommode Eiche warm': 'X'}
+        w = {'eiche': 'oak', 'warm': 'warm', 'breit': 'wide'}
+        f = lambda de, serie: n.englisch(de, n.art_text(de, serie), 'jysk', serie, a, w)[0]
+        self.assertEqual(f('5 Schubladen Kommode TAPDRUP breit', 'TAPDRUP'), 'TAPDRUP chest of 5 drawers, wide')
+        self.assertEqual(f('5 Schubladen Kommode TRANUM Eiche warm', 'TRANUM'), 'TRANUM chest of 5 drawers, oak warm')
+        self.assertEqual(f('3 Schubladen Kommode KORUP', 'KORUP'), 'KORUP chest of 3 drawers')
+
     def test_arten_offen(self):
         lauf(Zusammenfuehren.rows(None))
         self.assertEqual(n.normalisiere.arten_offen, [{'art': 'Kommode', 'anzahl': 4}])

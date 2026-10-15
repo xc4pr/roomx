@@ -387,6 +387,13 @@ def englisch(de, art, shop, serie, arten, woerter):
         if shop == 'jysk':
             en = namen_en.serie_nach_vorn(en, serie)
         return namen_en.akronyme_gross(en), [], True
+    if shop == 'jysk' and serie and serie in de:  # «5 Schubladen Kommode TAPDRUP breit»: Art vor der Serie ganz, Rest Wort fuer Wort
+        vor, _, nach = de.partition(serie)
+        vor, nach = vor.strip(), nach.strip()
+        if vor[:1].isdigit() and vor in arten and arten[vor] and nach:
+            rest, unb, _hat = namen_en.name_en_info(nach, shop, None, woerter, arten)
+            sep = ' ' if rest[:1].isdigit() else ', '
+            return namen_en.akronyme_gross(f'{serie} {arten[vor]}{sep}{rest}'), unb, True
     return namen_en.name_en_info(de, shop, serie, woerter, arten)
 
 
