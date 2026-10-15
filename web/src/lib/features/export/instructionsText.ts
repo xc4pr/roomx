@@ -16,7 +16,7 @@ export const instructionTexts = defineMessages({
 			'Stelle mir zuerst alle Rückfragen in einer einzigen Nachricht und warte auf meine Antworten, bevor du planst.',
 			'Gib den fertigen Plan am Ende als JSON-Datei oder als genau einen JSON-Codeblock im Format roomx-plan aus.'
 		),
-		title: '# roomx: Anleitung für den KI-Assistenten',
+		title: '# RoomX: Anleitung für den KI-Assistenten',
 		meta: 'Projekt: **{project}** · Projekt-ID: `{projectId}` · Stand: {date}',
 		promptHeading: '## Startprompt',
 		promptIntro:
@@ -24,7 +24,7 @@ export const instructionTexts = defineMessages({
 		role: lines(
 			'## 1. Rolle und Ziel',
 			'',
-			'Du bist ein erfahrener Einrichtungsplaner für Wohnungen in der Schweiz. Der Nutzer hat seine Räume mit der App roomx erfasst: Grundriss, Türen, Fenster, Elektro und Fotos. Daraus erstellst du einen Einrichtungsplan mit Möbeln, Deko, Licht und Elektro-Vorschlägen, dazu eine Begründung je Raum und eine Einkaufsliste in CHF.',
+			'Du bist ein erfahrener Einrichtungsplaner für Wohnungen in der Schweiz. Der Nutzer hat seine Räume mit der App RoomX erfasst: Grundriss, Türen, Fenster, Elektro und Fotos. Daraus erstellst du einen Einrichtungsplan mit Möbeln, Deko, Licht und Elektro-Vorschlägen, dazu eine Begründung je Raum und eine Einkaufsliste in CHF.',
 			'',
 			'Das Ergebnis ist ein Plan im JSON-Format `roomx-plan`. Die App liest ihn ein und zeigt ihn als neue Variante in 2D und 3D.',
 			'',
@@ -130,7 +130,7 @@ export const instructionTexts = defineMessages({
 			'1. **Plan:** Kannst du Dateien erzeugen, liefere ihn als Datei `{planFile}`, sonst als genau einen JSON-Codeblock. Reines JSON: keine Kommentare, keine Kommas am Ende, gültig gegen `{schema}`. Kürze den Block nie und setze kein zweites JSON in dieselbe Antwort.',
 			'2. **Begründung:** je Raum zwei bis vier Sätze (Zonen, warum diese Wand, was bewusst frei bleibt). Sie steht auch im Plan unter `notes`. Nenne Sicherheitshinweise (hohe Möbel an der Wand sichern) und offene Punkte.',
 			'3. **Einkaufsliste in CHF:** Artikel, Händler, Anzahl, Einzelpreis, Total, Link falls bekannt, am Ende die Gesamtsumme gegen das Budget. Katalogpreise sind Richtpreise (Stand: Feld `pricesAsOf` in der Katalogdatei). Kennzeichne Artikel mit `verified: false` als «Masse ungeprüft». Prüfe Preis und Verfügbarkeit mit einer Websuche, wenn du eine hast; sonst kennzeichne die Preise als «Richtpreis». Nenne nie einen ungeprüften Preis als aktuell.',
-			'4. **Import:** Sage dem Nutzer, dass er in roomx unter «Plan importieren» die Datei wählt oder die Antwort einfügt und die neue Variante danach in der App ansieht.',
+			'4. **Import:** Sage dem Nutzer, dass er in RoomX unter «Plan importieren» die Datei wählt oder die Antwort einfügt und die neue Variante danach in der App ansieht.',
 			'5. Halte die Antwort kurz. Keine langen Koordinatentabellen.'
 		),
 		step6: lines(
@@ -304,7 +304,7 @@ export const instructionTexts = defineMessages({
 			'Ask me all your questions in one single message first and wait for my answers before you start planning.',
 			'At the end, deliver the finished plan as a JSON file or as exactly one JSON code block in the roomx-plan format.'
 		),
-		title: '# roomx: Instructions for the AI assistant',
+		title: '# RoomX: Instructions for the AI assistant',
 		meta: 'Project: **{project}** · Project ID: `{projectId}` · Date: {date}',
 		promptHeading: '## Starting prompt',
 		promptIntro:
@@ -312,7 +312,7 @@ export const instructionTexts = defineMessages({
 		role: lines(
 			'## 1. Role and goal',
 			'',
-			'You are an experienced interior planner for homes in Switzerland. The user captured their rooms with the roomx app: floor plan, doors, windows, electrical points and photos. From that you create a furnishing plan with furniture, decor, lighting and electrical suggestions, plus a short reasoning per room and a shopping list in CHF.',
+			'You are an experienced interior planner for homes in Switzerland. The user captured their rooms with the RoomX app: floor plan, doors, windows, electrical points and photos. From that you create a furnishing plan with furniture, decor, lighting and electrical suggestions, plus a short reasoning per room and a shopping list in CHF.',
 			'',
 			'The result is a plan in the JSON format `roomx-plan`. The app reads it and shows it as a new variant in 2D and 3D.',
 			'',
@@ -414,7 +414,7 @@ export const instructionTexts = defineMessages({
 			'1. **Plan:** if you can create files, deliver it as the file `{planFile}`, otherwise as exactly one JSON code block. Plain JSON: no comments, no trailing commas, valid against `{schema}`. Never shorten the block and do not put a second JSON in the same answer.',
 			'2. **Reasoning:** two to four sentences per room (zones, why this wall, what is deliberately kept free). It also goes into the plan under `notes`. Mention safety notes (secure tall furniture to the wall) and open points.',
 			'3. **Shopping list in CHF:** article, retailer, quantity, unit price, total, link if known, and at the end the grand total against the budget. Catalogue prices are guide prices (as of the `pricesAsOf` field in the catalogue file). Label articles with `verified: false` as "dimensions unverified". Check price and availability with a web search if you have one; otherwise label the prices "guide price". Never state an unchecked price as current.',
-			'4. **Import:** tell the user to choose the file in roomx under "Import plan" or paste your answer there, and then look at the new variant in the app.',
+			'4. **Import:** tell the user to choose the file in RoomX under "Import plan" or paste your answer there, and then look at the new variant in the app.',
 			'5. Keep the answer short. No long tables of coordinates.'
 		),
 		step6: lines(

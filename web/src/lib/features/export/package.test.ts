@@ -102,7 +102,7 @@ describe('package contents', () => {
 			'roomx-instructions-wohnung-mueller-koehler-2026-10-13.md'
 		);
 		const text = new TextDecoder().decode(result.instructions.data);
-		expect(text).toContain('# roomx: Instructions for the AI assistant');
+		expect(text).toContain('# RoomX: Instructions for the AI assistant');
 		expect(result.prompt).toContain('You are my interior planner');
 		expect(JSON.parse(new TextDecoder().decode(result.catalog.data)).language).toBe('en');
 		expect(result.zipName).toBe('roomx-ai-package-wohnung-mueller-koehler-2026-10-13.zip');

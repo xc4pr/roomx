@@ -527,7 +527,7 @@ async function drawPhotoPages(
 
 function drawFooters(ctx: PdfContext, project: Project, date: Date): void {
 	const pages = ctx.doc.getPages();
-	const left = `roomx · ${project.name} · ${formatDate(date.toISOString(), ctx.language)}`;
+	const left = `RoomX · ${project.name} · ${formatDate(date.toISOString(), ctx.language)}`;
 	pages.forEach((page, index) => {
 		strokeLine(
 			page,
@@ -583,9 +583,9 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 		known: new Set(font.getCharacterSet()),
 		knownBold: new Set(bold.getCharacterSet())
 	};
-	doc.setTitle(`roomx - ${project.name}`);
-	doc.setCreator('roomx');
-	doc.setProducer('roomx');
+	doc.setTitle(`RoomX - ${project.name}`);
+	doc.setCreator('RoomX');
+	doc.setProducer('RoomX');
 	doc.setLanguage(language);
 	doc.setCreationDate(date);
 	doc.setModificationDate(date);

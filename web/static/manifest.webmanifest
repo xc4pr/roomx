@@ -1,6 +1,6 @@
 {
-	"name": "roomx",
-	"short_name": "roomx",
+	"name": "RoomX",
+	"short_name": "RoomX",
 	"start_url": "./",
 	"scope": "./",
 	"display": "standalone",

@@ -4,7 +4,7 @@ export const messages = defineMessages({
 	de: {
 		sectionImport: 'Plan importieren',
 		importText:
-			'Füge die Antwort des KI-Assistenten ein oder wähle die Datei. Die Antwort darf weiteren Text enthalten, roomx liest das JSON im Format roomx-plan.',
+			'Füge die Antwort des KI-Assistenten ein oder wähle die Datei. Die Antwort darf weiteren Text enthalten, RoomX liest das JSON im Format roomx-plan.',
 		dropHint: 'Datei hierher ziehen oder wählen',
 		chooseFile: 'Datei wählen',
 		pasteLabel: 'Oder Text einfügen',
@@ -142,7 +142,7 @@ export const messages = defineMessages({
 	en: {
 		sectionImport: 'Import plan',
 		importText:
-			'Paste the reply of the AI assistant or choose the file. The reply may contain other text, roomx picks out the JSON in roomx-plan format.',
+			'Paste the reply of the AI assistant or choose the file. The reply may contain other text, RoomX picks out the JSON in roomx-plan format.',
 		dropHint: 'Drop a file here or choose one',
 		chooseFile: 'Choose file',
 		pasteLabel: 'Or paste text',

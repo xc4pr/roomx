@@ -20,7 +20,7 @@ export const messages = defineMessages({
 		sampleDelete: 'Löschen',
 		shortcutsAction: 'Kürzel',
 		settingsAction: 'Einstellungen',
-		title_welcome: 'Willkommen bei roomx',
+		title_welcome: 'Willkommen bei RoomX',
 		text_welcome:
 			'Hier misst du Räume ein, baust sie in 3D nach und richtest sie mit einem KI-Assistenten ein. Alles bleibt lokal auf diesem Gerät.',
 		title_projects: 'Deine Projekte',
@@ -75,7 +75,7 @@ export const messages = defineMessages({
 		sampleDelete: 'Delete',
 		shortcutsAction: 'Shortcuts',
 		settingsAction: 'Settings',
-		title_welcome: 'Welcome to roomx',
+		title_welcome: 'Welcome to RoomX',
 		text_welcome:
 			'Measure rooms, rebuild them in 3D and furnish them with an AI assistant. Everything stays local on this device.',
 		title_projects: 'Your projects',

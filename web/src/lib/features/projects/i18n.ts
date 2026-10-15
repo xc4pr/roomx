@@ -48,20 +48,20 @@ export const messages = defineMessages({
 		syncConflict: 'Konflikt beim Abgleich',
 		installTitle: 'Zum Home-Bildschirm hinzufügen',
 		installText:
-			'Tippe unten im Safari auf «Teilen» und wähle «Zum Home-Bildschirm». So öffnet sich roomx als eigene App, auch ohne Netz.',
+			'Tippe unten im Safari auf «Teilen» und wähle «Zum Home-Bildschirm». So öffnet sich RoomX als eigene App, auch ohne Netz.',
 		installDismiss: 'Verstanden',
 		gateTitle: 'Zuerst als App installieren?',
 		gateText:
 			'Safari löscht die Daten von Webseiten, die du sieben Tage lang nicht besuchst. Als App auf dem Home-Bildschirm gilt das nicht. Deine Projekte wären dort sicherer.',
 		gateSteps:
-			'Tippe in Safari auf «Teilen», dann auf «Zum Home-Bildschirm» und öffne roomx von dort.',
+			'Tippe in Safari auf «Teilen», dann auf «Zum Home-Bildschirm» und öffne RoomX von dort.',
 		gateInstall: 'Ich installiere zuerst',
 		gateSkip: 'Trotzdem fortfahren',
 		gateSkipHint:
 			'Sichere deine Projekte dann regelmässig mit «Alles sichern» in den Einstellungen.',
-		installPromptTitle: 'roomx als App installieren',
+		installPromptTitle: 'RoomX als App installieren',
 		installPromptText:
-			'Als App öffnet sich roomx in einem eigenen Fenster, auch ohne Netz, und der Browser schützt die Daten besser.',
+			'Als App öffnet sich RoomX in einem eigenen Fenster, auch ohne Netz, und der Browser schützt die Daten besser.',
 		installPromptAction: 'Installieren',
 		installPromptLater: 'Später',
 		openProject: 'Projekt öffnen',
@@ -85,10 +85,10 @@ export const messages = defineMessages({
 			'Dieser Browser erlaubt hier kein dauerhaftes Speichern, zum Beispiel im privaten Modus oder wegen einer Richtlinie. Änderungen gehen verloren, sobald du die Seite schliesst.',
 		storageBlockedTitle: 'Speichern blockiert',
 		storageBlocked:
-			'roomx ist in einem anderen Tab oder Fenster in einer älteren Version geöffnet. Schliesse die anderen roomx-Tabs und lade diese Seite neu.',
+			'RoomX ist in einem anderen Tab oder Fenster in einer älteren Version geöffnet. Schliesse die anderen RoomX-Tabs und lade diese Seite neu.',
 		storageFailedTitle: 'Speichern fehlgeschlagen',
 		storageFailed:
-			'Deine letzten Änderungen konnten nicht gespeichert werden. roomx versucht es weiter.',
+			'Deine letzten Änderungen konnten nicht gespeichert werden. RoomX versucht es weiter.',
 		storageBackupNow: 'Jetzt sichern',
 		storageRetry: 'Erneut versuchen',
 		storageRecovered: 'Speichern klappt wieder.',
@@ -144,18 +144,18 @@ export const messages = defineMessages({
 		syncConflict: 'Sync conflict',
 		installTitle: 'Add to Home Screen',
 		installText:
-			'In Safari, tap “Share” and choose “Add to Home Screen”. roomx then opens as its own app and works offline.',
+			'In Safari, tap “Share” and choose “Add to Home Screen”. RoomX then opens as its own app and works offline.',
 		installDismiss: 'Got it',
 		gateTitle: 'Install as an app first?',
 		gateText:
 			'Safari deletes the data of websites you have not visited for seven days. An app on the Home Screen is exempt. Your projects would be safer there.',
-		gateSteps: 'In Safari, tap “Share”, then “Add to Home Screen”, and open roomx from there.',
+		gateSteps: 'In Safari, tap “Share”, then “Add to Home Screen”, and open RoomX from there.',
 		gateInstall: 'I will install first',
 		gateSkip: 'Continue anyway',
 		gateSkipHint: 'Then back up your projects regularly with “Back up everything” in Settings.',
-		installPromptTitle: 'Install roomx as an app',
+		installPromptTitle: 'Install RoomX as an app',
 		installPromptText:
-			'As an app, roomx opens in its own window, works offline and the browser protects the data better.',
+			'As an app, RoomX opens in its own window, works offline and the browser protects the data better.',
 		installPromptAction: 'Install',
 		installPromptLater: 'Later',
 		openProject: 'Open project',
@@ -178,9 +178,9 @@ export const messages = defineMessages({
 			'This browser does not allow permanent storage here, for example in private mode or because of a policy. Changes are lost as soon as you close the page.',
 		storageBlockedTitle: 'Saving is blocked',
 		storageBlocked:
-			'roomx is open in an older version in another tab or window. Close the other roomx tabs and reload this page.',
+			'RoomX is open in an older version in another tab or window. Close the other RoomX tabs and reload this page.',
 		storageFailedTitle: 'Saving failed',
-		storageFailed: 'Your latest changes could not be saved. roomx keeps trying.',
+		storageFailed: 'Your latest changes could not be saved. RoomX keeps trying.',
 		storageBackupNow: 'Back up now',
 		storageRetry: 'Try again',
 		storageRecovered: 'Saving works again.',
