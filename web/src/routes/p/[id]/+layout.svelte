@@ -60,7 +60,7 @@
 	});
 
 	$effect(() => {
-		if (status !== 'ready') return;
+		if (status !== 'ready' || store.readOnly) return;
 		const id = projectId;
 		return untrack(() => mirrorHost.start(id));
 	});

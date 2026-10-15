@@ -151,9 +151,10 @@ def test_default_limits() -> None:
 
     config = Config(token=TOKEN, data=Path("."))
     assert config.mirror_max_shot_bytes == 16 * 1024 * 1024 + 64 * 1024
-    assert config.mirror_max_shots == 300
+    assert config.mirror_max_shots == 500
     assert config.mirror_max_bytes == 1536 * 1024 * 1024
     assert config.mirror_max_boxes == 100
+    assert config.mirror_max_total_bytes == 5 * 1024**3
     assert config.mirror_max_ttl_ms == 8 * DAY
 
 
@@ -292,3 +293,15 @@ def test_cors_allows_mirror(make_client: Callable[..., TestClient]) -> None:
     )
     assert delete.status_code == 200
     assert "DELETE" in delete.headers["access-control-allow-methods"]
+
+
+def test_server_total_limit(make_client: Callable[..., TestClient]) -> None:
+    client = make_client(mirror_max_total_bytes=20)
+    other = "bbbbbbbbbbbb"
+    client.put(f"/api/mirror/{JOB}", headers=AUTH, json=box_body())
+    client.put(f"/api/mirror/{other}", headers=AUTH, json=box_body())
+    assert upload(client, b"a" * 12).status_code == 201
+    full = upload(client, b"b" * 12, job=other)
+    assert full.status_code == 409
+    assert full.json()["detail"] == "server full"
+    assert upload(client, b"c" * 8, job=other).status_code == 201

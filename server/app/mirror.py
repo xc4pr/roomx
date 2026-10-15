@@ -39,6 +39,7 @@ class MirrorStore:
         self.root.mkdir(parents=True, exist_ok=True)
         self._guard = threading.Lock()
         self._locks: dict[str, threading.Lock] = {}
+        self.total_lock = threading.Lock()
         self.sweep()
 
     def lock(self, job: str) -> threading.Lock:
@@ -228,7 +229,11 @@ def register(
                     return 409, {"detail": "too many shots"}
                 if sum(item["size"] for item in existing) + len(data) > config.mirror_max_bytes:
                     return 409, {"detail": "mailbox full"}
-                write_atomic(store.shot_path(job, shot), data)
+                with store.total_lock:
+                    used = sum(i["size"] for j in store.jobs() for i in store.shots(j))
+                    if used + len(data) > config.mirror_max_total_bytes:
+                        return 409, {"detail": "server full"}
+                    write_atomic(store.shot_path(job, shot), data)
                 return 201, {"id": shot, "created": True}
 
         status, payload = await asyncio.to_thread(write)
