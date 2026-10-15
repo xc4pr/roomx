@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { LIMITS } from '#lib/security/limits.ts';
 	import { untrack } from 'svelte';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { common } from '#lib/i18n/common.ts';
@@ -131,6 +132,7 @@
 			<TextField
 				bind:value={note}
 				label={t(messages, 'note')}
+				maxlength={LIMITS.text}
 				placeholder={t(messages, 'notePlaceholder')}
 				onchange={saveNote}
 				onenter={saveNote}

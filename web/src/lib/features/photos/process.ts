@@ -1,4 +1,5 @@
 import type { Perspective, Photo } from '#lib/core/schema.ts';
+import { LIMITS } from '#lib/security/limits.ts';
 import { putPhoto } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
 import { decode, encodeSurface, render, type Decoded } from './canvas.ts';
@@ -57,7 +58,11 @@ export async function addPhotoFromFile(
 	perspective: Perspective,
 	note?: string
 ): Promise<Photo> {
+	if (store.readOnly) throw new PhotoError('readOnly');
+	const existing = store.room(roomId)?.photos.length ?? 0;
+	if (existing >= LIMITS.photosPerRoom) throw new PhotoError('limit');
 	const processed = await processFile(file);
+	if (store.readOnly) throw new PhotoError('readOnly');
 	try {
 		await putPhoto({
 			hash: processed.hash,

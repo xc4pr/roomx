@@ -104,6 +104,16 @@ export const messages = defineMessages({
 		type_int: 'ganze Zahl',
 		planWrongProject:
 			'Der Plan gehört zu einem anderen Projekt. Räume werden über ihre ID zugeordnet.',
+		tooManyVariants:
+			'Das Projekt würde mehr als {max} Varianten haben. Es wurde nichts importiert.',
+		planDuplicateRoom:
+			'Raum «{name}» kommt in dieser Variante mehrfach vor. Nur der erste Eintrag wird übernommen. Bitte fasse die Möbel in einem Eintrag pro Raum zusammen.',
+		planTooManyItems:
+			'Diese Variante hätte {detail} Möbel, erlaubt sind höchstens {maxItems}. Sie wird nicht übernommen. Bitte verteile die Möbel auf weniger oder kürzere Räume.',
+		planTooManySuggestions:
+			'Diese Variante hätte {detail} Elektro-Vorschläge, erlaubt sind höchstens {maxSuggestions}. Sie wird nicht übernommen.',
+		planTooManyVariants:
+			'Das Projekt hat schon {detail} Varianten, erlaubt sind höchstens {maxVariants}. Es wird nichts importiert. Bitte lösche zuerst nicht mehr gebrauchte Varianten.',
 		planUnknownRoom: 'Raum «{id}» gibt es in diesem Projekt nicht. Der Raum wird übersprungen.',
 		planUnknownCatalogId:
 			'Katalog-ID «{detail}» ist unbekannt. Als eigener Artikel fehlen: {missing}. Das Möbel wird übersprungen.',
@@ -230,6 +240,15 @@ export const messages = defineMessages({
 		type_undefined: 'nothing',
 		type_int: 'whole number',
 		planWrongProject: 'The plan belongs to a different project. Rooms are matched by their ID.',
+		tooManyVariants: 'The project would have more than {max} variants. Nothing was imported.',
+		planDuplicateRoom:
+			'Room “{name}” appears more than once in this variant. Only the first entry is used. Please merge the furniture into one entry per room.',
+		planTooManyItems:
+			'This variant would have {detail} items, but at most {maxItems} are allowed. It is not imported. Please spread the furniture over fewer or shorter rooms.',
+		planTooManySuggestions:
+			'This variant would have {detail} electrical suggestions, but at most {maxSuggestions} are allowed. It is not imported.',
+		planTooManyVariants:
+			'The project already has {detail} variants, and at most {maxVariants} are allowed. Nothing is imported. Please delete variants you no longer need first.',
 		planUnknownRoom: 'Room “{id}” does not exist in this project. The room is skipped.',
 		planUnknownCatalogId:
 			'Catalogue ID “{detail}” is unknown. As a custom item these are missing: {missing}. The furniture is skipped.',

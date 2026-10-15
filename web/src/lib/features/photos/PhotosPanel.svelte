@@ -14,6 +14,8 @@
 	import TextField from '#lib/ui/TextField.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
 	import { common } from '#lib/i18n/common.ts';
+	import { messages as projectMessages } from '#lib/features/projects/i18n.ts';
+	import { LIMITS } from '#lib/security/limits.ts';
 	import { errorMessage } from './errors.ts';
 	import { messages } from './i18n.ts';
 	import PhotoViewer from './PhotoViewer.svelte';
@@ -194,10 +196,25 @@
 				>
 					{startLabel}
 				</Button>
-				<Button icon={Plus} onclick={() => (freeOpen = true)} data-testid="free-photo">
+				<Button
+					icon={Plus}
+					disabled={store.readOnly}
+					onclick={() => (freeOpen = true)}
+					data-testid="free-photo"
+				>
 					{t(messages, 'freePhoto')}
 				</Button>
 			</div>
+
+			{#if store.readOnly}
+				<p class="rounded-md bg-surface-2 p-3 text-sm text-muted" data-testid="photos-readonly">
+					{t(projectMessages, 'readOnlyText')}
+				</p>
+			{:else if room.photos.length >= LIMITS.photosPerRoom}
+				<p class="rounded-md bg-surface-2 p-3 text-sm text-muted" data-testid="photos-full">
+					{t(messages, 'errorLimit', { max: LIMITS.photosPerRoom })}
+				</p>
+			{/if}
 
 			{#if room.photos.length === 0}
 				<EmptyState
@@ -272,6 +289,7 @@
 				bind:value={freeNote}
 				label={t(messages, 'freeNote')}
 				placeholder={t(messages, 'freeNotePlaceholder')}
+				maxlength={LIMITS.caption}
 				data-testid="free-note"
 			/>
 			<Button
@@ -280,6 +298,7 @@
 				full
 				icon={Camera}
 				loading={freeBusy}
+				disabled={store.readOnly}
 				onclick={() => freeCamera?.click()}
 				data-testid="free-capture"
 			>
@@ -288,7 +307,7 @@
 			<Button
 				full
 				icon={Images}
-				disabled={freeBusy}
+				disabled={freeBusy || store.readOnly}
 				onclick={() => freeLibrary?.click()}
 				data-testid="free-library"
 			>

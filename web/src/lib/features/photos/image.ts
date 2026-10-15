@@ -5,7 +5,15 @@ export const THUMBNAIL_QUALITY = 0.72;
 export const MAX_FILE_BYTES = 80 * 1024 * 1024;
 
 export type PhotoErrorCode =
-	'notImage' | 'heic' | 'tooLarge' | 'empty' | 'decode' | 'encode' | 'storage';
+	| 'notImage'
+	| 'heic'
+	| 'tooLarge'
+	| 'empty'
+	| 'decode'
+	| 'encode'
+	| 'storage'
+	| 'readOnly'
+	| 'limit';
 
 export class PhotoError extends Error {
 	readonly code: PhotoErrorCode;

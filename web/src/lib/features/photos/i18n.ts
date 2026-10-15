@@ -65,7 +65,9 @@ export const messages = defineMessages({
 		errorEmpty: '«{name}» ist leer. Wähle eine andere Datei.',
 		errorDecode: '«{name}» lässt sich nicht öffnen. Wähle ein JPEG oder PNG.',
 		errorEncode: '«{name}» konnte nicht verarbeitet werden. Versuche es mit einem kleineren Bild.',
-		errorStorage: 'Das Foto konnte nicht gespeichert werden. Ist der Speicher voll?'
+		errorStorage: 'Das Foto konnte nicht gespeichert werden. Ist der Speicher voll?',
+		errorReadOnly: 'Das Projekt ist hier nur lesbar. Das Foto wurde nicht gespeichert.',
+		errorLimit: 'Pro Raum sind höchstens {max} Fotos möglich. Das Foto wurde nicht gespeichert.'
 	},
 	en: {
 		title: 'Photo tour',
@@ -129,6 +131,8 @@ export const messages = defineMessages({
 		errorEmpty: '“{name}” is empty. Choose another file.',
 		errorDecode: '“{name}” cannot be opened. Choose a JPEG or PNG.',
 		errorEncode: '“{name}” could not be processed. Try a smaller image.',
-		errorStorage: 'The photo could not be saved. Is the storage full?'
+		errorStorage: 'The photo could not be saved. Is the storage full?',
+		errorReadOnly: 'The project is read-only here. The photo was not saved.',
+		errorLimit: 'A room can hold at most {max} photos. The photo was not saved.'
 	}
 });

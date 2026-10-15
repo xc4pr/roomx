@@ -6,6 +6,7 @@ import { newId as randomId, type IdFactory } from './ids.ts';
 import type { Plan, PlanElectrical, PlanItem, PlanRoom } from './plan.ts';
 import type { Brief, Dims, Item, Mount, Project, Room, Suggestion, Variant } from './schema.ts';
 import type { Language } from './units.ts';
+import { LIMITS } from '#lib/security/limits.ts';
 
 export const WALL_MOUNT_CENTER = 1500;
 
@@ -19,7 +20,11 @@ export type PlanIssueCode =
 	| 'unknownWall'
 	| 'unknownCarrier'
 	| 'lockedKept'
-	| 'electricalIncomplete';
+	| 'electricalIncomplete'
+	| 'duplicateRoom'
+	| 'tooManyItems'
+	| 'tooManySuggestions'
+	| 'tooManyVariants';
 
 export interface PlanIssue {
 	severity: 'error' | 'warning' | 'info';
@@ -291,11 +296,33 @@ export function resolvePlan(
 	const locked = (active?.items ?? []).filter((item) => item.locked);
 	const lockedIds = new Set(locked.map((item) => item.id));
 
+	const overVariantLimit = project.variants.length + plan.variants.length > LIMITS.variants;
+	if (overVariantLimit) {
+		issues.push({
+			severity: 'error',
+			code: 'tooManyVariants',
+			variantIndex: 0,
+			detail: String(project.variants.length)
+		});
+	}
+
 	const variants = plan.variants.map((planVariant, variantIndex): Variant => {
 		const items: Item[] = structuredClone(locked);
 		const suggestions: Suggestion[] = [];
 		const roomNotes: Record<string, string> = {};
+		const seenRooms = new Set<string>();
 		for (const planRoom of planVariant.rooms) {
+			if (seenRooms.has(planRoom.roomId)) {
+				issues.push({
+					severity: 'error',
+					code: 'duplicateRoom',
+					variantIndex,
+					roomId: planRoom.roomId,
+					field: 'roomId'
+				});
+				continue;
+			}
+			seenRooms.add(planRoom.roomId);
 			const room = project.rooms.find((candidate) => candidate.id === planRoom.roomId);
 			if (!room) {
 				issues.push({
@@ -325,12 +352,31 @@ export function resolvePlan(
 			});
 			if (planRoom.notes) roomNotes[room.id] = planRoom.notes;
 		}
+		const tooManyItems = items.length > LIMITS.itemsPerVariant;
+		const tooManySuggestions = suggestions.length > LIMITS.suggestionsPerVariant;
+		if (tooManyItems) {
+			issues.push({
+				severity: 'error',
+				code: 'tooManyItems',
+				variantIndex,
+				detail: String(items.length)
+			});
+		}
+		if (tooManySuggestions) {
+			issues.push({
+				severity: 'error',
+				code: 'tooManySuggestions',
+				variantIndex,
+				detail: String(suggestions.length)
+			});
+		}
+		const rejected = tooManyItems || tooManySuggestions || overVariantLimit;
 		return {
 			id: newId(),
 			name: planVariant.name,
 			source: 'ai',
-			items,
-			suggestions,
+			items: rejected ? [] : items,
+			suggestions: rejected ? [] : suggestions,
 			...(Object.keys(roomNotes).length > 0 ? { roomNotes } : {}),
 			...(planVariant.shoppingList ? { shoppingList: planVariant.shoppingList } : {})
 		};

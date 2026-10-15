@@ -15,6 +15,7 @@
 	import { formatChf } from '#lib/core/units.ts';
 	import SectionCard from '#lib/features/export/SectionCard.svelte';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
+	import { messages as projectMessages } from '#lib/features/projects/i18n.ts';
 	import { LIMITS } from '#lib/security/limits.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
@@ -129,7 +130,16 @@
 
 	function apply(): void {
 		const project = store.project;
-		if (analysis.status !== 'ready' || !project || picked.variants.length === 0) return;
+		if (store.readOnly || analysis.status !== 'ready' || !project || picked.variants.length === 0) {
+			return;
+		}
+		if (project.variants.length + picked.variants.length > LIMITS.variants) {
+			toasts.show({
+				message: t(messages, 'tooManyVariants', { max: LIMITS.variants }),
+				kind: 'error'
+			});
+			return;
+		}
 		const id = project.id;
 		const count = picked.variants.length;
 		store.importVariants(picked.variants, 'brief' in picked ? picked.brief : undefined);
@@ -431,7 +441,11 @@
 					{@render copyButton(corrections)}
 				</div>
 			{/if}
-			{#if picked.variants.length === 0}
+			{#if store.readOnly}
+				<p class="rounded-md bg-surface-2 p-3 text-sm text-muted" data-testid="import-readonly">
+					{t(projectMessages, 'readOnlyText')}
+				</p>
+			{:else if picked.variants.length === 0}
 				<p class="rounded-md bg-surface-2 p-3 text-sm text-muted">
 					{t(messages, 'nothingToImport')}
 				</p>
@@ -440,7 +454,7 @@
 				<Button
 					variant="primary"
 					size="lg"
-					disabled={picked.variants.length === 0}
+					disabled={picked.variants.length === 0 || store.readOnly}
 					onclick={apply}
 					data-testid="import-apply"
 				>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { LIMITS } from '#lib/security/limits.ts';
 	import Copy from '@lucide/svelte/icons/copy';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { areaMm2, perimeter } from '#lib/core/geometry.ts';
@@ -164,6 +165,7 @@
 		<textarea
 			id="room-notes-{room.id}"
 			rows="3"
+			maxlength={LIMITS.text}
 			value={room.notes ?? ''}
 			placeholder={t(messages, 'notesPlaceholder')}
 			oninput={(event) =>

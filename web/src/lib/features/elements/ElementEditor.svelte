@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { LIMITS } from '#lib/security/limits.ts';
 	import ArrowLeftRight from '@lucide/svelte/icons/arrow-left-right';
 	import Copy from '@lucide/svelte/icons/copy';
 	import Minus from '@lucide/svelte/icons/minus';
@@ -453,6 +454,7 @@
 
 		<TextField
 			label={t(messages, 'note')}
+			maxlength={LIMITS.text}
 			value={element.note ?? ''}
 			oninput={(value) =>
 				store.updateElement(roomId, elementId, { note: value || undefined }, key('note'))}

@@ -9,6 +9,7 @@
 	import SkipForward from '@lucide/svelte/icons/skip-forward';
 	import X from '@lucide/svelte/icons/x';
 	import { pick, t } from '#lib/i18n/index.svelte.ts';
+	import { messages as projectMessages } from '#lib/features/projects/i18n.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
@@ -203,6 +204,11 @@
 			</div>
 		{/if}
 
+		{#if store.readOnly}
+			<p class="rounded-md bg-surface-2 p-3 text-sm text-muted" data-testid="tour-readonly">
+				{t(projectMessages, 'readOnlyText')}
+			</p>
+		{/if}
 		<div class="sticky -bottom-6 z-10 -mx-5 -mb-2 bg-surface/95 px-5 py-2 backdrop-blur">
 			<Button
 				variant="primary"
@@ -210,6 +216,7 @@
 				full
 				icon={stepPhotos.length ? RotateCcw : Camera}
 				loading={busy}
+				disabled={store.readOnly}
 				onclick={() => cameraInput?.click()}
 				data-testid="tour-capture"
 			>
@@ -221,7 +228,7 @@
 				variant="secondary"
 				full
 				icon={Images}
-				disabled={busy}
+				disabled={busy || store.readOnly}
 				onclick={() => libraryInput?.click()}
 				data-testid="tour-library"
 			>

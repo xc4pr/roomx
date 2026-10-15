@@ -252,7 +252,11 @@ const ISSUE_KEYS = {
 	unknownWall: 'planUnknownWall',
 	unknownCarrier: 'planUnknownCarrier',
 	lockedKept: 'planLockedKept',
-	electricalIncomplete: 'planElectricalIncomplete'
+	electricalIncomplete: 'planElectricalIncomplete',
+	duplicateRoom: 'planDuplicateRoom',
+	tooManyItems: 'planTooManyItems',
+	tooManySuggestions: 'planTooManySuggestions',
+	tooManyVariants: 'planTooManyVariants'
 } as const satisfies Record<PlanIssue['code'], ImportKey>;
 
 export interface ReadableIssue {
@@ -306,8 +310,12 @@ export function describePlanIssue(
 		where: parts.join(' › '),
 		message: tr(ISSUE_KEYS[issue.code], {
 			id: issue.roomId ?? '',
+			name: issue.roomId ? roomLabel(context, issue.roomId, issue.roomId) : '',
 			detail: issue.detail ?? '',
-			missing: issue.missing?.join(', ') ?? ''
+			missing: issue.missing?.join(', ') ?? '',
+			maxItems: LIMITS.itemsPerVariant,
+			maxSuggestions: LIMITS.suggestionsPerVariant,
+			maxVariants: LIMITS.variants
 		}),
 		...(issue.itemRef ? { ref: issue.itemRef } : {})
 	};
