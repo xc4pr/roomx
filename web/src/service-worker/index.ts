@@ -3,8 +3,10 @@ import { assets, immutable } from '$app/manifest';
 import { self as sw } from '$app/service-worker';
 
 const CACHE = `roomx-${version}`;
-const SHELL = '/';
-const ASSETS = new Set([...immutable, ...assets].map((entry) => `/${entry.path}`));
+// The worker's scope is the app's base path ('/' on the own server, '/roomx/' on GitHub Pages).
+const SCOPE = new URL(sw.registration.scope).pathname;
+const SHELL = SCOPE;
+const ASSETS = new Set([...immutable, ...assets].map((entry) => `${SCOPE}${entry.path}`));
 
 sw.addEventListener('install', (event) => {
 	event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([SHELL, ...ASSETS])));
@@ -29,7 +31,7 @@ sw.addEventListener('fetch', (event) => {
 	const { request } = event;
 	const url = new URL(request.url);
 	if (request.method !== 'GET' || url.origin !== sw.location.origin) return;
-	if (url.pathname.startsWith('/api/')) return;
+	if (url.pathname.startsWith(`${SCOPE}api/`)) return;
 	const cached = ASSETS.has(url.pathname)
 		? url.pathname
 		: request.mode === 'navigate'

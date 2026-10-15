@@ -12,7 +12,7 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter({ fallback: 'index.html' }),
-			paths: { relative: false }
+			paths: { base: process.env.BASE_PATH ?? '', relative: false }
 		})
 	],
 	test: {
