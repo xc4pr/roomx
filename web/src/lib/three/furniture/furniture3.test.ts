@@ -442,6 +442,31 @@ describe('stage 3 defaults of described models', () => {
 		}
 	});
 
+	it('desk rows make a side unit, drawers alone sit flat under the top', () => {
+		const dims = dimsOf('desk');
+		const flat = fingerprint(build('desk', dims, { legs: 'four', drawers: 2 }));
+		const unit = fingerprint(
+			build('desk', dims, {
+				legs: 'four',
+				rows: [
+					{ kind: 'drawer', cols: 1 },
+					{ kind: 'door', cols: 1, weight: 2 }
+				]
+			})
+		);
+		expect(unit).not.toEqual(flat);
+		expect(unit).not.toEqual(fingerprint(build('desk', dims, { legs: 'four' })));
+	});
+
+	it('a cantilever armchair has armrests unless arms is none', () => {
+		const dims = dimsOf('armchair');
+		const none = build('armchair', dims, { legs: 'cantilever', arms: 'none' });
+		const slim = build('armchair', dims, { legs: 'cantilever', arms: 'slim' });
+		expect(stats(slim).meshes).toBeGreaterThan(stats(none).meshes);
+		expect(fingerprint(build('armchair', dims, { legs: 'cantilever' }))).toEqual(fingerprint(slim));
+		expectExact('armchair', dims, { legs: 'cantilever', arms: 'wide' }, 'cantilever wide');
+	});
+
 	it('wooden legs of a described table share the main colour', () => {
 		for (const model of ['table', 'roundTable', 'desk'] as const) {
 			const look: Look = model === 'roundTable' ? { legs: 'four' } : { legs: 'four', drawers: 0 };

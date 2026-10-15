@@ -1,5 +1,5 @@
 import { Group, type MeshStandardMaterial } from 'three';
-import type { Look } from '#lib/core/catalog.ts';
+import type { Look, LookRow } from '#lib/core/catalog.ts';
 import { cabinet } from './cabinet.ts';
 import { casters, standMaterial } from './feet.ts';
 import { box, cyl, mat, strut, tube, type Palette } from './kit.ts';
@@ -242,11 +242,21 @@ const roundTable: Build = (w, d, h, p, look = {}) => {
 	return g;
 };
 
+// `rows` in the look give a drawer or door unit at one side, `drawers` alone sit flat under the top.
 // A look that names the stand also names the drawers, so none are added by default.
-function deskDrawers(look: Look, w: number): { block: number; flat: number } {
-	const n = look.drawers ?? (look.legs ? 0 : w >= 1.1 ? 2 : 0);
-	if (n >= 2 && w >= 1.1) return { block: n, flat: 0 };
-	return { block: 0, flat: n };
+function deskFronts(look: Look, w: number): { block: LookRow[]; flat: number } {
+	if (look.rows?.length) return { block: look.rows, flat: 0 };
+	if (look.legs) return { block: [], flat: look.drawers ?? 0 };
+	const n = look.drawers ?? (w >= 1.1 ? 2 : 0);
+	if (n >= 2 && w >= 1.1) {
+		const block = Array.from({ length: n }, (_, i) => ({
+			kind: 'drawer' as const,
+			weight: i === 0 ? 1 : 1.3,
+			cols: 1
+		}));
+		return { block, flat: 0 };
+	}
+	return { block: [], flat: n };
 }
 
 const desk: Build = (w, d, h, p, look = {}) => {
@@ -259,24 +269,19 @@ const desk: Build = (w, d, h, p, look = {}) => {
 	const under = h - t;
 	const lift = wheelLift(look, under);
 	const modesty = Math.min(0.25, under * 0.35);
-	const { block, flat } = deskDrawers(look, w);
+	const { block, flat } = deskFronts(look, w);
 	const unitW = Math.min(0.42, w * 0.32);
-	const sides = block > 0 ? [-1] : [-1, 1];
+	const sides = block.length > 0 ? [-1] : [-1, 1];
 	const s = stand(kind, { g, m: legs, w, d, y0: lift, under, sides }, t);
-	if (block > 0) {
-		const rows = Array.from({ length: block }, (_, i) => ({
-			kind: 'drawer' as const,
-			weight: i === 0 ? 1 : 1.3,
-			cols: 1
-		}));
+	if (block.length > 0) {
 		cabinet(g, p, {
 			x: w / 2 - unitW / 2 - 0.02,
 			w: unitW,
 			d: d - 0.03,
 			h: under,
 			legH: 0,
-			rows,
-			handle: 'bar',
+			rows: block,
+			handle: look.handle ?? 'bar',
 			...(lift > 0 ? { look: { base: 'none' as const, wheels: true } } : {})
 		});
 		if (kind === 'panel') {
@@ -303,12 +308,12 @@ const desk: Build = (w, d, h, p, look = {}) => {
 			h: flatH,
 			legH: 0,
 			rows: [{ kind: 'drawer', weight: 1, cols: Math.min(flat, 4) }],
-			handle: 'bar'
+			handle: look.handle ?? 'bar'
 		});
 		part.position.set(0, under - flatH, 0.01);
 		g.add(part);
 	}
-	if (look.shelf && block === 0) shelfBoard(g, top, kind, s, lift + (under - lift) * 0.2);
+	if (look.shelf && block.length === 0) shelfBoard(g, top, kind, s, lift + (under - lift) * 0.2);
 	if (lift > 0) casters(g, p, s.feet, lift);
 	return g;
 };

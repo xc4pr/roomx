@@ -187,6 +187,16 @@ function cantileverArmchair(w: number, d: number, h: number, p: Palette, look: L
 	const fabric = mat('fabric', p.main);
 	const seatY = h * 0.36;
 	const inner = cantilever(g, frame, w, d, h, seatY);
+	if (look.arms !== 'none') {
+		const armW = look.arms === 'wide' ? 0.07 : 0.045;
+		const armY = seatY + h * 0.2;
+		const front = -d / 2 + 0.06;
+		for (const sx of [-1, 1]) {
+			const x = sx * (w / 2 - armW / 2);
+			box(g, frame, armW, 0.025, d / 2 - 0.03 - front, x, armY, (front + d / 2 - 0.03) / 2);
+			box(g, frame, 0.03, armY - seatY, 0.03, sx * (w / 2 - 0.015), seatY, front + 0.015);
+		}
+	}
 	soft(g, fabric, inner, h * 0.1, d * 0.86, 0, seatY, -0.02, 0.4);
 	const backY = seatY + h * 0.08;
 	soft(g, fabric, inner, h - backY, 0.1, 0, backY, d / 2 - 0.03 - 0.05, 0.4);

@@ -1304,6 +1304,19 @@ export const entryLooks: Record<string, Look> = {
 			}
 		]
 	},
+	'ikea-malm-desk-140x65x73': {
+		rows: [
+			{
+				kind: 'drawer',
+				cols: 1
+			},
+			{
+				kind: 'door',
+				cols: 1,
+				weight: 2
+			}
+		]
+	},
 	'ikea-malm-dresser-2-80x48x55': {
 		rows: [
 			{
@@ -1377,6 +1390,19 @@ export const entryLooks: Record<string, Look> = {
 			{
 				kind: 'drawer',
 				cols: 1
+			}
+		]
+	},
+	'ikea-micke-desk-105x50x75': {
+		rows: [
+			{
+				kind: 'drawer',
+				cols: 1
+			},
+			{
+				kind: 'door',
+				cols: 1,
+				weight: 2
 			}
 		]
 	},
@@ -2088,7 +2114,7 @@ export const entryLooks: Record<string, Look> = {
 		baseMaterial: 'metal',
 		handle: 'knob',
 		frameColor: '#f4f4f0',
-		legs: 'trestle',
+		legs: 'four',
 		drawers: 2
 	},
 	'jysk-lindved-shelf-80x41x118': {
