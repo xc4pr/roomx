@@ -160,10 +160,17 @@ test('KI-Paket eines realistischen Projekts erzeugen und speichern', async ({ pa
 	expect(exported.json.rooms).toHaveLength(2);
 	expect(exported.json.brief?.wishes).toBe(WISHES);
 
+	await page.getByTestId('seg-share').click();
+	const backupDownload = page.waitForEvent('download');
+	await page.getByTestId('create-backup').click();
+	const backupFile = await backupDownload;
+	const backupPath = await backupFile.path();
+
 	mkdirSync(OUT!, { recursive: true });
 	writeFileSync(resolve(OUT!, exported.jsonName), exported.jsonText);
 	writeFileSync(resolve(OUT!, exported.pdfName), exported.pdf);
 	writeFileSync(resolve(OUT!, exported.instructionsName), exported.instructions);
 	writeFileSync(resolve(OUT!, 'roomx-plan.schema.json'), exported.schemaText);
 	writeFileSync(resolve(OUT!, 'roomx-katalog.json'), exported.catalogText);
+	writeFileSync(resolve(OUT!, 'projekt-backup.zip'), readFileSync(backupPath));
 });
