@@ -13,3 +13,6 @@ bun.lockb
 /test-results/
 /playwright-report/
 node_modules
+playwright-report-pages
+test-results-pages
+tests/fixtures/probelauf
