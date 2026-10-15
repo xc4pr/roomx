@@ -106,6 +106,9 @@ test('Netzwerk-Audit: ganzer Ablauf, nur eigene Origin', async ({
 	);
 	expect(foreign, `fremde Anfragen (${browserName})`).toEqual([]);
 	expect(seen.length).toBeGreaterThan(20);
-	expect(seen.filter((entry) => entry.source === 'serviceworker').length).toBeGreaterThan(0);
+	// Playwright reports service worker requests only in Chromium.
+	if (browserName === 'chromium') {
+		expect(seen.filter((entry) => entry.source === 'serviceworker').length).toBeGreaterThan(0);
+	}
 	expect(seen.filter((entry) => entry.source === 'websocket')).toEqual([]);
 });
