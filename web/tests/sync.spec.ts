@@ -38,9 +38,14 @@ async function ready(page: Page): Promise<void> {
 		.toBe(true);
 }
 
+// A dropped connection counts as "not there yet", so the surrounding poll tries again.
 async function serverProject(request: APIRequestContext, id: string) {
-	const response = await request.get(`/api/projects/${id}`, { headers: auth });
-	return response.ok() ? ((await response.json()) as StoredProject) : undefined;
+	try {
+		const response = await request.get(`/api/projects/${id}`, { headers: auth });
+		return response.ok() ? ((await response.json()) as StoredProject) : undefined;
+	} catch {
+		return undefined;
+	}
 }
 
 async function named(page: Page, pattern: RegExp): Promise<StoredProject[]> {
