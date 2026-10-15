@@ -63,12 +63,16 @@
 									data-testid="open-camera-job-expired-{job.id}"
 								>
 									<TriangleAlert class="size-4 shrink-0" />
-									{t(messages, 'openJobsExpired', { n: unsent })}
+									{t(messages, unsent === 1 ? 'openJobsExpiredOne' : 'openJobsExpired', {
+										n: unsent
+									})}
 								</span>
 							{:else}
 								<span class="block text-sm text-muted">
 									{unsent > 0
-										? t(messages, 'openJobsUnsent', { n: unsent })
+										? t(messages, unsent === 1 ? 'openJobsUnsentOne' : 'openJobsUnsent', {
+												n: unsent
+											})
 										: t(messages, 'openJobsNone')}
 								</span>
 							{/if}

@@ -21,6 +21,7 @@ export const messages = defineMessages({
 		statusOffline: 'Offline: Fotos bleiben auf dem Handy',
 		statusEnded: 'Auftrag beendet',
 		serverUploaded: '{n} Fotos auf dem Server, der PC holt sie ab',
+		serverUploadedOne: '1 Foto auf dem Server, der PC holt es ab',
 		serverUnreachable: 'Server nicht erreichbar',
 		askTitle: 'Foto-Auftrag bereit',
 		askText:
@@ -44,11 +45,17 @@ export const messages = defineMessages({
 		soonTitle: 'Der Auftrag läuft bald ab',
 		soonText:
 			'Noch {hours} h gültig. {n} Fotos sind noch nicht übertragen. Verbinde dich bald mit dem Computer oder sende sie per Teilen-Menü.',
+		soonTextOne:
+			'Noch {hours} h gültig. 1 Foto ist noch nicht übertragen. Verbinde dich bald mit dem Computer oder sende es per Teilen-Menü.',
 		endedTitle: 'Der Auftrag ist beendet',
 		endedText:
 			'Der Computer nimmt keine Fotos mehr an. Auf dem Handy liegen noch {n} ungesendete Fotos. Sende sie per Teilen-Menü oder lösche sie.',
+		endedTextOne:
+			'Der Computer nimmt nichts mehr an. Auf dem Handy liegt noch 1 ungesendetes Foto. Sende es per Teilen-Menü oder lösche es.',
 		expiredText:
 			'Der Auftrag ist abgelaufen. {n} Fotos wurden nicht übertragen. Sende sie per Teilen-Menü oder lösche sie. Der Auftrag bleibt noch 30 Tage nach dem Ablauf auf dem Handy.',
+		expiredTextOne:
+			'Der Auftrag ist abgelaufen. 1 Foto wurde nicht übertragen. Sende es per Teilen-Menü oder lösche es. Der Auftrag bleibt noch 30 Tage nach dem Ablauf auf dem Handy.',
 		endedNone: 'Auf dem Handy liegen keine ungesendeten Fotos mehr. Du kannst den Auftrag löschen.',
 		fallbackTitle: 'Keine Verbindung zum PC',
 		fallbackText:
@@ -60,6 +67,7 @@ export const messages = defineMessages({
 		delete: 'Löschen',
 		deleteTitle: 'Foto-Auftrag löschen?',
 		deleteMessage: 'Der Auftrag und {n} Fotos auf diesem Handy werden endgültig gelöscht.',
+		deleteMessageOne: 'Der Auftrag und 1 Foto auf diesem Handy werden endgültig gelöscht.',
 		deleteConfirm: 'Löschen',
 		deleted: 'Foto-Auftrag gelöscht',
 		deleteFailed: 'Der Auftrag konnte nicht gelöscht werden.',
@@ -95,8 +103,10 @@ export const messages = defineMessages({
 		stepsHint: 'Perspektive',
 		openJobsTitle: 'Offene Foto-Aufträge',
 		openJobsUnsent: '{n} ungesendete Fotos',
+		openJobsUnsentOne: '1 ungesendetes Foto',
 		openJobsNone: 'Alle Fotos übertragen',
 		openJobsExpired: 'Abgelaufen, {n} Fotos nicht übertragen',
+		openJobsExpiredOne: 'Abgelaufen, 1 Foto nicht übertragen',
 		openJobsOpen: 'Öffnen'
 	},
 	en: {
@@ -117,6 +127,7 @@ export const messages = defineMessages({
 		statusOffline: 'Offline: photos stay on this phone',
 		statusEnded: 'Job ended',
 		serverUploaded: '{n} photos on the server, the computer will fetch them',
+		serverUploadedOne: '1 photo on the server, the computer will fetch it',
 		serverUnreachable: 'Server not reachable',
 		askTitle: 'Photo job ready',
 		askText: '{rooms} rooms are waiting for photos. You can take them now or continue later.',
@@ -139,11 +150,17 @@ export const messages = defineMessages({
 		soonTitle: 'The job expires soon',
 		soonText:
 			'Valid for {hours} more hours. {n} photos are not transferred yet. Connect to the computer soon or send them with the share sheet.',
+		soonTextOne:
+			'Valid for {hours} more hours. 1 photo is not transferred yet. Connect to the computer soon or send it with the share sheet.',
 		endedTitle: 'The job has ended',
 		endedText:
 			'The computer no longer accepts photos. {n} unsent photos are still on this phone. Send them with the share sheet or delete them.',
+		endedTextOne:
+			'The computer no longer accepts anything. 1 unsent photo is still on this phone. Send it with the share sheet or delete it.',
 		expiredText:
 			'The job has expired. {n} photos were not transferred. Send them with the share sheet or delete them. The job stays on this phone for 30 days after it expired.',
+		expiredTextOne:
+			'The job has expired. 1 photo was not transferred. Send it with the share sheet or delete it. The job stays on this phone for 30 days after it expired.',
 		endedNone: 'No unsent photos are left on this phone. You can delete the job.',
 		fallbackTitle: 'No connection to the PC',
 		fallbackText:
@@ -155,6 +172,7 @@ export const messages = defineMessages({
 		delete: 'Delete',
 		deleteTitle: 'Delete photo job?',
 		deleteMessage: 'The job and {n} photos on this phone will be deleted permanently.',
+		deleteMessageOne: 'The job and 1 photo on this phone will be deleted permanently.',
 		deleteConfirm: 'Delete',
 		deleted: 'Photo job deleted',
 		deleteFailed: 'The job could not be deleted.',
@@ -190,8 +208,10 @@ export const messages = defineMessages({
 		stepsHint: 'Perspective',
 		openJobsTitle: 'Open photo jobs',
 		openJobsUnsent: '{n} unsent photos',
+		openJobsUnsentOne: '1 unsent photo',
 		openJobsNone: 'All photos transferred',
 		openJobsExpired: 'Expired, {n} photos not transferred',
+		openJobsExpiredOne: 'Expired, 1 photo not transferred',
 		openJobsOpen: 'Open'
 	}
 });

@@ -11,7 +11,8 @@ export function statusText(status: HostJobStatus): string {
 				done: received,
 				total: received + expected
 			});
-		if (received > 0) return t(messages, 'statusConnectedReceived', { n: received });
+		if (received === 1) return t(messages, 'statusConnectedReceivedOne');
+		if (received > 1) return t(messages, 'statusConnectedReceived', { n: received });
 		return t(messages, 'statusConnected');
 	}
 	if (received === 1) return t(messages, 'statusReceivedOne');
