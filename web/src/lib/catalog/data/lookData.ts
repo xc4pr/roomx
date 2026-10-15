@@ -75,7 +75,8 @@ export const seriesLooks: Record<string, Look> = {
 	'IKEA|HEKTAR|floorLamp': {
 		frameColor: '#222222',
 		shade: 'dome',
-		stem: 'arc'
+		shadeColor: '#333333',
+		stem: 'adjustable'
 	},
 	'IKEA|HEMNES|dresser': {
 		base: 'legs',
@@ -254,6 +255,7 @@ export const seriesLooks: Record<string, Look> = {
 		base: 'legs',
 		baseHeight: 100,
 		baseMaterial: 'wood',
+		frameColor: '#222222',
 		arms: 'rolled',
 		back: 'wing'
 	},
@@ -482,6 +484,7 @@ export const seriesLooks: Record<string, Look> = {
 		base: 'legs',
 		baseHeight: 100,
 		baseMaterial: 'wood',
+		frameColor: '#f4f4f0',
 		headboard: 'panel',
 		footboard: false
 	},
@@ -1763,9 +1766,6 @@ export const entryLooks: Record<string, Look> = {
 			}
 		]
 	},
-	'jysk-gribskov-table-180x100x75': {
-		accentColor: '#c8a572'
-	},
 	'jysk-horsens-shelf-70x30x197': {
 		rows: [
 			{
@@ -1909,9 +1909,6 @@ export const entryLooks: Record<string, Look> = {
 			}
 		]
 	},
-	'jysk-kliplev-table-d120x75': {
-		accentColor: '#c8a572'
-	},
 	'jysk-korup-nightstand-38x30x47': {
 		rows: [
 			{
@@ -1933,6 +1930,7 @@ export const entryLooks: Record<string, Look> = {
 		footboard: false
 	},
 	'jysk-limfjorden-desk-120x60x76': {
+		handle: 'none',
 		frontStyle: 'flat',
 		legs: 'panel',
 		drawers: 4
@@ -3184,14 +3182,45 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'tchibo-cn3-side-table-drawer-40x40x46': {
+		handle: 'knob',
+		rows: [
+			{
+				kind: 'drawer',
+				cols: 1,
+				weight: 6
+			},
+			{
+				kind: 'open',
+				cols: 1,
+				weight: 5
+			}
+		],
 		wheels: true,
-		drawers: 1,
 		shelf: true
 	},
 	'tchibo-cn3-side-table-drawer-40x40x49': {
-		drawers: 1
+		rows: [
+			{
+				kind: 'drawer',
+				cols: 1
+			}
+		]
+	},
+	'tchibo-cn3-side-table-flap-40x40x49': {
+		rows: [
+			{
+				kind: 'flap',
+				cols: 1
+			}
+		]
 	},
 	'tchibo-cn3-side-table-flap-casters-78x40x48': {
+		rows: [
+			{
+				kind: 'flap',
+				cols: 1
+			}
+		],
 		wheels: true
 	},
 	'tchibo-cn3-sideboard-1-flap-77x40x71': {
