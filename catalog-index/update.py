@@ -164,7 +164,11 @@ def lies_tabelle(pfad: Path, standard):
 
 
 def normalize_lauf(out_pfad: Path = g.FULL_JSON, state: Path = g.STATE, out: Path = g.OUT, web: Path = g.WEB,
-                   basis: Path = g.BASIS, cache_erlaubt: bool = False, entfernen_erlaubt: bool = False) -> int:
+                   basis: Path = g.BASIS, cache_erlaubt: bool = False, entfernen_erlaubt: bool = False,
+                   zustand_schreiben: bool | None = None) -> int:
+    """zustand_schreiben: ids.json und uebernommen.json nur beim Standardpfad von full.json (Probelauf mit --out aendert den Zustand nicht)."""
+    if zustand_schreiben is None:
+        zustand_schreiben = Path(out_pfad).resolve() == Path(g.FULL_JSON).resolve()
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     try:
@@ -178,11 +182,12 @@ def normalize_lauf(out_pfad: Path = g.FULL_JSON, state: Path = g.STATE, out: Pat
     zuordnung = lies_tabelle(Path(basis) / "zuordnung.json", {})
     farben = {k.lower(): v for k, v in lies_tabelle(Path(basis) / "farben.json", {}).items()}
     arten = lies_tabelle(Path(basis) / "arten-en.json", {})
+    woerter = lies_tabelle(Path(basis) / "woerter-en.json", {})
     ids_pfad = Path(state) / "ids.json"
     ids_tab = lies_tabelle(ids_pfad, {})
     alt = bericht.lies_liste(out_pfad)  # vor dem Schreiben einlesen
     rows = zeilen_aus_zustand(state)
-    eintraege, shops, offen_z, offen_f = nm.normalisiere(rows, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten)
+    eintraege, shops, offen_z, offen_f = nm.normalisiere(rows, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten, woerter)
     gesehen = {o["schluessel"] for o in offen_z}
     for k in lies_tabelle(out / "ikea-baum.json", []):  # Blatt-Kategorien des IKEA-Baums ohne gesehenes Produkt
         if k not in zuordnung and k not in gesehen:
@@ -209,18 +214,26 @@ def normalize_lauf(out_pfad: Path = g.FULL_JSON, state: Path = g.STATE, out: Pat
         tmp = Path(str(out_pfad) + ".tmp")
         tmp.write_text(text, encoding="utf-8")
         tmp.replace(out_pfad)
-        ids_pfad.parent.mkdir(parents=True, exist_ok=True)
-        uebernommen_pfad.write_text(json.dumps(sorted(e["id"] for e in uebernommen), indent=0) + "\n", encoding="utf-8")
-        tmp = Path(str(ids_pfad) + ".tmp")
-        tmp.write_text(json.dumps(dict(sorted(ids_tab.items())), ensure_ascii=False, indent=0), encoding="utf-8")
-        tmp.replace(ids_pfad)
+        if zustand_schreiben:
+            ids_pfad.parent.mkdir(parents=True, exist_ok=True)
+            uebernommen_pfad.write_text(json.dumps(sorted(e["id"] for e in uebernommen), indent=0) + "\n", encoding="utf-8")
+            tmp = Path(str(ids_pfad) + ".tmp")
+            tmp.write_text(json.dumps(dict(sorted(ids_tab.items())), ensure_ascii=False, indent=0), encoding="utf-8")
+            tmp.replace(ids_pfad)
     blockiert = []
     for name in MODULE:
         idx = lies_tabelle(out / f"{name}-index.json", None)
         shops[name]["index"] = idx
         if idx and idx.get("blockiert"):
             blockiert.append({"shop": name, "meldung": idx.get("meldung")})
-    r = {"erstellt": g.jetzt(), "geschrieben": geschrieben, "schutz": {**s, "schwelle_verschwunden_prozent": bericht.SCHWELLE_VERSCHWUNDEN_PROZENT,
+    en_gleich = {}
+    for sh, st in nm.normalisiere.en_stat.items():
+        ohne = st["gesamt"] - st["eigennamen"]
+        en_gleich[sh] = {"anzahl": st["gleich"], "gesamt": st["gesamt"],
+                         "anteil_prozent": round(100 * st["gleich"] / ohne, 1) if ohne else 0.0,
+                         "nur_eigennamen": st["eigennamen"]}
+    en_unbekannt = [{"wort": w, "anzahl": n} for w, n in sorted(nm.normalisiere.en_unbekannt.items(), key=lambda kv: (-kv[1], kv[0]))[:200]]
+    r = {"erstellt": g.jetzt(), "en_gleich_de": en_gleich, "en_unbekannt": en_unbekannt, "geschrieben": geschrieben, "schutz": {**s, "schwelle_verschwunden_prozent": bericht.SCHWELLE_VERSCHWUNDEN_PROZENT,
          "schwelle_preis_prozent": bericht.SCHWELLE_PREIS_PROZENT}, "vergleich": v, "shops": shops,
          "uebernommen": {"anzahl": len(uebernommen), "neu": len(neu_uebernommen),
                          "beispiele": [bericht._kurz(e) for e in uebernommen[:bericht.BEISPIELE]],

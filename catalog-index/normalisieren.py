@@ -10,6 +10,9 @@ import sys
 import unicodedata
 from collections import Counter, defaultdict
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import namen_en  # noqa: E402
+
 SHOPS = ['ikea', 'jysk', 'tchibo']
 BRAND = {'ikea': 'IKEA', 'jysk': 'JYSK', 'tchibo': 'Tchibo'}
 
@@ -377,9 +380,22 @@ def uebersetze(name, art, arten):
     return name
 
 
-def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten=None):
+def englisch(de, art, shop, serie, arten, woerter):
+    """-> (englischer Name, unbekannte Woerter, hat_woerter). Ganze Art aus arten-en.json wie bisher, sonst namen_en."""
+    if art and art in arten and arten[art] and art in de and not namen_en.material_hinten(art):  # steht die Art nicht woertlich im Namen (z. B. «Kommode »CN3« mit Fach»), greift namen_en
+        en = de.replace(art, arten[art], 1)
+        if shop == 'jysk':
+            en = namen_en.serie_nach_vorn(en, serie)
+        return namen_en.akronyme_gross(en), [], True
+    return namen_en.name_en_info(de, shop, serie, woerter, arten)
+
+
+def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten=None, woerter=None):
     """Kernlauf. Gibt (eintraege, bericht, offen_zuordnung, offen_farben) zurueck; veraendert ids_tab."""
     arten = arten or {}
+    woerter = woerter or {}
+    en_stat = {sh: {'gesamt': 0, 'gleich': 0, 'eigennamen': 0} for sh in SHOPS}
+    en_unbekannt = Counter()
     bericht = {}
     offen_z = {}
     offen_f = Counter()
@@ -479,7 +495,13 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
         e = {'id': eid, 'brand': BRAND[shop]}
         if serie:
             e['series'] = serie
-        e['name'] = {'de': de, 'en': uebersetze(de, art_text(basis, serie), arten)}
+        en, unb, hat = englisch(de, art_text(basis, serie), shop, serie, arten, woerter)
+        e['name'] = {'de': de, 'en': en}
+        st = en_stat[shop]
+        st['gesamt'] += 1
+        if en == de:
+            st['eigennamen' if not hat else 'gleich'] += 1
+        en_unbekannt.update(unb)
         e['category'] = z['category']
         e['model'] = model
         e['dims'] = dims
@@ -506,6 +528,8 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
     offen_liste = [{'schluessel': k, **v} for k, v in sorted(offen_z.items(), key=lambda kv: -kv[1]['anzahl'])]
     offen_arten = [{'art': a, 'anzahl': n} for a, n in sorted(art_zaehler.items(), key=lambda kv: (-kv[1], kv[0])) if a and a not in arten]
     normalisiere.arten_offen = offen_arten
+    normalisiere.en_stat = en_stat
+    normalisiere.en_unbekannt = en_unbekannt
     return eintraege, bericht, offen_liste, dict(offen_f.most_common())
 
 

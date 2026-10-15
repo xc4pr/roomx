@@ -212,11 +212,25 @@ class NormalizeTest(unittest.TestCase):
 
     def lauf(self, basis, state, out, web, full, kur=None):
         (out / "kuratiert.json").write_text(json.dumps(kur if kur is not None else [{"id": "x-kur", "articleNo": "999.999.99"}]))
-        return update.normalize_lauf(full, state, out, web, basis, cache_erlaubt=True)
+        return update.normalize_lauf(full, state, out, web, basis, cache_erlaubt=True, zustand_schreiben=True)
 
     def viele(self, n, **gone):
         return {f"https://www.ikea.com/ch/de/p/malm-{i:03d}/": (gone.get(i, "produkt"), ikea_zeile(f"MALM{i} Kommode - schwarz 80x48 cm", f"100.000.{i:02d}", 100, breite=80 + i))
                 for i in range(n)}
+
+    def test_out_ohne_zustandsaenderung_und_englisch_bericht(self):
+        a = self.aufbau(self.viele(3))
+        (a[2] / "kuratiert.json").write_text(json.dumps([{"id": "x-kur", "articleNo": "999.999.99"}]))
+        (a[0] / "woerter-en.json").write_text(json.dumps({"kommode": "chest"}))
+        self.assertEqual(update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True), 0)
+        self.assertFalse((a[1] / "ids.json").exists())
+        self.assertFalse((a[1] / "uebernommen.json").exists())
+        rep = json.loads((a[2] / "report.json").read_text())
+        self.assertEqual(rep["en_gleich_de"]["ikea"]["gesamt"], 3)
+        self.assertEqual(rep["en_gleich_de"]["ikea"]["anzahl"], 0)
+        self.assertIn("## Englische Namen", (a[2] / "report.md").read_text())
+        self.assertEqual(self.lauf(*a), 0)
+        self.assertTrue((a[1] / "ids.json").exists())
 
     def test_discontinued_statt_loeschen_und_wieder_da(self):
         u0, u1 = "https://www.ikea.com/ch/de/p/malm-000/", "https://www.ikea.com/ch/de/p/malm-001/"
@@ -375,7 +389,7 @@ class NormalizeTest(unittest.TestCase):
         self.entferne(a, 20)  # weit ueber 5 %
         (a[1] / "uebernommen.json").write_text('["alt"]')
         (a[2] / "kuratiert.json").write_text(json.dumps([{"id": "x-kur", "articleNo": "999.999.99"}]))
-        code = update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True, entfernen_erlaubt=True)
+        code = update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True, zustand_schreiben=True, entfernen_erlaubt=True)
         self.assertEqual(code, 0)
         self.assertEqual(len(json.loads(a[4].read_text())), 80)
         self.assertEqual(json.loads((a[1] / "uebernommen.json").read_text()), [])
@@ -394,11 +408,11 @@ class NormalizeTest(unittest.TestCase):
         self.assertFalse(a[4].exists())
         self.assertIn("kuratiert", json.loads((a[2] / "report.json").read_text())["fehler"].lower())
         # mit Schalter und vorhandenem Cache laeuft es
-        self.assertEqual(update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True), 0)
+        self.assertEqual(update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True, zustand_schreiben=True), 0)
         self.assertTrue(a[4].exists())
         # Schalter, aber Cache leer: weiterhin Fehler
         (a[2] / "kuratiert.json").write_text("[]")
-        self.assertEqual(update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True), 1)
+        self.assertEqual(update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True, zustand_schreiben=True), 1)
 
     def test_kuratiert_vorrang_ueber_cache_artikelnummer(self):
         a = self.aufbau({"https://www.ikea.com/ch/de/p/malm-000/": ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "100.000.01", 10))})
@@ -448,7 +462,7 @@ class KuratiertAbgleich(unittest.TestCase):
         z.speichern()
         kur = [{"id": f"k{i}", "articleNo": "100.000.01", "priceChf": 200 + i} for i in range(60)]
         (out / "kuratiert.json").write_text(json.dumps(kur))
-        self.assertEqual(update.normalize_lauf(d / "full.json", state, out, web, basis, cache_erlaubt=True), 0)
+        self.assertEqual(update.normalize_lauf(d / "full.json", state, out, web, basis, cache_erlaubt=True, zustand_schreiben=True), 0)
         rep = json.loads((out / "report.json").read_text())
         self.assertEqual(rep["curated_diffs"], 60)
         md = (out / "curated.md").read_text()
@@ -457,7 +471,7 @@ class KuratiertAbgleich(unittest.TestCase):
         self.assertIn("Kuratierte Eintraege", (out / "report.md").read_text())
         # ohne Abweichung: Schluessel mit 0, Datei wird geloescht
         (out / "kuratiert.json").write_text(json.dumps([{"id": "k", "articleNo": "100.000.01", "priceChf": 100}]))
-        update.normalize_lauf(d / "full.json", state, out, web, basis, cache_erlaubt=True)
+        update.normalize_lauf(d / "full.json", state, out, web, basis, cache_erlaubt=True, zustand_schreiben=True)
         self.assertEqual(json.loads((out / "report.json").read_text())["curated_diffs"], 0)
         self.assertFalse((out / "curated.md").exists())
 

@@ -144,6 +144,14 @@ def markdown(r: dict) -> str:
         z += ["## Offene Farben", "", ", ".join(f"{k} ({n})" for k, n in list(r["offene_farben"].items())[:40]), ""]
     if r["offene_arten"]:
         z += [f"Offene Produktarten ohne englischen Namen: {r['offene_arten']}", ""]
+    if r.get("en_gleich_de"):
+        z += ["## Englische Namen", "", "Eintraege, deren englischer Name noch dem deutschen gleicht (ohne reine Eigennamen; Anteil an den Eintraegen ohne reine Eigennamen):", ""]
+        for s, b in r["en_gleich_de"].items():
+            z.append(f"- {s}: {b['anzahl']} von {b['gesamt']} ({b['anteil_prozent']} %), nur Eigennamen: {b['nur_eigennamen']}")
+        z.append("")
+        if r.get("en_unbekannt"):
+            z += ["Haeufigste unbekannte Woerter (Tabelle `woerter-en.json` erweitern):", "",
+                  ", ".join(f"{u['wort']} ({u['anzahl']})" for u in r["en_unbekannt"][:30]), ""]
     idx = {s: b["index"] for s, b in r["shops"].items() if b.get("index")}
     if idx:
         z += ["## Letzter Index-Lauf", ""]

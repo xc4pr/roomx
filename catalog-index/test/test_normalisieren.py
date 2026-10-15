@@ -162,6 +162,16 @@ class Namen(unittest.TestCase):
                          'GULLABERG Chest of 8 drawers')
         self.assertEqual(n.uebersetze('MALM Kommode', 'Kommode', {'Kommode': 'Dresser'}), 'MALM Dresser')
 
+    def test_ganze_art_unveraendert_und_woerter(self):
+        rows = [zeile('u1', 'MALM Kommode - schwarz 80x48 cm', '1', 10, masse(80, 48, 100))]
+        e = n.normalisiere({'ikea': {r['url']: r for r in rows}}, {'ikea|Kommoden': {'category': 'dresser', 'model': 'dresser'}},
+                           FARBEN, {}, set(), set(), {'Kommode': 'chest of drawers'}, {'kommode': 'andere'})[0]
+        self.assertEqual(e[0]['name']['en'], 'MALM chest of drawers 80x48 cm')
+        self.assertEqual(n.normalisiere.en_stat['ikea']['gesamt'], 1)
+        e = n.normalisiere({'ikea': {r['url']: r for r in rows}}, {'ikea|Kommoden': {'category': 'dresser', 'model': 'dresser'}},
+                           FARBEN, {}, set(), set(), {}, {'kommode': 'chest'})[0]
+        self.assertEqual(e[0]['name']['en'], 'MALM chest 80x48 cm')
+
     def test_arten_offen(self):
         lauf(Zusammenfuehren.rows(None))
         self.assertEqual(n.normalisiere.arten_offen, [{'art': 'Kommode', 'anzahl': 4}])
