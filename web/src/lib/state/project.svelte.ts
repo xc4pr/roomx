@@ -40,6 +40,11 @@ export type RoomPatch = Partial<
 >;
 export type ItemPatch = Partial<Omit<Item, 'id'>>;
 
+interface Snapshot {
+	seq: number;
+	project: Project;
+}
+
 export class ProjectStore {
 	project = $state<Project | null>(null);
 	readOnly = $state(false);
@@ -49,7 +54,10 @@ export class ProjectStore {
 	#saveTimer: ReturnType<typeof setTimeout> | null = null;
 	#retryTimer: ReturnType<typeof setTimeout> | null = null;
 	#saving: Promise<void> = Promise.resolve();
-	#pending = new Map<string, Project>();
+	#pending = new Map<string, Snapshot>();
+	#latest = new Map<string, number>();
+	#written = new Map<string, number>();
+	#seq = 0;
 	#guard: TabGuard | null = null;
 	#token: symbol | null = null;
 	#createGuard: GuardFactory;
@@ -115,6 +123,8 @@ export class ProjectStore {
 		this.#retryTimer = null;
 		for (const id of this.#pending.keys()) markSaved(id);
 		this.#pending.clear();
+		this.#latest.clear();
+		this.#written.clear();
 		this.#dropGuard();
 		this.project = null;
 		this.#undoStack = [];
@@ -142,7 +152,7 @@ export class ProjectStore {
 		add(this.project);
 		for (const project of this.#undoStack) add(project);
 		for (const project of this.#redoStack) add(project);
-		for (const project of this.#pending.values()) add(project);
+		for (const entry of this.#pending.values()) add(entry.project);
 		return hashes;
 	}
 
@@ -197,18 +207,18 @@ export class ProjectStore {
 		this.#restore(next);
 	}
 
-	// Saves run one after another, so a later state never gets overwritten by an earlier one.
-	// A failed save keeps its snapshot and is retried; the failure is reported by saveProject.
+	// Saves run one after another. Every snapshot has a rising number per project and the newest
+	// always wins: a failed older snapshot is dropped, a finished write retires older pending ones.
 	async flush(): Promise<void> {
 		if (this.#saveTimer !== null) {
 			clearTimeout(this.#saveTimer);
 			this.#saveTimer = null;
 			const project = this.snapshot();
-			if (project && !this.readOnly) this.#pending.set(project.id, project);
+			if (project && !this.readOnly) this.#enqueue(project);
 		}
-		for (const project of [...this.#pending.values()]) {
-			this.#pending.delete(project.id);
-			this.#saving = this.#saving.then(() => this.#write(project));
+		for (const entry of [...this.#pending.values()]) {
+			this.#pending.delete(entry.project.id);
+			this.#saving = this.#saving.then(() => this.#write(entry));
 		}
 		await this.#saving;
 		if (this.#pending.size === 0 && this.#retryTimer !== null) {
@@ -217,15 +227,29 @@ export class ProjectStore {
 		}
 	}
 
-	async #write(project: Project): Promise<void> {
+	#enqueue(project: Project): void {
+		const seq = ++this.#seq;
+		this.#latest.set(project.id, seq);
+		this.#pending.set(project.id, { seq, project });
+	}
+
+	async #write(entry: Snapshot): Promise<void> {
+		const { seq, project } = entry;
+		const id = project.id;
+		if ((this.#written.get(id) ?? 0) >= seq) return;
 		try {
 			await saveProject(project);
-			markSaved(project.id);
 		} catch {
-			if (!this.#pending.has(project.id)) this.#pending.set(project.id, project);
-			markUnsaved(this.#pending.get(project.id)!);
+			if (this.#latest.get(id) !== seq || (this.#written.get(id) ?? 0) >= seq) return;
+			if (!this.#pending.has(id)) this.#pending.set(id, entry);
+			markUnsaved(this.#pending.get(id)!.project);
 			this.#scheduleRetry();
+			return;
 		}
+		if (this.#latest.has(id)) this.#written.set(id, Math.max(this.#written.get(id) ?? 0, seq));
+		const queued = this.#pending.get(id);
+		if (queued && queued.seq <= seq) this.#pending.delete(id);
+		if (this.#latest.get(id) === seq && !this.#pending.has(id)) markSaved(id);
 	}
 
 	#scheduleRetry(): void {
