@@ -14,6 +14,7 @@
 	import CatalogCard from './CatalogCard.svelte';
 	import { brandsOf, categoriesOf, filterCatalog } from './filter.ts';
 	import { messages } from './i18n.ts';
+	import { pricesAsOf } from './priceDate.ts';
 	import { session } from './session.svelte.ts';
 
 	interface Props {
@@ -106,5 +107,8 @@
 				<CatalogCard {entry} {onadd} {ondrop} />
 			{/each}
 		</div>
+		<p class="px-1 text-xs text-muted pointer-coarse:text-sm" data-testid="catalog-note">
+			{t(messages, 'catalogNote', { date: pricesAsOf() })}
+		</p>
 	{/if}
 </div>

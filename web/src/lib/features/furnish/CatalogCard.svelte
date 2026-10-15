@@ -6,6 +6,7 @@
 	import { settings } from '#lib/state/settings.svelte.ts';
 	import { WIDE_QUERY } from '#lib/ui/layout.ts';
 	import { messages } from './i18n.ts';
+	import { pricesAsOf } from './priceDate.ts';
 	import { session } from './session.svelte.ts';
 	import { lazyThumbnail } from './thumbs.ts';
 
@@ -175,8 +176,21 @@
 		{pick(entry.name)}
 	</span>
 	<span class="truncate text-[11px] text-muted tabular-nums pointer-coarse:text-sm">{dims}</span>
+	{#if !entry.verified}
+		<span
+			class="flex items-center gap-1.5 text-[11px] text-muted pointer-coarse:text-sm"
+			title={t(messages, 'unverifiedHint')}
+			data-testid="unverified"
+		>
+			<span class="size-1.5 shrink-0 rounded-full bg-warning" aria-hidden="true"></span>
+			<span class="truncate">{t(messages, 'unverified')}</span>
+		</span>
+	{/if}
 	<span class="flex items-center justify-between gap-1 text-xs pointer-coarse:text-sm">
-		<span class="truncate font-bold tabular-nums">{price}</span>
+		<span
+			class="truncate font-bold tabular-nums"
+			title={t(messages, 'priceDate', { date: pricesAsOf() })}>{price}</span
+		>
 		<span class="truncate text-[10px] text-muted pointer-coarse:text-sm"
 			>{entry.series ?? entry.brand}</span
 		>

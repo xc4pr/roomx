@@ -12,6 +12,7 @@ import { messages } from './i18n.ts';
 import { currentEdition, formatUpdated, parseInline, visibleDocument } from './logic.ts';
 import {
 	CONTACT_URL,
+	COPYRIGHT_YEAR,
 	OPERATOR_ADDRESS,
 	OPERATOR_EMAIL,
 	OPERATOR_NAME,
@@ -32,6 +33,7 @@ const FORBIDDEN = [
 ].map((parts) => parts.join(''));
 
 function texts(block: LegalBlock): string[] {
+	if (block.kind === 'licenses') return [];
 	return block.kind === 'list' ? block.items : [block.text];
 }
 
@@ -48,7 +50,11 @@ function allTexts(document: LegalDocument): string[] {
 }
 
 function links(text: string): string[] {
-	return parseInline(text).flatMap((segment) => (segment.kind === 'link' ? [segment.href] : []));
+	return parseInline(text).flatMap((segment) =>
+		segment.kind === 'link'
+			? [segment.href.replace('docs.github.com/de/', 'docs.github.com/en/')]
+			: []
+	);
 }
 
 function outline(document: LegalDocument): unknown {
@@ -79,7 +85,8 @@ describe('legal content', () => {
 		for (const language of LANGUAGES) {
 			expect(legalContent[language].parts.map((part) => part.id)).toEqual([
 				'datenschutz',
-				'haftung'
+				'haftung',
+				'lizenzen'
 			]);
 		}
 	});
@@ -145,7 +152,8 @@ describe('legal content', () => {
 			CONTACT_URL,
 			REPOSITORY_URL,
 			PUBLIC_URL,
-			GITHUB_PRIVACY_URL,
+			GITHUB_PRIVACY_URL.de,
+			GITHUB_PRIVACY_URL.en,
 			SUPERVISORY_URL,
 			...(OPERATOR_EMAIL ? [`mailto:${OPERATOR_EMAIL}`] : [])
 		]);
@@ -154,6 +162,58 @@ describe('legal content', () => {
 				for (const href of links(text)) expect(allowed.has(href), href).toBe(true);
 			}
 		}
+	});
+});
+
+describe('required statements', () => {
+	function everything(language: Language): string {
+		return allTexts(legalContent[language]).join('\n');
+	}
+
+	it('names the brands and the missing connection to the manufacturers', () => {
+		for (const language of LANGUAGES) {
+			const text = everything(language);
+			for (const brand of ['IKEA', 'PAX', 'Tchibo', 'CN3']) expect(text, brand).toContain(brand);
+		}
+	});
+
+	it('warns about electrical work, wall mounting and backups', () => {
+		expect(everything('de')).toContain('NIV');
+		expect(everything('de')).toContain('nur eine Skizze');
+		expect(everything('de')).toContain('Kippsicherung');
+		expect(everything('de')).toContain('Sicherungen sind deine Sache');
+		expect(everything('en')).toContain('NIV');
+		expect(everything('en')).toContain('only a sketch');
+		expect(everything('en')).toContain('tip-over protection');
+	});
+
+	it('explains hosting, the transfer to the USA and local photo processing', () => {
+		for (const language of LANGUAGES) {
+			const text = everything(language);
+			expect(text, language).toContain('GitHub Pages');
+			expect(text, language).toContain('USA');
+			expect(text, language).toContain(GITHUB_PRIVACY_URL[language]);
+			expect(text, language).toContain('GPS');
+		}
+	});
+
+	it('names the delete button of the settings', () => {
+		expect(everything('de')).toContain('«Alle lokalen Daten löschen»');
+		expect(everything('en')).toContain('“Delete all local data”');
+	});
+
+	it('carries the copyright notice with the operator constants and a licence list', () => {
+		for (const language of LANGUAGES) {
+			const part = legalContent[language].parts.find((candidate) => candidate.id === 'lizenzen')!;
+			const text = part.sections.flatMap((section) => section.blocks.flatMap(texts)).join('\n');
+			expect(text, language).toContain(`© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}`);
+			expect(
+				part.sections.some((section) => section.blocks.some((block) => block.kind === 'licenses'))
+			).toBe(true);
+			expect(text, language).toContain('Figtree');
+		}
+		expect(everything('de')).toContain('alle Rechte vorbehalten');
+		expect(everything('en')).toContain('all rights reserved');
 	});
 });
 

@@ -11,6 +11,8 @@ export const MAX_PAGES = 80;
 export const MAX_BYTES = 25 * 1024 * 1024;
 export const PACKAGE_FILE_COUNT = 5;
 export const PACKAGE_EXTRA_BYTES = 120_000;
+export const PHOTO_BYTES = 330_000;
+export const VIEW_BYTES = 60_000;
 
 export interface Box {
 	x: number;
@@ -149,7 +151,8 @@ export const ITEM_ROWS_PER_PAGE = 40;
 
 export function estimatePackage(
 	rooms: readonly RoomEstimateInput[],
-	withViews = true
+	withViews = true,
+	withPhotos = true
 ): PackageEstimate {
 	let pages = 1 + Math.floor(rooms.length / 16);
 	let bytes = 0;
@@ -157,11 +160,13 @@ export function estimatePackage(
 		pages += 1 + Math.ceil(room.walls / 2);
 		if (withViews) {
 			pages += 1;
-			bytes += 5 * 25_000;
+			bytes += 5 * VIEW_BYTES;
 		}
 		if (room.items > 0) pages += 1 + Math.floor(room.items / ITEM_ROWS_PER_PAGE);
-		pages += Math.ceil(room.photos / PHOTOS_PER_PAGE);
-		bytes += room.photos * 260_000;
+		if (withPhotos) {
+			pages += Math.ceil(room.photos / PHOTOS_PER_PAGE);
+			bytes += room.photos * PHOTO_BYTES;
+		}
 	}
 	bytes += pages * 6_000 + 40_000 + PACKAGE_EXTRA_BYTES;
 	return { pages, bytes, tooLarge: pages > MAX_PAGES || bytes > MAX_BYTES };

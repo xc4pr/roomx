@@ -1,6 +1,8 @@
+import { CATALOG_PRICES_AS_OF } from '#lib/catalog/index.ts';
 import type { CatalogEntry } from '#lib/core/catalog.ts';
 import type { Dims, ItemCategory, Mount } from '#lib/core/schema.ts';
 import type { Language } from '#lib/core/units.ts';
+import { formatMonthYear } from '#lib/features/furnish/format.ts';
 import { instructionTexts } from './instructionsText.ts';
 import { translator } from './text.ts';
 
@@ -52,8 +54,14 @@ export function catalogJson(entries: readonly CatalogEntry[], language: Language
 		language,
 		units: 'mm',
 		currency: 'CHF',
+		pricesAsOf: CATALOG_PRICES_AS_OF,
 		count: entries.length,
-		notes: [tr('catalogNote1'), tr('catalogNote2'), tr('catalogNote3'), tr('catalogNote4')]
+		notes: [
+			tr('catalogNote1'),
+			tr('catalogNote2'),
+			tr('catalogNote3'),
+			tr('catalogNote4', { date: formatMonthYear(CATALOG_PRICES_AS_OF, language) })
+		]
 	};
 	const head = JSON.stringify(header, null, 1).replace(/\n}$/, '');
 	const rows = compactCatalog(entries, language).map((entry) => JSON.stringify(entry));

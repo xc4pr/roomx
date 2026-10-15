@@ -25,6 +25,7 @@ const labels: CsvLabels = {
 	unitPrice: 'Einzelpreis',
 	total: 'Summe',
 	estimate: 'Richtpreis',
+	unverified: 'Masse ungeprüft',
 	link: 'Link',
 	sum: 'Total',
 	plan: 'Plan',
@@ -46,10 +47,11 @@ describe('groupShopping', () => {
 			catalogId: 'generic-desk-160x80',
 			qty: 2,
 			total: 598,
-			estimated: true
+			estimated: true,
+			unverified: true
 		});
 		expect(rows[0].colors).toEqual(['#111111', '#222222']);
-		expect(rows[1]).toMatchObject({ qty: 2, total: 0, estimated: false });
+		expect(rows[1]).toMatchObject({ qty: 2, total: 0, estimated: false, unverified: false });
 	});
 
 	it('keeps different prices apart', () => {
@@ -62,6 +64,37 @@ describe('groupShopping', () => {
 			(i) => i.name
 		);
 		expect(split).toHaveLength(2);
+	});
+});
+
+describe('links in rows', () => {
+	it('drops links that are not http or https', () => {
+		const rows = groupShopping(
+			[
+				item('a', { name: 'A', url: 'javascript:alert(1)' }),
+				item('b', { name: 'B', url: 'https://www.ikea.com/ch/de/p/1' })
+			],
+			sampleLookup,
+			(i) => i.name
+		);
+		expect(rows.find((row) => row.name === 'A')?.url).toBeUndefined();
+		expect(rows.find((row) => row.name === 'B')?.url).toBe('https://www.ikea.com/ch/de/p/1');
+		const plan = planRows([{ name: 'C', qty: 1, url: 'data:text/html,x' }], sampleLookup);
+		expect(plan[0]?.url).toBeUndefined();
+	});
+});
+
+describe('planRows', () => {
+	it('marks catalogue entries whose dimensions are unverified', () => {
+		const rows = planRows(
+			[
+				{ name: 'Tisch', qty: 1, catalogId: 'generic-desk-160x80' },
+				{ name: 'Lampe', qty: 1 }
+			],
+			sampleLookup
+		);
+		expect(rows[0]).toMatchObject({ unverified: true, estimated: true });
+		expect(rows[1]).toMatchObject({ unverified: false, estimated: false });
 	});
 });
 
@@ -81,13 +114,51 @@ describe('shoppingCsv', () => {
 	);
 
 	it('starts with a BOM and uses semicolons and CRLF', () => {
-		expect(csv.startsWith('﻿Name;Marke;Menge;Einzelpreis;Summe;Richtpreis;Link\r\n')).toBe(true);
+		expect(
+			csv.startsWith('﻿Name;Marke;Menge;Einzelpreis;Summe;Richtpreis;Masse ungeprüft;Link\r\n')
+		).toBe(true);
 		expect(csv.endsWith('\r\n')).toBe(true);
 	});
 
+	it('flags unverified articles in their own column', () => {
+		const flagged = shoppingCsv(
+			groupShopping(
+				[item('a', { catalogId: 'generic-desk-160x80', priceChf: 299 })],
+				sampleLookup,
+				(i) => i.name
+			),
+			[],
+			labels
+		);
+		expect(flagged).toContain(';299.00;299.00;ja;ja;');
+	});
+
+	it('neutralises fields that a spreadsheet would run as a formula', () => {
+		const evil = shoppingCsv(
+			groupShopping(
+				[
+					item('a', { name: '=HYPERLINK("http://x.test","y")', priceChf: 1 }),
+					item('b', { name: '@SUM(1+1)', priceChf: 2 }),
+					item('c', { name: '+cmd', priceChf: 3 }),
+					item('d', { name: '-1+1', priceChf: 4 })
+				],
+				sampleLookup,
+				(i) => i.name
+			),
+			planRows([{ name: '=1+1', qty: 1, priceChf: 5 }], sampleLookup),
+			labels
+		);
+		expect(evil).toContain('"\'=HYPERLINK(""http://x.test"",""y"")"');
+		expect(evil).toContain("'@SUM(1+1)");
+		expect(evil).toContain("'+cmd");
+		expect(evil).toContain("'-1+1");
+		expect(evil).toContain("'=1+1");
+		expect(evil).not.toMatch(/(^|;|\n)"?[=+@-]/);
+	});
+
 	it('quotes special characters and writes totals', () => {
-		expect(csv).toContain('"Sofa; ""alt""";;2;12.50;25.00;;');
-		expect(csv).toContain('Total;;;;25.00;;');
-		expect(csv).toContain('Lampe;;3;10.00;30.00;;');
+		expect(csv).toContain('"Sofa; ""alt""";;2;12.50;25.00;;;');
+		expect(csv).toContain('Total;;;;25.00;;;');
+		expect(csv).toContain('Lampe;;3;10.00;30.00;;;');
 	});
 });

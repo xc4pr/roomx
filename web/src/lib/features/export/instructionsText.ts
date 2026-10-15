@@ -44,7 +44,7 @@ export const instructionTexts = defineMessages({
 			'| `{pdf}` | Grundrisse, Wandansichten, 3D-Ansichten und Fotos der Räume ({pages} Seiten) |',
 			'| `{json}` | exakte Raumdaten im Format `roomx-export`: Räume, Wände, Elemente, Möbel, Bedarf |',
 			'| `{schema}` | JSON-Schema des Plans, den du liefern sollst |',
-			'| `{catalog}` | Möbelkatalog mit Massen, Farben, Preisen und Freiräumen; die Masse sind verbindlich |',
+			'| `{catalog}` | Möbelkatalog mit Massen, Farben, Preisen und Freiräumen; Richtwerte, keine Herstellerangaben |',
 			'',
 			'Kannst du eine Datei nicht öffnen, sage das, bevor du planst.'
 		),
@@ -56,6 +56,8 @@ export const instructionTexts = defineMessages({
 		),
 		partialNote:
 			'Das Paket enthält nur diese Räume. Plane nur sie; andere Räume des Projekts kennst du nicht.',
+		noPhotosNote:
+			'Dieses Paket enthält bewusst keine Fotos. Plane nach den Raumdaten und frage nach, wenn dir ein Foto fehlt.',
 		workflowIntro: lines(
 			'## 3. Ablauf',
 			'',
@@ -94,7 +96,7 @@ export const instructionTexts = defineMessages({
 			'Gehe Raum für Raum vor:',
 			'',
 			'1. Lege **Zonen** fest (Schlafen, Schrank, Arbeiten, Sitzen, TV, Essen, Wege) und den Hauptweg ab der Tür.',
-			'2. Wähle **Möbel aus `{catalog}`** (suche nach `category`, `dims`, `brand`). Die `id` kommt als `catalogId` in den Plan. Die Masse im Katalog sind verbindlich: Ändere sie nie, damit etwas passt. Passt nichts, beschreibe einen eigenen Artikel (`name`, `category`, `dims`, `priceChf`) und sage, dass er nicht aus dem Katalog stammt.',
+			'2. Wähle **Möbel aus `{catalog}`** (suche nach `category`, `dims`, `brand`). Die `id` kommt als `catalogId` in den Plan. Die Masse im Katalog sind Richtwerte: Ändere sie nie, damit etwas passt. Bei Artikeln mit `verified: false` sind Masse und Preis nicht beim Hersteller geprüft: Weise in der Begründung darauf hin, dass der Nutzer die Masse beim Händler prüfen muss, bevor er kauft. Passt nichts, beschreibe einen eigenen Artikel (`name`, `category`, `dims`, `priceChf`) und sage, dass er nicht aus dem Katalog stammt.',
 			'3. Ergänze **Deko, Textilien, Pflanzen und Licht** (Grundlicht, Zonenlicht, Akzentlicht).',
 			'4. Schlage **Elektro** vor (`electrical`): Steckdosen und Anschlüsse dort, wo Geräte und Lampen stehen, auf freien Wandstücken.',
 			'5. Setze Möbel an der Wand mit **Anker**, freistehende mit absoluten Koordinaten, Aufgestelltes mit `on` (Abschnitt 5).',
@@ -127,7 +129,7 @@ export const instructionTexts = defineMessages({
 			'',
 			'1. **Plan:** Kannst du Dateien erzeugen, liefere ihn als Datei `{planFile}`, sonst als genau einen JSON-Codeblock. Reines JSON: keine Kommentare, keine Kommas am Ende, gültig gegen `{schema}`. Kürze den Block nie und setze kein zweites JSON in dieselbe Antwort.',
 			'2. **Begründung:** je Raum zwei bis vier Sätze (Zonen, warum diese Wand, was bewusst frei bleibt). Sie steht auch im Plan unter `notes`. Nenne Sicherheitshinweise (hohe Möbel an der Wand sichern) und offene Punkte.',
-			'3. **Einkaufsliste in CHF:** Artikel, Händler, Anzahl, Einzelpreis, Total, Link falls bekannt, am Ende die Gesamtsumme gegen das Budget. Katalogpreise sind Richtpreise. Prüfe Preis und Verfügbarkeit mit einer Websuche, wenn du eine hast; sonst kennzeichne die Preise als «Richtpreis». Nenne nie einen ungeprüften Preis als aktuell.',
+			'3. **Einkaufsliste in CHF:** Artikel, Händler, Anzahl, Einzelpreis, Total, Link falls bekannt, am Ende die Gesamtsumme gegen das Budget. Katalogpreise sind Richtpreise (Stand: Feld `pricesAsOf` in der Katalogdatei). Kennzeichne Artikel mit `verified: false` als «Masse ungeprüft». Prüfe Preis und Verfügbarkeit mit einer Websuche, wenn du eine hast; sonst kennzeichne die Preise als «Richtpreis». Nenne nie einen ungeprüften Preis als aktuell.',
 			'4. **Import:** Sage dem Nutzer, dass er in roomx unter «Plan importieren» die Datei wählt oder die Antwort einfügt und die neue Variante danach in der App ansieht.',
 			'5. Halte die Antwort kurz. Keine langen Koordinatentabellen.'
 		),
@@ -287,13 +289,13 @@ export const instructionTexts = defineMessages({
 			'| Plan mit Kommentaren | `//` oder `/* */`, Kommas am Ende | reines JSON liefern |'
 		),
 		catalogNote1:
-			'Masse (dims: w = Breite der Vorderseite, d = Tiefe, h = Höhe) und Freiräume (clearance: front, side) sind in Millimetern und verbindlich.',
+			'Masse (dims: w = Breite der Vorderseite, d = Tiefe, h = Höhe) und Freiräume (clearance: front, side) sind in Millimetern. Es sind Richtwerte, keine Herstellerangaben.',
 		catalogNote2:
 			'mount: floor = steht am Boden, wall = hängt an der Wand, ceiling = hängt an der Decke, on-top = steht auf einem anderen Möbel und braucht im Plan on.',
 		catalogNote3:
 			'power: grösser als 0 heisst, das Gerät braucht eine Steckdose in höchstens 1,5 m Entfernung.',
 		catalogNote4:
-			'priceChf sind Richtpreise in CHF. verified: true heisst, der Artikel wurde beim Hersteller geprüft; sonst sind die Angaben Richtwerte.'
+			'priceChf sind Richtpreise in CHF, Stand {date}. verified: true heisst, der Artikel wurde beim Hersteller geprüft. Bei verified: false sind Masse und Preis ungeprüft: Der Nutzer muss sie beim Händler prüfen, bevor er kauft. Weise in deiner Begründung darauf hin.'
 	},
 	en: {
 		prompt: sentences(
@@ -330,7 +332,7 @@ export const instructionTexts = defineMessages({
 			'| `{pdf}` | floor plans, wall views, 3D views and photos of the rooms ({pages} pages) |',
 			'| `{json}` | exact room data in the `roomx-export` format: rooms, walls, elements, furniture, needs |',
 			'| `{schema}` | JSON schema of the plan you are to deliver |',
-			'| `{catalog}` | furniture catalogue with dimensions, colours, prices and clearances; the dimensions are binding |',
+			'| `{catalog}` | furniture catalogue with dimensions, colours, prices and clearances; guide values, not manufacturer data |',
 			'',
 			'If you cannot open a file, say so before you plan.'
 		),
@@ -342,6 +344,8 @@ export const instructionTexts = defineMessages({
 		),
 		partialNote:
 			'The package contains only these rooms. Plan only them; you do not know any other rooms of the project.',
+		noPhotosNote:
+			'This package deliberately contains no photos. Plan from the room data and ask if a photo is missing.',
 		workflowIntro: lines('## 3. Procedure', '', 'Work in this order and do not skip a step.'),
 		step1: lines(
 			'### Step 1: Questions, all in ONE message',
@@ -376,7 +380,7 @@ export const instructionTexts = defineMessages({
 			'Work room by room:',
 			'',
 			'1. Decide the **zones** (sleeping, wardrobe, work, seating, TV, dining, walkways) and the main route from the door.',
-			'2. Pick **furniture from `{catalog}`** (search by `category`, `dims`, `brand`). The `id` goes into the plan as `catalogId`. The catalogue dimensions are binding: never change them to make something fit. If nothing fits, describe a custom item (`name`, `category`, `dims`, `priceChf`) and say that it is not a catalogue article.',
+			'2. Pick **furniture from `{catalog}`** (search by `category`, `dims`, `brand`). The `id` goes into the plan as `catalogId`. The catalogue dimensions are guide values: never change them to make something fit. For articles with `verified: false`, dimensions and price have not been checked with the manufacturer: say in your reasoning that the user must check the dimensions with the retailer before buying. If nothing fits, describe a custom item (`name`, `category`, `dims`, `priceChf`) and say that it is not a catalogue article.',
 			'3. Add **decor, textiles, plants and lighting** (ambient, zone, accent light).',
 			'4. Suggest **electrical points** (`electrical`): sockets and ports where devices and lamps will stand, on free wall spans.',
 			'5. Place furniture at a wall with an **anchor**, free-standing pieces with absolute coordinates, things standing on others with `on` (section 5).',
@@ -409,7 +413,7 @@ export const instructionTexts = defineMessages({
 			'',
 			'1. **Plan:** if you can create files, deliver it as the file `{planFile}`, otherwise as exactly one JSON code block. Plain JSON: no comments, no trailing commas, valid against `{schema}`. Never shorten the block and do not put a second JSON in the same answer.',
 			'2. **Reasoning:** two to four sentences per room (zones, why this wall, what is deliberately kept free). It also goes into the plan under `notes`. Mention safety notes (secure tall furniture to the wall) and open points.',
-			'3. **Shopping list in CHF:** article, retailer, quantity, unit price, total, link if known, and at the end the grand total against the budget. Catalogue prices are guide prices. Check price and availability with a web search if you have one; otherwise label the prices "guide price". Never state an unchecked price as current.',
+			'3. **Shopping list in CHF:** article, retailer, quantity, unit price, total, link if known, and at the end the grand total against the budget. Catalogue prices are guide prices (as of the `pricesAsOf` field in the catalogue file). Label articles with `verified: false` as "dimensions unverified". Check price and availability with a web search if you have one; otherwise label the prices "guide price". Never state an unchecked price as current.',
 			'4. **Import:** tell the user to choose the file in roomx under "Import plan" or paste your answer there, and then look at the new variant in the app.',
 			'5. Keep the answer short. No long tables of coordinates.'
 		),
@@ -569,11 +573,11 @@ export const instructionTexts = defineMessages({
 			'| Plan with comments | `//` or `/* */`, trailing commas | deliver plain JSON |'
 		),
 		catalogNote1:
-			'Dimensions (dims: w = width of the front, d = depth, h = height) and clearances (clearance: front, side) are in millimetres and binding.',
+			'Dimensions (dims: w = width of the front, d = depth, h = height) and clearances (clearance: front, side) are in millimetres. They are guide values, not manufacturer data.',
 		catalogNote2:
 			'mount: floor = stands on the floor, wall = hangs on the wall, ceiling = hangs from the ceiling, on-top = stands on other furniture and needs on in the plan.',
 		catalogNote3: 'power: greater than 0 means the device needs a socket at most 1.5 m away.',
 		catalogNote4:
-			'priceChf are guide prices in CHF. verified: true means the article was checked with the manufacturer; otherwise the values are guide values.'
+			'priceChf are guide prices in CHF, as of {date}. verified: true means the article was checked with the manufacturer. With verified: false, dimensions and price are unchecked: the user must check them with the retailer before buying. Point this out in your reasoning.'
 	}
 });

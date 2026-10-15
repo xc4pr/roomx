@@ -23,10 +23,13 @@
 	import Switch from '#lib/ui/Switch.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import { deleteItem, duplicateItem, itemLabel, rotateItem } from './actions.ts';
-	import { parseDegrees, parsePrice } from './format.ts';
+	import { parseDegrees, parseLinkInput, parsePrice } from './format.ts';
 	import { messages } from './i18n.ts';
 	import { narrowPassages } from './passage.ts';
 	import { CUSTOM_COLORS } from './place.ts';
+	import { pricesAsOf } from './priceDate.ts';
+
+	let linkError = $state(false);
 
 	const item = $derived(ui.selectedItemId ? store.item(ui.selectedItemId) : undefined);
 	const room = $derived(item ? store.room(item.roomId) : undefined);
@@ -91,6 +94,18 @@
 					? t(messages, 'hint_noSocket')
 					: t(messages, 'hint_socketFar', { distance: format(issue.distance) });
 		}
+	}
+
+	$effect(() => {
+		void item?.id;
+		linkError = false;
+	});
+
+	function saveLink(text: string): void {
+		const parsed = parseLinkInput(text);
+		linkError = parsed.kind === 'invalid';
+		if (parsed.kind === 'invalid') return;
+		patch({ url: parsed.kind === 'ok' ? parsed.url : undefined });
 	}
 
 	function patch(values: Partial<Record<keyof Item, unknown>>, key?: string): void {
@@ -305,6 +320,15 @@
 				{#if !custom}
 					<p class="px-1 text-xs text-muted pointer-coarse:text-sm">{t(messages, 'catalogSize')}</p>
 				{/if}
+				{#if entry && !entry.verified}
+					<p
+						class="rounded-md bg-warning-soft px-3 py-2 text-xs text-text pointer-coarse:text-sm"
+						data-testid="unverified-note"
+					>
+						<span class="font-semibold">{t(messages, 'unverified')}.</span>
+						{t(messages, 'unverifiedHint')}
+					</p>
+				{/if}
 			</section>
 
 			<fieldset class="flex flex-col gap-2">
@@ -343,7 +367,9 @@
 				<TextField
 					value={item.priceChf === undefined ? '' : String(item.priceChf).replace('.', ',')}
 					label={t(messages, 'priceChf')}
-					hint={entry && !entry.verified ? t(messages, 'priceEstimate') : undefined}
+					hint={entry && (item.priceChf === undefined || item.priceChf === entry.priceChf)
+						? t(messages, 'priceEstimate', { date: pricesAsOf() })
+						: undefined}
 					inputmode="decimal"
 					maxlength={9}
 					onchange={(value) => patch({ priceChf: parsePrice(value) })}
@@ -355,7 +381,9 @@
 					type="url"
 					inputmode="url"
 					maxlength={300}
-					onchange={(value) => patch({ url: value.trim() === '' ? undefined : value.trim() })}
+					error={linkError ? t(messages, 'linkInvalid') : undefined}
+					onchange={saveLink}
+					data-testid="item-link"
 				/>
 				<div class="flex flex-col gap-1.5">
 					<label for="item-note" class="px-1 text-sm font-semibold text-muted">

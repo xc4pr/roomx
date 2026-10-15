@@ -1,5 +1,7 @@
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, type PDFImage, type PDFPage } from 'pdf-lib';
+import { CATALOG_PRICES_AS_OF, lookup as catalogLookupDefault } from '#lib/catalog/index.ts';
+import type { CatalogLookup } from '#lib/core/catalog.ts';
 import { mirroredOpenings, wallLinks, withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { areaM2 } from '#lib/core/defaults.ts';
 import {
@@ -13,6 +15,7 @@ import type { Item, Project, Room, RoomElement } from '#lib/core/schema.ts';
 import { isWallElement } from '#lib/core/schema.ts';
 import { formatArea, formatChf, formatDate, lengthValue, type Language } from '#lib/core/units.ts';
 import { elementKindNames, roomTypeNames } from '#lib/i18n/common.ts';
+import { formatMonthYear } from '#lib/features/furnish/format.ts';
 import { briefLines } from './brief.ts';
 import { messages } from './i18n.ts';
 import {
@@ -60,6 +63,8 @@ export interface PdfInput {
 	fonts: PdfFonts;
 	date?: Date;
 	palette?: Palette;
+	lookup?: CatalogLookup;
+	includePhotos?: boolean;
 	renderViews?: (room: Room, variantId: string | undefined) => Promise<RoomImages | undefined>;
 	loadPhoto?: (hash: string) => Promise<Uint8Array | undefined>;
 	onProgress?: (progress: PdfProgress) => void;
@@ -407,6 +412,8 @@ function drawItemTable(ctx: PdfContext, flow: Flow, items: readonly Item[]): voi
 			}
 		);
 	};
+	const unverified = (item: Item) =>
+		item.catalogId !== undefined && ctx.lookup(item.catalogId)?.verified === false;
 	header();
 	items.forEach((item, index) => {
 		if (flow.remaining < 14) {
@@ -418,7 +425,7 @@ function drawItemTable(ctx: PdfContext, flow: Flow, items: readonly Item[]): voi
 		const cells = [
 			String(index + 1),
 			truncate(ctx, name, 8, 172),
-			`${item.dims.w} × ${item.dims.d} × ${item.dims.h}`,
+			`${item.dims.w} × ${item.dims.d} × ${item.dims.h}${unverified(item) ? ' *' : ''}`,
 			`${item.x} | ${item.y}`,
 			`${Math.round(item.rotation)}°`,
 			String(item.elevation),
@@ -428,6 +435,16 @@ function drawItemTable(ctx: PdfContext, flow: Flow, items: readonly Item[]): voi
 			drawText(flow.page, ctx, text, MARGIN + columns[column].x, flow.y, { size: 8 });
 		});
 	});
+	flow.gap(4);
+	if (items.some(unverified)) {
+		flow.paragraph(tr('unverifiedNote'), { size: 7.5, color: ctx.palette.muted });
+	}
+	if (items.some((item) => item.priceChf !== undefined || item.catalogId !== undefined)) {
+		flow.paragraph(tr('priceNote', { date: formatMonthYear(CATALOG_PRICES_AS_OF, ctx.language) }), {
+			size: 7.5,
+			color: ctx.palette.muted
+		});
+	}
 	flow.gap(6);
 }
 
@@ -544,7 +561,8 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 	const { project, language } = input;
 	const date = input.date ?? new Date();
 	const rooms = project.rooms.filter((room) => !input.roomIds || input.roomIds.includes(room.id));
-	const photoCount = rooms.reduce((sum, room) => sum + room.photos.length, 0);
+	const photoCount =
+		input.includePhotos === false ? 0 : rooms.reduce((sum, room) => sum + room.photos.length, 0);
 	const total = 1 + rooms.length * 4 + photoCount;
 	let done = 0;
 	const tick = () => input.onProgress?.({ done: Math.min(++done, total), total });
@@ -556,6 +574,7 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 	const bold = await doc.embedFont(input.fonts.bold, { subset: true });
 	const ctx: PdfContext = {
 		doc,
+		lookup: input.lookup ?? catalogLookupDefault,
 		font,
 		bold,
 		palette: input.palette ?? PAPER_PALETTE,
@@ -614,7 +633,7 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 	}
 
 	const photoPages: Record<string, number> = {};
-	await drawPhotoPages(ctx, rooms, input, photoPages, tick);
+	if (input.includePhotos !== false) await drawPhotoPages(ctx, rooms, input, photoPages, tick);
 	drawFooters(ctx, project, date);
 
 	const bytes = await doc.save();

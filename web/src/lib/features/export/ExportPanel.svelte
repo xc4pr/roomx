@@ -9,12 +9,18 @@
 	import Package from '@lucide/svelte/icons/package';
 	import PackageOpen from '@lucide/svelte/icons/package-open';
 	import Share2 from '@lucide/svelte/icons/share-2';
+	import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import X from '@lucide/svelte/icons/x';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { formatDate } from '#lib/core/units.ts';
 	import BuildCheck from '#lib/features/board/BuildCheck.svelte';
+	import {
+		photoLossNotes,
+		readSingleBackupFile,
+		restoreErrorMessage
+	} from '#lib/features/settings/backupActions.ts';
 	import { formatBytes } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -29,9 +35,7 @@
 	import Switch from '#lib/ui/Switch.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
 	import {
-		BackupError,
 		createBackup,
-		parseBackup,
 		projectExists,
 		restoreBackup,
 		type BackupExtra,
@@ -75,13 +79,14 @@
 	let selected = $state<string[]>([]);
 	let includePackage = $state(false);
 	let includeModel = $state(false);
+	let withoutPhotos = $state(false);
 	let checking = $state(false);
 	let copied = $state(false);
 	let copyTimer: ReturnType<typeof setTimeout> | undefined;
 	let promptEl = $state<HTMLElement>();
 	let job = $state<{ kind: JobKind; progress: number | undefined } | null>(null);
 	let ready = $state<ReadyPackage | null>(null);
-	let pendingRestore = $state<ParsedBackup | null>(null);
+	let pendingRestore = $state.raw<ParsedBackup | null>(null);
 	let askingRestore = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let controller: AbortController | null = null;
@@ -110,7 +115,9 @@
 					walls: room.polygon.length,
 					photos: room.photos.length,
 					items: items.filter((item) => item.roomId === room.id).length
-				}))
+				})),
+			true,
+			!withoutPhotos
 		);
 	});
 	const busy = $derived(job !== null);
@@ -156,6 +163,7 @@
 					project: snapshot,
 					roomIds: scope === 'all' ? undefined : roomIds,
 					language: locale.language,
+					includePhotos: !withoutPhotos,
 					signal,
 					onProgress: (value) => {
 						if (job) job.progress = value;
@@ -319,56 +327,36 @@
 		const file = input.files?.[0];
 		input.value = '';
 		if (!file) return;
-		let parsed: ParsedBackup;
-		try {
-			parsed = parseBackup(new Uint8Array(await file.arrayBuffer()));
-		} catch (error) {
-			toasts.show({
-				message: t(
-					messages,
-					error instanceof BackupError && error.code === 'tooNew'
-						? 'restoreTooNew'
-						: 'restoreFailed'
-				),
-				kind: 'error'
-			});
+		const read = await readSingleBackupFile(file);
+		if (read.kind === 'error') {
+			toasts.show({ message: restoreErrorMessage(read.code), kind: 'error', duration: 8000 });
 			return;
 		}
-		if (await projectExists(parsed.project.id)) {
-			pendingRestore = parsed;
+		if (await projectExists(read.parsed.project.id)) {
+			pendingRestore = read.parsed;
 			askingRestore = true;
 		} else {
-			await restore(parsed, 'replace');
+			await restore(read.parsed);
 		}
 	}
 
-	async function restore(parsed: ParsedBackup, mode: 'replace' | 'copy'): Promise<void> {
+	async function restore(parsed: ParsedBackup): Promise<void> {
 		askingRestore = false;
 		pendingRestore = null;
 		try {
-			if (mode === 'replace' && store.project?.id === parsed.project.id) await store.flush();
 			const result = await restoreBackup(parsed, {
-				mode,
+				mode: 'keep',
 				copySuffix: t(messages, 'copySuffix'),
 				makeThumbnail
 			});
-			if (mode === 'replace' && store.project?.id === result.project.id) {
-				store.replace(result.project);
-			}
-			const params = { name: result.project.name, n: result.missingPhotos };
+			const done = t(messages, 'restoreDone', { name: result.project.name });
+			const notes = photoLossNotes(result.missingPhotos, result.rejectedPhotos);
 			toasts.show({
-				message: t(
-					messages,
-					result.missingPhotos === 0
-						? 'restoreDone'
-						: result.missingPhotos === 1
-							? 'restoreDoneMissingOne'
-							: 'restoreDoneMissing',
-					params
-				),
-				kind: 'success',
+				message: notes.length > 0 ? `${done}. ${notes.join(' ')}` : done,
+				kind: notes.length > 0 ? 'info' : 'success',
 				actionLabel: t(messages, 'restoreOpen'),
-				onaction: () => void goto(resolve('/p/[id]', { id: result.project.id }))
+				onaction: () => void goto(resolve('/p/[id]', { id: result.project.id })),
+				duration: notes.length > 0 ? 10_000 : undefined
 			});
 		} catch (error) {
 			console.error(error);
@@ -376,7 +364,7 @@
 				message: t(messages, 'restoreStorage'),
 				kind: 'error',
 				actionLabel: t(messages, 'retry'),
-				onaction: () => void restore(parsed, mode)
+				onaction: () => void restore(parsed)
 			});
 		}
 	}
@@ -475,6 +463,33 @@
 				{/if}
 			{/if}
 
+			<div class="flex flex-col gap-3 rounded-md bg-surface-2 p-4" data-testid="share-notice">
+				<div class="flex items-start gap-3">
+					<ShieldAlert class="mt-0.5 size-5 shrink-0 text-warning" />
+					<div class="min-w-0">
+						<p class="text-sm font-bold">{t(messages, 'shareNoticeTitle')}</p>
+						<p class="mt-1 text-sm">
+							{t(messages, withoutPhotos ? 'shareNoticeNoPhotos' : 'shareNotice')}
+						</p>
+						<p class="mt-1 text-sm">{t(messages, 'shareCheck')}</p>
+						<a
+							href="{resolve('/rechtliches')}#datenschutz-weitergabe"
+							class="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-accent underline underline-offset-2"
+							data-testid="share-notice-more"
+						>
+							{t(messages, 'shareMore')}
+						</a>
+					</div>
+				</div>
+				<Switch
+					bind:checked={withoutPhotos}
+					label={t(messages, 'noPhotos')}
+					description={t(messages, 'noPhotosHint')}
+					disabled={busy}
+					onchange={() => (ready = null)}
+				/>
+			</div>
+
 			{#if job?.kind === 'package'}
 				{@render progress(t(messages, 'working'))}
 			{:else}
@@ -520,6 +535,9 @@
 							{/if}
 						</div>
 					</div>
+					<p class="text-sm text-muted" data-testid="ready-reminder">
+						{t(messages, 'readyReminder')}
+					</p>
 					<div class="flex flex-wrap gap-2">
 						{#if canShareFiles(ready.files)}
 							<Button
@@ -704,18 +722,11 @@
 			{t(messages, 'cancel')}
 		</Button>
 		<Button
-			variant="secondary"
-			onclick={() => pendingRestore && void restore(pendingRestore, 'copy')}
+			variant="primary"
+			onclick={() => pendingRestore && void restore(pendingRestore)}
 			data-testid="restore-copy"
 		>
 			{t(messages, 'asCopy')}
-		</Button>
-		<Button
-			variant="danger"
-			onclick={() => pendingRestore && void restore(pendingRestore, 'replace')}
-			data-testid="restore-replace"
-		>
-			{t(messages, 'replace')}
 		</Button>
 	{/snippet}
 </Dialog>

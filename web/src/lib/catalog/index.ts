@@ -11,6 +11,8 @@ import { lighting } from './data/lighting.ts';
 import { tchiboCn3 } from './data/tchibo.ts';
 import { withPrices } from './data/prices.ts';
 
+export const CATALOG_PRICES_AS_OF = '2026-10';
+
 export const catalog: readonly CatalogEntry[] = withPrices([
 	...ikeaStorage,
 	...ikeaBeds,

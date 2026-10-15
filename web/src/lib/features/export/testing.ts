@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { crc32, deflateSync } from 'node:zlib';
+import { crc32, deflateSync, inflateSync } from 'node:zlib';
 import { createElement } from '#lib/core/defaults.ts';
 import { sampleLookup, sampleProject } from '#lib/core/fixtures.ts';
 import { resolvePlan } from '#lib/core/planResolve.ts';
@@ -10,11 +10,57 @@ import type { PdfFonts } from './pdf.ts';
 
 const FONT_DIR = new URL('../../../../node_modules/@fontsource/figtree/files/', import.meta.url);
 
+function woffToSfnt(woff: Uint8Array): Uint8Array {
+	const view = new DataView(woff.buffer, woff.byteOffset, woff.byteLength);
+	const count = view.getUint16(12);
+	const tables = Array.from({ length: count }, (_, index) => {
+		const at = 44 + index * 20;
+		const offset = view.getUint32(at + 4);
+		const compLength = view.getUint32(at + 8);
+		const length = view.getUint32(at + 12);
+		const stored = woff.subarray(offset, offset + compLength);
+		return {
+			tag: view.getUint32(at),
+			checksum: view.getUint32(at + 16),
+			data: compLength < length ? new Uint8Array(inflateSync(stored)) : stored
+		};
+	});
+	const directory = 12 + count * 16;
+	const total = tables.reduce((sum, table) => sum + ((table.data.length + 3) & ~3), directory);
+	const out = new Uint8Array(total);
+	const sfnt = new DataView(out.buffer);
+	const entrySelector = Math.floor(Math.log2(count));
+	const searchRange = 16 * 2 ** entrySelector;
+	sfnt.setUint32(0, view.getUint32(4));
+	sfnt.setUint16(4, count);
+	sfnt.setUint16(6, searchRange);
+	sfnt.setUint16(8, entrySelector);
+	sfnt.setUint16(10, count * 16 - searchRange);
+	let cursor = directory;
+	tables.forEach((table, index) => {
+		const at = 12 + index * 16;
+		sfnt.setUint32(at, table.tag);
+		sfnt.setUint32(at + 4, table.checksum);
+		sfnt.setUint32(at + 8, cursor);
+		sfnt.setUint32(at + 12, table.data.length);
+		out.set(table.data, cursor);
+		cursor += (table.data.length + 3) & ~3;
+	});
+	return out;
+}
+
+let cachedFonts: PdfFonts | undefined;
+
 export function loadTestFonts(): PdfFonts {
-	return {
-		regular: new Uint8Array(readFileSync(new URL('figtree-latin-400-normal.woff', FONT_DIR))),
-		bold: new Uint8Array(readFileSync(new URL('figtree-latin-600-normal.woff', FONT_DIR)))
+	cachedFonts ??= {
+		regular: woffToSfnt(
+			new Uint8Array(readFileSync(new URL('figtree-latin-400-normal.woff', FONT_DIR)))
+		),
+		bold: woffToSfnt(
+			new Uint8Array(readFileSync(new URL('figtree-latin-600-normal.woff', FONT_DIR)))
+		)
 	};
+	return cachedFonts;
 }
 
 function chunk(type: string, data: Uint8Array): Uint8Array {

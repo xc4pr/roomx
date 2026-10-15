@@ -32,6 +32,7 @@ export interface InstructionsInput {
 	fileNames: PackageFileNames;
 	pdfPages: number;
 	partial: boolean;
+	withoutPhotos?: boolean;
 	lookup: CatalogLookup;
 }
 
@@ -250,6 +251,7 @@ export function buildInstructions(input: InstructionsInput): string {
 		roomsTable(document.rooms, language, tr)
 	];
 	if (partial) parts.push(tr('partialNote'));
+	if (input.withoutPhotos) parts.push(tr('noPhotosNote'));
 	parts.push(
 		tr('workflowIntro'),
 		tr('step1'),

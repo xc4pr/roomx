@@ -1,4 +1,5 @@
 import { degrees, PDFDocument, rgb, type Color, type PDFFont, type PDFPage } from 'pdf-lib';
+import type { CatalogLookup } from '#lib/core/catalog.ts';
 import type { Language } from '#lib/core/units.ts';
 import {
 	CONTENT_BOTTOM,
@@ -29,6 +30,7 @@ export interface PdfLinks {
 
 export interface PdfContext {
 	doc: PDFDocument;
+	lookup: CatalogLookup;
 	font: PDFFont;
 	bold: PDFFont;
 	palette: Palette;

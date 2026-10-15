@@ -13,7 +13,19 @@ export const messages = defineMessages({
 		selectRooms: 'Wähle mindestens einen Raum.',
 		estimate: 'ca. {pages} Seiten PDF · {files} Dateien, zusammen ca. {size}',
 		tooLarge:
-			'Das Paket wird gross ({pages} Seiten, {size}). Exportiere besser einzelne Räume. Der Export funktioniert trotzdem.',
+			'Das Paket wird gross (ca. {pages} Seiten, {size}). Viele KI-Assistenten nehmen nur Dateien bis etwa 25 MB an. Wähle «Einzelne Räume» und exportiere die Räume einzeln, oder lass die Fotos weg. Der Export funktioniert trotzdem.',
+		shareNoticeTitle: 'Was du teilst',
+		shareNotice:
+			'Das KI-Paket enthält deine Raummasse, Möbel, Raumnamen, Notizen und Fotos. Wenn du es teilst, gibst du es an den KI-Dienst weiter, den du selbst wählst. Dort gelten dessen Bedingungen.',
+		shareNoticeNoPhotos:
+			'Das KI-Paket enthält deine Raummasse, Möbel, Raumnamen und Notizen, aber keine Fotos. Wenn du es teilst, gibst du es an den KI-Dienst weiter, den du selbst wählst. Dort gelten dessen Bedingungen.',
+		shareCheck:
+			'Prüfe Fotos vorher auf Personen und Privates, zum Beispiel Dokumente, Bildschirme oder Adressen. Beachte die Richtlinien deiner Firma zu KI-Diensten.',
+		shareMore: 'Mehr zu Datenschutz und Weitergabe',
+		noPhotos: 'Ohne Fotos exportieren',
+		noPhotosHint: 'Das Paket wird kleiner und enthält keine Bilder von deiner Wohnung.',
+		readyReminder:
+			'Beim Teilen gelten die Bedingungen des gewählten KI-Dienstes. Prüfe die Fotos auf Personen und Privates.',
 		createPackage: 'KI-Paket erstellen',
 		exportAnyway: 'Trotzdem exportieren',
 		checkTitle: 'Vor dem Export',
@@ -27,7 +39,7 @@ export const messages = defineMessages({
 		readyText:
 			'{files} Dateien, zusammen {total}: Anleitung, PDF mit {pages} Seiten ({pdfSize}), Raumdaten ({jsonSize}), Schema und Katalog.',
 		readyLarge:
-			'Das Paket ist gross. Wenn der Assistent es nicht annimmt, exportiere Räume einzeln.',
+			'Das Paket ist gross. Wenn der Assistent es nicht annimmt, exportiere die Räume einzeln oder lass die Fotos weg.',
 		share: 'Teilen',
 		download: 'Herunterladen',
 		shared: 'Dateien geteilt',
@@ -64,18 +76,11 @@ export const messages = defineMessages({
 		restore: 'Wiederherstellen',
 		restoreText: 'ZIP-Datei eines Backups wählen.',
 		restoreDone: 'Projekt «{name}» wiederhergestellt',
-		restoreDoneMissing:
-			'Projekt «{name}» wiederhergestellt, {n} Fotos fehlten oder waren beschädigt',
-		restoreDoneMissingOne: 'Projekt «{name}» wiederhergestellt, 1 Foto fehlte oder war beschädigt',
 		restoreOpen: 'Öffnen',
-		restoreFailed: 'Die Datei ist kein gültiges Backup. Wähle die ZIP-Datei eines roomx-Backups.',
-		restoreTooNew:
-			'Dieses Backup stammt aus einer neueren Version der App. Lade die App neu und versuche es noch einmal.',
 		restoreStorage: 'Das Projekt konnte nicht gespeichert werden. Ist der Speicher voll?',
 		existsTitle: 'Projekt existiert bereits',
 		existsText:
-			'«{name}» ist auf diesem Gerät schon vorhanden. Ersetzen überschreibt die Version hier. Eine Kopie legt ein neues Projekt an.',
-		replace: 'Ersetzen',
+			'«{name}» ist auf diesem Gerät schon vorhanden. roomx überschreibt ein vorhandenes Projekt nie, sondern legt eine Kopie an.',
 		asCopy: 'Als Kopie anlegen',
 		copySuffix: 'Kopie',
 		sectionModel: '3D-Modell',
@@ -160,6 +165,8 @@ export const messages = defineMessages({
 		colRotation: 'Drehung',
 		colElevation: 'Unterkante',
 		colPrice: 'Preis',
+		unverifiedNote: '* Masse ungeprüft: Katalog-Richtwerte, vor dem Kauf beim Händler prüfen.',
+		priceNote: 'Preise sind Richtpreise, Stand {date}.',
 		locked: 'fix',
 		photosTitle: 'Fotos {room}',
 		persp_corner: 'Ecke',
@@ -217,7 +224,19 @@ export const messages = defineMessages({
 		selectRooms: 'Select at least one room.',
 		estimate: 'about {pages} PDF pages · {files} files, about {size} in total',
 		tooLarge:
-			'The package gets large ({pages} pages, {size}). Consider exporting rooms one at a time. Exporting still works.',
+			'The package gets large (about {pages} pages, {size}). Many AI assistants only accept files up to about 25 MB. Choose “Selected rooms” and export the rooms one at a time, or leave the photos out. Exporting still works.',
+		shareNoticeTitle: 'What you share',
+		shareNotice:
+			'The AI package contains your room dimensions, furniture, room names, notes and photos. When you share it, you hand it to the AI service you choose yourself. Its terms apply there.',
+		shareNoticeNoPhotos:
+			'The AI package contains your room dimensions, furniture, room names and notes, but no photos. When you share it, you hand it to the AI service you choose yourself. Its terms apply there.',
+		shareCheck:
+			'Check photos beforehand for people and private matters, for example documents, screens or addresses. Follow your company’s rules on AI services.',
+		shareMore: 'More on privacy and sharing',
+		noPhotos: 'Export without photos',
+		noPhotosHint: 'The package gets smaller and contains no pictures of your home.',
+		readyReminder:
+			'The terms of the AI service you choose apply when you share. Check the photos for people and private matters.',
 		createPackage: 'Create AI package',
 		exportAnyway: 'Export anyway',
 		checkTitle: 'Before exporting',
@@ -230,7 +249,8 @@ export const messages = defineMessages({
 		readyTitle: 'AI package ready',
 		readyText:
 			'{files} files, {total} in total: instructions, {pages}-page PDF ({pdfSize}), room data ({jsonSize}), schema and catalogue.',
-		readyLarge: 'The package is large. If the assistant rejects it, export rooms one at a time.',
+		readyLarge:
+			'The package is large. If the assistant rejects it, export the rooms one at a time or leave the photos out.',
 		share: 'Share',
 		download: 'Download',
 		shared: 'Files shared',
@@ -267,17 +287,11 @@ export const messages = defineMessages({
 		restore: 'Restore',
 		restoreText: 'Choose the ZIP file of a backup.',
 		restoreDone: 'Project “{name}” restored',
-		restoreDoneMissing: 'Project “{name}” restored, {n} photos were missing or damaged',
-		restoreDoneMissingOne: 'Project “{name}” restored, 1 photo was missing or damaged',
 		restoreOpen: 'Open',
-		restoreFailed: 'The file is not a valid backup. Choose the ZIP file of a roomx backup.',
-		restoreTooNew:
-			'This backup comes from a newer version of the app. Reload the app and try again.',
 		restoreStorage: 'The project could not be saved. Is the storage full?',
 		existsTitle: 'Project already exists',
 		existsText:
-			'“{name}” already exists on this device. Replace overwrites the version here. A copy creates a new project.',
-		replace: 'Replace',
+			'“{name}” already exists on this device. roomx never overwrites an existing project but creates a copy.',
 		asCopy: 'Create as copy',
 		copySuffix: 'copy',
 		sectionModel: '3D model',
@@ -361,6 +375,9 @@ export const messages = defineMessages({
 		colRotation: 'Rotation',
 		colElevation: 'Bottom edge',
 		colPrice: 'Price',
+		unverifiedNote:
+			'* Dimensions unverified: catalogue guide values, check with the retailer before buying.',
+		priceNote: 'Prices are guide prices, as of {date}.',
 		locked: 'fixed',
 		photosTitle: 'Photos {room}',
 		persp_corner: 'Corner',

@@ -31,6 +31,18 @@ describe('buildPackage', () => {
 		expect(photo.pdfPage).toBe(result.pageCount);
 	});
 
+	it('leaves the photos out on request', async () => {
+		const project = furnishedProject();
+		const date = new Date(2026, 9, 13, 12);
+		const full = await buildPackage({ project, language: 'de', date }, deps);
+		const bare = await buildPackage({ project, language: 'de', date, includePhotos: false }, deps);
+		expect(bare.pageCount).toBe(full.pageCount - 1);
+		expect(bare.pdf.data.length).toBeLessThan(full.pdf.data.length);
+		expect(bare.document.rooms[0].photos[0]?.pdfPage).toBeUndefined();
+		expect(full.document.rooms[0].photos[0]?.pdfPage).toBe(full.pageCount);
+		expect(new TextDecoder().decode(bare.instructions.data)).toContain('keine Fotos');
+	});
+
 	it('exports a single room only', async () => {
 		const project = furnishedProject();
 		const result = await buildPackage({ project, roomIds: ['room-l'], language: 'en' }, deps);

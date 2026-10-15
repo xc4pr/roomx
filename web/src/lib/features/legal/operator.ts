@@ -9,3 +9,5 @@ export const PUBLIC_URL = 'https://xc4pr.github.io/roomx/';
 export function displayUrl(url: string): string {
 	return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 }
+
+export const COPYRIGHT_YEAR = 2026;

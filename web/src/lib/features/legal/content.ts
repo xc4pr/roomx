@@ -1,5 +1,6 @@
 import type { Language } from '#lib/core/units.ts';
 import {
+	COPYRIGHT_YEAR,
 	CONTACT_URL,
 	OPERATOR_ADDRESS,
 	OPERATOR_EMAIL,
@@ -12,7 +13,10 @@ import {
 export type LegalEdition = 'public' | 'selfHosted';
 
 export type LegalBlock = { edition?: LegalEdition } & (
-	{ kind: 'p'; text: string } | { kind: 'note'; text: string } | { kind: 'list'; items: string[] }
+	| { kind: 'p'; text: string }
+	| { kind: 'note'; text: string }
+	| { kind: 'list'; items: string[] }
+	| { kind: 'licenses' }
 );
 
 export interface LegalSection {
@@ -23,7 +27,7 @@ export interface LegalSection {
 }
 
 export interface LegalPart {
-	id: 'datenschutz' | 'haftung';
+	id: 'datenschutz' | 'haftung' | 'lizenzen';
 	title: string;
 	intro: string;
 	sections: LegalSection[];
@@ -36,8 +40,10 @@ export interface LegalDocument {
 	parts: LegalPart[];
 }
 
-export const GITHUB_PRIVACY_URL =
-	'https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement';
+export const GITHUB_PRIVACY_URL: Record<Language, string> = {
+	de: 'https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement',
+	en: 'https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement'
+};
 export const SUPERVISORY_URL = 'https://www.edoeb.admin.ch';
 
 export const LEGAL_UPDATED = '2026-10-15';
@@ -53,6 +59,7 @@ const note = (text: string, edition?: LegalEdition): LegalBlock =>
 	withEdition({ kind: 'note', text }, edition);
 const list = (items: string[], edition?: LegalEdition): LegalBlock =>
 	withEdition({ kind: 'list', items }, edition);
+const licenses = (): LegalBlock => ({ kind: 'licenses' });
 
 function contactItems(labels: {
 	operator: string;
@@ -160,7 +167,7 @@ const de: LegalDocument = {
 							'Keine Konten und keine Anmeldung',
 							'Keine Cookies',
 							'Kein Tracking und keine Analyse- oder Werbedienste',
-							'Keine Schriften oder Skripte von Drittanbietern: alles Nötige steckt in der App'
+							'Keine externen Schriften, Skripte oder CDNs: alles Nötige steckt in der App und kommt von derselben Adresse'
 						]),
 						p(
 							'**Die App sendet keine Daten an Server des Betreibers.** Es gibt keinen Abgleich und keine Nutzungsstatistik.',
@@ -178,10 +185,10 @@ const de: LegalDocument = {
 					edition: 'public',
 					blocks: [
 						p(
-							'Die Dateien der App liefert GitHub Pages aus, ein Dienst von GitHub (USA). Beim Aufruf verarbeitet GitHub technisch notwendige Zugriffsdaten, insbesondere deine IP-Adresse, Datum und Uhrzeit, die aufgerufene Adresse und Angaben zu deinem Browser. Das geschieht auf den Servern von GitHub. Der Betreiber von roomx erhält diese Daten nicht.'
+							'Die Dateien der App liefert GitHub Pages aus, ein Dienst von GitHub (USA). Beim Aufruf verarbeitet GitHub technisch notwendige Zugriffsdaten in Server-Protokollen (Logs), insbesondere deine IP-Adresse, Datum und Uhrzeit, die aufgerufene Adresse und Angaben zu deinem Browser. Das geschieht auf den Servern von GitHub. Der Betreiber von roomx erhält diese Daten nicht.'
 						),
 						p(
-							`Dabei können Daten in die USA und in andere Länder gelangen. Es gelten die Bestimmungen von GitHub: [Datenschutzerklärung von GitHub](${GITHUB_PRIVACY_URL}). Die Seite wird verschlüsselt (HTTPS) ausgeliefert.`
+							`Dabei werden Daten in die USA übermittelt, möglicherweise auch in andere Länder. Es gelten die Bestimmungen von GitHub: [Datenschutzerklärung von GitHub](${GITHUB_PRIVACY_URL.de}). Die Seite wird verschlüsselt (HTTPS) ausgeliefert.`
 						)
 					]
 				},
@@ -227,7 +234,7 @@ const de: LegalDocument = {
 					title: 'Fotos und Metadaten',
 					blocks: [
 						p(
-							'Fotos werden beim Hinzufügen direkt im Browser verkleinert und ohne Metadaten gespeichert. Angaben wie der Aufnahmeort (GPS), die Aufnahmezeit oder das Kameramodell werden nicht übernommen.'
+							'Fotos werden lokal auf deinem Gerät verarbeitet: Beim Hinzufügen werden sie direkt im Browser verkleinert und ohne Metadaten gespeichert. Standortdaten (GPS) sowie Aufnahmezeit und Kameramodell werden entfernt. Die Fotos werden dabei nirgendwohin hochgeladen.'
 						),
 						p(
 							'Auf den Bildern selbst können trotzdem Personen, Dokumente oder Einblicke in deine Wohnung zu sehen sein. Fotografiere andere Personen nur mit ihrem Einverständnis.'
@@ -261,7 +268,7 @@ const de: LegalDocument = {
 						),
 						list([
 							'**Ein Projekt löschen:** in der Projektliste im Menü des Projekts «Löschen» wählen.',
-							'**Alles löschen:** die Website-Daten von roomx in den Einstellungen deines Browsers entfernen. Damit verschwinden Projekte, Fotos, Einstellungen und der Cache der App.',
+							'**Alles löschen:** in den Einstellungen von roomx «Alle lokalen Daten löschen» wählen. Damit verschwinden Projekte, Fotos und Einstellungen von diesem Gerät. Du kannst auch die Website-Daten von roomx in den Einstellungen deines Browsers entfernen.',
 							'**Weitergegebene Daten:** Dateien, die du gespeichert oder verschickt hast, und Daten bei einem KI-Assistenten löschst du dort selbst.'
 						]),
 						p(
@@ -321,7 +328,7 @@ const de: LegalDocument = {
 					title: 'Masse, Preise und Verfügbarkeit',
 					blocks: [
 						p(
-							'Katalogmasse, Preise, Lieferbarkeit und weitere Angaben zu Möbeln sind Richtwerte ohne Gewähr. Sie können veraltet, ungenau oder falsch sein. Auch Berechnungen und Prüfhinweise in der App (zum Beispiel Flächen, Abstände oder Platzprüfungen) ersetzen das Nachmessen vor Ort nicht. Darstellungen von Möbeln in Plan und 3D sind vereinfacht und weichen vom echten Produkt ab.'
+							'Katalogmasse, Preise, Lieferbarkeit und weitere Angaben zu Möbeln sind Richtwerte ohne Gewähr. Sie können veraltet, ungenau oder falsch sein. Artikel mit dem Hinweis «Masse ungeprüft» wurden nicht beim Hersteller geprüft; Preise sind Richtpreise mit Stand-Angabe. Prüfe Masse, Preise und Verfügbarkeit vor dem Kauf beim Händler. Auch Berechnungen und Prüfhinweise in der App (zum Beispiel Flächen, Abstände oder Platzprüfungen) ersetzen das Nachmessen vor Ort nicht. Darstellungen von Möbeln in Plan und 3D sind vereinfacht und weichen vom echten Produkt ab.'
 						)
 					]
 				},
@@ -343,8 +350,8 @@ const de: LegalDocument = {
 						),
 						list([
 							'**Statik:** Eingriffe in tragende Wände, Decken oder Böden dürfen nur nach Prüfung durch eine Fachperson erfolgen.',
-							'**Elektro:** Steckdosen, Leitungen, Lampenanschlüsse und andere Elektroinstallationen dürfen nur Elektrofachleute planen und ausführen.',
-							'**Wandbefestigung:** Hohe oder schwere Möbel musst du sichern. Wähle Befestigungsmaterial passend zur Wand und beachte die Anleitung des Herstellers.',
+							'**Elektro:** Die Elektroplanung in roomx (Steckdosen, Anschlüsse, Lampen) ist nur eine Skizze. Installationen dürfen nur Fachleute mit der nötigen Bewilligung planen und ausführen, in der Schweiz gemäss NIV (Niederspannungs-Installationsverordnung).',
+							'**Wandmontage und Kippsicherung:** Hohe oder schwere Möbel musst du an der Wand sichern. Wähle Befestigungsmaterial passend zur Wand und beachte die Anleitung des Herstellers.',
 							'**Vorschriften:** Bau- und Brandschutzvorschriften sowie Vorgaben deiner Vermieterschaft oder Verwaltung musst du selbst klären.'
 						])
 					]
@@ -366,7 +373,7 @@ const de: LegalDocument = {
 							'Deine Projekte liegen in erster Linie lokal in deinem Browser. Sie können verloren gehen, zum Beispiel wenn du Website-Daten löschst, der Browser bei Platzmangel Speicher freigibt oder das Gerät defekt ist oder verloren geht. Der Betreiber kann verlorene Daten nicht wiederherstellen.'
 						),
 						p(
-							'Erstelle deshalb regelmässig ein Backup (im Menü des Projekts: «Backup (ZIP)») und bewahre es getrennt vom Gerät auf. Für Datenverlust wird, soweit gesetzlich zulässig, nicht gehaftet.'
+							'Sicherungen sind deine Sache: Erstelle regelmässig ein Backup (im Menü des Projekts: «Backup (ZIP)») und bewahre es getrennt vom Gerät auf. Für Datenverlust wird, soweit gesetzlich zulässig, nicht gehaftet.'
 						)
 					]
 				},
@@ -384,7 +391,7 @@ const de: LegalDocument = {
 					title: 'Marken',
 					blocks: [
 						p(
-							'Namen wie IKEA, Tchibo und weitere Marken-, Firmen- und Produktnamen gehören ihren jeweiligen Inhabern. roomx nennt sie nur, um Möbel zu beschreiben. Es besteht keine Verbindung zu diesen Unternehmen, und sie unterstützen oder empfehlen roomx nicht.'
+							'Namen wie IKEA, PAX, Tchibo, CN3 und weitere Marken-, Firmen- und Produktnamen gehören ihren jeweiligen Inhabern. roomx nennt sie nur, um Möbel zu beschreiben. Es besteht keine Verbindung zu diesen Unternehmen oder zu den Herstellern, und sie unterstützen oder empfehlen roomx nicht.'
 						)
 					]
 				},
@@ -407,6 +414,42 @@ const de: LegalDocument = {
 						p(
 							'Es gilt schweizerisches Recht. Gerichtsstand ist, soweit zulässig, der Wohnsitz des Betreibers in der Schweiz. Zwingende Gerichtsstände, etwa für Verbraucherinnen und Verbraucher, bleiben vorbehalten.'
 						)
+					]
+				}
+			]
+		},
+		{
+			id: 'lizenzen',
+			title: 'Urheberrecht und Lizenzen',
+			intro: 'Wem roomx gehört und welche freie Software darin steckt.',
+			sections: [
+				{
+					id: 'urheberrecht',
+					title: 'Urheberrecht an roomx',
+					blocks: [
+						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}, alle Rechte vorbehalten.**`),
+						p(
+							`Der Quellcode von roomx ist auf [GitHub](${REPOSITORY_URL}) einsehbar, aber nicht unter einer Open-Source-Lizenz freigegeben. Ohne ausdrückliche Erlaubnis darfst du ihn nicht kopieren, verändern oder weiterverbreiten. Die App kannst du kostenlos nutzen.`
+						)
+					]
+				},
+				{
+					id: 'schrift',
+					title: 'Schrift',
+					blocks: [
+						p(
+							'roomx verwendet die Schrift Figtree (SIL Open Font License 1.1). Sie ist in der App enthalten und wird nicht von einem fremden Server geladen.'
+						)
+					]
+				},
+				{
+					id: 'drittanbieter',
+					title: 'Open-Source-Software von Dritten',
+					blocks: [
+						p(
+							'roomx baut auf freier Software auf. Hier siehst du die Pakete, die in der App mitgeliefert werden, mit ihrer Lizenz und, wo vorhanden, dem Lizenztext. Die Liste wird beim Erstellen der App automatisch erzeugt.'
+						),
+						licenses()
 					]
 				}
 			]
@@ -501,7 +544,7 @@ const en: LegalDocument = {
 							'No accounts and no sign-in',
 							'No cookies',
 							'No tracking and no analytics or advertising services',
-							'No fonts or scripts from third parties: everything needed is part of the app'
+							'No external fonts, scripts or CDNs: everything needed is part of the app and comes from the same address'
 						]),
 						p(
 							'**The app sends no data to servers of the operator.** There is no sync and no usage statistics.',
@@ -519,10 +562,10 @@ const en: LegalDocument = {
 					edition: 'public',
 					blocks: [
 						p(
-							'The files of the app are served by GitHub Pages, a service of GitHub (USA). When you open the app, GitHub processes technically necessary access data, in particular your IP address, date and time, the requested address and details about your browser. This happens on GitHub servers. The operator of roomx does not receive this data.'
+							'The files of the app are served by GitHub Pages, a service of GitHub (USA). When you open the app, GitHub processes technically necessary access data in server logs, in particular your IP address, date and time, the requested address and details about your browser. This happens on GitHub servers. The operator of roomx does not receive this data.'
 						),
 						p(
-							`Data may be transferred to the USA and other countries. GitHub's terms apply: [GitHub privacy statement](${GITHUB_PRIVACY_URL}). The site is delivered over an encrypted connection (HTTPS).`
+							`Data is transferred to the USA and possibly to other countries. GitHub's terms apply: [GitHub privacy statement](${GITHUB_PRIVACY_URL.en}). The site is delivered over an encrypted connection (HTTPS).`
 						)
 					]
 				},
@@ -568,7 +611,7 @@ const en: LegalDocument = {
 					title: 'Photos and metadata',
 					blocks: [
 						p(
-							'Photos are downsized directly in your browser when you add them and are stored without metadata. Details such as the location (GPS), the time of capture or the camera model are not kept.'
+							'Photos are processed locally on your device: when you add them, they are downsized directly in your browser and stored without metadata. Location data (GPS), the time of capture and the camera model are removed. The photos are not uploaded anywhere.'
 						),
 						p(
 							'The images themselves can still show people, documents or glimpses of your home. Only photograph other people with their consent.'
@@ -602,7 +645,7 @@ const en: LegalDocument = {
 						),
 						list([
 							'**Delete a project:** in the project list, open the project menu and choose “Delete”.',
-							'**Delete everything:** remove the site data of roomx in your browser settings. This removes projects, photos, settings and the cache of the app.',
+							'**Delete everything:** in the roomx settings, choose “Delete all local data”. This removes projects, photos and settings from this device. You can also remove the site data of roomx in your browser settings.',
 							'**Data you shared:** you delete files you saved or sent, and data held by an AI assistant, there yourself.'
 						]),
 						p(
@@ -662,7 +705,7 @@ const en: LegalDocument = {
 					title: 'Dimensions, prices and availability',
 					blocks: [
 						p(
-							'Catalogue dimensions, prices, availability and other details about furniture are guide values without guarantee. They may be outdated, inaccurate or wrong. Calculations and checks in the app (for example areas, clearances or space checks) do not replace measuring on site. Furniture shown in the plan and in 3D is simplified and differs from the real product.'
+							'Catalogue dimensions, prices, availability and other details about furniture are guide values without guarantee. They may be outdated, inaccurate or wrong. Articles marked “Dimensions unverified” have not been checked with the manufacturer; prices are guide prices with a date. Check dimensions, prices and availability with the retailer before buying. Calculations and checks in the app (for example areas, clearances or space checks) do not replace measuring on site. Furniture shown in the plan and in 3D is simplified and differs from the real product.'
 						)
 					]
 				},
@@ -684,8 +727,8 @@ const en: LegalDocument = {
 						),
 						list([
 							'**Structure:** work on load-bearing walls, ceilings or floors may only be done after a professional has checked it.',
-							'**Electrical:** sockets, cables, lamp connections and other electrical installations may only be planned and carried out by qualified electricians.',
-							'**Wall fixing:** you must secure tall or heavy furniture. Choose fixings suited to the wall and follow the manufacturer’s instructions.',
+							'**Electrical:** the electrical planning in roomx (sockets, connections, lamps) is only a sketch. Installations may only be planned and carried out by professionals with the required authorisation, in Switzerland under the NIV (low-voltage installations ordinance).',
+							'**Wall mounting and tip-over protection:** you must secure tall or heavy furniture to the wall. Choose fixings suited to the wall and follow the manufacturer’s instructions.',
 							'**Regulations:** you must clarify building and fire regulations and the rules of your landlord or property management yourself.'
 						])
 					]
@@ -707,7 +750,7 @@ const en: LegalDocument = {
 							'Your projects are stored primarily on your device, in your browser. They can be lost, for example if you delete site data, if the browser frees storage when space runs low, or if the device breaks or is lost. The operator cannot restore lost data.'
 						),
 						p(
-							'Please create backups regularly (in the project menu: “Backup (ZIP)”) and keep them apart from the device. To the extent permitted by law, there is no liability for data loss.'
+							'Backups are your responsibility: please create them regularly (in the project menu: “Backup (ZIP)”) and keep them apart from the device. To the extent permitted by law, there is no liability for data loss.'
 						)
 					]
 				},
@@ -725,7 +768,7 @@ const en: LegalDocument = {
 					title: 'Trademarks',
 					blocks: [
 						p(
-							'Names such as IKEA, Tchibo and other trademarks, company names and product names belong to their respective owners. roomx mentions them only to describe furniture. There is no connection to these companies, and they neither support nor endorse roomx.'
+							'Names such as IKEA, PAX, Tchibo, CN3 and other trademarks, company names and product names belong to their respective owners. roomx mentions them only to describe furniture. There is no connection to these companies or to the manufacturers, and they neither support nor endorse roomx.'
 						)
 					]
 				},
@@ -748,6 +791,42 @@ const en: LegalDocument = {
 						p(
 							'Swiss law applies. To the extent permitted, the place of jurisdiction is the operator’s place of residence in Switzerland. Mandatory places of jurisdiction, for example for consumers, remain reserved.'
 						)
+					]
+				}
+			]
+		},
+		{
+			id: 'lizenzen',
+			title: 'Copyright and licences',
+			intro: 'Who owns roomx and which open-source software it contains.',
+			sections: [
+				{
+					id: 'urheberrecht',
+					title: 'Copyright in roomx',
+					blocks: [
+						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}, all rights reserved.**`),
+						p(
+							`The source code of roomx can be viewed on [GitHub](${REPOSITORY_URL}) but is not released under an open-source licence. Without explicit permission you may not copy, modify or redistribute it. You can use the app free of charge.`
+						)
+					]
+				},
+				{
+					id: 'schrift',
+					title: 'Typeface',
+					blocks: [
+						p(
+							'roomx uses the typeface Figtree (SIL Open Font License 1.1). It is included in the app and not loaded from an outside server.'
+						)
+					]
+				},
+				{
+					id: 'drittanbieter',
+					title: 'Third-party open-source software',
+					blocks: [
+						p(
+							'roomx is built on open-source software. Below are the packages shipped with the app, with their licence and, where available, the licence text. The list is generated automatically when the app is built.'
+						),
+						licenses()
 					]
 				}
 			]

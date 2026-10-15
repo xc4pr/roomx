@@ -1,4 +1,5 @@
 import type { Language } from '#lib/core/units.ts';
+import { safeExternalUrl } from '#lib/security/url.ts';
 import type { LegalBlock, LegalDocument, LegalEdition } from './content.ts';
 
 export type Segment =
@@ -28,6 +29,7 @@ export interface VisibleDocument {
 }
 
 const TOKEN = /\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*/g;
+const MAIL = /^mailto:[^\s@]+@[^\s@]+$/;
 
 export function parseInline(text: string): Segment[] {
 	const segments: Segment[] = [];
@@ -38,7 +40,9 @@ export function parseInline(text: string): Segment[] {
 		if (bold !== undefined) {
 			segments.push({ kind: 'bold', text: bold });
 		} else if (label !== undefined && href !== undefined) {
-			segments.push({ kind: 'link', text: label, href, external: /^https?:\/\//.test(href) });
+			if (safeExternalUrl(href)) segments.push({ kind: 'link', text: label, href, external: true });
+			else if (MAIL.test(href)) segments.push({ kind: 'link', text: label, href, external: false });
+			else segments.push({ kind: 'text', text: label });
 		}
 		last = match.index + whole.length;
 	}

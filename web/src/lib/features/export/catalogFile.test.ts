@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { catalog } from '#lib/catalog/index.ts';
+import { CATALOG_PRICES_AS_OF, catalog } from '#lib/catalog/index.ts';
 import { ITEM_CATEGORIES, MOUNTS } from '#lib/core/schema.ts';
 import { CATALOG_FORMAT, catalogJson, compactCatalog, compactEntry } from './catalogFile.ts';
 
@@ -66,6 +66,7 @@ describe('catalogJson', () => {
 			expect(parsed.language).toBe(language);
 			expect(parsed.units).toBe('mm');
 			expect(parsed.currency).toBe('CHF');
+			expect(parsed.pricesAsOf).toBe(CATALOG_PRICES_AS_OF);
 			expect(parsed.count).toBe(catalog.length);
 			expect(parsed.notes).toHaveLength(4);
 			expect(parsed.items).toEqual(JSON.parse(JSON.stringify(compactCatalog(catalog, language))));

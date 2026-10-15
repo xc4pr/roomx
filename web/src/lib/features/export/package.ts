@@ -35,6 +35,7 @@ export interface PackageOptions {
 	signal?: AbortSignal;
 	onProgress?: (fraction: number) => void;
 	catalog?: readonly CatalogEntry[];
+	includePhotos?: boolean;
 }
 
 export interface PackageFile {
@@ -73,6 +74,7 @@ export async function buildPackage(
 		fonts,
 		date,
 		loadPhoto: deps.loadPhoto,
+		includePhotos: options.includePhotos,
 		renderViews: deps.renderViews
 			? (room, variantId) => deps.renderViews!(project, room, variantId)
 			: undefined,
@@ -106,6 +108,7 @@ export async function buildPackage(
 			fileNames,
 			pdfPages: pdf.pageCount,
 			partial: roomIds !== undefined && roomIds.length < project.rooms.length,
+			withoutPhotos: options.includePhotos === false,
 			lookup: catalogLookup(entries)
 		})
 	);

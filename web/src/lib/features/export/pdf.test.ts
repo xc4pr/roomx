@@ -1,5 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
+import { sampleLookup } from '#lib/core/fixtures.ts';
+import type { CatalogLookup } from '#lib/core/catalog.ts';
 import { buildPdf } from './pdf.ts';
 import { furnishedProject, loadTestFonts, testPng } from './testing.ts';
 
@@ -36,6 +38,32 @@ describe('buildPdf', () => {
 			expect(doc.getPageCount()).toBe(sloped.pageCount);
 			expect(sloped.bytes.length).toBeGreaterThan(flat.bytes.length);
 		}
+	});
+
+	it('adds the footnote for articles whose dimensions are unverified', async () => {
+		const project = furnishedProject();
+		const lookupWith =
+			(verified: boolean): CatalogLookup =>
+			(id) => {
+				const entry = sampleLookup(id);
+				return entry ? { ...entry, verified } : undefined;
+			};
+		const checked = await buildPdf({
+			project,
+			roomIds: ['room-rect'],
+			language: 'de',
+			fonts,
+			lookup: lookupWith(true)
+		});
+		const unchecked = await buildPdf({
+			project,
+			roomIds: ['room-rect'],
+			language: 'de',
+			fonts,
+			lookup: lookupWith(false)
+		});
+		expect(unchecked.pageCount).toBe(checked.pageCount);
+		expect(unchecked.bytes.length).toBeGreaterThan(checked.bytes.length);
 	});
 
 	it('labels connected rooms and still produces the same pages', async () => {

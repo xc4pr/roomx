@@ -48,7 +48,12 @@ function names(language: Language): PackageFileNames {
 	};
 }
 
-function instructionsFor(language: Language, partial = false, project = furnishedProject()) {
+function instructionsFor(
+	language: Language,
+	partial = false,
+	project = furnishedProject(),
+	withoutPhotos = false
+) {
 	const document = buildExport(project, { exportedAt: '2026-10-15T12:00:00.000Z' });
 	const text = buildInstructions({
 		document,
@@ -57,6 +62,7 @@ function instructionsFor(language: Language, partial = false, project = furnishe
 		fileNames: names(language),
 		pdfPages: 12,
 		partial,
+		withoutPhotos,
 		lookup
 	});
 	return { document, text };
@@ -89,6 +95,26 @@ describe('instruction texts', () => {
 });
 
 describe('buildInstructions', () => {
+	it.each(LANGUAGES)(
+		'calls catalogue dimensions guide values and asks for a check (%s)',
+		(language) => {
+			const { text } = instructionsFor(language);
+			const lower = text.toLowerCase();
+			expect(lower).not.toContain(language === 'de' ? 'verbindlich' : 'binding');
+			expect(text).toContain('verified: false');
+			expect(lower).toContain(language === 'de' ? 'richtwerte' : 'guide values');
+			expect(lower).toContain(language === 'de' ? 'beim händler prüfen' : 'check the dimensions');
+		}
+	);
+
+	it.each(LANGUAGES)('says so when the package has no photos (%s)', (language) => {
+		const without = instructionsFor(language, false, furnishedProject(), true).text;
+		const withPhotos = instructionsFor(language).text;
+		expect(without.length).toBeGreaterThan(withPhotos.length);
+		expect(without).toContain(language === 'de' ? 'keine Fotos' : 'no photos');
+		expect(withPhotos).not.toContain(language === 'de' ? 'keine Fotos' : 'no photos');
+	});
+
 	it.each(LANGUAGES)('contains the project id and every room id (%s)', (language) => {
 		const { document, text } = instructionsFor(language);
 		expect(text).toContain(document.project.id);

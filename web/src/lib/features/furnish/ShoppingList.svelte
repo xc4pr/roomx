@@ -5,14 +5,15 @@
 	import { lookup } from '#lib/catalog/index.ts';
 	import { formatChf } from '#lib/core/units.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
+	import { externalLink } from '#lib/security/url.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import { itemLabel } from './actions.ts';
 	import { budgetState, variantTotal } from './budget.ts';
 	import { downloadText, safeFilename } from './download.ts';
-	import { safeUrl } from './format.ts';
 	import { messages } from './i18n.ts';
+	import { pricesAsOf } from './priceDate.ts';
 	import { groupShopping, planRows, shoppingCsv, type ShoppingRow } from './shopping.ts';
 
 	const variant = $derived(store.activeVariant);
@@ -34,6 +35,7 @@
 			unitPrice: t(messages, 'csv_unitPrice'),
 			total: t(messages, 'csv_total'),
 			estimate: t(messages, 'csv_estimate'),
+			unverified: t(messages, 'unverified'),
 			link: t(messages, 'csv_link'),
 			sum: t(messages, 'csv_sum'),
 			plan: t(messages, 'csv_plan'),
@@ -45,7 +47,7 @@
 </script>
 
 {#snippet row(entry: ShoppingRow)}
-	{@const href = safeUrl(entry.url)}
+	{@const link = externalLink(entry.url)}
 	<li class="flex items-start gap-3 rounded-lg border border-border bg-surface p-3">
 		<div class="flex min-w-0 flex-1 flex-col gap-0.5">
 			<div class="flex items-center gap-1.5">
@@ -62,9 +64,14 @@
 				{entry.unitPrice === undefined ? t(messages, 'priceOpen') : money(entry.unitPrice)}
 				{#if entry.brand}· {entry.brand}{/if}
 			</p>
+			{#if entry.unverified}
+				<p class="text-xs font-semibold text-warning pointer-coarse:text-sm">
+					{t(messages, 'unverified')}
+				</p>
+			{/if}
 			{#if entry.estimated}
 				<p class="text-xs font-semibold text-warning pointer-coarse:text-sm">
-					{t(messages, 'estimateBadge')}
+					{t(messages, 'priceDate', { date: pricesAsOf() })}
 				</p>
 			{/if}
 		</div>
@@ -72,11 +79,9 @@
 			<span class="text-sm font-bold tabular-nums">
 				{entry.estimated ? `${t(messages, 'approx')} ` : ''}{money(entry.total)}
 			</span>
-			{#if href}
+			{#if link}
 				<a
-					{href}
-					target="_blank"
-					rel="noopener noreferrer"
+					{...link}
 					class="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-accent pointer-coarse:text-sm"
 				>
 					{t(messages, 'open')}
@@ -135,6 +140,10 @@
 				</ul>
 			</section>
 		{/if}
+
+		<p class="px-1 text-xs text-muted pointer-coarse:text-sm" data-testid="list-note">
+			{t(messages, 'listNote', { date: pricesAsOf() })}
+		</p>
 
 		<Button variant="primary" icon={Download} full onclick={exportCsv} data-testid="export-csv">
 			{t(messages, 'exportCsv')}

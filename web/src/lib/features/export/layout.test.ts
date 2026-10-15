@@ -122,6 +122,14 @@ describe('estimatePackage', () => {
 		expect(small.tooLarge).toBe(false);
 	});
 
+	it('leaves out photo pages and photo bytes without photos', () => {
+		const room = { walls: 4, photos: 10, items: 10 };
+		const with10 = estimatePackage([room]);
+		const without = estimatePackage([room], true, false);
+		expect(without.pages).toBe(with10.pages - 5);
+		expect(with10.bytes - without.bytes).toBeGreaterThanOrEqual(10 * 300_000);
+	});
+
 	it('counts the files of the package and their fixed size', () => {
 		expect(PACKAGE_FILE_COUNT).toBe(5);
 		const empty = estimatePackage([]);

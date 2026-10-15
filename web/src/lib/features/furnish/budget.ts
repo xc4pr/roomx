@@ -19,6 +19,12 @@ export function isEstimate(item: Item, lookup: CatalogLookup): boolean {
 	return entry ? !entry.verified : true;
 }
 
+export function isUnverified(item: Item, lookup: CatalogLookup): boolean {
+	if (!item.catalogId) return false;
+	const entry = lookup(item.catalogId);
+	return entry ? !entry.verified : false;
+}
+
 export function variantTotal(items: readonly Item[], lookup: CatalogLookup): Total {
 	let sum = 0;
 	let estimated = false;

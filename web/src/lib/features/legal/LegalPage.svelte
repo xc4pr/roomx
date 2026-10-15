@@ -10,7 +10,9 @@
 	import { legalContent, type LegalBlock } from './content.ts';
 	import { messages } from './i18n.ts';
 	import InlineText from './InlineText.svelte';
+	import LicenseList from './LicenseList.svelte';
 	import { currentEdition, formatUpdated, visibleDocument, type VisiblePart } from './logic.ts';
+	import { COPYRIGHT_YEAR, OPERATOR_NAME } from './operator.ts';
 
 	const WIDE_QUERY = '(min-width: 64rem)';
 
@@ -60,6 +62,8 @@
 		<p class="rounded-md border-l-4 border-warning bg-warning-soft px-4 py-3 font-semibold">
 			<InlineText text={item.text} />
 		</p>
+	{:else if item.kind === 'licenses'}
+		<LicenseList />
 	{:else}
 		<ul class="flex list-disc flex-col gap-2 ps-6 marker:text-muted">
 			{#each item.items as entry, index (index)}
@@ -187,5 +191,10 @@
 				{/each}
 			</article>
 		</div>
+		<footer class="mt-14 border-t border-border pt-6 text-center text-sm text-muted">
+			<p data-testid="legal-copyright">
+				{t(messages, 'copyright', { year: COPYRIGHT_YEAR, name: OPERATOR_NAME })}
+			</p>
+		</footer>
 	</main>
 </div>
