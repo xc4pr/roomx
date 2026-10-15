@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import Keyboard from '@lucide/svelte/icons/keyboard';
-	import ShieldCheck from '@lucide/svelte/icons/shield-check';
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import type { Snippet } from 'svelte';
 	import { resolve } from '$app/paths';
@@ -29,7 +28,7 @@
 	import BackupCard from './BackupCard.svelte';
 	import { messages } from './i18n.ts';
 	import { openShortcuts } from './shortcuts.svelte.ts';
-	import DiagnosticsSection from './DiagnosticsSection.svelte';
+	import AboutSection from './AboutSection.svelte';
 	import StorageCard from './StorageCard.svelte';
 	import WipeCard from './WipeCard.svelte';
 
@@ -143,16 +142,6 @@
 		{/snippet}
 		{#snippet localData()}
 			<p class="text-base" data-testid="local-data">{t(messages, 'localDataText')}</p>
-			<div>
-				<Button
-					variant="secondary"
-					icon={ShieldCheck}
-					href={resolve('/rechtliches')}
-					data-testid="open-legal"
-				>
-					{t(messages, 'legalLink')}
-				</Button>
-			</div>
 		{/snippet}
 		{#if IS_FREE}
 			{@render section(t(messages, 'localData'), localData)}
@@ -291,25 +280,7 @@
 		{/snippet}
 		{@render section(t(messages, 'help'), helpBody)}
 
-		{#snippet aboutBody()}
-			<div class="flex flex-col gap-2">
-				<Button
-					variant="secondary"
-					icon={ShieldCheck}
-					full
-					href={resolve('/rechtliches')}
-					data-testid="open-legal"
-				>
-					{t(messages, 'legalLink')}
-				</Button>
-				<p class="px-1 text-sm text-muted">{t(messages, 'legalHint')}</p>
-			</div>
-		{/snippet}
-		{#if !IS_FREE}
-			{@render section(t(messages, 'about'), aboutBody)}
-		{/if}
-
-		<DiagnosticsSection />
+		<AboutSection />
 		<WipeCard />
 	</div>
 </div>

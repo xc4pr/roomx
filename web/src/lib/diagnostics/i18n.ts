@@ -2,12 +2,12 @@ import { defineMessages } from '#lib/i18n/index.svelte.ts';
 
 export const messages = defineMessages({
 	de: {
-		title: 'Version und Diagnose',
+		title: 'Diagnose',
 		version: 'Version',
 		buildDate: 'Build-Datum',
-		edition: 'Ausgabe',
-		editionPublic: 'Öffentliche Version, alles bleibt auf deinem Gerät',
-		editionServer: 'Eigener Server',
+		data: 'Daten',
+		dataLocal: 'Alles bleibt auf deinem Gerät',
+		dataSynced: 'Abgleich mit deinem Server',
 		copy: 'Diagnose kopieren',
 		copied: 'Diagnose kopiert. Füge sie in deine Meldung ein.',
 		copyFailed: 'Kopieren ging nicht. Markiere den Text unten und kopiere ihn von Hand.',
@@ -21,12 +21,12 @@ export const messages = defineMessages({
 		feedbackEmailHint: 'Füge die Diagnose in deine Nachricht ein.'
 	},
 	en: {
-		title: 'Version and diagnostics',
+		title: 'Diagnostics',
 		version: 'Version',
 		buildDate: 'Build date',
-		edition: 'Edition',
-		editionPublic: 'Public version, everything stays on your device',
-		editionServer: 'Own server',
+		data: 'Data',
+		dataLocal: 'Everything stays on your device',
+		dataSynced: 'Synced with your server',
 		copy: 'Copy diagnostics',
 		copied: 'Diagnostics copied. Paste them into your report.',
 		copyFailed: 'Copying did not work. Select the text below and copy it by hand.',

@@ -3,13 +3,18 @@
 	import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
 	import ExternalLink from '@lucide/svelte/icons/external-link';
 	import Mail from '@lucide/svelte/icons/mail';
+	import Scale from '@lucide/svelte/icons/scale';
+	import ShieldCheck from '@lucide/svelte/icons/shield-check';
+	import { resolve } from '$app/paths';
 	import { BUILD_DATE, IS_FREE, VERSION } from '#lib/edition.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { copyText } from '#lib/diagnostics/copy.ts';
 	import { browserEnv } from '#lib/diagnostics/env.ts';
 	import { feedbackChannels, type FeedbackKind } from '#lib/diagnostics/feedback.ts';
 	import { messages } from '#lib/diagnostics/i18n.ts';
+	import { messages as settingsMessages } from './i18n.ts';
 	import { collectDiagnostics, formatDiagnostics } from '#lib/diagnostics/report.ts';
+	import BrandLogo from '#lib/ui/BrandLogo.svelte';
 	import Button from '#lib/ui/Button.svelte';
 
 	const channels = feedbackChannels();
@@ -45,24 +50,69 @@
 
 <section
 	class="rounded-lg border border-border bg-surface p-5 shadow-soft"
-	data-testid="diagnostics-section"
+	data-testid="about-section"
 >
 	<h2 class="mb-4 text-sm font-bold tracking-wide text-muted uppercase">
-		{t(messages, 'title')}
+		{t(settingsMessages, 'about')}
 	</h2>
-	<div class="flex flex-col gap-5">
+	<div class="flex flex-col gap-6">
+		<BrandLogo size="md" class="pt-2" />
+
 		<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
 			<dt class="text-muted">{t(messages, 'version')}</dt>
 			<dd class="font-semibold" data-testid="diag-version">{VERSION}</dd>
 			<dt class="text-muted">{t(messages, 'buildDate')}</dt>
 			<dd data-testid="diag-build">{BUILD_DATE}</dd>
-			<dt class="text-muted">{t(messages, 'edition')}</dt>
-			<dd data-testid="diag-edition">
-				{IS_FREE ? t(messages, 'editionPublic') : t(messages, 'editionServer')}
+			<dt class="text-muted">{t(messages, 'data')}</dt>
+			<dd data-testid="diag-data">
+				{IS_FREE ? t(messages, 'dataLocal') : t(messages, 'dataSynced')}
 			</dd>
 		</dl>
 
-		<div class="flex flex-col gap-2">
+		<div class="flex flex-col gap-1">
+			<a
+				href={resolve('/rechtliches')}
+				class="inline-flex min-h-11 items-center gap-2 self-start rounded-md px-1 font-semibold text-accent underline-offset-4 hover:underline"
+				data-testid="open-legal"
+			>
+				<ShieldCheck class="size-5 shrink-0" />
+				{t(settingsMessages, 'legalLink')}
+			</a>
+			<a
+				href="{resolve('/rechtliches')}#lizenzen"
+				class="inline-flex min-h-11 items-center gap-2 self-start rounded-md px-1 font-semibold text-accent underline-offset-4 hover:underline"
+				data-testid="open-licenses"
+			>
+				<Scale class="size-5 shrink-0" />
+				{t(settingsMessages, 'licensesLink')}
+			</a>
+		</div>
+
+		<div class="flex flex-col gap-3">
+			<h3 class="px-1 text-sm font-semibold text-muted">{t(settingsMessages, 'feedbackTitle')}</h3>
+			{#each channels as channel (channel.kind)}
+				<div class="flex flex-col">
+					<a
+						href={channel.href}
+						target={channel.kind === 'email' ? undefined : '_blank'}
+						rel="noopener noreferrer"
+						referrerpolicy="no-referrer"
+						class="inline-flex min-h-11 items-center gap-2 self-start rounded-md px-1 font-semibold text-accent underline-offset-4 hover:underline"
+						data-testid="diag-feedback-{channel.kind}"
+					>
+						{#if channel.kind === 'email'}<Mail class="size-5 shrink-0" />{:else}<Bug
+								class="size-5 shrink-0"
+							/>{/if}
+						{t(messages, labelKeys[channel.kind])}
+						{#if channel.kind !== 'email'}<ExternalLink class="size-4 shrink-0" />{/if}
+					</a>
+					<p class="px-1 text-sm text-muted">{t(messages, hintKeys[channel.kind])}</p>
+				</div>
+			{/each}
+		</div>
+
+		<div class="flex flex-col gap-2" data-testid="diagnostics-section">
+			<h3 class="px-1 text-sm font-semibold text-muted">{t(messages, 'title')}</h3>
 			<div>
 				<Button
 					variant="secondary"
@@ -99,28 +149,6 @@
 					onfocus={(event) => event.currentTarget.select()}
 					data-testid="diag-text"></textarea>
 			</details>
-		</div>
-
-		<div class="flex flex-col gap-3">
-			{#each channels as channel (channel.kind)}
-				<div class="flex flex-col">
-					<a
-						href={channel.href}
-						target={channel.kind === 'email' ? undefined : '_blank'}
-						rel="noopener noreferrer"
-						referrerpolicy="no-referrer"
-						class="inline-flex min-h-11 items-center gap-2 self-start rounded-md px-1 font-semibold text-accent underline-offset-4 hover:underline"
-						data-testid="diag-feedback-{channel.kind}"
-					>
-						{#if channel.kind === 'email'}<Mail class="size-5 shrink-0" />{:else}<Bug
-								class="size-5 shrink-0"
-							/>{/if}
-						{t(messages, labelKeys[channel.kind])}
-						{#if channel.kind !== 'email'}<ExternalLink class="size-4 shrink-0" />{/if}
-					</a>
-					<p class="px-1 text-sm text-muted">{t(messages, hintKeys[channel.kind])}</p>
-				</div>
-			{/each}
 		</div>
 	</div>
 </section>

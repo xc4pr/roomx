@@ -298,7 +298,7 @@ const de: LegalDocument = {
 						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}**`),
 						list([
 							'Den Quellcode von RoomX darfst du für nicht kommerzielle Zwecke ansehen, kopieren und verändern.',
-							`Die veröffentlichte App unter [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}) darf jede Person und jedes Unternehmen nutzen, auch beruflich.`,
+							`Die App unter [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}) darf jede Person und jedes Unternehmen nutzen, auch beruflich.`,
 							'Verkaufen, weitergeben oder als eigenen Dienst anbieten ist nicht erlaubt, ausser im Rahmen der Lizenz für nicht kommerzielle Zwecke.'
 						]),
 						p(
@@ -551,7 +551,7 @@ const en: LegalDocument = {
 						p(`**© ${COPYRIGHT_YEAR} ${OPERATOR_NAME}**`),
 						list([
 							'You may view, copy and modify the source code of RoomX for noncommercial purposes.',
-							`Any person and any company may use the published app at [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}), including for work.`,
+							`Any person and any company may use the app at [${displayUrl(PUBLIC_URL)}](${PUBLIC_URL}), including for work.`,
 							'Selling it, passing it on or offering it as a service of your own is not allowed, except within the licence for noncommercial purposes.'
 						]),
 						p(

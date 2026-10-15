@@ -11,6 +11,7 @@
 	import { openShortcuts } from '#lib/features/settings/shortcuts.svelte.ts';
 	import { isTypingTarget } from '#lib/features/settings/shortcuts.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
+	import BrandLogo from '#lib/ui/BrandLogo.svelte';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
 	import { keyboardLikely } from '#lib/ui/device.ts';
@@ -417,9 +418,13 @@
 					<div class="flex animate-fade-in flex-col gap-3">
 						{#if centered}
 							<div class="rounded-lg bg-accent-soft px-4 py-3 [@media(max-height:520px)]:hidden">
-								<div class="mx-auto max-h-40 w-full max-w-72">
-									<Illustration id={step.id} />
-								</div>
+								{#if step.id === 'welcome'}
+									<BrandLogo size="md" class="py-1" />
+								{:else}
+									<div class="mx-auto max-h-40 w-full max-w-72">
+										<Illustration id={step.id} />
+									</div>
+								{/if}
 							</div>
 						{/if}
 						<div>

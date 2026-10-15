@@ -31,7 +31,7 @@ export interface DiagnosticsEnv {
 export interface DiagnosticsReport {
 	version: string;
 	buildDate: string;
-	edition: 'public' | 'server';
+	data: 'local' | 'synced';
 	userAgent: string;
 	platform: string;
 	screen: string;
@@ -85,7 +85,7 @@ export async function collectDiagnostics(env: DiagnosticsEnv): Promise<Diagnosti
 	return {
 		version: cleanText(env.version) || 'unknown',
 		buildDate: cleanText(env.buildDate) || 'unknown',
-		edition: env.serverSync ? 'server' : 'public',
+		data: env.serverSync ? 'synced' : 'local',
 		userAgent: cleanText(env.userAgent) || 'unknown',
 		platform: cleanText(env.platform) || 'unknown',
 		screen: `${size(env.screenWidth, env.screenHeight)} @${Math.round(env.pixelRatio * 100) / 100}x, window ${size(env.windowWidth, env.windowHeight)}`,
@@ -125,7 +125,7 @@ export function formatDiagnostics(report: DiagnosticsReport): string {
 		'RoomX diagnostics',
 		`Version: ${report.version}`,
 		`Build date: ${report.buildDate}`,
-		`Edition: ${report.edition === 'public' ? 'public (local only)' : 'own server'}`,
+		`Data: ${report.data === 'local' ? 'this device only' : 'synced with server'}`,
 		`Browser: ${report.userAgent}`,
 		`Platform: ${report.platform}`,
 		`Screen: ${report.screen}`,

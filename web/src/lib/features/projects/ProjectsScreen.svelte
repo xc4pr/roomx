@@ -10,9 +10,8 @@
 	import Share from '@lucide/svelte/icons/share';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { goto } from '$app/navigation';
-	import { asset, resolve } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { IS_FREE } from '#lib/edition.ts';
-	import { messages as legalMessages } from '#lib/features/legal/i18n.ts';
 	import { requestPersistence } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -37,6 +36,7 @@
 		trashProject,
 		type TrashEntry
 	} from '#lib/state/trash.ts';
+	import BrandLogo from '#lib/ui/BrandLogo.svelte';
 	import Button from '#lib/ui/Button.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
 	import Dialog from '#lib/ui/Dialog.svelte';
@@ -294,18 +294,7 @@
 		class="mx-auto flex min-h-full w-full max-w-6xl flex-col px-5 pt-[max(1rem,var(--safe-top))] pr-[max(1.25rem,var(--safe-right))] pb-32 pl-[max(1.25rem,var(--safe-left))]"
 	>
 		<header class="flex items-center justify-between gap-3 py-2">
-			<div class="flex items-center">
-				<img
-					src={asset('brand/wordmark-light.png')}
-					alt={t(common, 'appName')}
-					class="h-9 w-auto dark:hidden"
-				/>
-				<img
-					src={asset('brand/wordmark-dark.png')}
-					alt={t(common, 'appName')}
-					class="hidden h-9 w-auto dark:block"
-				/>
-			</div>
+			<BrandLogo variant="wordmark" />
 			<div class="flex items-center gap-1">
 				{#if !IS_FREE}
 					<span
@@ -397,14 +386,16 @@
 				<ProgressRing size={40} />
 			</div>
 		{:else if projects.length === 0}
-			<EmptyState
-				class="grow"
-				title={t(messages, 'emptyTitle')}
-				description={t(messages, 'emptyText')}
-				actionLabel={t(messages, 'newProject')}
-				onaction={startCreate}
-				data-testid="empty-create"
-			/>
+			<div class="flex grow flex-col items-center justify-center pt-4">
+				<BrandLogo size="lg" />
+				<EmptyState
+					title={t(messages, 'emptyTitle')}
+					description={t(messages, 'emptyText')}
+					actionLabel={t(messages, 'newProject')}
+					onaction={startCreate}
+					data-testid="empty-create"
+				/>
+			</div>
 		{:else}
 			<div class="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-5">
 				{#each projects as project (project.id)}
@@ -423,16 +414,6 @@
 				}}
 			/>
 		{/if}
-
-		<footer class="mt-auto flex justify-center pt-8">
-			<a
-				href={resolve('/rechtliches')}
-				class="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-muted underline-offset-4 hover:text-text hover:underline"
-				data-testid="open-legal"
-			>
-				{t(legalMessages, 'footerLink')}
-			</a>
-		</footer>
 	</div>
 </div>
 

@@ -30,13 +30,13 @@ function environment(overrides: Partial<DiagnosticsEnv> = {}): DiagnosticsEnv {
 }
 
 describe('collectDiagnostics', () => {
-	it('reports version, build date, edition and the data schema', async () => {
+	it('reports version, build date, data location and the data schema', async () => {
 		const report = await collectDiagnostics(environment());
 		expect(report.version).toBe('v1.2.3');
 		expect(report.buildDate).toBe('2026-10-15');
-		expect(report.edition).toBe('public');
+		expect(report.data).toBe('local');
 		expect(report.schemaVersion).toBe(SCHEMA_VERSION);
-		expect((await collectDiagnostics(environment({ serverSync: true }))).edition).toBe('server');
+		expect((await collectDiagnostics(environment({ serverSync: true }))).data).toBe('synced');
 	});
 
 	it('reports device facts', async () => {
@@ -103,7 +103,7 @@ describe('formatDiagnostics', () => {
 			'RoomX diagnostics',
 			'Version: v1.2.3',
 			'Build date: 2026-10-15',
-			'Edition: public (local only)',
+			'Data: this device only',
 			'Browser: Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) Safari/605.1',
 			'Platform: iPad',
 			'Screen: 1180x820 @2x, window 1180x760',
@@ -116,9 +116,15 @@ describe('formatDiagnostics', () => {
 		]);
 	});
 
-	it('names the own server edition', async () => {
+	it('never names an edition for the local build', async () => {
+		const text = formatDiagnostics(await collectDiagnostics(environment()));
+		expect(text).not.toMatch(/public|edition|server/i);
+	});
+
+	it('names the synced data location', async () => {
 		const text = formatDiagnostics(await collectDiagnostics(environment({ serverSync: true })));
-		expect(text).toContain('Edition: own server');
+		expect(text).toContain('Data: synced with server');
+		expect(text).not.toMatch(/public|edition|own server/i);
 	});
 
 	it('says when WebGL is missing', async () => {
@@ -183,7 +189,7 @@ describe('privacy', () => {
 		const report = await collectDiagnostics(environment());
 		expect(Object.keys(report).sort()).toEqual([
 			'buildDate',
-			'edition',
+			'data',
 			'installed',
 			'platform',
 			'projectCount',
