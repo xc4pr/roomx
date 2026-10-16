@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decodeMessage, encodeMessage, openMessage, sealMessage } from './frames.ts';
 import { open, seal } from './seal.ts';
-import { deriveKeys, fromBase64Url, isToken, newToken, toBase64Url } from './token.ts';
+import { deriveKeys, fromBase64Url, isToken, newToken, receiptFor, toBase64Url } from './token.ts';
 
 const HASH = 'a'.repeat(64);
 
@@ -54,6 +54,27 @@ describe('deriveKeys', () => {
 
 	it('refuses invalid tokens', async () => {
 		await expect(deriveKeys('nope')).rejects.toThrow();
+	});
+});
+
+describe('receiptFor', () => {
+	it('is deterministic per token, photo and job', async () => {
+		const token = newToken();
+		const a = await deriveKeys(token);
+		const b = await deriveKeys(token);
+		const receipt = await receiptFor(a, a.jobId, HASH);
+		expect(receipt).toMatch(/^[0-9a-f]{64}$/);
+		expect(await receiptFor(b, b.jobId, HASH)).toBe(receipt);
+		expect(a.receipt.extractable).toBe(false);
+	});
+
+	it('is bound to the job, the photo and the token', async () => {
+		const keys = await deriveKeys(newToken());
+		const other = await deriveKeys(newToken());
+		const receipt = await receiptFor(keys, keys.jobId, HASH);
+		expect(await receiptFor(keys, other.jobId, HASH)).not.toBe(receipt);
+		expect(await receiptFor(keys, keys.jobId, 'b'.repeat(64))).not.toBe(receipt);
+		expect(await receiptFor(other, keys.jobId, HASH)).not.toBe(receipt);
 	});
 });
 

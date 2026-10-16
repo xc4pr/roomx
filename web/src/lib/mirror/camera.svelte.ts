@@ -5,7 +5,7 @@ import type { ProcessedImage } from '#lib/features/photos/image.ts';
 import { openMessage, sealMessage, type Frame } from './frames.ts';
 import { addShot as storeShot, deleteShot, getJob, listShots, markCameraRevoked } from './jobs.ts';
 import * as mailbox from './mailbox.ts';
-import { deriveKeys, type MirrorKeys } from './token.ts';
+import { deriveKeys, receiptFor, type MirrorKeys } from './token.ts';
 import { openNostrTransport } from './transport.ts';
 import {
 	FALLBACK_AFTER_MS,
@@ -75,6 +75,7 @@ export class CameraSession {
 		fallbackSuggested: false,
 		revoked: false,
 		expired: false,
+		storageError: false,
 		uploaded: 0,
 		server: 'off'
 	});
@@ -268,6 +269,10 @@ export class CameraSession {
 		);
 		if (server.closed) return 'off';
 		if (result.kind === 'network') return 'retry';
+		if (result.kind === 'gone') {
+			await this.#revoked();
+			return 'off';
+		}
 		if (result.kind !== 'ok') {
 			this.#unreachable(server);
 			return 'off';
@@ -292,19 +297,37 @@ export class CameraSession {
 		const result = await mailbox.placed(this.jobId, server.keys.mailbox, this.#options.mailbox);
 		if (server.closed) return;
 		if (result.kind === 'ok') {
-			const fetched = new Set(result.value);
+			const { receipts } = result.value;
 			for (const shot of [...this.shots]) {
-				if (shot.uploaded !== undefined && fetched.has(shot.uploaded)) {
-					try {
-						await this.removeShot(shot.id);
-					} catch {
-						continue;
-					}
+				if (shot.uploaded === undefined) continue;
+				const receipt = receipts.get(shot.uploaded);
+				if (receipt === undefined) continue;
+				// Only a receipt made with the token proves the computer placed the photo; the server cannot forge one.
+				try {
+					if (receipt !== (await receiptFor(server.keys, this.jobId, shot.uploaded))) continue;
+					await this.removeShot(shot.id);
+				} catch {
+					continue;
 				}
 			}
+		} else if (result.kind === 'gone') {
+			await this.#revoked();
 		} else if (result.kind !== 'network') {
 			this.#unreachable(server);
 		}
+	}
+
+	// The computer ended the job: said by a relay frame or by the server (410). Unsent photos stay.
+	async #revoked(): Promise<void> {
+		try {
+			await markCameraRevoked(this.jobId, this.#options.now());
+		} catch {
+			// The flag is also kept in memory for this session.
+		}
+		this.status.revoked = true;
+		this.#stopServer();
+		await this.#stop();
+		this.status.status = 'ended';
 	}
 
 	async #begin(generation: number): Promise<void> {
@@ -314,6 +337,8 @@ export class CameraSession {
 			job = await getJob(this.jobId);
 			shots = await listShots(this.jobId);
 		} catch {
+			// The photos may well be stored; the page must not claim the job is gone.
+			if (this.#generation === generation) this.status.storageError = true;
 			return;
 		}
 		if (this.#generation !== generation) return;
@@ -490,14 +515,7 @@ export class CameraSession {
 		if (!message || link.closed) return;
 		const { frame } = message;
 		if (frame.t === 'revoked') {
-			try {
-				await markCameraRevoked(job.id, this.#options.now());
-			} catch {
-				// The flag is also kept in memory for this session.
-			}
-			this.status.revoked = true;
-			this.#stopServer();
-			await this.#stop();
+			await this.#revoked();
 		} else if (frame.t === 'state') {
 			await this.#state(link, peer, frame.received);
 		} else if (frame.t === 'ack' && link.active === peer && link.waiter?.hash === frame.hash) {

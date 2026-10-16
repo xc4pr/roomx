@@ -22,6 +22,12 @@ export interface MailboxShot {
 	size: number;
 }
 
+export interface MailboxPlaced {
+	placed: string[];
+	// Receipts the computer left for placed photos; the phone checks them before deleting its copy.
+	receipts: Map<string, string>;
+}
+
 const JSON_TIMEOUT_MS = 15_000;
 const BYTES_TIMEOUT_MS = 60_000;
 const HASH = /^[0-9a-f]{64}$/;
@@ -173,12 +179,29 @@ export function download(
 	);
 }
 
+// Removes a photo nobody can use; the phone gets no receipt and keeps its copy.
 export function discard(
 	jobId: string,
 	id: string,
 	env: MailboxEnv = {}
 ): Promise<MailboxResult<true>> {
 	return syncCall(env, `${jobId}/shots/${id}`, { method: 'DELETE' }, JSON_TIMEOUT_MS, nothing);
+}
+
+// Removes a placed photo and leaves the receipt for the phone.
+export function confirm(
+	jobId: string,
+	id: string,
+	receipt: string,
+	env: MailboxEnv = {}
+): Promise<MailboxResult<true>> {
+	return syncCall(
+		env,
+		`${jobId}/shots/${id}`,
+		{ method: 'DELETE', headers: { 'X-Roomx-Receipt': receipt } },
+		JSON_TIMEOUT_MS,
+		nothing
+	);
 }
 
 export function upload(
@@ -206,7 +229,7 @@ export function placed(
 	jobId: string,
 	mailbox: string,
 	env: MailboxEnv = {}
-): Promise<MailboxResult<string[]>> {
+): Promise<MailboxResult<MailboxPlaced>> {
 	return originCall(
 		env,
 		`${jobId}/placed`,
@@ -214,9 +237,24 @@ export function placed(
 		{ method: 'GET' },
 		JSON_TIMEOUT_MS,
 		async (response) => {
-			const body = (await response.json().catch(() => null)) as { placed?: unknown } | null;
+			const body = (await response.json().catch(() => null)) as {
+				placed?: unknown;
+				receipts?: unknown;
+			} | null;
 			if (!Array.isArray(body?.placed)) return null;
-			return body.placed.filter((id): id is string => typeof id === 'string');
+			const receipts = new Map<string, string>();
+			// A server of an older version sends no receipts; then the phone keeps everything.
+			if (body.receipts && typeof body.receipts === 'object' && !Array.isArray(body.receipts)) {
+				for (const [id, receipt] of Object.entries(body.receipts)) {
+					if (HASH.test(id) && typeof receipt === 'string' && HASH.test(receipt)) {
+						receipts.set(id, receipt);
+					}
+				}
+			}
+			return {
+				placed: body.placed.filter((id): id is string => typeof id === 'string'),
+				receipts
+			};
 		}
 	);
 }

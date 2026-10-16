@@ -14,7 +14,7 @@ import { MirrorHost } from './host.svelte.ts';
 import { createHostJob, parsePair } from './job.ts';
 import { mailboxHash } from './mailbox.ts';
 import { getJob, saveHostJob } from './jobs.ts';
-import { deriveKeys, newToken } from './token.ts';
+import { deriveKeys, newToken, receiptFor } from './token.ts';
 import type { CameraJob, HostJob, Shot } from './types.ts';
 
 const phoneState = vi.hoisted(() => ({
@@ -476,6 +476,8 @@ function fakeMailbox() {
 	const state = {
 		shots: new Map<string, Uint8Array>(),
 		placed: [] as string[],
+		receipts: new Map<string, string>(),
+		discarded: [] as string[],
 		calls: [] as { method: string; path: string; headers: Headers; body?: unknown }[],
 		status: 0,
 		registerStatus: 201,
@@ -495,7 +497,13 @@ function fakeMailbox() {
 		const [, , , , what, id] = url.pathname.split('/');
 		if (what === undefined)
 			return new Response('{}', { status: method === 'PUT' ? state.registerStatus : 200 });
-		if (what === 'placed') return Response.json({ placed: state.placed, expiresAt: 1 });
+		if (what === 'placed') {
+			return Response.json({
+				placed: state.placed,
+				receipts: Object.fromEntries(state.receipts),
+				expiresAt: 1
+			});
+		}
 		if (id === undefined) {
 			return Response.json(
 				[...state.shots].map(([key, bytes]) => ({ id: key, size: bytes.length }))
@@ -506,7 +514,11 @@ function fakeMailbox() {
 			return new Response('{}', { status: 201 });
 		}
 		if (method === 'DELETE') {
-			state.placed.push(id);
+			const receipt = new Headers(init?.headers).get('X-Roomx-Receipt');
+			if (receipt) {
+				state.placed.push(id);
+				state.receipts.set(id, receipt);
+			} else state.discarded.push(id);
 			state.shots.delete(id);
 			return new Response('{}');
 		}
@@ -597,7 +609,7 @@ describe('MirrorHost mailbox', () => {
 		expect(mail.fetcher).not.toHaveBeenCalled();
 	});
 
-	it('fetches photos, places them and discards them on the server', async () => {
+	it('fetches photos, places them and confirms them on the server with a receipt', async () => {
 		const mail = fakeMailbox();
 		const job = await serverJob();
 		const bytes = jpeg('mail');
@@ -610,6 +622,27 @@ describe('MirrorHost mailbox', () => {
 		await until(() => expect(mail.state.placed).toEqual([id]));
 		expect(mail.state.shots.size).toBe(0);
 		expect(host.status(job.id).received).toBe(1);
+		const keys = await deriveKeys(job.token);
+		expect(mail.state.receipts.get(id)).toBe(await receiptFor(keys, job.id, id));
+		expect(mail.state.discarded).toEqual([]);
+	});
+
+	it('also leaves a receipt for a photo that was already placed', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const bytes = jpeg('twice');
+		const first = await sealedPhoto(job, bytes);
+		const second = await sealedPhoto(job, bytes);
+		mail.state.shots.set(first.id, first.sealed);
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 30 });
+		const before = photos();
+		startHost();
+		await until(() => expect(mail.state.placed).toEqual([first.id]));
+		mail.state.shots.set(second.id, second.sealed);
+		await until(() => expect(mail.state.placed).toEqual([first.id, second.id]));
+		expect(photos()).toBe(before + 1);
+		const keys = await deriveKeys(job.token);
+		expect(mail.state.receipts.get(second.id)).toBe(await receiptFor(keys, job.id, second.id));
 	});
 
 	it('counts a photo that came by relay and by server once', async () => {
@@ -631,7 +664,7 @@ describe('MirrorHost mailbox', () => {
 		expect(photos()).toBe(count);
 	});
 
-	it('leaves invalid photos alone and does not fetch them again', async () => {
+	it('leaves invalid photos alone, discards unreadable blobs and fetches neither again', async () => {
 		const mail = fakeMailbox();
 		const job = await serverJob();
 		const svg = new Uint8Array(svgImage());
@@ -646,8 +679,9 @@ describe('MirrorHost mailbox', () => {
 		await tick(200);
 		expect(mail.count('GET', `/shots/${id}`)).toBe(1);
 		expect(mail.count('GET', `/shots/${noiseId}`)).toBe(1);
-		expect(mail.count('DELETE', '/shots/')).toBe(0);
-		expect(mail.state.shots.size).toBe(2);
+		expect(mail.state.discarded).toEqual([noiseId]);
+		expect(mail.state.receipts.size).toBe(0);
+		expect([...mail.state.shots.keys()]).toEqual([id]);
 	});
 
 	it('tries again after read-only and storage failures', async () => {
@@ -699,6 +733,7 @@ describe('MirrorHost mailbox', () => {
 		await host.revoke(job.id);
 		expect(mail.count('DELETE', `/api/mirror/${job.id}`)).toBe(1);
 		expect(mail.state.calls.at(-1)?.headers.get('Authorization')).toBe('Bearer sync-token');
+		expect(await getJob(job.id)).toBeUndefined();
 	});
 });
 
@@ -1015,7 +1050,7 @@ describe('MirrorHost mailbox edges', () => {
 		await until(() => expect(mail.state.placed).toEqual([id]));
 	});
 
-	it('ignores sealed frames that are not photos', async () => {
+	it('discards sealed frames that are not photos, without a receipt', async () => {
 		const mail = fakeMailbox();
 		const job = await serverJob();
 		const keys = await deriveKeys(job.token);
@@ -1035,10 +1070,32 @@ describe('MirrorHost mailbox edges', () => {
 		expect(mail.count('GET', `/shots/${helloId}`)).toBe(1);
 		expect(mail.count('GET', `/shots/${bareId}`)).toBe(1);
 		expect(photos()).toBe(before);
-		expect(mail.count('DELETE', '/shots/')).toBe(0);
+		expect(mail.state.discarded.sort()).toEqual([helloId, bareId].sort());
+		expect(mail.state.receipts.size).toBe(0);
 	});
 
-	it('does not accept a photo sealed for another job', async () => {
+	it('looks at a blob only once when discarding it fails', async () => {
+		const mail = fakeMailbox();
+		await serverJob();
+		const noise = new Uint8Array(80).fill(7);
+		const noiseId = await sha256Hex(noise);
+		mail.state.shots.set(noiseId, noise);
+		const fetcher = mail.fetcher.getMockImplementation();
+		mail.fetcher.mockImplementation(async (input, init) =>
+			init?.method === 'DELETE' ? new Response('', { status: 500 }) : fetcher!(input, init)
+		);
+		const deletes = () =>
+			mail.fetcher.mock.calls.filter(([, init]) => init?.method === 'DELETE').length;
+		mailHost(mail);
+		startHost();
+		await until(() => expect(deletes()).toBe(1));
+		await tick(150);
+		expect(mail.count('GET', `/shots/${noiseId}`)).toBe(1);
+		expect(deletes()).toBe(1);
+		expect(mail.state.shots.has(noiseId)).toBe(true);
+	});
+
+	it('does not accept a photo sealed for another job and discards it', async () => {
 		const mail = fakeMailbox();
 		const job = await serverJob();
 		const keys = await deriveKeys(job.token);
@@ -1055,7 +1112,8 @@ describe('MirrorHost mailbox edges', () => {
 		await until(() => expect(mail.count('GET', `/shots/${id}`)).toBe(1));
 		await tick(100);
 		expect(photos()).toBe(before);
-		expect(mail.count('DELETE', '/shots/')).toBe(0);
+		expect(mail.state.discarded).toEqual([id]);
+		expect(mail.state.receipts.size).toBe(0);
 	});
 
 	it('does not poll a job that expired or whose project is not open', async () => {
@@ -1113,16 +1171,77 @@ describe('MirrorHost mailbox edges', () => {
 		).toHaveLength(1);
 	});
 
-	it('revoke still deletes the job when the server is unreachable', async () => {
+	it('revoke keeps a revoked record when the server is unreachable and removes it on the next start', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const open = vi.fn(hub.open);
+		host = new MirrorHost({ open, reencode, mailbox: mail.env, pollMs: 60_000 });
+		startHost();
+		await until(() => expect(host.jobs).toHaveLength(1));
+		await until(() => expect(open).toHaveBeenCalledTimes(1));
+		mail.state.offline = true;
+		await host.revoke(job.id);
+		expect(host.jobs).toEqual([]);
+		const kept = await getJob(job.id);
+		expect(kept?.role === 'host' && kept.server).toBe(true);
+		expect(kept?.revokedAt).toBeTypeOf('number');
+		const late = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		expect(await host.importShot(late, jpeg('late'))).toEqual({
+			ok: false,
+			reason: 'unknownJob'
+		});
+		mail.state.offline = false;
+		startHost();
+		await until(async () => expect(await getJob(job.id)).toBeUndefined());
+		const removals = (call: { method: string; path: string }) =>
+			call.method === 'DELETE' && call.path === `/api/mirror/${job.id}`;
+		expect(mail.state.calls.filter(removals)).toHaveLength(2);
+		expect(host.jobs).toEqual([]);
+		expect(open).toHaveBeenCalledTimes(1);
+	});
+
+	it('retries the removal only while the mailbox is available and drops the record on 404 or 410', async () => {
 		const mail = fakeMailbox();
 		const job = await serverJob();
 		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 60_000 });
-		startHost();
-		await until(() => expect(host.jobs).toHaveLength(1));
-		mail.state.offline = true;
+		mail.state.status = 401;
 		await host.revoke(job.id);
-		expect(await getJob(job.id)).toBeUndefined();
-		expect(host.jobs).toEqual([]);
+		expect((await getJob(job.id))?.revokedAt).toBeTypeOf('number');
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			mailbox: { ...mail.env, token: '' },
+			pollMs: 60_000
+		});
+		const calls = mail.fetcher.mock.calls.length;
+		startHost();
+		await tick(60);
+		expect(mail.fetcher.mock.calls.length).toBe(calls);
+		expect(await getJob(job.id)).toBeDefined();
+		for (const status of [404, 410]) {
+			const again = await serverJob();
+			await saveHostJob({ ...again, revokedAt: Date.now() });
+			mail.state.status = status;
+			host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 60_000 });
+			startHost();
+			await until(async () => expect(await getJob(again.id)).toBeUndefined());
+		}
+	});
+
+	it('never lists, connects or polls a revoked record', async () => {
+		const mail = fakeMailbox();
+		const revoked = await serverJob();
+		await saveHostJob({ ...revoked, revokedAt: Date.now() });
+		const live = await serverJob();
+		mail.state.status = 500;
+		const open = vi.fn(hub.open);
+		host = new MirrorHost({ open, reencode, mailbox: mail.env, pollMs: 25 });
+		startHost();
+		await until(() => expect(host.jobs.map((job) => job.id)).toEqual([live.id]));
+		await until(() => expect(mail.count('GET', `/api/mirror/${live.id}/shots`)).toBeGreaterThan(1));
+		expect(open).toHaveBeenCalledTimes(1);
+		expect(mail.count('GET', `/api/mirror/${revoked.id}`)).toBe(0);
+		expect(await getJob(revoked.id)).toBeDefined();
 	});
 
 	it('revoke of a job without server path does not touch the server', async () => {

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+	confirm,
 	discard,
 	download,
 	list,
@@ -14,6 +15,7 @@ import {
 } from './mailbox.ts';
 
 const HASH = 'a'.repeat(64);
+const RECEIPT = 'c'.repeat(64);
 
 function envWith(respond: (url: string, init: RequestInit) => Response | Promise<Response>) {
 	const fetcher = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) =>
@@ -87,6 +89,17 @@ describe('sync token calls', () => {
 		expect(bytes.kind === 'ok' && [...bytes.value]).toEqual([1, 2, 3]);
 		expect((await discard('job123456789', HASH, env)).kind).toBe('ok');
 		expect(fetcher.mock.calls[2][1]?.method).toBe('DELETE');
+		expect(new Headers(fetcher.mock.calls[2][1]?.headers).get('X-Roomx-Receipt')).toBeNull();
+	});
+
+	it('confirm deletes the photo and hands over the receipt', async () => {
+		const { env, fetcher } = envWith(() => new Response('{"deleted":true}'));
+		expect((await confirm('job123456789', HASH, RECEIPT, env)).kind).toBe('ok');
+		const [url, init] = fetcher.mock.calls[0];
+		expect(url).toBe('https://srv.test/api/mirror/job123456789/shots/' + HASH);
+		expect(init?.method).toBe('DELETE');
+		expect(headersOf(fetcher).get('X-Roomx-Receipt')).toBe(RECEIPT);
+		expect(headersOf(fetcher).get('Authorization')).toBe('Bearer sync-token');
 	});
 
 	it('maps statuses and failures', async () => {
@@ -129,11 +142,37 @@ describe('mailbox secret calls', () => {
 		expect(headersOf(fetcher).get('Authorization')).toBeNull();
 	});
 
-	it('placed returns the ids', async () => {
-		const { env, fetcher } = envWith(() => Response.json({ placed: [HASH, 5], expiresAt: 1 }));
+	it('placed returns the ids and the well-formed receipts', async () => {
+		const other = 'b'.repeat(64);
+		const { env, fetcher } = envWith(() =>
+			Response.json({
+				placed: [HASH, 5],
+				receipts: {
+					[HASH]: RECEIPT,
+					[other]: 'short',
+					['A'.repeat(64)]: RECEIPT,
+					['d'.repeat(64)]: 7,
+					['__proto__']: RECEIPT
+				},
+				expiresAt: 1
+			})
+		);
 		const result = await placed('job123456789', 'secret', env);
-		expect(result).toEqual({ kind: 'ok', value: [HASH] });
+		expect(result).toEqual({
+			kind: 'ok',
+			value: { placed: [HASH], receipts: new Map([[HASH, RECEIPT]]) }
+		});
 		expect(headersOf(fetcher).get('X-Roomx-Mailbox')).toBe('secret');
+	});
+
+	it('placed of a server without receipts gives none, so the phone keeps its photos', async () => {
+		for (const receipts of [undefined, null, [RECEIPT], 'x']) {
+			const { env } = envWith(() => Response.json({ placed: [HASH], receipts, expiresAt: 1 }));
+			expect(await placed('job123456789', 's', env)).toEqual({
+				kind: 'ok',
+				value: { placed: [HASH], receipts: new Map() }
+			});
+		}
 	});
 
 	it('reports wrong secrets and gone mailboxes', async () => {
@@ -170,6 +209,7 @@ const everyCall: [string, Call][] = [
 	['list', (env) => list('job123456789', env)],
 	['download', (env) => download('job123456789', HASH, env)],
 	['discard', (env) => discard('job123456789', HASH, env)],
+	['confirm', (env) => confirm('job123456789', HASH, RECEIPT, env)],
 	['upload', (env) => upload('job123456789', HASH, new Uint8Array(1), 's', env)],
 	['placed', (env) => placed('job123456789', 's', env)]
 ];
@@ -238,7 +278,10 @@ describe('replies that cannot be trusted', () => {
 			expect((await placed('job123456789', 's', env)).kind).toBe('network');
 		}
 		const empty = envWith(() => Response.json({ placed: [] }));
-		expect(await placed('job123456789', 's', empty.env)).toEqual({ kind: 'ok', value: [] });
+		expect(await placed('job123456789', 's', empty.env)).toEqual({
+			kind: 'ok',
+			value: { placed: [], receipts: new Map() }
+		});
 	});
 
 	it('download fails when the body breaks off in the middle', async () => {

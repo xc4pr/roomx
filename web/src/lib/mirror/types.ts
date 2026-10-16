@@ -140,6 +140,8 @@ export interface CameraStatus {
 	fallbackSuggested: boolean;
 	revoked: boolean;
 	expired: boolean;
+	// The job or its photos could not be read from storage; they may still be there.
+	storageError: boolean;
 	// Mailbox path: photos stored on the server and not yet fetched by the computer.
 	uploaded: number;
 	server: 'off' | 'ok' | 'unreachable';

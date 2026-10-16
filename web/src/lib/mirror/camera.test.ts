@@ -8,7 +8,7 @@ import { CameraSession, type CameraOptions } from './camera.svelte.ts';
 import { FakeHub, type FakePeer } from './fakeTransport.ts';
 import { openMessage, sealMessage, type Message } from './frames.ts';
 import { getJob, listShots, saveCameraPart } from './jobs.ts';
-import { deriveKeys, newToken, type MirrorKeys } from './token.ts';
+import { deriveKeys, newToken, receiptFor, type MirrorKeys } from './token.ts';
 import { MAX_SHOTS_PER_JOB, type OpenTransport } from './types.ts';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -358,6 +358,7 @@ function fakeMailbox() {
 	const state = {
 		shots: new Map<string, Uint8Array>(),
 		placed: [] as string[],
+		receipts: new Map<string, string>(),
 		calls: [] as { method: string; path: string; headers: Headers; body?: unknown }[],
 		status: 0,
 		registerStatus: 201,
@@ -377,7 +378,13 @@ function fakeMailbox() {
 		const [, , , , what, id] = url.pathname.split('/');
 		if (what === undefined)
 			return new Response('{}', { status: method === 'PUT' ? state.registerStatus : 200 });
-		if (what === 'placed') return Response.json({ placed: state.placed, expiresAt: 1 });
+		if (what === 'placed') {
+			return Response.json({
+				placed: state.placed,
+				receipts: Object.fromEntries(state.receipts),
+				expiresAt: 1
+			});
+		}
 		if (id === undefined) {
 			return Response.json(
 				[...state.shots].map(([key, bytes]) => ({ id: key, size: bytes.length }))
@@ -405,7 +412,12 @@ function fakeMailbox() {
 	};
 	const count = (method: string, part: string) =>
 		state.calls.filter((call) => call.method === method && call.path.includes(part)).length;
-	return { state, fetcher, env, count };
+	// What the computer does after placing a photo: mark it and leave its receipt.
+	const place = async (id: string, receipt?: string) => {
+		state.placed.push(id);
+		state.receipts.set(id, receipt ?? (await receiptFor(keys, keys.jobId, id)));
+	};
+	return { state, fetcher, env, count, place };
 }
 
 async function makeServerJob() {
@@ -444,7 +456,7 @@ describe('CameraSession mailbox', () => {
 		expect(camera.shots[0].uploaded).toBe(id);
 	});
 
-	it('deletes locally only after the computer fetched the photo', async () => {
+	it('deletes locally only after the computer placed the photo and left its receipt', async () => {
 		await makeServerJob();
 		const mail = fakeMailbox();
 		const camera = session({ ...fast, mailbox: mail.env });
@@ -455,10 +467,40 @@ describe('CameraSession mailbox', () => {
 		await tick(150);
 		expect(await listShots(keys.jobId)).toHaveLength(1);
 		expect(mail.count('GET', '/placed')).toBeGreaterThan(0);
-		mail.state.placed.push([...mail.state.shots.keys()][0]);
+		await mail.place([...mail.state.shots.keys()][0]);
 		await until(async () => expect(await listShots(keys.jobId)).toHaveLength(0));
 		expect(camera.shots).toEqual([]);
 		expect(camera.status.uploaded).toBe(0);
+	});
+
+	it('keeps a photo the server lists as placed without a matching receipt', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		await camera.addShot(0, 'corner:A', await image('forged'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		const id = camera.shots[0].uploaded ?? '';
+		const other = await deriveKeys(newToken());
+		const forged = [
+			'f'.repeat(64),
+			await receiptFor(other, keys.jobId, id),
+			await receiptFor(keys, other.jobId, id),
+			await receiptFor(keys, keys.jobId, 'e'.repeat(64))
+		];
+		mail.state.placed.push(id);
+		await until(() => expect(mail.count('GET', '/placed')).toBeGreaterThan(1));
+		for (const receipt of forged) {
+			mail.state.receipts.set(id, receipt);
+			const polls = mail.count('GET', '/placed');
+			await until(() => expect(mail.count('GET', '/placed')).toBeGreaterThan(polls + 1));
+		}
+		expect(camera.shots).toHaveLength(1);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+		expect(camera.status.server).toBe('ok');
+		mail.state.receipts.set(id, await receiptFor(keys, keys.jobId, id));
+		await until(async () => expect(await listShots(keys.jobId)).toHaveLength(0));
 	});
 
 	it('uploads photos that were taken earlier when the page opens', async () => {
@@ -474,21 +516,48 @@ describe('CameraSession mailbox', () => {
 		await until(() => expect(second.status.uploaded).toBe(1));
 	});
 
-	it('switches off on 410 until the next start', async () => {
+	it('takes 410 on an upload as the end of the job and keeps the photos', async () => {
 		await makeServerJob();
 		const mail = fakeMailbox();
 		mail.state.status = 410;
 		const camera = session({ ...fast, mailbox: mail.env });
 		run(camera);
 		await until(() => expect(camera.status.server).toBe('ok'));
+		await until(() => expect(hub.peers()).toHaveLength(1));
 		await camera.addShot(0, 'corner:A', await image('gone'));
-		await until(() => expect(camera.status.server).toBe('unreachable'));
+		await until(() => expect(camera.status.revoked).toBe(true));
+		expect(camera.status.status).toBe('ended');
+		expect((await getJob(keys.jobId))?.revokedAt).toBeTypeOf('number');
+		await until(() => expect(hub.peers()).toEqual([]));
 		const calls = mail.fetcher.mock.calls.length;
 		await camera.addShot(0, 'corner:B', await image('gone2'));
 		await tick(150);
 		expect(mail.fetcher.mock.calls.length).toBe(calls);
 		expect(camera.shots).toHaveLength(2);
+		expect(await listShots(keys.jobId)).toHaveLength(2);
 		expect(camera.status.uploaded).toBe(0);
+	});
+
+	it('takes 410 on the placed poll as the end of the job', async () => {
+		await makeServerJob();
+		const mail = fakeMailbox();
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		const pc = await computer(hub, keys, keys.jobId);
+		await until(() => expect(pc.count('hello')).toBe(1));
+		await camera.addShot(0, 'corner:A', await image('ended'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		mail.state.status = 410;
+		await until(() => expect(camera.status.revoked).toBe(true));
+		expect(mail.count('PUT', '/shots/')).toBe(1);
+		expect(camera.status.status).toBe('ended');
+		expect((await getJob(keys.jobId))?.revokedAt).toBeTypeOf('number');
+		await until(() => expect(hub.peers()).toEqual([pc.transport.id]));
+		const calls = mail.fetcher.mock.calls.length;
+		await tick(150);
+		expect(mail.fetcher.mock.calls.length).toBe(calls);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
 	});
 
 	it('retries after a network failure', async () => {
@@ -591,7 +660,8 @@ describe('CameraSession mailbox failures', () => {
 		await camera.addShot(0, 'corner:B', await image('m2'));
 		await until(() => expect(camera.status.uploaded).toBe(2));
 		const [first, second] = camera.shots.map((shot) => shot.uploaded ?? '');
-		mail.state.placed.push('f'.repeat(64), first);
+		await mail.place('f'.repeat(64));
+		await mail.place(first);
 		await until(() => expect(camera.shots).toHaveLength(1));
 		expect(camera.shots[0].uploaded).toBe(second);
 		expect(await listShots(keys.jobId)).toHaveLength(1);
@@ -603,8 +673,10 @@ describe('CameraSession mailbox failures', () => {
 		await camera.addShot(0, 'corner:A', await image('pl'));
 		await until(() => expect(camera.status.uploaded).toBe(1));
 		const id = camera.shots[0].uploaded ?? '';
-		mail.state.placed.push(id);
-		mail.fetcher.mockImplementation(async () => Response.json({ placed: 'no' }));
+		await mail.place(id);
+		mail.fetcher.mockImplementation(async () =>
+			Response.json({ placed: 'no', receipts: Object.fromEntries(mail.state.receipts) })
+		);
 		await tick(150);
 		expect(camera.shots).toHaveLength(1);
 		expect(camera.status.server).toBe('ok');
@@ -695,6 +767,20 @@ describe('CameraSession mailbox failures', () => {
 });
 
 describe('CameraSession storage and clock', () => {
+	it('reports a storage error instead of a missing job when reading fails', async () => {
+		await makeJob();
+		const read = vi.spyOn(db.mirrorJobs, 'get').mockRejectedValueOnce(new Error('broken'));
+		const open = vi.fn(hub.open);
+		const camera = session({}, open);
+		run(camera);
+		await until(() => expect(camera.status.storageError).toBe(true));
+		read.mockRestore();
+		expect(camera.status).toMatchObject({ expired: false, revoked: false });
+		expect(camera.job).toBeUndefined();
+		await tick(50);
+		expect(open).not.toHaveBeenCalled();
+	});
+
 	it('does not show a photo that could not be stored', async () => {
 		await makeJob();
 		const camera = session();
