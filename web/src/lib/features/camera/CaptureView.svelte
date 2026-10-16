@@ -7,11 +7,13 @@
 	import Camera from '@lucide/svelte/icons/camera';
 	import { onMount } from 'svelte';
 	import { errorMessage } from '#lib/features/photos/errors.ts';
+	import { PhotoError } from '#lib/features/photos/image.ts';
 	import MiniPlan from '#lib/features/photos/MiniPlan.svelte';
 	import { processFile } from '#lib/features/photos/process.ts';
 	import { generateTour } from '#lib/features/photos/tour.ts';
 	import { pick, t } from '#lib/i18n/index.svelte.ts';
 	import type { CameraSession } from '#lib/mirror/camera.svelte.ts';
+	import { MAX_SHOTS_PER_JOB } from '#lib/mirror/types.ts';
 	import { roomFromMirror } from '#lib/mirror/room.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
@@ -102,7 +104,11 @@
 			advanceAfter(target.key);
 			return true;
 		} catch (error) {
-			toasts.show({ message: errorMessage(error, file.name), kind: 'error', duration: 8000 });
+			const message =
+				error instanceof PhotoError && error.code === 'limit'
+					? t(messages, 'jobLimit', { max: MAX_SHOTS_PER_JOB })
+					: errorMessage(error, file.name);
+			toasts.show({ message, kind: 'error', duration: 8000 });
 			return false;
 		}
 	}

@@ -177,7 +177,7 @@
 				<ol class="list-decimal space-y-1 pl-5 text-muted">
 					<li>{t(messages, 'how1')}</li>
 					<li>{t(messages, 'how2')}</li>
-					<li>{t(messages, 'how3')}</li>
+					<li>{t(messages, job.server ? 'how3Server' : 'how3')}</li>
 					<li>{t(messages, 'how4')}</li>
 				</ol>
 			</div>

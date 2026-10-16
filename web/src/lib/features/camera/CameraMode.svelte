@@ -321,7 +321,7 @@
 					>
 						<p class="flex items-center gap-2 font-bold">
 							<TriangleAlert class="size-5 shrink-0" />
-							{t(messages, 'endedTitle')}
+							{t(messages, lapsed ? 'expiredTitle' : 'endedTitle')}
 						</p>
 						<p class="text-sm">
 							{unsent > 0
@@ -453,7 +453,11 @@
 	<ConfirmDialog
 		bind:open={confirmingDelete}
 		title={t(messages, 'deleteTitle')}
-		message={t(messages, unsent === 1 ? 'deleteMessageOne' : 'deleteMessage', { n: unsent })}
+		message={t(
+			messages,
+			unsent === 0 ? 'deleteMessageNone' : unsent === 1 ? 'deleteMessageOne' : 'deleteMessage',
+			{ n: unsent }
+		)}
 		confirmLabel={t(messages, 'deleteConfirm')}
 		cancelLabel={t(messages, 'cancel')}
 		closeLabel={t(messages, 'close')}
