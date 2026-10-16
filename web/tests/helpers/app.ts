@@ -125,7 +125,8 @@ export async function createProject(page: Page, name: string): Promise<string> {
 	const empty = page.getByTestId('empty-create');
 	const fab = page.getByTestId('new-project');
 	await expect(empty.or(fab)).toBeVisible();
-	await ((await empty.isVisible()) ? empty : fab).click();
+	// Re-resolved at click time: with syncing on, the empty state can turn into the list in between.
+	await empty.or(fab).first().click();
 	await page.getByTestId('project-name').fill(name);
 	await page.getByTestId('create-project').click();
 	await expect(page).toHaveURL(/\/p\/[^/]+$/);

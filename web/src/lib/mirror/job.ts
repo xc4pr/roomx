@@ -40,6 +40,7 @@ const MAX_COORDINATE = 1_000_000;
 const MAX_PARTS = 50;
 const MAX_DONE = 2000;
 const PREFIX = 'pair=';
+const PAIR_CLOCK_SLACK_MS = 24 * 60 * 60 * 1000;
 
 type WireElement = [kind: number, wall: number, offset: number, width: number];
 type WireRoom = [
@@ -272,7 +273,8 @@ export async function createHostJob(
 		rooms: built.map(({ elementIds }, index) => ({
 			index,
 			roomId: chosen[index].id,
-			elementIds
+			elementIds,
+			corners: chosen[index].polygon.length
 		})),
 		links,
 		received: [],
@@ -333,5 +335,8 @@ export function parsePair(fragment: string, now: number = Date.now()): PairResul
 	if (!parsed.success) return { ok: false, error: 'invalid' };
 	const payload = fromWire(parsed.data);
 	if (payload.expiresAt <= now) return { ok: false, error: 'expired' };
+	// A job never runs longer than JOB_TTL_MS; a day of slack covers clocks that differ.
+	if (payload.expiresAt > now + JOB_TTL_MS + PAIR_CLOCK_SLACK_MS)
+		return { ok: false, error: 'invalid' };
 	return { ok: true, token, payload };
 }

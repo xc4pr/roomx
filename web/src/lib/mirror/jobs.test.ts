@@ -9,8 +9,10 @@ import {
 	getJob,
 	listCameraJobs,
 	listHostJobs,
+	listRevokedHostJobs,
 	listShots,
 	markCameraRevoked,
+	markHostRevoked,
 	markReceived,
 	purgeExpiredJobs,
 	saveCameraPart,
@@ -92,6 +94,37 @@ describe('host jobs', () => {
 		await markReceived('missing', 'h2');
 		expect(((await getJob('a')) as HostJob).received).toEqual(['h1', 'h2']);
 		await deleteHostJob('a');
+		expect(await getJob('a')).toBeUndefined();
+	});
+});
+
+describe('revoked host jobs', () => {
+	it('stay as records outside the job list until deleted', async () => {
+		await saveHostJob(host('a', { server: true }));
+		await saveHostJob(host('local'));
+		await saveHostJob(host('live', { server: true }));
+		await markHostRevoked('a', NOW + 5);
+		await markHostRevoked('local', NOW + 5);
+		expect(((await getJob('a')) as HostJob).revokedAt).toBe(NOW + 5);
+		expect((await listHostJobs('p1', NOW)).map((job) => job.id)).toEqual(['live']);
+		expect((await listRevokedHostJobs()).map((job) => job.id)).toEqual(['a']);
+		await deleteHostJob('a');
+		expect(await listRevokedHostJobs()).toEqual([]);
+	});
+
+	it('markHostRevoked ignores phone jobs and unknown ids', async () => {
+		const token = newToken();
+		const { jobId } = await deriveKeys(token);
+		await saveCameraPart(token, { ...payload(0, [room(0)]), server: true }, NOW);
+		await markHostRevoked(jobId, NOW);
+		await markHostRevoked('missing', NOW);
+		expect((await getJob(jobId))?.revokedAt).toBeUndefined();
+		expect(await listRevokedHostJobs()).toEqual([]);
+	});
+
+	it('are purged after expiry like any host job', async () => {
+		await saveHostJob(host('a', { server: true, revokedAt: NOW }));
+		await purgeExpiredJobs(NOW + 1000);
 		expect(await getJob('a')).toBeUndefined();
 	});
 });

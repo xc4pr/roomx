@@ -7,8 +7,9 @@ import { checkImageBytes } from '#lib/features/photos/sniff.ts';
 import { LIMITS } from '#lib/security/limits.ts';
 import { loadProject, putPhoto } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
+import { reportStorageError } from '#lib/state/storageErrors.ts';
 import { markReceived } from './jobs.ts';
-import { perspectiveFor, toHostStepKey } from './room.ts';
+import { placedPerspective, toHostStepKey } from './room.ts';
 import type { HostJob, PlaceResult } from './types.ts';
 
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
@@ -82,21 +83,22 @@ export async function placeShot(
 	const photo: Photo = {
 		id: newPhotoId(),
 		hash: processed.hash,
-		perspective: perspectiveFor(current, stepKey),
+		perspective: placedPerspective(current, stepKey, mapping.corners),
 		w: processed.w,
 		h: processed.h,
 		takenAt: validTakenAt(shot.takenAt) ?? new Date().toISOString()
 	};
-	store.addPhoto(mapping.roomId, photo);
+	if (!store.addReceivedPhoto(mapping.roomId, photo)) return { ok: false, reason: 'readOnly' };
 	if (!(await isSaved(job.projectId, mapping.roomId, photo.id))) {
-		store.removePhoto(mapping.roomId, photo.id);
+		store.dropReceivedPhoto(mapping.roomId, photo.id);
 		return { ok: false, reason: 'storage' };
 	}
 	if (!job.received.includes(transferHash)) job.received.push(transferHash);
 	try {
 		await markReceived(job.id, transferHash);
-	} catch {
+	} catch (error) {
 		// The photo is in the project; the in-memory hash still stops duplicates in this session.
+		reportStorageError(error);
 	}
 	return { ok: true, duplicate: false };
 }

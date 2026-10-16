@@ -29,6 +29,22 @@ export async function markReceived(jobId: string, hash: string): Promise<void> {
 	});
 }
 
+// An ended job whose server mailbox could not be removed yet stays as a record until that succeeds.
+export async function markHostRevoked(jobId: string, now: number = Date.now()): Promise<void> {
+	await db.transaction('rw', db.mirrorJobs, async () => {
+		const job = await db.mirrorJobs.get(jobId);
+		if (job?.role === 'host') await db.mirrorJobs.put({ ...job, revokedAt: now });
+	});
+}
+
+export async function listRevokedHostJobs(): Promise<HostJob[]> {
+	const jobs = await db.mirrorJobs.where('role').equals('host').toArray();
+	return jobs.filter(
+		(job): job is HostJob =>
+			job.role === 'host' && job.revokedAt !== undefined && job.server === true
+	);
+}
+
 export async function deleteHostJob(jobId: string): Promise<void> {
 	await db.transaction('rw', db.mirrorJobs, async () => {
 		const job = await db.mirrorJobs.get(jobId);

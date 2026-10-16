@@ -443,6 +443,34 @@ export class ProjectStore {
 		});
 	}
 
+	// A photo from another device (photo mirror) joins the open project and every undo and redo
+	// state that has its room, without an undo step of its own: the sender deletes its copy once
+	// the photo is saved, so undo must never drop it, and the user's redo stays.
+	addReceivedPhoto(roomId: string, photo: Photo): boolean {
+		const room = this.room(roomId);
+		if (!room || this.readOnly) return false;
+		room.photos.push(photo);
+		for (const state of [...this.#undoStack, ...this.#redoStack]) {
+			const target = state.rooms.find((candidate) => candidate.id === roomId);
+			if (target && !target.photos.some((candidate) => candidate.id === photo.id)) {
+				target.photos.push(structuredClone(photo));
+			}
+		}
+		this.#touch(0);
+		return true;
+	}
+
+	// Takes back a received photo that could not be saved, again outside the history.
+	dropReceivedPhoto(roomId: string, photoId: string): void {
+		if (!this.project) return;
+		for (const state of [this.project, ...this.#undoStack, ...this.#redoStack]) {
+			const target = state.rooms.find((candidate) => candidate.id === roomId);
+			if (target) target.photos = target.photos.filter((candidate) => candidate.id !== photoId);
+		}
+		this.#touch(0);
+		scheduleCleanup();
+	}
+
 	updatePhoto(roomId: string, photoId: string, patch: Partial<Omit<Photo, 'id' | 'hash'>>): void {
 		this.mutate(
 			(project) => {

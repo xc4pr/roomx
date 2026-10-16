@@ -9,6 +9,7 @@ export interface ImportClass {
 	job?: HostJob;
 	roomId?: string;
 	elementIds?: string[];
+	corners?: number;
 }
 
 export function classifyShot(
@@ -24,7 +25,7 @@ export function classifyShot(
 	if (!job || job.revokedAt !== undefined) return { state: 'otherJob' };
 	const room = job.rooms.find((candidate) => candidate.index === tag.room);
 	if (!room) return { state: 'otherJob' };
-	const found = { job, roomId: room.roomId, elementIds: room.elementIds };
+	const found = { job, roomId: room.roomId, elementIds: room.elementIds, corners: room.corners };
 	if (job.received.includes(hash)) return { state: 'duplicate', ...found };
 	return { state: 'ready', ...found };
 }

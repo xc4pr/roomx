@@ -18,6 +18,7 @@ from .storage import valid_hash, write_atomic
 
 JOB_PATTERN = re.compile(r"[A-Za-z0-9_-]{12}")
 SECRET_PATTERN = re.compile(r"[A-Za-z0-9_-]{43}")
+RECEIPT_PATTERN = re.compile(r"[0-9a-f]{64}")
 META = "meta.json"
 
 
@@ -31,6 +32,10 @@ def secret_hash(secret: str) -> str:
 
 class Gone(Exception):
     pass
+
+
+def ended(meta: dict[str, Any] | None) -> bool:
+    return meta is not None and meta.get("revoked") is True
 
 
 class MirrorStore:
@@ -57,11 +62,16 @@ class MirrorStore:
             meta = json.loads((self.job_dir(job) / META).read_bytes())
         except (OSError, ValueError):
             return None
+        if not isinstance(meta, dict):
+            return None
+        # Tombstones and meta files of older versions lack some lists.
+        meta.setdefault("placed", [])
+        meta.setdefault("receipts", {})
         if (
-            not isinstance(meta, dict)
-            or not isinstance(meta.get("mailbox"), str)
+            not isinstance(meta.get("mailbox"), str)
             or not isinstance(meta.get("expiresAt"), int)
-            or not isinstance(meta.get("placed"), list)
+            or not isinstance(meta["placed"], list)
+            or not isinstance(meta["receipts"], dict)
         ):
             return None
         return meta
@@ -85,6 +95,16 @@ class MirrorStore:
             ]
         except OSError:
             return []
+
+    # Ended jobs keep only a tombstone and do not count against the limit.
+    def boxes(self) -> int:
+        return sum(1 for job in self.jobs() if not ended(self.read_meta(job)))
+
+    def end(self, job: str, meta: dict[str, Any]) -> None:
+        self.write_meta(
+            job, {"mailbox": meta["mailbox"], "expiresAt": meta["expiresAt"], "revoked": True}
+        )
+        shutil.rmtree(self.job_dir(job) / "shots", ignore_errors=True)
 
     def sweep(self) -> None:
         for job in self.jobs():
@@ -143,13 +163,18 @@ def register(
         ):
             raise error(401, "unauthorized")
 
-    def load(job: str) -> dict[str, Any]:
+    # Phone requests pass the request: the secret is checked before an ended job is revealed.
+    def load(job: str, request: Request | None = None) -> dict[str, Any]:
         try:
             meta = store.load(job)
         except Gone:
             raise error(410, "expired") from None
         if meta is None:
             raise error(404, "not found")
+        if request is not None:
+            check_secret(meta, request)
+        if ended(meta):
+            raise error(410, "ended")
         return meta
 
     @router.put("/{job}", dependencies=secured)
@@ -177,12 +202,14 @@ def register(
             with store.lock(job):
                 meta = store.read_meta(job)
                 if meta is not None and meta["expiresAt"] > now:
+                    if ended(meta):
+                        return 410, {"detail": "ended"}
                     if not hmac.compare_digest(meta["mailbox"].encode(), mailbox.encode()):
                         return 409, {"detail": "mailbox exists"}
                     meta["expiresAt"] = expires
                     store.write_meta(job, meta)
                     return 200, {"expiresAt": expires}
-                if len(store.jobs()) >= config.mirror_max_boxes and meta is None:
+                if store.boxes() >= config.mirror_max_boxes and meta is None:
                     return 409, {"detail": "too many mailboxes"}
                 store.remove(job)
                 store.write_meta(job, {"mailbox": mailbox, "expiresAt": expires, "placed": []})
@@ -195,9 +222,16 @@ def register(
     async def delete_job(job: str) -> dict[str, bool]:
         job = job_id(job)
 
+        # A tombstone stays until expiry, so a phone that was offline still learns the job ended.
         def remove() -> bool:
             with store.lock(job):
-                return store.remove(job)
+                meta = store.read_meta(job)
+                if meta is None or meta["expiresAt"] <= now_ms():
+                    return store.remove(job)
+                if ended(meta):
+                    return False
+                store.end(job, meta)
+                return True
 
         return {"deleted": await asyncio.to_thread(remove)}
 
@@ -207,7 +241,7 @@ def register(
         shot = shot_id(shot)
 
         def check() -> None:
-            check_secret(load(job), request)
+            load(job, request)
 
         await asyncio.to_thread(check)
         data = await read_limited(request, config.mirror_max_shot_bytes)
@@ -222,6 +256,8 @@ def register(
                     return 410, {"detail": "expired"}
                 if meta is None:
                     return 404, {"detail": "not found"}
+                if ended(meta):
+                    return 410, {"detail": "ended"}
                 if shot in meta["placed"] or store.shot_path(job, shot).is_file():
                     return 200, {"id": shot, "created": False}
                 existing = store.shots(job)
@@ -265,10 +301,14 @@ def register(
         data = await asyncio.to_thread(read)
         return Response(data, media_type="application/octet-stream")
 
+    # With a receipt the photo was placed and the phone may delete its copy; without, discard only.
     @router.delete("/{job}/shots/{shot}", dependencies=secured)
-    async def delete_shot(job: str, shot: str) -> dict[str, bool]:
+    async def delete_shot(job: str, shot: str, request: Request) -> dict[str, bool]:
         job = job_id(job)
         shot = shot_id(shot)
+        receipt = request.headers.get("x-roomx-receipt")
+        if receipt is not None and RECEIPT_PATTERN.fullmatch(receipt) is None:
+            raise error(400, "invalid receipt")
 
         def remove() -> None:
             with store.lock(job):
@@ -276,8 +316,10 @@ def register(
                 path = store.shot_path(job, shot)
                 if not path.is_file() and shot not in meta["placed"]:
                     raise error(404, "not found")
-                if shot not in meta["placed"]:
-                    meta["placed"].append(shot)
+                if receipt is not None:
+                    if shot not in meta["placed"]:
+                        meta["placed"].append(shot)
+                    meta["receipts"][shot] = receipt
                     store.write_meta(job, meta)
                 path.unlink(missing_ok=True)
 
@@ -289,9 +331,12 @@ def register(
         job = job_id(job)
 
         def read() -> dict[str, Any]:
-            meta = load(job)
-            check_secret(meta, request)
-            return {"placed": list(meta["placed"]), "expiresAt": meta["expiresAt"]}
+            meta = load(job, request)
+            return {
+                "placed": list(meta["placed"]),
+                "receipts": dict(meta["receipts"]),
+                "expiresAt": meta["expiresAt"],
+            }
 
         return await asyncio.to_thread(read)
 

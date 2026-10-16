@@ -1,4 +1,5 @@
 import hashlib
+import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ SECRET = "A" * 43
 OTHER = "B" * 43
 DAY = 24 * 3600 * 1000
 NOW = 1_700_000_000_000
+RECEIPT = "c" * 64
 
 
 def digest(data: bytes) -> str:
@@ -27,6 +29,10 @@ def box_body(secret: str = SECRET, expires: int = NOW + DAY) -> dict[str, Any]:
 
 def mbox(secret: str = SECRET) -> dict[str, str]:
     return {"X-Roomx-Mailbox": secret}
+
+
+def receipt(value: str = RECEIPT) -> dict[str, str]:
+    return {**AUTH, "X-Roomx-Receipt": value}
 
 
 @pytest.fixture(autouse=True)
@@ -92,12 +98,17 @@ def test_roundtrip(box: TestClient) -> None:
     assert got.content == data
     assert got.headers["content-type"] == "application/octet-stream"
     assert got.headers["x-content-type-options"] == "nosniff"
-    assert box.delete(f"/api/mirror/{JOB}/shots/{digest(data)}", headers=AUTH).status_code == 200
+    shot_url = f"/api/mirror/{JOB}/shots/{digest(data)}"
+    assert box.delete(shot_url, headers=receipt()).status_code == 200
     assert box.get(f"/api/mirror/{JOB}/shots", headers=AUTH).json() == []
     assert upload(box, data).status_code == 200
     assert box.get(f"/api/mirror/{JOB}/shots", headers=AUTH).json() == []
     placed = box.get(f"/api/mirror/{JOB}/placed", headers=mbox())
-    assert placed.json() == {"placed": [digest(data)], "expiresAt": NOW + DAY}
+    assert placed.json() == {
+        "placed": [digest(data)],
+        "receipts": {digest(data): RECEIPT},
+        "expiresAt": NOW + DAY,
+    }
     assert box.delete(f"/api/mirror/{JOB}/shots/{digest(data)}", headers=AUTH).status_code == 200
     assert box.delete(f"/api/mirror/{JOB}/shots/{digest(b'zz')}", headers=AUTH).status_code == 404
     assert box.get(f"/api/mirror/{JOB}/shots/{digest(b'zz')}", headers=AUTH).status_code == 404
@@ -201,8 +212,8 @@ def test_delete_job_removes_files(box: TestClient, tmp_path: Path) -> None:
     path = tmp_path / "data" / "mirror" / JOB
     assert path.exists()
     assert box.delete(f"/api/mirror/{JOB}", headers=AUTH).json() == {"deleted": True}
-    assert not path.exists()
-    assert upload(box, b"a").status_code == 404
+    assert [p.name for p in path.rglob("*")] == ["meta.json"]
+    assert upload(box, b"a").status_code == 410
 
 
 def test_stored_ciphertext_only(box: TestClient, tmp_path: Path) -> None:
@@ -305,3 +316,123 @@ def test_server_total_limit(make_client: Callable[..., TestClient]) -> None:
     assert full.status_code == 409
     assert full.json()["detail"] == "server full"
     assert upload(client, b"c" * 8, job=other).status_code == 201
+
+
+def test_receipt_is_stored_and_returned(box: TestClient) -> None:
+    first, second = b"r1", b"r2"
+    upload(box, first)
+    upload(box, second)
+    url = f"/api/mirror/{JOB}/shots/"
+    assert box.delete(url + digest(first), headers=receipt()).json() == {"deleted": True}
+    assert box.delete(url + digest(second), headers=receipt("d" * 64)).status_code == 200
+    assert box.delete(url + digest(second), headers=receipt("d" * 64)).status_code == 200
+    placed = box.get(f"/api/mirror/{JOB}/placed", headers=mbox()).json()
+    assert placed["placed"] == [digest(first), digest(second)]
+    assert placed["receipts"] == {digest(first): RECEIPT, digest(second): "d" * 64}
+    assert box.get(f"/api/mirror/{JOB}/shots", headers=AUTH).json() == []
+
+
+def test_delete_without_receipt_only_discards(box: TestClient) -> None:
+    data = b"unreadable"
+    upload(box, data)
+    url = f"/api/mirror/{JOB}/shots/{digest(data)}"
+    assert box.delete(url, headers=AUTH).status_code == 200
+    assert box.get(f"/api/mirror/{JOB}/shots", headers=AUTH).json() == []
+    placed = box.get(f"/api/mirror/{JOB}/placed", headers=mbox()).json()
+    assert placed == {"placed": [], "receipts": {}, "expiresAt": NOW + DAY}
+    assert box.delete(url, headers=AUTH).status_code == 404
+
+
+@pytest.mark.parametrize("value", ["", "abc", "C" * 64, "c" * 63, "c" * 65, "g" * 64])
+def test_invalid_receipt(box: TestClient, value: str) -> None:
+    data = b"kept"
+    upload(box, data)
+    url = f"/api/mirror/{JOB}/shots/{digest(data)}"
+    response = box.delete(url, headers=receipt(value))
+    assert response.status_code == 400
+    assert response.json()["detail"] == "invalid receipt"
+    assert box.get(f"/api/mirror/{JOB}/shots", headers=AUTH).json() == [
+        {"id": digest(data), "size": len(data)}
+    ]
+    assert box.get(f"/api/mirror/{JOB}/placed", headers=mbox()).json()["receipts"] == {}
+
+
+def test_old_meta_without_receipts(client: TestClient, tmp_path: Path) -> None:
+    old = digest(b"old")
+    path = tmp_path / "data" / "mirror" / JOB
+    path.mkdir(parents=True)
+    (path / "meta.json").write_text(
+        json.dumps({"mailbox": digest(SECRET.encode()), "expiresAt": NOW + DAY, "placed": [old]})
+    )
+    placed = client.get(f"/api/mirror/{JOB}/placed", headers=mbox())
+    assert placed.json() == {"placed": [old], "receipts": {}, "expiresAt": NOW + DAY}
+    data = b"new"
+    assert upload(client, data).status_code == 201
+    url = f"/api/mirror/{JOB}/shots/{digest(data)}"
+    assert client.delete(url, headers=receipt()).status_code == 200
+    placed = client.get(f"/api/mirror/{JOB}/placed", headers=mbox())
+    assert placed.json()["receipts"] == {digest(data): RECEIPT}
+    assert placed.json()["placed"] == [old, digest(data)]
+
+
+def test_ended_job_answers_410(box: TestClient) -> None:
+    data = b"a"
+    upload(box, data)
+    shot = digest(data)
+    assert box.delete(f"/api/mirror/{JOB}", headers=AUTH).json() == {"deleted": True}
+    responses = [
+        upload(box, b"b"),
+        upload(box, data),
+        box.get(f"/api/mirror/{JOB}/placed", headers=mbox()),
+        box.get(f"/api/mirror/{JOB}/shots", headers=AUTH),
+        box.get(f"/api/mirror/{JOB}/shots/{shot}", headers=AUTH),
+        box.delete(f"/api/mirror/{JOB}/shots/{shot}", headers=AUTH),
+        box.delete(f"/api/mirror/{JOB}/shots/{shot}", headers=receipt()),
+        box.put(f"/api/mirror/{JOB}", headers=AUTH, json=box_body()),
+        box.put(f"/api/mirror/{JOB}", headers=AUTH, json=box_body(OTHER)),
+    ]
+    for response in responses:
+        assert (response.status_code, response.json()["detail"]) == (410, "ended")
+    assert box.get(f"/api/mirror/{JOB}/placed").status_code == 401
+    assert box.get(f"/api/mirror/{JOB}/placed", headers=mbox(OTHER)).status_code == 401
+    assert upload(box, b"b", OTHER).status_code == 401
+    assert box.get(f"/api/mirror/{JOB}/shots").status_code == 401
+    assert box.delete(f"/api/mirror/{JOB}", headers=AUTH).json() == {"deleted": False}
+    assert box.get(f"/api/mirror/{JOB}/placed", headers=mbox()).status_code == 410
+
+
+def test_ended_job_expires_like_a_mailbox(box: TestClient, clock: dict[str, int]) -> None:
+    box.delete(f"/api/mirror/{JOB}", headers=AUTH)
+    clock["now"] = NOW + DAY
+    expired = box.get(f"/api/mirror/{JOB}/placed", headers=mbox())
+    assert (expired.status_code, expired.json()["detail"]) == (410, "expired")
+    assert box.get(f"/api/mirror/{JOB}/placed", headers=mbox()).status_code == 404
+
+
+def test_tombstone_swept_after_expiry(
+    make_client: Callable[..., TestClient], clock: dict[str, int], tmp_path: Path
+) -> None:
+    client = make_client()
+    client.put(f"/api/mirror/{JOB}", headers=AUTH, json=box_body())
+    client.delete(f"/api/mirror/{JOB}", headers=AUTH)
+    mirror_dir = tmp_path / "data" / "mirror"
+    clock["now"] = NOW + DAY - 1
+    make_client()
+    assert [p.name for p in mirror_dir.iterdir()] == [JOB]
+    clock["now"] = NOW + DAY
+    make_client()
+    assert list(mirror_dir.iterdir()) == []
+
+
+def test_tombstones_do_not_count(make_client: Callable[..., TestClient]) -> None:
+    client = make_client(mirror_max_boxes=2, mirror_max_total_bytes=20)
+    first, second, third = "aaaaaaaaaaa1", "aaaaaaaaaaa2", "aaaaaaaaaaa3"
+    for job in (first, second):
+        assert client.put(f"/api/mirror/{job}", headers=AUTH, json=box_body()).status_code == 201
+    assert upload(client, b"a" * 12, job=first).status_code == 201
+    assert client.put(f"/api/mirror/{third}", headers=AUTH, json=box_body()).status_code == 409
+    assert upload(client, b"b" * 12, job=second).status_code == 409
+    client.delete(f"/api/mirror/{first}", headers=AUTH)
+    assert client.put(f"/api/mirror/{third}", headers=AUTH, json=box_body()).status_code == 201
+    assert upload(client, b"b" * 12, job=second).status_code == 201
+    assert client.put(f"/api/mirror/{first}", headers=AUTH, json=box_body()).status_code == 410

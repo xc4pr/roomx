@@ -4,9 +4,16 @@ import { store } from '#lib/state/project.svelte.ts';
 import { openMessage, sealMessage, type Frame, type Message } from './frames.ts';
 import { createHostJob } from './job.ts';
 import * as mailbox from './mailbox.ts';
-import { deleteHostJob, getJob, listHostJobs, saveHostJob } from './jobs.ts';
+import {
+	deleteHostJob,
+	getJob,
+	listHostJobs,
+	listRevokedHostJobs,
+	markHostRevoked,
+	saveHostJob
+} from './jobs.ts';
 import { placeShot } from './place.ts';
-import { deriveKeys, type MirrorKeys } from './token.ts';
+import { deriveKeys, receiptFor, type MirrorKeys } from './token.ts';
 import { openNostrTransport } from './transport.ts';
 import type {
 	HostJob,
@@ -93,6 +100,7 @@ export class MirrorHost {
 		void this.#shutdown();
 		this.#pollStop = this.#startPolling(generation);
 		void this.#begin(projectId, generation);
+		void this.#retryRemovals();
 		return () => {
 			if (this.#generation !== generation) return;
 			this.#generation++;
@@ -119,10 +127,11 @@ export class MirrorHost {
 		return job;
 	}
 
-	// Tells connected phones, then deletes the job.
+	// Tells connected phones, then deletes the job. A server job stays as a revoked record until its mailbox is removed.
 	async revoke(jobId: string): Promise<void> {
 		const ending = this.jobs.find((job) => job.id === jobId);
-		const server = ending?.server;
+		const stored = ending ?? (await getJob(jobId));
+		const server = stored?.role === 'host' && stored.server === true;
 		if (ending && server && mailbox.mailboxAvailable(this.#options.mailbox)) {
 			await this.#pollJob(ending, this.#generation);
 		}
@@ -138,11 +147,28 @@ export class MirrorHost {
 			}
 			await this.#close(connection);
 		}
-		await deleteHostJob(jobId);
+		if (server) await markHostRevoked(jobId, this.#options.now());
+		else await deleteHostJob(jobId);
 		this.jobs = this.jobs.filter((job) => job.id !== jobId);
 		delete this.#links[jobId];
-		if (server && mailbox.mailboxAvailable(this.#options.mailbox)) {
-			await mailbox.remove(jobId, this.#options.mailbox);
+		if (server) await this.#removeMailbox(jobId);
+	}
+
+	// On a network or token failure the revoked record stays and the next start() tries again.
+	async #removeMailbox(jobId: string): Promise<void> {
+		if (!mailbox.mailboxAvailable(this.#options.mailbox)) return;
+		const result = await mailbox.remove(jobId, this.#options.mailbox);
+		if (result.kind === 'ok' || result.kind === 'notFound' || result.kind === 'gone') {
+			await deleteHostJob(jobId);
+		}
+	}
+
+	async #retryRemovals(): Promise<void> {
+		if (!mailbox.mailboxAvailable(this.#options.mailbox)) return;
+		try {
+			for (const job of await listRevokedHostJobs()) await this.#removeMailbox(job.id);
+		} catch {
+			// Storage failed; the next start tries again.
 		}
 	}
 
@@ -223,7 +249,9 @@ export class MirrorHost {
 				if (fetched.kind !== 'ok') return;
 				const message = await openMessage(keys.key, job.id, fetched.value);
 				if (!message || message.frame.t !== 'photo' || !message.body) {
-					this.#left.add(mark);
+					// Nobody can use it. Without a receipt the phone keeps its copy.
+					const dropped = await mailbox.discard(job.id, entry.id, env);
+					if (dropped.kind !== 'ok') this.#left.add(mark);
 					continue;
 				}
 				if (!active()) return;
@@ -234,7 +262,8 @@ export class MirrorHost {
 					message.body
 				);
 				if (result.ok) {
-					await mailbox.discard(job.id, entry.id, env);
+					const receipt = await receiptFor(keys, job.id, entry.id);
+					await mailbox.confirm(job.id, entry.id, receipt, env);
 				} else if (result.reason === 'readOnly' || result.reason === 'storage') {
 					return;
 				} else if (result.reason === 'unknownJob') {

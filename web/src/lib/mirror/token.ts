@@ -10,6 +10,8 @@ export interface MirrorKeys {
 	password: string;
 	mailbox: string;
 	key: CryptoKey;
+	// Signs placement receipts, so only a holder of the token can make the phone delete a photo.
+	receipt: CryptoKey;
 }
 
 export function toBase64Url(bytes: Uint8Array): string {
@@ -67,6 +69,13 @@ export async function deriveKeys(token: string): Promise<MirrorKeys> {
 		false,
 		['encrypt', 'decrypt']
 	);
+	const receipt = await crypto.subtle.deriveKey(
+		{ name: 'HKDF', hash: 'SHA-256', salt: SALT, info: new TextEncoder().encode('receipt') },
+		base,
+		{ name: 'HMAC', hash: 'SHA-256', length: 256 },
+		false,
+		['sign']
+	);
 	const [jobId, topic, password, mailbox] = await Promise.all([
 		derive(base, 'job', 9),
 		derive(base, 'topic', 24),
@@ -78,6 +87,21 @@ export async function deriveKeys(token: string): Promise<MirrorKeys> {
 		topic: toBase64Url(topic),
 		password: toBase64Url(password),
 		mailbox: toBase64Url(mailbox),
-		key
+		key,
+		receipt
 	};
+}
+
+// Lowercase hex HMAC of one mailbox photo, bound to its job.
+export async function receiptFor(
+	keys: Pick<MirrorKeys, 'receipt'>,
+	jobId: string,
+	id: string
+): Promise<string> {
+	const mac = await crypto.subtle.sign(
+		'HMAC',
+		keys.receipt,
+		new TextEncoder().encode(`${jobId}:${id}`)
+	);
+	return [...new Uint8Array(mac)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }

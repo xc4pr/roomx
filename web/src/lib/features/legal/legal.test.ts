@@ -8,7 +8,7 @@ import {
 	type LegalDocument,
 	type LegalEdition
 } from './content.ts';
-import { DEFAULT_MIRROR_RELAYS } from '#lib/mirror/config.ts';
+import { DEFAULT_MIRROR_RELAYS, DEFAULT_MIRROR_STUN } from '#lib/mirror/config.ts';
 import { messages } from './i18n.ts';
 import { currentEdition, formatUpdated, parseInline, visibleDocument } from './logic.ts';
 import {
@@ -175,6 +175,34 @@ describe('legal content', () => {
 			for (const relay of DEFAULT_MIRROR_RELAYS) {
 				expect(text, `${language} ${relay}`).toContain(relay.replace('wss://', ''));
 			}
+		}
+	});
+});
+
+describe('phone-mirror texts', () => {
+	function mirrorText(language: Language, edition: 'public' | 'selfHosted'): string {
+		const view = visibleDocument(legalContent[language], edition);
+		const section = view.parts[0].sections.find(
+			(entry) => entry.anchor === 'datenschutz-handyfotos'
+		);
+		return section!.blocks.flatMap(texts).join(' ');
+	}
+
+	it('names every phone-mirror STUN host on the privacy page', () => {
+		for (const language of LANGUAGES) {
+			const text = mirrorText(language, 'public');
+			for (const server of DEFAULT_MIRROR_STUN) {
+				const host = server.replace(/^stun:/, '').replace(/:\d+$/, '');
+				expect(text, `${language} ${host}`).toContain(host);
+			}
+		}
+	});
+
+	it('mentions the encrypted upload to the own server only in the self-hosted version', () => {
+		const marker = { de: 'Mit deinem eigenen Server', en: 'With your own server' };
+		for (const language of LANGUAGES) {
+			expect(mirrorText(language, 'public'), language).not.toContain(marker[language]);
+			expect(mirrorText(language, 'selfHosted'), language).toContain(marker[language]);
 		}
 	});
 });

@@ -5,7 +5,7 @@ import {
 	type Locator,
 	type Page
 } from '@playwright/test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { networkInterfaces, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -31,7 +31,7 @@ const ROOM = { a: 5400, b: 4200, c: 2600, d: 2200 };
 const PHONE_VIEWPORT = { width: 390, height: 844 };
 
 // WebKit hides host addresses behind mDNS names that nothing resolves in a container. Both peers run on this machine, so every name is replaced by each of its own addresses and ICE picks the one that answers.
-function resolveMirrorMdns(hosts: string[]): void {
+export function resolveMirrorMdns(hosts: string[]): void {
 	const name = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.local/;
 	const prototype = RTCPeerConnection.prototype;
 	const setRemote = prototype.setRemoteDescription;
@@ -72,7 +72,25 @@ function resolveMirrorMdns(hosts: string[]): void {
 	};
 }
 
-function localAddresses(): string[] {
+// Logs the state changes of every peer connection to the console, so a failed run shows where the connection stopped.
+function traceRtc(): void {
+	const Native = window.RTCPeerConnection;
+	if (!Native) return;
+	let count = 0;
+	window.RTCPeerConnection = class extends Native {
+		constructor(...args: ConstructorParameters<typeof RTCPeerConnection>) {
+			super(...args);
+			const id = ++count;
+			const log = (what: string) => console.debug(`[rtc ${id}] ${what}`);
+			this.addEventListener('iceconnectionstatechange', () =>
+				log(`ice ${this.iceConnectionState}`)
+			);
+			this.addEventListener('connectionstatechange', () => log(`conn ${this.connectionState}`));
+		}
+	};
+}
+
+export function localAddresses(): string[] {
 	const found = Object.values(networkInterfaces())
 		.flat()
 		.filter((entry) => entry && entry.family === 'IPv4' && !entry.internal)
@@ -105,9 +123,12 @@ export const test = base.extend<{ world: World }>({
 			deviceScaleFactor,
 			baseURL
 		},
-		use
+		use,
+		testInfo
 	) => {
 		const contexts: BrowserContext[] = [];
+		const started = Date.now();
+		const lines: string[] = [];
 		const folders: string[] = [];
 		const errors: string[] = [];
 
@@ -138,14 +159,20 @@ export const test = base.extend<{ world: World }>({
 					return;
 				}
 			}, SEED);
+			await context.addInitScript(traceRtc);
 			if (browserName === 'webkit')
 				await context.addInitScript(resolveMirrorMdns, localAddresses());
 			contexts.push(context);
 			return context;
 		}
 
-		function watch(page: Page): Page {
-			page.on('pageerror', (error) => errors.push(error.message));
+		function watch(page: Page, label: string): Page {
+			const stamp = () => `${((Date.now() - started) / 1000).toFixed(1).padStart(6)}s ${label}`;
+			page.on('pageerror', (error) => {
+				errors.push(error.message);
+				lines.push(`${stamp()} pageerror ${error.message}`);
+			});
+			page.on('console', (message) => lines.push(`${stamp()} ${message.type()} ${message.text()}`));
 			return page;
 		}
 
@@ -158,9 +185,9 @@ export const test = base.extend<{ world: World }>({
 					userAgent,
 					deviceScaleFactor
 				});
-				return watch(context.pages()[0] ?? (await context.newPage()));
+				return watch(context.pages()[0] ?? (await context.newPage()), 'PC');
 			},
-			newDesktopPage: async (page) => watch(await page.context().newPage()),
+			newDesktopPage: async (page) => watch(await page.context().newPage(), 'PC'),
 			phone: async ({ clockAt, noShare = true } = {}) => {
 				const context = await open({
 					viewport: PHONE_VIEWPORT,
@@ -175,19 +202,27 @@ export const test = base.extend<{ world: World }>({
 						Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true });
 					});
 				}
-				const page = watch(context.pages()[0] ?? (await context.newPage()));
+				const page = watch(context.pages()[0] ?? (await context.newPage()), 'Handy');
 				if (clockAt) await page.clock.install({ time: clockAt });
 				return page;
 			}
 		};
 
 		await use(world);
+		// Errors while the contexts close below (a channel torn down mid-send) do not count.
+		const uncaught = errors.filter((message) => !/due to access control checks/.test(message));
+		if (testInfo.status !== testInfo.expectedStatus || uncaught.length > 0) {
+			const stats = await fetch(`${RELAY_HTTP}/stats`)
+				.then((response) => response.text())
+				.catch((error: unknown) => `stats unavailable: ${String(error)}`);
+			const log = testInfo.outputPath('mirror-console.txt');
+			writeFileSync(log, lines.join('\n'));
+			await testInfo.attach('mirror-console', { path: log, contentType: 'text/plain' });
+			await testInfo.attach('relay-stats', { body: stats, contentType: 'application/json' });
+		}
 		await Promise.all(contexts.map((context) => context.close().catch(() => undefined)));
 		for (const folder of folders) rmSync(folder, { recursive: true, force: true });
-		expect(
-			errors.filter((message) => !/due to access control checks/.test(message)),
-			'uncaught page errors'
-		).toEqual([]);
+		expect(uncaught, 'uncaught page errors').toEqual([]);
 	}
 });
 
