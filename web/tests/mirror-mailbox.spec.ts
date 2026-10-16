@@ -94,7 +94,8 @@ test('Briefkasten: Handy lädt hoch, PC holt beim Öffnen des Projekts ab, Handy
 	await expect.poll(() => countStore(phone, 'mirrorShots'), { timeout: ROUND }).toBe(0);
 });
 
-test('Briefkasten: Auftrag beenden entfernt ihn, Upload des Handys wird abgelehnt', async ({
+// The relay is blocked, so the phone can learn that the job ended only from the server.
+test('Briefkasten: Auftrag beenden leert ihn, das Handy erfährt das Ende über den Server', async ({
 	world,
 	browserName,
 	request,
@@ -114,12 +115,13 @@ test('Briefkasten: Auftrag beenden entfernt ihn, Upload des Handys wird abgelehn
 
 	await desktop.getByRole('dialog').getByTestId('mirror-revoke').click();
 	await desktop.getByRole('button', { name: 'Auftrag beenden' }).last().click();
-	await expect.poll(() => mailboxStatus(request, jobId)).toBe(404);
+	await expect.poll(() => mailboxStatus(request, jobId)).toBe(410);
 
 	await takePhotos(phone, 1, browserName);
-	await expect(phone.getByTestId('camera-server')).toContainText('Server nicht erreichbar', {
+	await expect(phone.getByTestId('camera-status')).toContainText('Auftrag beendet', {
 		timeout: 30_000
 	});
+	expect(await countStore(phone, 'mirrorShots')).toBe(1);
 });
 
 test('Ohne Sync-Einstellung gibt es keinen Briefkasten, der Relay-Weg läuft wie bisher', async ({
