@@ -98,6 +98,25 @@ def _zahlwort(vok, t):
     return f'{n} {r[0] + r[1]}' if r else None
 
 
+ER_ZAHL = re.compile(r'^(' + ZAHL + r')er-([^\W\d_][^\s/+]*)$')
+SITZ_ER = {'sofa', 'bettsofa', 'schlafsofa', 'ecksofa', 'sessel', 'sitzelement', 'sitzgruppe', 'sitzbank'}
+
+
+def _er_zahl(vok, t):
+    """«3er-Bettsofa» -> «3-seat sofa bed», «4,5er-Sitzelement» -> «4.5-seat seat module», «3er-Set» -> «3-pack»; sonst None."""
+    m = ER_ZAHL.match(t)
+    if not m:
+        return None
+    r = _suche(vok, [t])
+    if r:
+        return r[0] + r[1]
+    n, w = m.group(1).replace(',', '.'), m.group(2)
+    if w.lower() == 'set':
+        return f'{n}-pack'
+    r = _suche(vok, [w]) if w.lower() in SITZ_ER else None
+    return f'{n}-seat {r[0] + r[1]}' if r else None
+
+
 MASS_TOKEN = re.compile(r'[A-Za-zØ]{0,2}\d[\d.,xX×/+\-]*(?:cm|mm|m)?')
 AUSSEN = re.compile(r'(.+)/(außen|draußen)$', re.I)
 
@@ -112,7 +131,7 @@ def _geteilt(vok, t, unbekannt):
     for p in re.split(r'([/+])', t):
         if p in ('', '/', '+'):
             out.append(p)
-        elif (z := _zahlwort(vok, p)):
+        elif (z := _er_zahl(vok, p) or _zahlwort(vok, p)):
             out.append(z)
         elif re.search(r'\d', p):
             r = _suche(vok, [p])
@@ -177,6 +196,9 @@ def _klassen(text, serie, vok, unbekannt):
             i += 2
         elif _ist_serie(t, serie_teile):
             out.append(('serie', t))
+            i += 1
+        elif (z := _er_zahl(vok, t)):
+            out.append(('wort', z))
             i += 1
         elif BIND_ZAHL.match(t):
             out.append(('wort', _bindestrich(vok, t, unbekannt)))

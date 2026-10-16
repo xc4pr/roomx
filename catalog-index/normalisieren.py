@@ -206,7 +206,7 @@ def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s).strip('-')
 
 
-IKEA_SERIE = re.compile(r'^([A-ZÄÖÜ0-9][A-ZÄÖÜ0-9\-]+(?:\s*/\s*[A-ZÄÖÜ0-9][A-ZÄÖÜ0-9\-]+)*)\s+(\S.*)$')
+IKEA_SERIE = re.compile(r'^([A-ZÄÖÜÅØÆ0-9][A-ZÄÖÜÅØÆ0-9\-]+(?:\s*/\s*[A-ZÄÖÜÅØÆ0-9][A-ZÄÖÜÅØÆ0-9\-]+)*)\s+(\S.*)$')
 JYSK_STOP = {'LED', 'TV', 'USB', 'XL', 'XXL', 'PC', 'UV', 'PVC', 'MDF', 'WC', 'DVD', 'CD'}
 
 
@@ -370,6 +370,15 @@ def art_text(basis, serie):
     return re.sub(r'\s+', ' ', art).strip(' ,;-')
 
 
+def art_schluessel(basis, serie, arten):
+    """Art fuer arten-en.json: zuerst mit Serie (Eintraege aus der Zeit, als Serien mit Å/Ø/Æ nicht erkannt wurden), sonst ohne."""
+    if serie and arten:
+        voll = art_text(basis, None)
+        if arten.get(voll):
+            return voll
+    return art_text(basis, serie)
+
+
 def uebersetze(name, art, arten):
     """Wendet arten-en.json an: ganze Art, sonst einzelne Art-Woerter."""
     if art and art in arten and arten[art]:
@@ -436,7 +445,7 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
                 basis = (r.get('name') or '').strip()
                 serie = 'CN3' if re.search(r'\bCN3\b', basis) else None
                 quellen = [r.get('farbe') or '']
-            art_zaehler[art_text(basis, serie)] += 1
+            art_zaehler[art_schluessel(basis, serie, arten)] += 1
             key = kategorie_schluessel(shop, r)
             z = 'aus' if key.endswith('|') else zuordnung.get(key)
             if z is None:
@@ -502,7 +511,7 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
         e = {'id': eid, 'brand': BRAND[shop]}
         if serie:
             e['series'] = serie
-        en, unb, hat = englisch(de, art_text(basis, serie), shop, serie, arten, woerter)
+        en, unb, hat = englisch(de, art_schluessel(basis, serie, arten), shop, serie, arten, woerter)
         e['name'] = {'de': de, 'en': en}
         st = en_stat[shop]
         st['gesamt'] += 1
