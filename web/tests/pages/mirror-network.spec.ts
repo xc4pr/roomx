@@ -1,11 +1,12 @@
-import { networkInterfaces } from 'node:os';
 import type { BrowserContext, Page, Request, WebSocket } from '@playwright/test';
 import {
 	createJob,
+	localAddresses,
 	openLink,
 	relayReset,
 	relayStats,
 	RELAY_WS,
+	resolveMirrorMdns,
 	type RelayAgent
 } from '../mirror/helpers.ts';
 import { addRoom, createProject, expect, skipTour, startPage, test } from './helpers.ts';
@@ -103,60 +104,12 @@ test('Spiegelung: ohne Auftrag keine Verbindung, mit Auftrag nur das lokale Rela
 	expect(foreign([RELAY_WS])).toEqual([]);
 });
 
-// Same as in tests/mirror/helpers.ts: WebKit hides host addresses behind mDNS names that nothing resolves in the container, so every name becomes each local address.
-function resolveMdns(hosts: string[]): void {
-	const name = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.local/;
-	const prototype = RTCPeerConnection.prototype;
-	const setRemote = prototype.setRemoteDescription;
-	prototype.setRemoteDescription = function (description) {
-		const fixed = description && {
-			type: description.type,
-			sdp: description.sdp
-				?.split('\r\n')
-				.flatMap((line) =>
-					line.startsWith('a=candidate:') && name.test(line)
-						? hosts.map((host) => line.replace(name, host))
-						: [line]
-				)
-				.join('\r\n')
-		};
-		return (setRemote as (d: unknown) => Promise<void>).call(this, fixed);
-	};
-	const addCandidate = prototype.addIceCandidate;
-	prototype.addIceCandidate = async function (candidate) {
-		const text = candidate?.candidate;
-		const variants =
-			text && name.test(text) ? hosts.map((host) => text.replace(name, host)) : [text];
-		const results = await Promise.allSettled(
-			variants.map((variant) =>
-				(addCandidate as (c: unknown) => Promise<void>).call(
-					this,
-					candidate && {
-						candidate: variant,
-						sdpMid: candidate.sdpMid,
-						sdpMLineIndex: candidate.sdpMLineIndex,
-						usernameFragment: candidate.usernameFragment
-					}
-				)
-			)
-		);
-		const failed = results.find((result) => result.status === 'rejected');
-		if (failed && results.every((result) => result.status === 'rejected')) throw failed.reason;
-	};
-}
-
 async function openPeer(
 	newProfile: () => { open: () => Promise<BrowserContext> },
 	browserName: string
 ): Promise<BrowserContext> {
 	const context = await newProfile().open();
-	if (browserName === 'webkit') {
-		const found = Object.values(networkInterfaces())
-			.flat()
-			.filter((entry) => entry && entry.family === 'IPv4' && !entry.internal)
-			.map((entry) => entry!.address);
-		await context.addInitScript(resolveMdns, ['127.0.0.1', ...new Set(found)]);
-	}
+	if (browserName === 'webkit') await context.addInitScript(resolveMirrorMdns, localAddresses());
 	return context;
 }
 

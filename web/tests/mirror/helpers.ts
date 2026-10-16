@@ -31,7 +31,7 @@ const ROOM = { a: 5400, b: 4200, c: 2600, d: 2200 };
 const PHONE_VIEWPORT = { width: 390, height: 844 };
 
 // WebKit hides host addresses behind mDNS names that nothing resolves in a container. Both peers run on this machine, so every name is replaced by each of its own addresses and ICE picks the one that answers.
-function resolveMirrorMdns(hosts: string[]): void {
+export function resolveMirrorMdns(hosts: string[]): void {
 	const name = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.local/;
 	const prototype = RTCPeerConnection.prototype;
 	const setRemote = prototype.setRemoteDescription;
@@ -90,7 +90,7 @@ function traceRtc(): void {
 	};
 }
 
-function localAddresses(): string[] {
+export function localAddresses(): string[] {
 	const found = Object.values(networkInterfaces())
 		.flat()
 		.filter((entry) => entry && entry.family === 'IPv4' && !entry.internal)
