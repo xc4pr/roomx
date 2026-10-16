@@ -80,7 +80,7 @@ export const instructionTexts = defineMessages({
 			'',
 			'Enthält die JSON-Datei einen `brief` (Bedarf), zeige ihn in zwei bis drei Zeilen und lasse ihn nur bestätigen oder ändern. Frage dann nur nach dem, was darin fehlt.',
 			'',
-			'Beispiel: «Bevor ich plane, kurz ein paar Fragen: 1) Wer wohnt hier (Erwachsene, Kinder mit Alter, Haustiere)? 2) Bettgrösse je Schlafzimmer (90x200 / 140x200 / 160x200 / 180x200 / andere)? 3) Büro: Wie viele Arbeitsplätze, pro Platz Monitore (Anzahl, Zoll), Laptop oder PC, Dock, Drucker, Sitz-Steh-Tisch? 4) Stil, Farben, Budget in CHF, bevorzugte Händler? 5) Welche Möbel bleiben (mit Massen) und was ist dir besonders wichtig?»'
+			'Beispiel: «Bevor ich plane, kurz ein paar Fragen: 1) Wer wohnt hier (Erwachsene, Kinder mit Alter, Haustiere)? 2) Bettgrösse je Schlafzimmer (90x200 / 140x200 / 160x200 / 180x200 / andere)? 3) Büro: Wie viele Arbeitsplätze, je Platz Monitore (Anzahl, Zoll), Laptop oder PC, Dock, Drucker, Sitz-Steh-Tisch? 4) Stil, Farben, Budget in CHF, bevorzugte Händler? 5) Welche Möbel bleiben (mit Massen) und was ist dir besonders wichtig?»'
 		),
 		step2: lines(
 			'### Schritt 2: Räume verstehen',

@@ -35,7 +35,7 @@ export const messages = defineMessages({
 		title_elements: 'Türen, Fenster, Steckdosen',
 		text_elements:
 			'Wähle in der Palette ein Element, tippe auf eine Wand und zieh es an die richtige Stelle. Die Wandansicht zeigt Höhen genau, die Elektro-Ebene blendet Steckdosen ein.',
-		title_photos: 'Fotos pro Raum',
+		title_photos: 'Fotos je Raum',
 		text_photos:
 			'Die geführte Foto-Tour begleitet dich Wand für Wand durch den Raum. So fehlt später kein Blickwinkel.',
 		title_build: '3D erstellen',

@@ -4,15 +4,15 @@ import { toasts } from '#lib/ui/toast.svelte.ts';
 
 export const messages = defineMessages({
 	de: {
-		rooms: 'Höchstens {n} Räume pro Projekt. Lösche einen Raum, um einen neuen anzulegen.',
-		polygonPoints: 'Höchstens {n} Eckpunkte pro Raum.',
-		elementsPerRoom: 'Höchstens {n} Elemente pro Raum. Lösche eines, um ein neues zu setzen.',
-		photosPerRoom: 'Höchstens {n} Fotos pro Raum. Lösche ein Foto, um ein neues zu speichern.',
-		variants: 'Höchstens {n} Varianten pro Projekt. Lösche eine Variante, um eine neue anzulegen.',
-		itemsPerVariant: 'Höchstens {n} Möbel pro Variante. Entferne eines, um ein neues zu setzen.',
-		suggestionsPerVariant: 'Höchstens {n} Vorschläge pro Variante.',
+		rooms: 'Höchstens {n} Räume je Projekt. Lösche einen Raum, um einen neuen anzulegen.',
+		polygonPoints: 'Höchstens {n} Eckpunkte je Raum.',
+		elementsPerRoom: 'Höchstens {n} Elemente je Raum. Lösche eines, um ein neues zu setzen.',
+		photosPerRoom: 'Höchstens {n} Fotos je Raum. Lösche ein Foto, um ein neues zu speichern.',
+		variants: 'Höchstens {n} Varianten je Projekt. Lösche eine Variante, um eine neue anzulegen.',
+		itemsPerVariant: 'Höchstens {n} Möbel je Variante. Entferne eines, um ein neues zu setzen.',
+		suggestionsPerVariant: 'Höchstens {n} Vorschläge je Variante.',
 		shoppingEntries: 'Höchstens {n} Einträge in der Einkaufsliste einer Variante.',
-		briefList: 'Höchstens {n} Einträge pro Liste im Bedarf. Entferne einen Eintrag zuerst.',
+		briefList: 'Höchstens {n} Einträge je Liste im Bedarf. Entferne einen Eintrag zuerst.',
 		briefKeep: 'Höchstens {n} Stücke, die bleiben sollen. Entferne zuerst eines.'
 	},
 	en: {

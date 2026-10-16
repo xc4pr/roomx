@@ -21,7 +21,7 @@ export const messages = defineMessages({
 		unreadableTruncated:
 			'Der Text bricht mitten im JSON ab. Bitte den Assistenten, den Plan noch einmal vollständig auszugeben.',
 		unreadableTooLarge:
-			'Der Text ist zu lang für einen Plan (mehr als 2 MB). Bitte den Assistenten um einen kürzeren Plan, zum Beispiel einen Raum pro Antwort.',
+			'Der Text ist zu lang für einen Plan (mehr als 2 MB). Bitte den Assistenten um einen kürzeren Plan, zum Beispiel einen Raum je Antwort.',
 		invalidTitle: 'Der Plan ist nicht gültig',
 		invalidText:
 			'An diesen Stellen stimmt etwas nicht. Kopiere die Korrekturen und gib sie dem Assistenten zurück.',
@@ -107,7 +107,7 @@ export const messages = defineMessages({
 		tooManyVariants:
 			'Das Projekt würde mehr als {max} Varianten haben. Es wurde nichts importiert.',
 		planDuplicateRoom:
-			'Raum «{name}» kommt in dieser Variante mehrfach vor. Nur der erste Eintrag wird übernommen. Bitte fasse die Möbel in einem Eintrag pro Raum zusammen.',
+			'Raum «{name}» kommt in dieser Variante mehrfach vor. Nur der erste Eintrag wird übernommen. Bitte fasse die Möbel in einem Eintrag je Raum zusammen.',
 		planTooManyItems:
 			'Diese Variante hätte {detail} Möbel, erlaubt sind höchstens {maxItems}. Sie wird nicht übernommen. Bitte verteile die Möbel auf weniger oder kürzere Räume.',
 		planTooManySuggestions:
