@@ -335,7 +335,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 - **Drag** or **tap** furniture: tapping puts it into the room.
 - **No longer available:** a card with the note “No longer available” marks an item the retailer no longer sells online. It stays in the catalogue so that older projects still load.
 - **View at retailer:** every catalogue card of a checked item has a “View at retailer” link. It opens the retailer’s page in a new tab; RoomX itself makes no requests when you do so.
-- **Weekly update:** The prices and the range of the large catalogue are updated automatically once a week. An item that has disappeared from the retailer’s range stays in the catalogue with the note “No longer available”, so older projects still load. The checked items are compared at the same time, but they only change after a manual review. If a weekly run looks wrong, for example because many items seem to be gone or many prices change at once, nothing is published and the previous data stays in place.
+- **Weekly update:** The prices and the range of the large catalogue are updated automatically once a week. An item that has disappeared from the retailer’s range stays in the catalogue with the note “No longer available”, so older projects still load. The more than 450 hand-checked items are compared at the same time, but they only change after another manual check. If a weekly run looks wrong, for example because many items seem to be gone or many prices change at once, nothing is published and the previous data stays in place.
 
 > [!NOTE]
 > Catalogue dimensions are **guide values**. Items that are no longer sold stay in the catalogue, so that older projects still load; they are marked **“No longer available”**, and unchecked items carry the note **“Dimensions unverified”**. Older catalogue IDs are redirected to the new item automatically. Prices are **guide prices in Swiss francs (CHF)** from the Swiss market, shown with the month of the last update, for example “Guide price, as of October 2026”. Always check dimensions and price with the retailer before you buy.
@@ -487,7 +487,7 @@ You reach them with the gear icon at the top right of the project list.
 | **Reset everything** | “Delete all local data” removes all projects, photos and settings from this device. Beforehand RoomX offers to back up first. This cannot be undone. |
 
 <p align="center">
-  <img src=".github/assets/screenshots/en/settings-about.webp" alt="Settings, section About RoomX: logo, version v1.1.0, build date, the line Everything stays on your device, the links Privacy &amp; liability and Open-source licences, the two ways to give feedback and the button Copy diagnostics" width="760">
+  <img src=".github/assets/screenshots/en/settings-about.webp" alt="Settings, section About RoomX: logo, version number, build date, the line Everything stays on your device, the links Privacy &amp; liability and Open-source licences, the two ways to give feedback and the button Copy diagnostics" width="760">
 </p>
 
 ### Keyboard shortcuts
@@ -713,7 +713,7 @@ The E2E tests of the photo feature run against a local relay: the build variable
 
 Work happens on the branch **`dev`**; **`main` is the published state**. The CI (`.github/workflows/ci.yml`) runs on every push and checks Prettier, types, unit tests, server tests, the Python tests of the catalogue update, the builds and the E2E tests (Chromium, WebKit, and the Pages edition including a network audit that makes sure the public version sends no requests to other servers).
 
-A second workflow, `.github/workflows/catalog-update.yml`, updates the large catalogue every Monday at 04:17 Swiss time with the scripts in `catalog-index/`. It reads the retailers’ product pages slowly, one request at a time per retailer. Items that disappear are marked, never deleted. If too many items disappear or too many prices change at once, the run publishes nothing and opens an issue instead; differences in checked items are also reported as an issue and never applied automatically. Otherwise the run tests the app, commits to `main` without a version tag, starts the Pages workflow and merges `main` into `dev`. It can be started by hand (`workflow_dispatch`); with `dry_run` it commits nothing.
+A second workflow, `.github/workflows/catalog-update.yml`, updates the large catalogue every Monday at 04:17 Swiss time with the scripts in `catalog-index/`. It reads the retailers’ product pages slowly, one request at a time per retailer. Items that disappear are marked, never deleted. If too many items disappear or too many prices change at once, the run publishes nothing and opens an issue instead; differences in the hand-checked items are also reported as an issue and never applied automatically. Otherwise the run tests the app, commits to `main` without a version tag, starts the Pages workflow and merges `main` into `dev`. It can be started by hand (`workflow_dispatch`); with `dry_run` it commits nothing but still opens issues.
 
 ### Publishing via GitHub Pages
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { respondFromCache } from './respond.ts';
+import { respondFromCache, staleCaches } from './respond.ts';
 
 const request = new Request('https://example.test/roomx/');
 const hit = new Response('cached');
@@ -66,5 +66,11 @@ describe('respondFromCache', () => {
 				() => Promise.reject(failure)
 			)
 		).rejects.toBe(failure);
+	});
+});
+
+describe('staleCaches', () => {
+	it('selects only older roomx caches', () => {
+		expect(staleCaches(['roomx-1', 'roomx-2', 'other-app'], 'roomx-2')).toEqual(['roomx-1']);
 	});
 });

@@ -16,6 +16,12 @@ MAX_KURATIERT_ZEILEN = 50
 MARKEN = {"IKEA": "ikea", "JYSK": "jysk", "Tchibo": "tchibo"}
 
 
+def md_text(t, maximal: int = 200) -> str:
+    """Shop-Text fuer Markdown in oeffentlichen Issues: eine Zeile, keine Tabellenzeichen, keine @-Erwaehnung, gekuerzt."""
+    t = " ".join(str(t if t is not None else "").split()).replace("|", "\\|").replace("@", "@\u200b")
+    return t if len(t) <= maximal else t[: maximal - 1] + "\u2026"
+
+
 def lies_liste(pfad: Path) -> list[dict] | None:
     """Bisherige full.json; None wenn es sie nicht gibt oder sie nicht lesbar ist."""
     try:
@@ -102,7 +108,7 @@ def markdown(r: dict) -> str:
           f"({_prozent(v.get('verschwunden_neu', 0), v.get('bisher', 0))}), wieder aufgetaucht {v.get('wieder_aufgetaucht', 0)}, "
           f"Preis geaendert {v.get('preis_geaendert', 0)} ({_prozent(v.get('preis_geaendert', 0), v.get('in_beiden', 0))}).", ""]
     if r.get("blockiert"):
-        z += ["## Blockierte Shops", ""] + [f"- {b['shop']}: {b['meldung']}" for b in r["blockiert"]] + [""]
+        z += ["## Blockierte Shops", ""] + [f"- {b['shop']}: {md_text(b['meldung'])}" for b in r["blockiert"]] + [""]
     z += ["## Zahlen pro Shop", "", "| Shop | bisher | neu | hinzu | neu verschwunden | Preis geaendert | Produkte im Umfang | Zeilen verwendet | discontinued |",
           "|---|---|---|---|---|---|---|---|---|"]
     for s, b in r["shops"].items():
@@ -111,10 +117,10 @@ def markdown(r: dict) -> str:
                  f"{p.get('preis_geaendert', 0)} | {b.get('im_umfang', 0)} | {b.get('uebernommen', 0)} | {b.get('discontinued', 0)} |")
     z.append("")
     for titel, schl, fmt in (
-        ("Neu verschwunden", "verschwunden", lambda e: f"{e['name']} (`{e['id']}`)"),
-        ("Preisaenderungen", "preise", lambda e: f"{e['name']}: {e['alt']} -> {e['neu']} CHF (`{e['id']}`)"),
-        ("Neue Eintraege", "neue_eintraege", lambda e: f"{e['name']} (`{e['id']}`)"),
-        ("Wieder aufgetaucht", "wieder", lambda e: f"{e['name']} (`{e['id']}`)"),
+        ("Neu verschwunden", "verschwunden", lambda e: f"{md_text(e['name'])} (`{e['id']}`)"),
+        ("Preisaenderungen", "preise", lambda e: f"{md_text(e['name'])}: {e['alt']} -> {e['neu']} CHF (`{e['id']}`)"),
+        ("Neue Eintraege", "neue_eintraege", lambda e: f"{md_text(e['name'])} (`{e['id']}`)"),
+        ("Wieder aufgetaucht", "wieder", lambda e: f"{md_text(e['name'])} (`{e['id']}`)"),
     ):
         teile = []
         for s, b in (v.get("beispiele") or {}).items():
@@ -129,19 +135,19 @@ def markdown(r: dict) -> str:
               f"Durch kuratierte Eintraege ersetzt: {ue.get('ersetzt_anzahl', 0)}.", ""]
         for titel, schl in (("Uebernommen", "beispiele"), ("Durch kuratiert ersetzt", "ersetzt_beispiele")):
             if ue.get(schl):
-                z += [f"**{titel}** (bis {BEISPIELE})", ""] + [f"- {e['name']} (`{e['id']}`)" for e in ue[schl]] + [""]
+                z += [f"**{titel}** (bis {BEISPIELE})", ""] + [f"- {md_text(e['name'])} (`{e['id']}`)" for e in ue[schl]] + [""]
     if r.get("curated_diffs_liste"):
         z += [f"## Kuratierte Eintraege ({r['curated_diffs']} Abweichungen, nichts wurde geaendert)", "",
               kuratiert_tabelle(r["curated_diffs_liste"]), ""]
     if r["offene_kategorien"]:
         z += ["## Offene Kategorien (uebersprungen, braucht Zuordnung)", ""]
         for o in r["offene_kategorien"][:30]:
-            z.append(f"- `{o['schluessel']}`: {o['anzahl']} Artikel" + (f", z. B. {', '.join(o['beispiele'])}" if o.get("beispiele") else ""))
+            z.append(f"- `{o['schluessel']}`: {o['anzahl']} Artikel" + (f", z. B. {', '.join(md_text(x) for x in o['beispiele'])}" if o.get("beispiele") else ""))
         if len(r["offene_kategorien"]) > 30:
             z.append(f"- ... und {len(r['offene_kategorien']) - 30} weitere (siehe report.json)")
         z.append("")
     if r["offene_farben"]:
-        z += ["## Offene Farben", "", ", ".join(f"{k} ({n})" for k, n in list(r["offene_farben"].items())[:40]), ""]
+        z += ["## Offene Farben", "", ", ".join(f"{md_text(k)} ({n})" for k, n in list(r["offene_farben"].items())[:40]), ""]
     if r["offene_arten"]:
         z += [f"Offene Produktarten ohne englischen Namen: {r['offene_arten']}", ""]
     if r.get("en_gleich_de"):
@@ -151,7 +157,7 @@ def markdown(r: dict) -> str:
         z.append("")
         if r.get("en_unbekannt"):
             z += ["Haeufigste unbekannte Woerter (Tabelle `woerter-en.json` erweitern):", "",
-                  ", ".join(f"{u['wort']} ({u['anzahl']})" for u in r["en_unbekannt"][:30]), ""]
+                  ", ".join(f"{md_text(u['wort'])} ({u['anzahl']})" for u in r["en_unbekannt"][:30]), ""]
     idx = {s: b["index"] for s, b in r["shops"].items() if b.get("index")}
     if idx:
         z += ["## Letzter Index-Lauf", ""]
@@ -206,7 +212,7 @@ def kuratiert_tabelle(diffs: list[dict]) -> str:
     """Markdown-Tabelle (hoechstens 50 Zeilen, dann 'und N weitere')."""
     z = ["| id | alt -> neu | Grund | URL |", "|---|---|---|---|"]
     for d in diffs[:MAX_KURATIERT_ZEILEN]:
-        z.append(f"| `{d['id']}` | {d['alt']} -> {d['neu']} | {d['grund']} | {d.get('url') or ''} |")
+        z.append(f"| `{d['id']}` | {d['alt']} -> {d['neu']} | {d['grund']} | {md_text(d.get('url'))} |")
     if len(diffs) > MAX_KURATIERT_ZEILEN:
         z.append("")
         z.append(f"und {len(diffs) - MAX_KURATIERT_ZEILEN} weitere (siehe report.json)")

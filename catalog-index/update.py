@@ -110,7 +110,12 @@ def index_lauf(modul, state: Path = g.STATE, out: Path = g.OUT, budget_min: floa
             erledigt.add(url)
             b["abgerufen"] += 1
             neu_gesehen = e[url]["geprueft"] is None
-            zeile = modul.hole(shop, url, ctx)
+            try:
+                zeile = modul.hole(shop, url, ctx)
+            except g.Blockiert:
+                raise
+            except Exception as ex:  # untypische Seite: Fehler dieser URL, nicht des Laufs
+                zeile = {"url": url, "ergebnis": "fehler", "fehler": f"{type(ex).__name__}: {str(ex)[:200]}", "weiter": None}
             erledigt.update({zeile["url"], zeile.get("weiter_von") or url})
             if zeile["ergebnis"] == "fehler":
                 b["fehler"] += 1
@@ -163,6 +168,13 @@ def lies_tabelle(pfad: Path, standard):
     return nm.lade_json(str(pfad), standard)
 
 
+def doppelte(eintraege: list[dict]) -> list[str]:
+    """IDs und Artikelnummern (je Marke), die mehr als einmal vorkommen."""
+    ids = collections.Counter(e["id"] for e in eintraege)
+    nrn = collections.Counter((e.get("brand"), nm.artnr_zahl(e.get("articleNo"))) for e in eintraege if nm.artnr_zahl(e.get("articleNo")))
+    return sorted(i for i, n in ids.items() if n > 1) + sorted(f"{m} {nr}" for (m, nr), n in nrn.items() if n > 1)
+
+
 def normalize_lauf(out_pfad: Path = g.FULL_JSON, state: Path = g.STATE, out: Path = g.OUT, web: Path = g.WEB,
                    basis: Path = g.BASIS, cache_erlaubt: bool = False, entfernen_erlaubt: bool = False,
                    zustand_schreiben: bool | None = None) -> int:
@@ -187,7 +199,7 @@ def normalize_lauf(out_pfad: Path = g.FULL_JSON, state: Path = g.STATE, out: Pat
     ids_tab = lies_tabelle(ids_pfad, {})
     alt = bericht.lies_liste(out_pfad)  # vor dem Schreiben einlesen
     rows = zeilen_aus_zustand(state)
-    eintraege, shops, offen_z, offen_f = nm.normalisiere(rows, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten, woerter)
+    eintraege, shops, offen_z, offen_f = nm.normalisiere(rows, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten, woerter, alt)
     gesehen = {o["schluessel"] for o in offen_z}
     for k in lies_tabelle(out / "ikea-baum.json", []):  # Blatt-Kategorien des IKEA-Baums ohne gesehenes Produkt
         if k not in zuordnung and k not in gesehen:
@@ -202,6 +214,14 @@ def normalize_lauf(out_pfad: Path = g.FULL_JSON, state: Path = g.STATE, out: Pat
     if alt is not None and not entfernen_erlaubt:
         uebernommen, ersetzt = bericht.uebernehmen(alt, eintraege, kur_ids, kur_nrn, rows)
         eintraege = sorted(eintraege + uebernommen, key=lambda e: e["id"])
+    doppelt = doppelte(eintraege)
+    if doppelt:  # die App wuerde einen der Eintraege still verwerfen
+        meldung = "doppelte IDs oder Artikelnummern: " + ", ".join(doppelt[:10])
+        print(f"FEHLER: {meldung}", file=sys.stderr)
+        r = {"geschrieben": False, "fehler": meldung}
+        schreibe_json(out / "report.json", r)
+        (out / "report.md").write_text(bericht.markdown(r) + "\n", encoding="utf-8")
+        return 1
     uebernommen_pfad = Path(state) / "uebernommen.json"
     bisher_uebernommen = set(lies_tabelle(uebernommen_pfad, []))
     neu_uebernommen = {e["id"] for e in uebernommen} - bisher_uebernommen

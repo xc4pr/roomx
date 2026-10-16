@@ -12,13 +12,14 @@ from __future__ import annotations
 
 import datetime as dt
 import fcntl
-import gzip
+import http.client
 import json
 import os
 import re
 import sys
 import tempfile
 import time
+import zlib
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -43,6 +44,7 @@ def lock_verzeichnis() -> Path:
 
 
 MAX_FEHLER_FOLGE = 5
+VERSUCHE = 3  # voruebergehende Fehler (Netz, Status 5xx) werden bis zu zweimal wiederholt
 MAX_BYTES = 120_000_000
 
 VERBOTENE_ENDUNGEN = (
@@ -201,7 +203,13 @@ class Shop:
             finally:
                 fcntl.flock(f, fcntl.LOCK_UN)
         if roh[:2] == b"\x1f\x8b":
-            roh = gzip.decompress(roh)
+            d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+            try:
+                roh = d.decompress(roh, MAX_BYTES + 1)
+            except zlib.error as ex:
+                raise ValueError(f"gzip fehlerhaft: {ex}") from ex
+            if len(roh) > MAX_BYTES or d.unconsumed_tail:
+                raise ValueError(f"entpackt mehr als {MAX_BYTES} Bytes")
         if weiter:
             weiter = urllib.parse.urljoin(url, weiter)
         return Antwort(url, status, weiter, roh.decode("utf-8", "replace"))
@@ -214,11 +222,18 @@ class Shop:
             self.lade_robots()
         if self.robots is not None and not self.robots.erlaubt(url):
             raise Verboten(f"robots.txt: {url}")
-        try:
-            a = self._anfrage(url, accept)
-        except (urllib.error.URLError, TimeoutError, OSError, ConnectionError) as e:
-            self._fehler(f"Netzwerkfehler {url}: {e}")
-            raise
+        for versuch in range(1, VERSUCHE + 1):
+            try:
+                a = self._anfrage(url, accept)
+            except (OSError, http.client.HTTPException) as e:  # HTTPException: z. B. IncompleteRead bei abgebrochener Verbindung
+                if versuch < VERSUCHE:
+                    continue
+                self._fehler(f"Netzwerkfehler {url}: {e!r}")
+                if isinstance(e, OSError):
+                    raise
+                raise OSError(f"{type(e).__name__}: {e}") from e
+            if a.status < 500 or versuch == VERSUCHE:
+                break
         if a.status in (403, 429):
             raise Blockiert(f"{self.name}: Status {a.status} bei {url}")
         if a.status == 200 and re.search(r"captcha|are you a robot|access denied", a.text[:6000], re.I):

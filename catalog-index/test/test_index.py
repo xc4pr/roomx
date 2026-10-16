@@ -255,5 +255,68 @@ class SitemapRangTest(unittest.TestCase):
         self.assertEqual(len(liste), 4)
 
 
+class Wackelnd(FalscherOpener):
+    """Die ersten Abrufe einer URL scheitern mit der angegebenen Ausnahme oder dem Status."""
+
+    def __init__(self, antworten, stoerungen):
+        super().__init__(antworten)
+        self.stoerungen = stoerungen
+
+    def open(self, req, timeout=30):
+        liste = self.stoerungen.get(req.full_url)
+        if liste:
+            s = liste.pop(0)
+            self.urls.append(req.full_url)
+            if isinstance(s, int):
+                raise urllib.error.HTTPError(req.full_url, s, "x", Message(), io.BytesIO(b""))
+            raise s
+        return super().open(req, timeout)
+
+
+class WiederholungTest(unittest.TestCase):
+    U = "https://www.ikea.com/sitemaps/sitemap.xml"
+
+    def shop(self, stoerungen):
+        antworten = {"https://www.ikea.com/robots.txt": Antwort(200, ROBOTS.encode(), "text/plain"),
+                     self.U: Antwort(200, b"<sitemapindex></sitemapindex>", "application/xml")}
+        return g.Shop("test", "www.ikea.com", pause=0.0, lock_dir=Path(tempfile.mkdtemp()), opener=Wackelnd(antworten, stoerungen))
+
+    def test_abgebrochene_verbindung_wird_wiederholt(self):
+        import http.client
+        s = self.shop({self.U: [http.client.IncompleteRead(b"x" * 10)]})
+        self.assertEqual(s.hole(self.U).status, 200)
+        self.assertEqual(s.opener.urls.count(self.U), 2)
+        self.assertEqual(s.fehler_folge, 0)
+
+    def test_dauerhafter_protokollfehler_wird_oserror(self):
+        import http.client
+        s = self.shop({self.U: [http.client.IncompleteRead(b"x")] * g.VERSUCHE})
+        with self.assertRaises(OSError):
+            s.hole(self.U)
+        self.assertEqual(s.opener.urls.count(self.U), g.VERSUCHE)
+        self.assertEqual(s.fehler_folge, 1)
+
+    def test_status_503_wird_wiederholt(self):
+        s = self.shop({self.U: [503]})
+        self.assertEqual(s.hole(self.U).status, 200)
+        self.assertEqual(s.opener.urls.count(self.U), 2)
+
+
+class GzipGrenzeTest(unittest.TestCase):
+    def test_gzip_bombe_wird_abgelehnt(self):
+        import gzip
+        bombe = gzip.compress(b"\0" * 5_000_000)
+        self.assertLess(len(bombe), 10_000)
+        url = "https://www.ikea.com/ch/de/p/bombe/"
+        alt, g.MAX_BYTES = g.MAX_BYTES, 100_000
+        try:
+            with self.assertRaises(ValueError):
+                shop({url: Antwort(200, bombe)}).hole(url)
+            ok = shop({url: Antwort(200, gzip.compress(b"<html>ok</html>"))}).hole(url)
+            self.assertEqual(ok.text if hasattr(ok, "text") else ok.html, "<html>ok</html>")
+        finally:
+            g.MAX_BYTES = alt
+
+
 if __name__ == "__main__":
     unittest.main()
