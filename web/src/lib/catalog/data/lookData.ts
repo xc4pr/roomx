@@ -225,7 +225,7 @@ export const seriesLooks: Record<string, Look> = {
 	},
 	'IKEA|NORDLI|dresser': {
 		base: 'plinth',
-		handle: 'hole',
+		handle: 'recessTop',
 		frontStyle: 'flat',
 		top: 'flush',
 		frameColor: '#222222'
@@ -282,7 +282,7 @@ export const seriesLooks: Record<string, Look> = {
 	},
 	'JYSK|ALSTED|sideboard': {
 		base: 'legs',
-		baseHeight: 160,
+		baseHeight: 180,
 		baseMaterial: 'wood',
 		handle: 'none',
 		frontStyle: 'flat'
@@ -356,29 +356,29 @@ export const seriesLooks: Record<string, Look> = {
 		books: false
 	},
 	'JYSK|JANNERUP|shelf': {
-		base: 'feet',
-		baseHeight: 60,
+		base: 'legs',
+		baseHeight: 100,
 		baseMaterial: 'wood',
 		books: false
 	},
 	'JYSK|JENSLEV|dresser': {
 		base: 'plinth',
 		baseHeight: 60,
-		handle: 'bar',
+		handle: 'recessTop',
 		frontStyle: 'flat',
 		frameColor: '#ffffff'
 	},
 	'JYSK|JENSLEV|nightstand': {
 		base: 'plinth',
 		baseHeight: 60,
-		handle: 'bar',
+		handle: 'recessTop',
 		frontStyle: 'flat',
 		frameColor: '#ffffff'
 	},
 	'JYSK|JENSLEV|sideboard': {
 		base: 'plinth',
 		baseHeight: 60,
-		handle: 'bar',
+		handle: 'recessTop',
 		frontStyle: 'flat',
 		frameColor: '#ffffff'
 	},
@@ -463,6 +463,7 @@ export const seriesLooks: Record<string, Look> = {
 	'JYSK|ODDER|wardrobe': {
 		base: 'plinth',
 		baseHeight: 80,
+		handle: 'hole',
 		rows: [
 			{
 				kind: 'slide',
@@ -492,7 +493,7 @@ export const seriesLooks: Record<string, Look> = {
 	},
 	'JYSK|OLSKER|nightstand': {
 		base: 'legs',
-		baseHeight: 100,
+		baseHeight: 250,
 		baseMaterial: 'wood',
 		handle: 'bar',
 		rows: [
@@ -512,6 +513,7 @@ export const seriesLooks: Record<string, Look> = {
 	'JYSK|RABERG|wardrobe': {
 		base: 'plinth',
 		baseHeight: 80,
+		handle: 'none',
 		rows: [
 			{
 				kind: 'slide',
@@ -587,7 +589,7 @@ export const seriesLooks: Record<string, Look> = {
 		baseMaterial: 'wood',
 		frameColor: '#c8a572',
 		legs: 'splayed',
-		arms: 'slim',
+		arms: 'wide',
 		back: 'medium'
 	},
 	'JYSK|VIBY|wardrobe': {
@@ -2260,8 +2262,8 @@ export const entryLooks: Record<string, Look> = {
 		]
 	},
 	'jysk-olde-tv-150x44x45': {
-		base: 'legs',
-		baseHeight: 150,
+		base: 'feet',
+		baseHeight: 60,
 		baseMaterial: 'wood',
 		sections: [
 			{
@@ -3129,6 +3131,7 @@ export const entryLooks: Record<string, Look> = {
 				cols: 1
 			}
 		],
+		sides: 'ladder',
 		frameColor: '#222222'
 	},
 	'tchibo-cn3-shelf-open-155x40x194': {
@@ -3666,7 +3669,7 @@ export const entryLooks: Record<string, Look> = {
 	'tchibo-cn3-system-cabinet-115x40x195': {
 		sections: [
 			{
-				weight: 5,
+				weight: 7,
 				rows: [
 					{
 						kind: 'flap',
@@ -3675,7 +3678,7 @@ export const entryLooks: Record<string, Look> = {
 					{
 						kind: 'open',
 						cols: 1,
-						weight: 4
+						weight: 3
 					},
 					{
 						kind: 'flap',
@@ -3692,10 +3695,6 @@ export const entryLooks: Record<string, Look> = {
 					},
 					{
 						kind: 'open',
-						cols: 1
-					},
-					{
-						kind: 'flap',
 						cols: 1
 					},
 					{

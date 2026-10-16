@@ -1,7 +1,7 @@
 import { type Group, type MeshStandardMaterial } from 'three';
 import type { Look } from '#lib/core/catalog.ts';
 import { Box3 } from 'three';
-import { box, cyl, mat, strut, tube, type Palette } from './kit.ts';
+import { box, cyl, mat, metalMat, strut, tube, type Palette } from './kit.ts';
 
 export type Footing = 'none' | 'plinth' | 'feet' | 'legs' | 'frame';
 
@@ -36,7 +36,7 @@ export function standMaterial(
 	wood = p.darkWood
 ): MeshStandardMaterial {
 	const metal = look.baseMaterial ? look.baseMaterial === 'metal' : defaultMetal;
-	return metal ? mat('metal', look.frameColor ?? p.metal) : mat('wood', look.frameColor ?? wood);
+	return metal ? metalMat(look.frameColor ?? p.metal) : mat('wood', look.frameColor ?? wood);
 }
 
 export interface Footprint {

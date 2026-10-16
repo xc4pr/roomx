@@ -221,6 +221,13 @@ describe('every look field changes the model', () => {
 			{ rows: [{ kind: 'slide', cols: 2 }] }
 		],
 		[
+			'handleless slide',
+			'wardrobe',
+			dresser,
+			{ rows: [{ kind: 'slide', cols: 2 }] },
+			{ handle: 'none', rows: [{ kind: 'slide', cols: 2 }] }
+		],
+		[
 			'sections',
 			'sideboard',
 			dresser,

@@ -110,6 +110,11 @@ export function mat(surface: Surface, color: string): MeshStandardMaterial {
 	return material;
 }
 
+// Light metal (white or cream frames and handles) is powder-coated; full metalness would render it grey.
+export function metalMat(color: string): MeshStandardMaterial {
+	return mat(luminance(color) > 0.85 ? 'plastic' : 'metal', color);
+}
+
 function cached(key: string, make: () => BufferGeometry): BufferGeometry {
 	let geometry = geometries.get(key);
 	if (!geometry) {
