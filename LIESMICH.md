@@ -735,11 +735,12 @@ pnpm -C web build:pages && pnpm -C web preview
 Die selbst gehostete Version (`pnpm -C web build:server`, also `EDITION=pro`) kann Projekte und Fotos mit einem eigenen Server abgleichen. Der Server (`server/`) liefert dann auch die App aus. Das Dockerfile baut sie mit `EDITION=pro`. Er läuft per Docker:
 
 ```bash
-cp deploy/.env.example deploy/.env      # ROOMX_TOKEN setzen (Pflicht), optional ROOMX_PORT (Standard 8422)
+cp deploy/.env.example deploy/.env      # ROOMX_TOKEN setzen (Pflicht), optional ROOMX_PORT (Standard 8422) und ROOMX_BIND (Standard 127.0.0.1)
 docker compose -f deploy/compose.yaml up -d --build
 ```
 
 - `ROOMX_TOKEN`: Zugangs-Token. Das Compose-File bricht ohne Token ab. Dasselbe Token trägst du in der App unter Einstellungen ein, dazu die Server-Adresse.
+- `ROOMX_BIND`: Adresse, an der der Port erreichbar ist. Der Standard `127.0.0.1` lässt nur diesen Rechner zu, für einen HTTPS-Proxy auf demselben Rechner; `0.0.0.0` nur, wenn der Proxy anderswo läuft.
 - `ROOMX_DATA`: Datenordner im Container (Standard `/data`, als Volume `roomx-data`). `ROOMX_STATIC`: Ordner mit der gebauten App.
 - Prüfen: `GET /api/health`. Die Endpunkte `/api/projects` und `/api/photos/{digest}` verlangen das Token.
 - Der Foto-Briefkasten für «Mit dem Handy fotografieren» liegt unter `/api/mirror`: Der Computer nutzt dasselbe Token, das Handy lädt mit einem Geheimnis je Auftrag hoch, das aus dem Link abgeleitet ist. Grenzen: 500 Fotos und 1,5 GiB je Briefkasten (einer je Auftrag), 16 MiB je Foto, 5 GiB und 100 Briefkästen insgesamt; Aufträge laufen nach höchstens 8 Tagen ab. Das Handy löscht seine Kopie erst, wenn der Computer eine mit dem Auftragsschlüssel signierte Quittung hinterlegt hat; der Server allein kann es also nicht dazu bringen. Ein beendeter Auftrag bleibt bis zum Ablauf als kleiner Vermerk stehen, damit auch ein Handy, das offline war, vom Ende erfährt.

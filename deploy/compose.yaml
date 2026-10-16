@@ -13,7 +13,7 @@ services:
     environment:
       ROOMX_TOKEN: ${ROOMX_TOKEN:?Set ROOMX_TOKEN in deploy/.env}
     ports:
-      - "${ROOMX_PORT:-8422}:8000"
+      - "${ROOMX_BIND:-127.0.0.1}:${ROOMX_PORT:-8422}:8000"
     volumes:
       - roomx-data:/data
     restart: unless-stopped

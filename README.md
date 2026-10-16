@@ -735,11 +735,12 @@ pnpm -C web build:pages && pnpm -C web preview
 The self-hosted version (`pnpm -C web build:server`, that is `EDITION=pro`) can sync projects and photos with your own server. The server (`server/`) then also serves the app. The Dockerfile builds it with `EDITION=pro`. It runs with Docker:
 
 ```bash
-cp deploy/.env.example deploy/.env      # set ROOMX_TOKEN (required), optionally ROOMX_PORT (default 8422)
+cp deploy/.env.example deploy/.env      # set ROOMX_TOKEN (required), optionally ROOMX_PORT (default 8422) and ROOMX_BIND (default 127.0.0.1)
 docker compose -f deploy/compose.yaml up -d --build
 ```
 
 - `ROOMX_TOKEN`: access token. The compose file aborts without a token. You enter the same token in the app under Settings, together with the server address.
+- `ROOMX_BIND`: address the port is published on. The default `127.0.0.1` allows only this machine, for an HTTPS proxy on the same machine; use `0.0.0.0` only if the proxy runs elsewhere.
 - `ROOMX_DATA`: data folder inside the container (default `/data`, as the volume `roomx-data`). `ROOMX_STATIC`: folder with the built app.
 - Check with `GET /api/health`. The endpoints `/api/projects` and `/api/photos/{digest}` require the token.
 - The photo mailbox for “Take photos with your phone” is served under `/api/mirror`: the computer uses the same token, the phone uploads with a per-job secret derived from the link. Limits: 500 photos and 1.5 GiB per mailbox (one per job), 16 MiB per photo, 5 GiB and 100 mailboxes in total; jobs expire after at most 8 days. The phone deletes its copy only when the computer has left a receipt signed with the job key, so the server alone cannot make it drop photos. An ended job keeps a small marker until it expires, so a phone that was offline still learns that it ended.
