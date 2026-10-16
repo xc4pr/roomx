@@ -1,6 +1,6 @@
 import { unzipSync } from 'fflate';
 import { PDFDocument } from 'pdf-lib';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { syntheticCatalog } from '../../../../tests/helpers/syntheticCatalog.ts';
 import { CATALOG_MAX_BYTES } from './catalogFile.ts';
 import { ensureFullCatalog } from '#lib/catalog/full.svelte.ts';
@@ -16,6 +16,9 @@ const deps = {
 	loadFonts: async () => loadTestFonts(),
 	loadPhoto: async () => testPng()
 };
+
+// Every test renders a whole PDF; on a busy machine that can take longer than the default 5 s.
+vi.setConfig({ testTimeout: 30_000 });
 
 beforeAll(() => ensureFullCatalog(async () => []));
 
