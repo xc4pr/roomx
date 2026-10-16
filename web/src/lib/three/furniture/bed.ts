@@ -1,7 +1,7 @@
 import { Group, type MeshStandardMaterial } from 'three';
 import type { Look } from '#lib/core/catalog.ts';
 import { footing, footSpec, standMaterial } from './feet.ts';
-import { box, mat, soft, split, type Palette } from './kit.ts';
+import { box, mat, metalMat, soft, split, type Palette } from './kit.ts';
 
 const BED_FEET = { none: 0, plinth: 0.08, feet: 0.04, legs: 0.22, frame: 0.2 } as const;
 
@@ -132,7 +132,7 @@ export const bed = (w: number, d: number, h: number, p: Palette, look: Look = {}
 				g,
 				frame,
 				fabric: mat('fabric', p.main),
-				metal: mat('metal', look.frameColor ?? p.darkMetal),
+				metal: metalMat(look.frameColor ?? p.darkMetal),
 				w,
 				d,
 				h,

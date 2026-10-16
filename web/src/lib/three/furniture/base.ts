@@ -1,4 +1,4 @@
-import { bead, box, cyl, mat, tube } from './kit.ts';
+import { bead, box, cyl, mat, metalMat, tube } from './kit.ts';
 import { bands, TUBE_R, TUBE_T, type Plan } from './plan.ts';
 
 function corners(c: Plan, inset: number): [number, number][] {
@@ -14,7 +14,7 @@ function legacyLegs(c: Plan): void {
 
 function legs(c: Plan, inset: number, size: number, taper: number): void {
 	const metal = c.look.baseMaterial === 'metal';
-	const material = metal ? mat('metal', c.metal) : mat('wood', c.p.darkWood);
+	const material = metal ? metalMat(c.metal) : mat('wood', c.p.darkWood);
 	const dia = metal ? size * 0.55 : size;
 	for (const [x, z] of corners(c, inset)) {
 		cyl(c.g, material, dia, c.baseH, dia, x, c.wheelsH, z, metal ? 1 : taper, 10);
@@ -37,7 +37,7 @@ function plinth(c: Plan): void {
 }
 
 function frame(c: Plan): void {
-	const metal = mat('metal', c.metal);
+	const metal = metalMat(c.metal);
 	const lo = c.wheelsH + TUBE_R;
 	const hi = c.h - TUBE_R;
 	const levels = [
@@ -66,7 +66,7 @@ function wheels(c: Plan): void {
 	const inset = c.tubes ? dia / 2 + 0.002 : 0.04;
 	for (const [x, z] of corners(c, inset)) {
 		tube(c.g, rubber, 'x', 0.016, dia, x, dia / 2, z);
-		cyl(c.g, mat('metal', c.metal), 0.014, c.wheelsH - dia, 0.014, x, dia, z, 1, 8);
+		cyl(c.g, metalMat(c.metal), 0.014, c.wheelsH - dia, 0.014, x, dia, z, 1, 8);
 	}
 }
 
