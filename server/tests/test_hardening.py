@@ -13,7 +13,8 @@ from tests.conftest import AUTH
 
 
 def nosniff(response: Response) -> bool:
-    return response.headers.get("x-content-type-options") == "nosniff"
+    headers = response.headers
+    return headers.get("x-content-type-options") == "nosniff" and headers.get("x-frame-options") == "DENY"
 
 
 def test_nosniff_on_static_and_api(static_client: TestClient) -> None:
