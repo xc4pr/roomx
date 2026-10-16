@@ -1,6 +1,6 @@
 import type { Group } from 'three';
 import type { Look, LookRow } from '#lib/core/catalog.ts';
-import { mat, mix, seeded, type Palette } from './kit.ts';
+import { mat, metalMat, mix, seeded, type Palette } from './kit.ts';
 
 export type Row = Required<LookRow>;
 export type Handle = NonNullable<Look['handle']>;
@@ -102,7 +102,7 @@ function baseHeight(o: CabinetOptions, look: Look, wheelsH: number): number {
 function protrusion(rows: Row[], handle: Handle): number {
 	const hardware = rows.some((r) => r.kind !== 'open' && r.kind !== 'slide');
 	const own = hardware ? HANDLE_LIP[handle] : 0;
-	return rows.some((r) => r.kind === 'slide') ? Math.max(own, PATCH) : own;
+	return handle !== 'none' && rows.some((r) => r.kind === 'slide') ? Math.max(own, PATCH) : own;
 }
 
 function slabThickness(o: CabinetOptions, look: Look, tubes: boolean): number {
@@ -172,7 +172,7 @@ export function makePlan(g: Group, p: Palette, o: CabinetOptions): Plan {
 		metal,
 		body: mat('wood', look.bodyColor ?? p.main),
 		fronts: mat('wood', p.light),
-		handles: mat('metal', metal),
+		handles: metalMat(metal),
 		dark: mat('matte', mix(p.light, '#1c1a18', 0.72))
 	};
 }
