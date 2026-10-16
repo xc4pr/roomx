@@ -172,6 +172,31 @@ class Namen(unittest.TestCase):
                            FARBEN, {}, set(), set(), {}, {'kommode': 'chest'})[0]
         self.assertEqual(e[0]['name']['en'], 'MALM chest 80x48 cm')
 
+    def test_ikea_serie_mit_nordischen_buchstaben(self):
+        self.assertEqual(n.ikea_name('BÅRSLÖV 3er-Bettsofa - grau'), ('BÅRSLÖV 3er-Bettsofa', 'BÅRSLÖV', 'grau'))
+        self.assertEqual(n.ikea_name('ÅKERBÄR Gewächshaus 45 cm')[1], 'ÅKERBÄR')
+        self.assertEqual(n.ikea_name('SMÅSTAD / PLATSA Regal')[1], 'SMÅSTAD / PLATSA')
+        self.assertEqual(n.ikea_name('FÆRDIG Hocker')[1], 'FÆRDIG')
+        self.assertEqual(n.ikea_name('SØNDERBORG Bank')[1], 'SØNDERBORG')
+
+    def test_art_mit_serie_vor_art_ohne(self):
+        a = {'UTSÅDD Hundebett': 'UTSÅDD dog bed', 'Hundebett': 'dog basket'}
+        self.assertEqual(n.art_schluessel('UTSÅDD Hundebett 80x50x20 cm', 'UTSÅDD', a), 'UTSÅDD Hundebett')
+        self.assertEqual(n.art_schluessel('BOLMSÖ Hundebett', 'BOLMSÖ', a), 'Hundebett')
+        self.assertEqual(n.art_schluessel('UTSÅDD Hundebett', 'UTSÅDD', {}), 'Hundebett')
+        self.assertEqual(n.art_schluessel('UTSÅDD Hundebett', 'UTSÅDD', None), 'Hundebett')
+        de = 'UTSÅDD Hundebett 80x50x20 cm'
+        self.assertEqual(n.englisch(de, n.art_schluessel(de, 'UTSÅDD', a), 'ikea', 'UTSÅDD', a, {})[0], 'UTSÅDD dog bed 80x50x20 cm')
+
+    def test_serie_mit_å_aendert_id_nicht(self):
+        rows = [zeile('u1', 'BÅRSLÖV Kommode - grau 80x48 cm', '1', 10, masse(80, 48, 100))]
+        ids = {}
+        lauf(rows, ids=ids)
+        alt = {k: 'ikea-alte-id' for k in ids}
+        e = lauf(rows, ids=alt)[0]
+        self.assertEqual(e[0]['series'], 'BÅRSLÖV')
+        self.assertEqual(e[0]['id'], 'ikea-alte-id')
+
     def test_jysk_art_vor_serie(self):
         a = {'5 Schubladen Kommode breit': 'chest of 5 drawers, wide', '3 Schubladen Kommode': 'chest of 3 drawers',
              '5 Schubladen Kommode': 'chest of 5 drawers', '3+3 Schubladen Kommode Eiche warm': 'X'}

@@ -109,6 +109,20 @@ class Regeln(unittest.TestCase):
         self.assertEqual(en('2,5-Sitzer Sofa', 'tchibo'), '2,5-seater sofa')
         self.assertEqual(en('1-türige Lampe', 'tchibo'), '1-door lamp')
 
+    def test_zahl_er_sitzmoebel_und_set(self):
+        w = dict(W, bettsofa='sofa bed', sitzelement='sofa module', sitzgruppe='sofa set', behälter='container',
+                 **{'2er-sitzgruppe': '2-seat seating set'})
+        f = lambda de, serie=None, shop='ikea': ne.name_en(de, shop, serie, w, A)
+        self.assertEqual(f('BÅRSLÖV 3er-Bettsofa', 'BÅRSLÖV'), 'BÅRSLÖV 3-seat sofa bed')
+        self.assertEqual(f('UPPÅKRA 4,5er-Sitzelement', 'UPPÅKRA'), 'UPPÅKRA 4.5-seat sofa module')
+        self.assertEqual(f('VISKAFORS 1,5er-Sessel', 'VISKAFORS'), 'VISKAFORS 1.5-seat armchair')
+        self.assertEqual(f('LILLESÄTER 6er-Sofa', 'LILLESÄTER'), 'LILLESÄTER 6-seat sofa')
+        self.assertEqual(f('BONDHOLMEN 2er-Sofa/außen', 'BONDHOLMEN'), 'BONDHOLMEN outdoor 2-seat sofa')
+        self.assertEqual(f('Behälter 3er-Set'), 'container 3-pack')
+        self.assertEqual(f('2er-Sitzgruppe', shop='jysk'), '2-seat seating set')
+        self.assertEqual(f('3er-Microgreens-Bank', shop='tchibo'), '3er-Microgreens-Bank')
+        self.assertEqual(f('3er-Hocker'), '3er-Hocker')
+
     def test_serienblock_nach_vorn(self):
         self.assertEqual(en('Sofa GEDVED NORDBY grau'), 'GEDVED NORDBY sofa grey')
         self.assertEqual(en('Sofa grau GEDVED', serie='GEDVED'), 'GEDVED sofa grey')
