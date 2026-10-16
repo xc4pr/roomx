@@ -11,7 +11,7 @@ Danke für die Antworten. Hier der Plan (eine Variante) mit Begründung, Einkauf
     "workstations": [],
     "style": "skandinavisch, hell und ruhig; Sofa grau, Parkett hell, Wände weiss, helles Holz",
     "budgetChf": 3000,
-    "retailers": ["IKEA", "Micasa", "Pfister", "Interio", "JYSK", "Conforama", "Tchibo"],
+    "retailers": ["IKEA", "JYSK", "Tchibo"],
     "keep": [],
     "wishes": "Sofa für 3 Personen, Esstisch für 4 (rechteckig, in der Küche), TV 55 Zoll auf TV-Bank, etwas Stauraum für Bücher, 1-2 Pflanzen, Teppich im Wohnzimmer, keine Vorhänge, kein Schlafsofa; Küchenzeile kommt später und ist nicht Teil der Planung; keine Allergien"
   },
