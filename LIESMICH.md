@@ -335,9 +335,10 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 - Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
 - **Nicht mehr im Sortiment:** Eine Karte mit diesem Vermerk zeigt einen Artikel, den der Händler online nicht mehr führt. Er bleibt im Katalog, damit ältere Projekte weiter laden.
 - **Beim Händler ansehen:** Jede Katalogkarte eines geprüften Artikels hat den Link «Beim Händler ansehen». Er öffnet die Seite des Händlers in einem neuen Tab; RoomX selbst macht dabei keine Anfragen.
+- **Wöchentliches Update:** Preise und Sortiment des grossen Katalogs werden einmal pro Woche automatisch aktualisiert. Ein Artikel, der aus dem Sortiment des Händlers verschwunden ist, bleibt mit dem Vermerk «Nicht mehr im Sortiment» im Katalog, damit ältere Projekte weiter laden. Die geprüften Artikel werden dabei verglichen, ändern sich aber erst nach einer Prüfung von Hand. Sieht ein Wochenlauf fehlerhaft aus, zum Beispiel weil viele Artikel verschwunden scheinen oder sich viele Preise auf einmal ändern, wird nichts veröffentlicht und die bisherigen Daten bleiben.
 
 > [!NOTE]
-> Die Masse im Katalog sind **Richtwerte**. Artikel, die es nicht mehr gibt, bleiben im Katalog, damit alte Projekte weiter laden; sie tragen den Vermerk **«Nicht mehr im Sortiment»**, ungeprüfte Artikel den Vermerk **«Masse ungeprüft»**. Ältere Katalog-IDs werden automatisch auf den neuen Artikel umgeleitet. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen als «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
+> Die Masse im Katalog sind **Richtwerte**. Artikel, die es nicht mehr gibt, bleiben im Katalog, damit alte Projekte weiter laden; sie tragen den Vermerk **«Nicht mehr im Sortiment»**, ungeprüfte Artikel den Vermerk **«Masse ungeprüft»**. Ältere Katalog-IDs werden automatisch auf den neuen Artikel umgeleitet. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen mit dem Monat des letzten Updates, zum Beispiel «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
 
 **Möbel bewegen.** Zieh ein Möbel an seinen Platz. Der Drehgriff dreht frei, die Knöpfe im Panel drehen um 90° oder 15°, oder du tippst die Gradzahl ein. Im Plan zeigen gepunktete Linien den Abstand zu Wänden und anderen Möbeln. Mit «Fixieren» sperrst du ein Möbel gegen versehentliches Verschieben. Duplizieren und Löschen findest du in der Leiste unter dem gewählten Möbel.
 
@@ -577,7 +578,7 @@ Safari kann die Daten von Websites löschen, die man sieben Tage lang nicht geö
 <details>
 <summary><b>Stimmen die Möbelmasse und Preise?</b></summary>
 
-Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF (Stand Oktober 2026), und nicht geprüfte Artikel (zum Beispiel solche, die es nicht mehr gibt) tragen den Vermerk «Masse ungeprüft». Prüfe beides beim Händler, bevor du kaufst.
+Es sind Richtwerte. Die Preise im Katalog sind Richtpreise in CHF (Stand: der Monat beim Preis), und nicht geprüfte Artikel (zum Beispiel solche, die es nicht mehr gibt) tragen den Vermerk «Masse ungeprüft». Prüfe beides beim Händler, bevor du kaufst.
 </details>
 
 <details>
@@ -674,7 +675,8 @@ roomx/
 │  └─ tests                E2E-Tests (Playwright)
 ├─ server/                 FastAPI-Server für den optionalen Abgleich
 ├─ deploy/                 Dockerfile und compose.yaml
-└─ .github/                Workflow für GitHub Pages, Bilder für dieses README
+├─ catalog-index/          Skripte und Zustand des wöchentlichen Katalog-Updates
+└─ .github/                Workflows (CI, GitHub Pages, Katalog-Update), Bilder für dieses README
 ```
 
 ### Entwicklung
@@ -709,7 +711,9 @@ Die E2E-Tests der Foto-Funktion laufen gegen einen lokalen Relay: Die Build-Vari
 
 ### Branches und Continuous Integration
 
-Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push und prüft Prettier, Typen, Unit-Tests, Server-Tests, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
+Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push und prüft Prettier, Typen, Unit-Tests, Server-Tests, die Python-Tests des Katalog-Updates, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
+
+Ein zweiter Workflow, `.github/workflows/catalog-update.yml`, aktualisiert den grossen Katalog jeden Montag um 04:17 Schweizer Zeit mit den Skripten in `catalog-index/`. Er liest die Produktseiten der Händler langsam, pro Händler eine Anfrage nach der anderen. Verschwundene Artikel werden markiert, nie gelöscht. Verschwinden zu viele Artikel oder ändern sich zu viele Preise auf einmal, veröffentlicht der Lauf nichts und eröffnet stattdessen ein Issue; Abweichungen bei geprüften Artikeln meldet er ebenfalls als Issue und übernimmt sie nie selbst. Sonst testet er die App, committet ohne Versions-Tag auf `main`, startet den Pages-Workflow und mergt `main` in `dev`. Von Hand lässt er sich ebenfalls starten (`workflow_dispatch`); mit `dry_run` committet er nichts.
 
 ### Veröffentlichung über GitHub Pages
 
