@@ -150,6 +150,8 @@ class TchiboTests(unittest.TestCase):
                     + bestpreis.replace("849.00", "1&#39;299.00") + '</div>')
         d = tchibo.parse_produkt(regulaer)
         self.assertEqual((d["preis_chf"], d["aktionspreis_chf"]), (1299, None))
+        d = tchibo.parse_produkt(aktion.replace("1&#39;099.00", "1’099.00"))
+        self.assertEqual((d["preis_chf"], d["aktionspreis_chf"]), (1099, 849))
 
     def test_ausverkauft_bleibt_erhalten(self):
         seite = ('<script type="application/ld+json">{"@type":"Product","name":"Sessel","mpn":"1","offers":[{"availability":"https://schema.org/OutOfStock","price":"99.00"}]}</script>')
