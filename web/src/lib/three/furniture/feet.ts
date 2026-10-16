@@ -1,6 +1,7 @@
 import { type Group, type MeshStandardMaterial } from 'three';
 import type { Look } from '#lib/core/catalog.ts';
-import { box, cyl, mat, tube, type Palette } from './kit.ts';
+import { Box3 } from 'three';
+import { box, cyl, mat, strut, tube, type Palette } from './kit.ts';
 
 export type Footing = 'none' | 'plinth' | 'feet' | 'legs' | 'frame';
 
@@ -117,5 +118,45 @@ export function casters(
 	for (const [x, z] of feet) {
 		tube(g, rubber, 'x', 0.016, dia, x, dia / 2, z);
 		cyl(g, stem, 0.014, lift - dia, 0.014, x, dia, z, 1, 8);
+	}
+}
+
+// One leg running from the foot point on the floor up to a point under the body, so it leans outwards.
+// It ends a little above `top` to sink into the body; the tilted end stays on the floor `y0`.
+export function slantLeg(
+	g: Group,
+	material: MeshStandardMaterial,
+	foot: readonly [number, number],
+	head: readonly [number, number],
+	y0: number,
+	top: number,
+	thickness: number,
+	round = false
+): void {
+	const mesh = strut(
+		g,
+		material,
+		[foot[0], y0, foot[1]],
+		[head[0], top + 0.012, head[1]],
+		thickness,
+		round
+	);
+	mesh.updateMatrixWorld();
+	mesh.position.y += y0 - new Box3().setFromObject(mesh, true).min.y;
+}
+
+// Four short legs under a body, each leaning outwards by about 10 degrees (sofa, armchair).
+export function splayedFooting(
+	g: Group,
+	material: MeshStandardMaterial,
+	points: readonly (readonly [number, number])[],
+	height: number,
+	thickness = 0.045
+): void {
+	if (height <= 0) return;
+	const off = height * Math.tan((10 * Math.PI) / 180);
+	for (const [x, z] of points) {
+		const foot: [number, number] = [x + Math.sign(x) * off, z + Math.sign(z) * off];
+		slantLeg(g, material, foot, [x, z], 0, height, thickness);
 	}
 }

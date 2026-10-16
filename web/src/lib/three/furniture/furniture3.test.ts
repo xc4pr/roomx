@@ -475,3 +475,98 @@ describe('stage 3 defaults of described models', () => {
 		}
 	});
 });
+
+describe('splayed legs and the round tub chair', () => {
+	const splayed: Look = { legs: 'splayed' };
+	const withEverything: Look = {
+		legs: 'splayed',
+		shelf: true,
+		drawers: 3,
+		baseMaterial: 'metal',
+		frameColor: '#202020',
+		accentColor: '#aa8855'
+	};
+	const sizes: [ModelType, Dims][] = [
+		['table', { w: 1400, d: 800, h: 740 }],
+		['table', { w: 500, d: 500, h: 450 }],
+		['roundTable', { w: 1000, d: 1000, h: 740 }],
+		['roundTable', { w: 1200, d: 900, h: 740 }],
+		['desk', { w: 1500, d: 700, h: 740 }],
+		['desk', { w: 900, d: 500, h: 720 }],
+		['sofa', { w: 2000, d: 900, h: 850 }],
+		['cornerSofa', { w: 2800, d: 1700, h: 850 }],
+		['armchair', { w: 800, d: 850, h: 950 }],
+		['chair', { w: 420, d: 500, h: 900 }]
+	];
+	for (const [model, dims] of sizes) {
+		it(`${model} ${dims.w}x${dims.d} splayed is exact and within budget`, () => {
+			expectExact(model, dims, splayed, `${model} splayed`);
+			expectExact(model, dims, withEverything, `${model} splayed everything`);
+		});
+		it(`${model} ${dims.w}x${dims.d} splayed changes the model`, () => {
+			expect(fingerprint(build(model, dims, splayed))).not.toEqual(fingerprint(build(model, dims)));
+		});
+	}
+
+	it('splayed legs lean: the feet of a table lie further out than the tops', () => {
+		const object = build('table', dimsOf('table'), splayed);
+		let tilted = 0;
+		object.traverse((node) => {
+			if (node instanceof Mesh && Math.abs(node.rotation.x) + Math.abs(node.rotation.z) > 0.05) {
+				tilted++;
+			} else if (node instanceof Mesh && node.quaternion.w < 0.999) tilted++;
+		});
+		expect(tilted).toBe(4);
+	});
+
+	it('splayed legs take the frame colour and material', () => {
+		const dims = dimsOf('table');
+		const plain = fingerprint(build('table', dims, splayed));
+		expect(fingerprint(build('table', dims, { ...splayed, frameColor: '#202020' }))).not.toEqual(
+			plain
+		);
+		expect(fingerprint(build('table', dims, { ...splayed, shelf: true }))).not.toEqual(plain);
+		expect(fingerprint(build('table', dims, { ...splayed, wheels: true }))).not.toEqual(plain);
+		expect(fingerprint(build('desk', dimsOf('desk'), { ...splayed, drawers: 2 }))).not.toEqual(
+			fingerprint(build('desk', dimsOf('desk'), splayed))
+		);
+	});
+
+	it('short splayed legs of a sofa follow base legs and are ignored with other bases', () => {
+		const dims = dimsOf('sofa');
+		expectExact('sofa', dims, { legs: 'splayed', base: 'legs', baseHeight: 220 }, 'tall');
+		expect(fingerprint(build('sofa', dims, { legs: 'splayed', base: 'plinth' }))).toEqual(
+			fingerprint(build('sofa', dims, { base: 'plinth' }))
+		);
+	});
+
+	const tub: Look = { shape: 'round' };
+	for (const dims of [
+		{ w: 800, d: 850, h: 950 },
+		{ w: 700, d: 700, h: 800 },
+		{ w: 900, d: 750, h: 1000 }
+	]) {
+		it(`round armchair ${dims.w}x${dims.d} is exact and within budget`, () => {
+			expectExact('armchair', dims, tub, 'tub');
+			expectExact(
+				'armchair',
+				dims,
+				{ ...tub, arms: 'wide', back: 'wing', frameColor: '#202020' },
+				'tub all'
+			);
+			expect(stats(build('armchair', dims, tub)).triangles).toBeLessThan(1500);
+		});
+	}
+
+	it('round armchair changes the model, ignores arms and takes the foot colour', () => {
+		const dims = dimsOf('armchair');
+		const plain = fingerprint(build('armchair', dims, {}));
+		const round = fingerprint(build('armchair', dims, tub));
+		expect(round).not.toEqual(plain);
+		expect(fingerprint(build('armchair', dims, { shape: 'round', arms: 'wide' }))).toEqual(round);
+		expect(
+			fingerprint(build('armchair', dims, { shape: 'round', frameColor: '#aa3322' }))
+		).not.toEqual(round);
+		expect(fingerprint(build('armchair', dims, { shape: 'rect' }))).toEqual(plain);
+	});
+});

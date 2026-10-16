@@ -1,7 +1,7 @@
 import { Group, type MeshStandardMaterial } from 'three';
 import type { Look, LookRow } from '#lib/core/catalog.ts';
 import { cabinet } from './cabinet.ts';
-import { casters, standMaterial } from './feet.ts';
+import { casters, slantLeg, standMaterial } from './feet.ts';
 import { box, cyl, mat, strut, tube, type Palette } from './kit.ts';
 
 type Build = (w: number, d: number, h: number, p: Palette, look?: Look) => Group;
@@ -31,10 +31,11 @@ const RECT_LEGS: readonly Leg[] = [
 	'sled',
 	'panel',
 	'cross',
-	'tframe'
+	'tframe',
+	'splayed'
 ];
 const METAL_LEGS: readonly Leg[] = ['sled', 'tframe'];
-const SHELF_LEGS: readonly Leg[] = ['four', 'trestle', 'sled', 'panel'];
+const SHELF_LEGS: readonly Leg[] = ['four', 'trestle', 'sled', 'panel', 'splayed'];
 
 // A described table has its frame in the main colour (`accentColor` is the top when it differs);
 // without a look the wooden legs stay dark as before.
@@ -68,6 +69,37 @@ function four(c: Frame, t: number): Stand {
 		box(g, m, 0.02, apron, d - inset * 2 - leg * 2, -(w / 2 - inset - leg / 2), y, 0);
 	}
 	return { feet, clearW: w - inset * 2 - leg * 2, clearD: d - inset * 2 - leg * 2 };
+}
+
+const SPLAY = Math.tan((9 * Math.PI) / 180);
+
+// Four legs under the top, narrower there than at the floor (50s style); the feet stay inside the top.
+function splayed(c: Frame): Stand {
+	const { g, m, w, d, y0, under } = c;
+	const leg = Math.min(0.05, w * 0.1, d * 0.1);
+	const run = under - y0;
+	const edge = leg + 0.02;
+	const feet: Feet = [];
+	let fx = 0;
+	let fz = 0;
+	let ox = 0;
+	let oz = 0;
+	for (const sx of c.sides) {
+		fx = w / 2 - edge;
+		fz = d / 2 - edge;
+		ox = Math.min(run * SPLAY, fx * 0.8);
+		oz = Math.min(run * SPLAY, fz * 0.8);
+		for (const sz of [-1, 1]) {
+			slantLeg(g, m, [sx * fx, sz * fz], [sx * (fx - ox), sz * (fz - oz)], y0, under, leg);
+			feet.push([sx * fx, sz * fz]);
+		}
+	}
+	// The shelf sits 20% up, where the legs have moved in by that share of their lean.
+	return {
+		feet,
+		clearW: 2 * (fx - ox * 0.2) - leg * 2,
+		clearD: 2 * (fz - oz * 0.2) - leg * 2
+	};
 }
 
 function trestle(c: Frame): Stand {
@@ -184,6 +216,8 @@ function stand(kind: Leg, c: Frame, t: number): Stand {
 			return cross(c);
 		case 'tframe':
 			return tframe(c);
+		case 'splayed':
+			return splayed(c);
 		default:
 			return four(c, t);
 	}
@@ -228,6 +262,31 @@ const roundTable: Build = (w, d, h, p, look = {}) => {
 			cyl(g, base, leg, h - t, leg, x, 0, z, 1.25, 10);
 		}
 		if (look.shelf) cyl(g, top, w * 0.6, 0.02, d * 0.6, 0, (h - t) * 0.2, 0, 1, 24);
+		return g;
+	}
+	if (look.legs === 'splayed') {
+		const leg = Math.min(0.05, w * 0.07);
+		const rFoot = w / 2 - leg * 2.2;
+		const rHead = rFoot - Math.min((h - t) * SPLAY, rFoot * 0.7);
+		for (let i = 0; i < 4; i++) {
+			const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+			const c = Math.cos(a);
+			const s = Math.sin(a);
+			slantLeg(
+				g,
+				base,
+				[c * rFoot, s * rFoot * (d / w)],
+				[c * rHead, s * rHead * (d / w)],
+				0,
+				h - t,
+				leg,
+				true
+			);
+		}
+		if (look.shelf) {
+			const r = ((rFoot + rHead) / 2 - leg) * 2;
+			cyl(g, top, r, 0.02, r * (d / w), 0, (h - t) * 0.2, 0, 1, 24);
+		}
 		return g;
 	}
 	if (look.legs === 'cross') {
