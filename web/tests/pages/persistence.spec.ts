@@ -23,7 +23,18 @@ test('Projekt, Raum und Foto überstehen einen Neustart', async ({ newProfile })
 			return `${project?.rooms.length}/${project?.rooms[0]?.photos.length}`;
 		})
 		.toBe('1/1');
-	await page.waitForTimeout(1500);
+	await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
+	await expect
+		.poll(() =>
+			page.evaluate(async () => {
+				const shell = new URL((await navigator.serviceWorker.ready).scope).pathname;
+				const name = (await caches.keys()).find((key) => key.startsWith('roomx-'));
+				if (!name) return false;
+				const cache = await caches.open(name);
+				return (await cache.match(shell)) !== undefined;
+			})
+		)
+		.toBe(true);
 	await first.close();
 
 	const second = await profile.open();
@@ -57,4 +68,38 @@ test('Projekt, Raum und Foto überstehen einen Neustart', async ({ newProfile })
 	await expect
 		.poll(() => full.evaluate((img) => (img as HTMLImageElement).naturalWidth))
 		.toBeGreaterThan(0);
+});
+
+test('Der Service Worker fällt bei abgelehntem Cache aufs Netz zurück', async ({
+	newProfile,
+	browserName
+}) => {
+	test.skip(
+		browserName !== 'chromium',
+		'Das Skript des Service Workers lässt sich nur in Chromium abfangen'
+	);
+	const context = await newProfile().open();
+	// After activation, Cache Storage rejects like WebKit's "Internal error" after a profile restart.
+	await context.route('**/service-worker.js', async (route) => {
+		const response = await route.fetch();
+		const patch = `const open = CacheStorage.prototype.open;
+let broken = false;
+CacheStorage.prototype.open = function (name) {
+	return broken ? Promise.reject(new TypeError('Internal error')) : open.call(this, name);
+};
+addEventListener('activate', () => { broken = true; });
+`;
+		await route.fulfill({ response, body: patch + (await response.text()) });
+	});
+	const page = await startPage(context);
+	await skipTour(page);
+	await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
+	await page.reload();
+	await expect
+		.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null))
+		.toBe(true);
+
+	const response = await page.goto('./');
+	expect(response?.ok()).toBe(true);
+	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });

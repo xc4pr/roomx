@@ -1,6 +1,7 @@
 import { version } from '$app/env';
 import { assets, immutable } from '$app/manifest';
 import { self as sw } from '$app/service-worker';
+import { respondFromCache } from './respond.ts';
 
 const CACHE = `roomx-${version}`;
 // The worker's scope is the app's base path ('/' on the own server, '/roomx/' on GitHub Pages).
@@ -19,6 +20,8 @@ sw.addEventListener('activate', (event) => {
 			.then((keys) =>
 				Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))
 			)
+			// A failed cleanup must not keep the worker from taking control.
+			.catch(() => undefined)
 			.then(() => sw.clients.claim())
 	);
 });
@@ -38,10 +41,5 @@ sw.addEventListener('fetch', (event) => {
 			? SHELL
 			: null;
 	if (!cached) return;
-	event.respondWith(
-		caches
-			.open(CACHE)
-			.then((cache) => cache.match(cached))
-			.then((response) => response ?? fetch(request))
-	);
+	event.respondWith(respondFromCache(() => caches.open(CACHE), cached, request, fetch));
 });
