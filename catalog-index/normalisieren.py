@@ -406,8 +406,9 @@ def englisch(de, art, shop, serie, arten, woerter):
     return namen_en.name_en_info(de, shop, serie, woerter, arten)
 
 
-def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten=None, woerter=None):
-    """Kernlauf. Gibt (eintraege, bericht, offen_zuordnung, offen_farben) zurueck; veraendert ids_tab."""
+def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten=None, woerter=None, vorher=None):
+    """Kernlauf. Gibt (eintraege, bericht, offen_zuordnung, offen_farben) zurueck; veraendert ids_tab.
+    vorher: bisherige full.json; ihre IDs gehen an einen neuen Schluessel mit derselben Artikelnummer."""
     arten = arten or {}
     woerter = woerter or {}
     en_stat = {sh: {'gesamt': 0, 'gleich': 0, 'eigennamen': 0} for sh in SHOPS}
@@ -477,6 +478,15 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
             gruppen[skey].append((shop, r, z, basis, serie, hexe))
     eintraege = []
     benutzt = set(kur_ids) | set(ids_tab.values())
+    # Aendert sich der Schluessel (Mass korrigiert, Name oder Farbwort anders), behaelt der Artikel seine bisherige
+    # ID, sofern sie keinem Schluessel dieses Laufs mehr gehoert. Gespeicherte Projekte behalten so ihr Moebel.
+    belegt = {ids_tab[k] for k in gruppen if k in ids_tab}
+    frei = {}
+    for e in vorher or []:
+        nr = artnr_zahl(e.get('articleNo'))
+        if nr and e.get('id') and e['id'] not in belegt and e['id'] not in kur_ids:
+            k = (e.get('brand'), nr)
+            frei[k] = None if k in frei and frei[k] != e['id'] else e['id']
     for skey in sorted(gruppen):
         g = gruppen[skey]
         shop = g[0][0]
@@ -493,8 +503,20 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
                     hexe.append(h)
         if not hexe:
             hexe = ['#cfcfcf']
+        alt_id = None
+        if skey not in ids_tab:
+            for nr in sorted({artnr_zahl(x[1].get('artikelnummer')) for x in g} - {''}):
+                alt_id = frei.get((BRAND[shop], nr))
+                if alt_id:
+                    del frei[(BRAND[shop], nr)]
+                    break
         if skey in ids_tab:
             eid = ids_tab[skey]
+        elif alt_id:
+            eid = alt_id
+            for k in [k for k, v in ids_tab.items() if v == alt_id]:
+                del ids_tab[k]
+            ids_tab[skey] = eid
         else:
             eid = id_vorschlag(shop, serie, basis, dims)[:190]
             cand, n = eid, 2

@@ -414,6 +414,47 @@ class NormalizeTest(unittest.TestCase):
         (a[2] / "kuratiert.json").write_text("[]")
         self.assertEqual(update.normalize_lauf(a[4], a[1], a[2], a[3], a[0], cache_erlaubt=True, zustand_schreiben=True), 1)
 
+    def test_neuer_schluessel_behaelt_id_ueber_artikelnummer(self):
+        u = "https://www.ikea.com/ch/de/p/malm-000/"
+        a = self.aufbau({u: ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "100.000.01", 10))})
+        self.assertEqual(self.lauf(*a), 0)
+        alt = json.loads(a[4].read_text())
+        z = zs.Zustand(a[1] / "ikea.jsonl", "https://www.ikea.com/ch/de/p/").laden()
+        z.uebernimm({"url": u, "ergebnis": "produkt", **ikea_zeile("A Kommode - schwarz 81x48 cm", "100.000.01", 10, breite=81),
+                     "im_umfang": True}, "2026-10-22", True)
+        z.speichern()
+        self.assertEqual(self.lauf(*a), 0)
+        neu = json.loads(a[4].read_text())
+        self.assertEqual([e["id"] for e in neu], [alt[0]["id"]])
+        self.assertEqual(neu[0]["dims"]["w"], 810)
+        ids = json.loads((a[1] / "ids.json").read_text())
+        self.assertEqual(list(ids.values()), [alt[0]["id"]])
+        self.assertTrue(next(iter(ids)).endswith("|810x480x1000"))
+
+    def test_id_eines_anderen_schluessels_wird_nicht_uebernommen(self):
+        u0, u1 = "https://www.ikea.com/ch/de/p/malm-000/", "https://www.ikea.com/ch/de/p/malm-001/"
+        a = self.aufbau({u0: ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "100.000.01", 10))})
+        self.assertEqual(self.lauf(*a), 0)
+        alt = json.loads(a[4].read_text())[0]["id"]
+        z = zs.Zustand(a[1] / "ikea.jsonl", "https://www.ikea.com/ch/de/p/").laden()
+        z.uebernimm({"url": u1, "ergebnis": "produkt", **ikea_zeile("B Kommode - schwarz 90x48 cm", "100.000.02", 20, breite=90),
+                     "im_umfang": True}, "2026-10-22", True)
+        z.speichern()
+        self.assertEqual(self.lauf(*a), 0)
+        neu = {e["articleNo"]: e["id"] for e in json.loads(a[4].read_text())}
+        self.assertEqual(neu["100.000.01"], alt)
+        self.assertNotEqual(neu["100.000.02"], alt)
+
+    def test_doppelte_artikelnummer_bricht_ab(self):
+        a = self.aufbau({"https://www.ikea.com/ch/de/p/malm-000/": ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "5.5", 10))})
+        doppelt = [{"id": "ikea-x1", "brand": "IKEA", "articleNo": "5.5", "name": {"de": "X1", "en": "X1"}},
+                   {"id": "ikea-x2", "brand": "IKEA", "articleNo": "5.5", "name": {"de": "X2", "en": "X2"}}]
+        a[4].write_text(json.dumps(doppelt))
+        self.assertEqual(self.lauf(*a), 1)
+        self.assertEqual(json.loads(a[4].read_text()), doppelt)
+        self.assertIn("IKEA 55", json.loads((a[2] / "report.json").read_text())["fehler"])
+        self.assertEqual(update.doppelte([{"id": "a", "brand": "IKEA", "articleNo": "1.2"}, {"id": "a", "brand": "JYSK", "articleNo": "1.2"}]), ["a"])
+
     def test_kuratiert_vorrang_ueber_cache_artikelnummer(self):
         a = self.aufbau({"https://www.ikea.com/ch/de/p/malm-000/": ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "100.000.01", 10))})
         self.lauf(*a, kur=[{"id": "kur", "articleNo": "100.000.01"}])
