@@ -249,18 +249,18 @@ export class MirrorHost {
 	}
 
 	// Fallback path: a photo file shared from the phone and dropped into the app.
-	async importShot(tag: ShotTag, bytes: Uint8Array<ArrayBuffer>): Promise<PlaceResult> {
-		let job = this.jobs.find((candidate) => candidate.id === tag.jobId);
-		if (!job) {
-			const stored = await getJob(tag.jobId);
-			if (!stored || stored.role !== 'host') return { ok: false, reason: 'unknownJob' };
-			job = stored;
-		}
-		if (job.revokedAt !== undefined || job.expiresAt <= this.#options.now()) {
-			return { ok: false, reason: 'unknownJob' };
-		}
-		const target = job;
-		return this.#place(target, { room: tag.room, stepKey: tag.stepKey }, bytes);
+	// The job is looked up inside the queue, so a copy read from storage already carries the marks of earlier imports.
+	importShot(tag: ShotTag, bytes: Uint8Array<ArrayBuffer>): Promise<PlaceResult> {
+		return this.#enqueue(async () => {
+			const job =
+				this.jobs.find((candidate) => candidate.id === tag.jobId) ?? (await getJob(tag.jobId));
+			if (!job || job.role !== 'host') return { ok: false, reason: 'unknownJob' };
+			if (job.revokedAt !== undefined || job.expiresAt <= this.#options.now()) {
+				return { ok: false, reason: 'unknownJob' };
+			}
+			const shot = { room: tag.room, stepKey: tag.stepKey };
+			return placeShot(job, shot, bytes, this.#options.reencode);
+		});
 	}
 
 	#place(
@@ -268,7 +268,11 @@ export class MirrorHost {
 		shot: { room: number; stepKey: string; takenAt?: string; hash?: string },
 		bytes: Uint8Array<ArrayBuffer>
 	): Promise<PlaceResult> {
-		const run = this.#queue.then(() => placeShot(job, shot, bytes, this.#options.reencode));
+		return this.#enqueue(() => placeShot(job, shot, bytes, this.#options.reencode));
+	}
+
+	#enqueue(task: () => Promise<PlaceResult>): Promise<PlaceResult> {
+		const run = this.#queue.then(task);
 		this.#queue = run.catch(() => {});
 		return run.catch(() => ({ ok: false, reason: 'storage' }) as const);
 	}

@@ -526,3 +526,294 @@ describe('CameraSession mailbox', () => {
 		expect(mail.fetcher).not.toHaveBeenCalled();
 	});
 });
+
+describe('CameraSession mailbox failures', () => {
+	const fast = { placedMs: 40, uploadRetryMs: 60 };
+
+	async function started(mail: ReturnType<typeof fakeMailbox>) {
+		await makeServerJob();
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		return camera;
+	}
+
+	for (const status of [404, 401, 403]) {
+		it(`stops uploading after ${status} and keeps every photo`, async () => {
+			const mail = fakeMailbox();
+			mail.state.status = status;
+			const camera = await started(mail);
+			await camera.addShot(0, 'corner:A', await image(`s${status}`));
+			await until(() => expect(camera.status.server).toBe('unreachable'));
+			const calls = mail.fetcher.mock.calls.length;
+			await tick(150);
+			expect(mail.fetcher.mock.calls.length).toBe(calls);
+			expect(camera.shots).toHaveLength(1);
+			expect(await listShots(keys.jobId)).toHaveLength(1);
+			expect(camera.status.uploaded).toBe(0);
+		});
+	}
+
+	it('keeps retrying after 409 (mailbox full) without giving up or dropping photos', async () => {
+		const mail = fakeMailbox();
+		mail.state.status = 409;
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('full'));
+		await until(() => expect(mail.fetcher.mock.calls.length).toBeGreaterThan(2));
+		expect(camera.status.server).toBe('ok');
+		expect(camera.shots).toHaveLength(1);
+		mail.state.status = 0;
+		await until(() => expect(camera.status.uploaded).toBe(1));
+	});
+
+	it('uploads the same photo only once when the answer arrives late', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('once'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		await tick(150);
+		expect(mail.count('PUT', '/shots/')).toBe(1);
+	});
+
+	it('does not delete anything while the computer has not fetched, even after many rounds', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('stay'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		await until(() => expect(mail.count('GET', '/placed')).toBeGreaterThan(2));
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+	});
+
+	it('ignores placed ids that belong to no photo and removes only the matching one', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('m1'));
+		await camera.addShot(0, 'corner:B', await image('m2'));
+		await until(() => expect(camera.status.uploaded).toBe(2));
+		const [first, second] = camera.shots.map((shot) => shot.uploaded ?? '');
+		mail.state.placed.push('f'.repeat(64), first);
+		await until(() => expect(camera.shots).toHaveLength(1));
+		expect(camera.shots[0].uploaded).toBe(second);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+	});
+
+	it('keeps photos when the placed list cannot be read (network, bad reply)', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('pl'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		const id = camera.shots[0].uploaded ?? '';
+		mail.state.placed.push(id);
+		mail.fetcher.mockImplementation(async () => Response.json({ placed: 'no' }));
+		await tick(150);
+		expect(camera.shots).toHaveLength(1);
+		expect(camera.status.server).toBe('ok');
+		mail.fetcher.mockImplementation(async () => {
+			throw new TypeError('offline');
+		});
+		await tick(150);
+		expect(camera.shots).toHaveLength(1);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+	});
+
+	it('switches off when the secret is refused while collecting, and keeps the photos', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('sec'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		mail.state.status = 401;
+		await until(() => expect(camera.status.server).toBe('unreachable'));
+		expect(camera.shots).toHaveLength(1);
+	});
+
+	it('does not upload a photo that was removed before its turn', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		mail.state.offline = true;
+		const kept = await camera.addShot(0, 'corner:A', await image('k'));
+		await until(() => expect(mail.fetcher.mock.calls.length).toBeGreaterThan(0));
+		const removed = await camera.addShot(0, 'corner:B', await image('r'));
+		await camera.removeShot(removed.id);
+		mail.state.offline = false;
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		expect(camera.shots.map((shot) => shot.id)).toEqual([kept.id]);
+		expect(mail.state.shots.size).toBe(1);
+	});
+
+	it('stopping the page stops every upload and every collect', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		await camera.addShot(0, 'corner:A', await image('stop'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		cleanup.pop()?.();
+		await tick(20);
+		const calls = mail.fetcher.mock.calls.length;
+		await tick(150);
+		expect(mail.fetcher.mock.calls.length).toBe(calls);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+	});
+
+	it('a revoke ends the server path but keeps the unsent photos', async () => {
+		const mail = fakeMailbox();
+		const camera = await started(mail);
+		const pc = await computer(hub, keys, keys.jobId);
+		await until(() => expect(pc.count('hello')).toBe(1));
+		await camera.addShot(0, 'corner:A', await image('rev'));
+		await until(() => expect(camera.status.uploaded).toBe(1));
+		await pc.send({ frame: { t: 'revoked' } });
+		await until(() => expect(camera.status.revoked).toBe(true));
+		const calls = mail.fetcher.mock.calls.length;
+		await camera.addShot(0, 'corner:B', await image('rev2')).catch(() => {});
+		await tick(150);
+		expect(mail.fetcher.mock.calls.length).toBe(calls);
+		expect(await listShots(keys.jobId)).not.toHaveLength(0);
+	});
+
+	it('an expiring job ends the server path', async () => {
+		const mail = fakeMailbox();
+		await saveCameraPart(token, {
+			v: 1,
+			project: 'Wohnung',
+			lang: 'de',
+			expiresAt: Date.now() + 250,
+			server: true,
+			part: 0,
+			parts: 1,
+			rooms: []
+		});
+		const camera = session({ ...fast, mailbox: mail.env });
+		run(camera);
+		await until(() => expect(camera.status.server).toBe('ok'));
+		await until(() => expect(camera.status.expired).toBe(true));
+		await tick(30);
+		const calls = mail.fetcher.mock.calls.length;
+		await camera.addShot(0, 'corner:A', await image('late'));
+		await tick(150);
+		expect(mail.fetcher.mock.calls.length).toBe(calls);
+		expect(camera.shots).toHaveLength(1);
+	});
+});
+
+describe('CameraSession storage and clock', () => {
+	it('does not show a photo that could not be stored', async () => {
+		await makeJob();
+		const camera = session();
+		run(camera);
+		await until(() => expect(camera.status.status).toBe('searching'));
+		const put = vi.spyOn(db.mirrorShots, 'put').mockRejectedValueOnce(new Error('quota'));
+		await expect(camera.addShot(0, 'corner:A', await image('q'))).rejects.toThrow('quota');
+		put.mockRestore();
+		expect(camera.shots).toEqual([]);
+		expect(camera.status.pending).toBe(0);
+		expect(await listShots(keys.jobId)).toEqual([]);
+	});
+
+	it('gives every photo a later time than the one before, even with a frozen or reset clock', async () => {
+		await makeJob();
+		let now = 1_800_000_000_000;
+		const camera = session({ now: () => now });
+		const a = await camera.addShot(0, 'corner:A', await image('c1'));
+		const b = await camera.addShot(0, 'corner:A', await image('c2'));
+		now -= 3_600_000;
+		const c = await camera.addShot(0, 'corner:A', await image('c3'));
+		const times = [a, b, c].map((shot) => Date.parse(shot.takenAt));
+		expect(times[1]).toBeGreaterThan(times[0]);
+		expect(times[2]).toBeGreaterThan(times[1]);
+	});
+
+	it('refuses a photo over the limit without storing it', async () => {
+		await makeJob();
+		const camera = session();
+		const filler = await image('fill');
+		camera.shots = Array.from({ length: MAX_SHOTS_PER_JOB }, (_, i) => ({
+			id: `x${i}`,
+			jobId: keys.jobId,
+			room: 0,
+			stepKey: 'corner:A',
+			hash: `${i}`,
+			blob: filler.blob,
+			thumbnail: filler.thumbnail,
+			w: 1,
+			h: 1,
+			takenAt: '2026-01-01T00:00:00.000Z'
+		}));
+		await expect(camera.addShot(0, 'corner:A', await image('over'))).rejects.toMatchObject({
+			code: 'limit'
+		});
+		expect(await listShots(keys.jobId)).toEqual([]);
+	});
+});
+
+describe('CameraSession acknowledgements', () => {
+	async function connected(shotTag: string) {
+		await makeJob();
+		const camera = session({ ackTimeoutMs: 400, retryLaterMs: 80 });
+		const shot = await camera.addShot(0, 'corner:A', await image(shotTag));
+		run(camera);
+		const pc = await computer(hub, keys, keys.jobId);
+		await until(() => expect(pc.count('hello')).toBe(1));
+		await pc.send({ frame: { t: 'state', received: [] } });
+		await until(() => expect(pc.count('photo')).toBe(1));
+		return { camera, pc, shot };
+	}
+
+	it('ignores an acknowledgement for a different photo', async () => {
+		const { camera, pc, shot } = await connected('ackwrong');
+		await pc.send({ frame: { t: 'ack', hash: 'e'.repeat(64), ok: true } });
+		await tick(60);
+		expect(camera.shots.map((s) => s.id)).toEqual([shot.id]);
+		expect(camera.status.sent).toBe(0);
+	});
+
+	it('ignores an acknowledgement from a computer that is not the active one', async () => {
+		const { camera, pc, shot } = await connected('ackother');
+		const phoneId = pc.phone();
+		const second = await computer(hub, keys, keys.jobId);
+		await tick(60);
+		const ack = await sealMessage(keys.key, keys.jobId, {
+			frame: { t: 'ack', hash: shot.hash, ok: true }
+		});
+		await second.transport.send(ack, phoneId);
+		await tick(60);
+		expect(camera.shots.map((s) => s.id)).toEqual([shot.id]);
+		await pc.transport.send(ack, phoneId);
+		await until(() => expect(camera.shots).toEqual([]));
+	});
+
+	it('keeps the photo after a refused acknowledgement and marks it failed once', async () => {
+		const { camera, pc, shot } = await connected('ackinvalid');
+		await pc.send({ frame: { t: 'ack', hash: shot.hash, ok: false, reason: 'invalid' } });
+		await until(() => expect(camera.status.failed).toEqual([shot.id]));
+		expect(camera.shots).toHaveLength(1);
+		expect(await listShots(keys.jobId)).toHaveLength(1);
+	});
+
+	it('counts a duplicate acknowledgement as delivered and deletes the photo', async () => {
+		const { camera, pc, shot } = await connected('ackdup');
+		await pc.send({ frame: { t: 'ack', hash: shot.hash, ok: true, duplicate: true } });
+		await until(() => expect(camera.shots).toEqual([]));
+		expect(camera.status.sent).toBe(1);
+		expect(await listShots(keys.jobId)).toEqual([]);
+	});
+
+	it('repeats a replayed acknowledgement without harm', async () => {
+		const { camera, pc, shot } = await connected('ackreplay');
+		await pc.send({ frame: { t: 'ack', hash: shot.hash, ok: true } });
+		await until(() => expect(camera.shots).toEqual([]));
+		await pc.send({ frame: { t: 'ack', hash: shot.hash, ok: true } });
+		await tick(50);
+		expect(camera.status.sent).toBe(1);
+	});
+
+	it('does not delete a photo when the computer lists an unknown hash as received', async () => {
+		await makeJob();
+		const camera = session();
+		await camera.addShot(0, 'corner:A', await image('keepme'));
+		run(camera);
+		const pc = await computer(hub, keys, keys.jobId);
+		await until(() => expect(pc.count('hello')).toBe(1));
+		await pc.send({ frame: { t: 'state', received: ['d'.repeat(64)] } });
+		await until(() => expect(pc.count('photo')).toBe(1));
+		expect(camera.shots).toHaveLength(1);
+	});
+});

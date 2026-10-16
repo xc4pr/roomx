@@ -21,6 +21,18 @@ vi.mock('#lib/state/persistence.ts', async (original) => {
 	};
 });
 
+const markFails = vi.hoisted(() => ({ on: false }));
+vi.mock('./jobs.ts', async (original) => {
+	const real = await original<typeof import('./jobs.ts')>();
+	return {
+		...real,
+		markReceived: async (jobId: string, hash: string) => {
+			if (markFails.on) throw new Error('db closed');
+			return real.markReceived(jobId, hash);
+		}
+	};
+});
+
 const { placeShot } = await import('./place.ts');
 const { createHostJob } = await import('./job.ts');
 const { getJob, saveHostJob } = await import('./jobs.ts');
@@ -49,6 +61,7 @@ const roomPhotos = () => store.room('room-rect')?.photos ?? [];
 
 beforeEach(async () => {
 	await Promise.all(db.tables.map((table) => table.clear()));
+	markFails.on = false;
 	putPhoto.mockClear();
 	putPhoto.mockImplementation(async () => undefined);
 	store.replace(sampleProject());
@@ -200,5 +213,255 @@ describe('placeShot', () => {
 		expect(photos.at(-2)?.takenAt).toBe('2026-03-04T05:06:07.000Z');
 		expect(Number.isNaN(Date.parse(photos.at(-1)?.takenAt ?? ''))).toBe(false);
 		expect(photos.at(-1)?.takenAt).not.toBe('yesterday');
+	});
+});
+
+describe('placeShot while the world changes', () => {
+	it('drops the photo when the tab becomes read-only during re-encoding', async () => {
+		const job = await newJob();
+		const before = roomPhotos().length;
+		const slow: Reencode = async (bytes, kind) => {
+			store.readOnly = true;
+			return reencode(bytes, kind);
+		};
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('ro1'), slow)).toEqual({
+			ok: false,
+			reason: 'readOnly'
+		});
+		expect(putPhoto).not.toHaveBeenCalled();
+		expect(roomPhotos()).toHaveLength(before);
+		expect(job.received).toEqual([]);
+	});
+
+	it('drops the photo when another project is opened during re-encoding', async () => {
+		const job = await newJob();
+		const slow: Reencode = async (bytes, kind) => {
+			const other = sampleProject();
+			other.id = 'other-project';
+			store.replace(other);
+			return reencode(bytes, kind);
+		};
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('sw'), slow)).toEqual({
+			ok: false,
+			reason: 'unknownJob'
+		});
+		expect(putPhoto).not.toHaveBeenCalled();
+		expect(job.received).toEqual([]);
+	});
+
+	it('reports the room as unknown when it vanished during re-encoding', async () => {
+		const job = await newJob();
+		const slow: Reencode = async (bytes, kind) => {
+			const smaller = sampleProject();
+			smaller.rooms = smaller.rooms.filter((room) => room.id !== 'room-rect');
+			store.replace(smaller);
+			return reencode(bytes, kind);
+		};
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('gone'), slow)).toEqual({
+			ok: false,
+			reason: 'unknownRoom'
+		});
+		expect(putPhoto).not.toHaveBeenCalled();
+	});
+
+	it('stops at the limit when the room filled up during re-encoding', async () => {
+		const job = await newJob();
+		const slow: Reencode = async (bytes, kind) => {
+			const full = sampleProject();
+			const perspective = { kind: 'free' as const, caption: { de: 'x', en: 'x' } };
+			full.rooms[0].photos = Array.from({ length: LIMITS.photosPerRoom }, (_, i) => ({
+				id: `q${i}`,
+				hash: 'b'.repeat(64),
+				perspective,
+				w: 1,
+				h: 1,
+				takenAt: '2026-01-01T00:00:00.000Z'
+			}));
+			store.replace(full);
+			return reencode(bytes, kind);
+		};
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('lim'), slow)).toEqual({
+			ok: false,
+			reason: 'limit'
+		});
+		expect(putPhoto).not.toHaveBeenCalled();
+	});
+});
+
+describe('placeShot re-encoding errors', () => {
+	it('passes storage and readOnly errors on so the sender retries', async () => {
+		const job = await newJob();
+		for (const code of ['storage', 'readOnly'] as const) {
+			const failing: Reencode = async () => {
+				throw new PhotoError(code);
+			};
+			expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg(code), failing)).toEqual({
+				ok: false,
+				reason: code
+			});
+		}
+		expect(job.received).toEqual([]);
+	});
+
+	it('treats other photo errors and unknown exceptions as invalid, not as retryable', async () => {
+		const job = await newJob();
+		for (const error of [new PhotoError('tooLarge'), new PhotoError('decode'), new Error('boom')]) {
+			const failing: Reencode = async () => {
+				throw error;
+			};
+			expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('e'), failing)).toEqual({
+				ok: false,
+				reason: 'invalid'
+			});
+		}
+		expect(putPhoto).not.toHaveBeenCalled();
+	});
+
+	it('never calls the re-encoder for bytes that are not an image', async () => {
+		const job = await newJob();
+		const spy = vi.fn(reencode);
+		for (const bytes of [new Uint8Array(0), new Uint8Array(200).fill(1)]) {
+			expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, spy)).toEqual({
+				ok: false,
+				reason: 'invalid'
+			});
+		}
+		expect(spy).not.toHaveBeenCalled();
+	});
+});
+
+describe('placeShot transfer hash', () => {
+	it('accepts a matching hash and rejects it before any other work when it differs', async () => {
+		const job = await newJob();
+		const bytes = jpeg('h1');
+		const spy = vi.fn(reencode);
+		expect(
+			await placeShot(job, { room: 9, stepKey: 'x', hash: 'f'.repeat(64) }, bytes, spy)
+		).toEqual({ ok: false, reason: 'invalid' });
+		expect(spy).not.toHaveBeenCalled();
+		const hash = await sha256Hex(bytes);
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A', hash }, bytes, spy)).toEqual({
+			ok: true,
+			duplicate: false
+		});
+	});
+
+	it('a corrupted copy of a received photo is invalid, not a duplicate', async () => {
+		const job = await newJob();
+		const bytes = jpeg('h2');
+		const hash = await sha256Hex(bytes);
+		await placeShot(job, { room: 0, stepKey: 'corner:A', hash }, bytes, reencode);
+		const damaged = new Uint8Array(bytes);
+		damaged[damaged.length - 1] ^= 0xff;
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A', hash }, damaged, reencode)).toEqual(
+			{
+				ok: false,
+				reason: 'invalid'
+			}
+		);
+	});
+
+	it('a known photo is a duplicate even if its room is gone, so the sender can delete it', async () => {
+		const job = await newJob();
+		const bytes = jpeg('h3');
+		await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, reencode);
+		expect(await placeShot(job, { room: 5, stepKey: 'zzz' }, bytes, reencode)).toEqual({
+			ok: true,
+			duplicate: true
+		});
+	});
+
+	it('but a read-only tab does not confirm even a known photo', async () => {
+		const job = await newJob();
+		const bytes = jpeg('h4');
+		await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, reencode);
+		store.readOnly = true;
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, reencode)).toEqual({
+			ok: false,
+			reason: 'readOnly'
+		});
+	});
+
+	it('two different files get two photos', async () => {
+		const job = await newJob();
+		const before = roomPhotos().length;
+		await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('d1'), reencode);
+		await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('d2'), reencode);
+		expect(roomPhotos()).toHaveLength(before + 2);
+		expect(job.received).toHaveLength(2);
+	});
+});
+
+describe('placeShot bookkeeping', () => {
+	it('still says ok when the job record cannot be updated, and remembers the hash in memory', async () => {
+		const job = await newJob();
+		markFails.on = true;
+		const bytes = jpeg('mem');
+		const before = roomPhotos().length;
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, reencode)).toEqual({
+			ok: true,
+			duplicate: false
+		});
+		expect(job.received).toHaveLength(1);
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, reencode)).toEqual({
+			ok: true,
+			duplicate: true
+		});
+		expect(roomPhotos()).toHaveLength(before + 1);
+	});
+
+	it('does not remember the transfer when the flush before saving fails', async () => {
+		const job = await newJob();
+		const flush = vi.spyOn(store, 'flush').mockRejectedValueOnce(new Error('locked'));
+		const before = roomPhotos().length;
+		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('fl'), reencode)).toEqual({
+			ok: false,
+			reason: 'storage'
+		});
+		flush.mockRestore();
+		expect(roomPhotos()).toHaveLength(before);
+		expect(job.received).toEqual([]);
+	});
+
+	it('takes the photo back when the saved project lacks it', async () => {
+		const job = await newJob();
+		saveProject.mockImplementation(async () => undefined);
+		const before = roomPhotos().length;
+		expect(
+			await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('nosave'), reencode)
+		).toEqual({
+			ok: false,
+			reason: 'storage'
+		});
+		expect(roomPhotos()).toHaveLength(before);
+		const real = await vi.importActual<typeof import('#lib/state/persistence.ts')>(
+			'#lib/state/persistence.ts'
+		);
+		saveProject.mockImplementation(real.saveProject);
+	});
+});
+
+describe('placeShot takenAt', () => {
+	it('rejects dates without a time, overlong strings and impossible dates', async () => {
+		const job = await newJob();
+		const values = ['2026-03-04', `2026-03-04T05:06${'0'.repeat(80)}`, '2026-13-45T25:61:00Z', ''];
+		const started = Date.now();
+		for (const [i, takenAt] of values.entries()) {
+			await placeShot(job, { room: 0, stepKey: 'corner:A', takenAt }, jpeg(`t${i}`), reencode);
+		}
+		for (const photo of roomPhotos().slice(-values.length)) {
+			expect(Date.parse(photo.takenAt)).toBeGreaterThanOrEqual(started - 1000);
+		}
+	});
+
+	it('normalises a valid time with an offset to UTC', async () => {
+		const job = await newJob();
+		await placeShot(
+			job,
+			{ room: 0, stepKey: 'corner:A', takenAt: '2026-03-04T05:06:07+02:00' },
+			jpeg('tz'),
+			reencode
+		);
+		expect(roomPhotos().at(-1)?.takenAt).toBe('2026-03-04T03:06:07.000Z');
 	});
 });

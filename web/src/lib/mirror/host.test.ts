@@ -701,3 +701,435 @@ describe('MirrorHost mailbox', () => {
 		expect(mail.state.calls.at(-1)?.headers.get('Authorization')).toBe('Bearer sync-token');
 	});
 });
+
+describe('MirrorHost.importShot edges', () => {
+	it('refuses revoked and expired jobs, also when they only exist in the database', async () => {
+		const revoked = await hostJob();
+		await saveHostJob({ ...revoked, revokedAt: Date.now() });
+		const expired = await hostJob(-1000);
+		const tag = (jobId: string) => ({ jobId, room: 0, stepKey: 'corner:A' });
+		const before = photos();
+		expect(await host.importShot(tag(revoked.id), jpeg('r'))).toEqual({
+			ok: false,
+			reason: 'unknownJob'
+		});
+		expect(await host.importShot(tag(expired.id), jpeg('e'))).toEqual({
+			ok: false,
+			reason: 'unknownJob'
+		});
+		expect(photos()).toBe(before);
+	});
+
+	it('uses the clock of the host to decide about expiry', async () => {
+		const job = await hostJob(60_000);
+		let now = Date.now();
+		host = new MirrorHost({ open: hub.open, reencode, now: () => now });
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		expect(await host.importShot(tag, jpeg('t1'))).toEqual({ ok: true, duplicate: false });
+		now = job.expiresAt;
+		expect(await host.importShot(tag, jpeg('t2'))).toEqual({ ok: false, reason: 'unknownJob' });
+	});
+
+	it('does not take a phone job from the database as a host job', async () => {
+		const job = await hostJob();
+		await db.mirrorJobs.put({
+			id: job.id,
+			role: 'camera',
+			token: job.token,
+			project: 'x',
+			lang: 'de',
+			createdAt: 1,
+			expiresAt: Date.now() + 60_000,
+			parts: 1,
+			partsSeen: [0],
+			rooms: []
+		});
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		expect(await host.importShot(tag, jpeg('c'))).toEqual({ ok: false, reason: 'unknownJob' });
+	});
+
+	it('refuses a job of another project and a read-only tab', async () => {
+		const job = await hostJob();
+		await saveHostJob({ ...job, projectId: 'other' });
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		expect(await host.importShot(tag, jpeg('o'))).toEqual({ ok: false, reason: 'unknownJob' });
+		await saveHostJob(job);
+		store.readOnly = true;
+		const before = photos();
+		expect(await host.importShot(tag, jpeg('o'))).toEqual({ ok: false, reason: 'readOnly' });
+		expect(photos()).toBe(before);
+	});
+
+	it('answers invalid photos without throwing and keeps working', async () => {
+		const job = await hostJob();
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		expect(await host.importShot(tag, new Uint8Array(svgImage()))).toEqual({
+			ok: false,
+			reason: 'invalid'
+		});
+		expect(await host.importShot(tag, jpeg('fine'))).toEqual({ ok: true, duplicate: false });
+	});
+
+	it('places two imports of the same file at the same time only once', async () => {
+		const job = await hostJob();
+		startHost();
+		await until(() => expect(host.jobs).toHaveLength(1));
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		const before = photos();
+		const results = await Promise.all([
+			host.importShot(tag, jpeg('same')),
+			host.importShot(tag, jpeg('same'))
+		]);
+		expect(results.filter((r) => r.ok && !r.duplicate)).toHaveLength(1);
+		expect(results.filter((r) => r.ok && r.duplicate)).toHaveLength(1);
+		expect(photos()).toBe(before + 1);
+	});
+
+	it('also places a file once when two imports run before the host loaded its jobs', async () => {
+		const job = await hostJob();
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		const before = photos();
+		await Promise.all([host.importShot(tag, jpeg('same2')), host.importShot(tag, jpeg('same2'))]);
+		expect(photos()).toBe(before + 1);
+	});
+});
+
+describe('MirrorHost creation edges', () => {
+	it('refuses to create a job without an open project', async () => {
+		await store.close();
+		await expect(new MirrorHost({ open: hub.open }).create(['room-rect'])).rejects.toThrow(
+			'no project open'
+		);
+	});
+
+	it('stores the job in a read-only tab but does not connect', async () => {
+		store.readOnly = true;
+		const open = vi.fn(hub.open);
+		host = new MirrorHost({ open, reencode, appUrl: () => 'https://app.test/' });
+		const job = await host.create(['room-rect']);
+		await tick(60);
+		expect(await getJob(job.id)).toBeDefined();
+		expect(open).not.toHaveBeenCalled();
+		expect(host.status(job.id).status).toBe('idle');
+	});
+
+	it('keeps the job without server path when the server cannot be reached', async () => {
+		const mail = fakeMailbox();
+		mail.state.offline = true;
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			appUrl: () => 'https://srv.test/',
+			mailbox: mail.env
+		});
+		const job = await host.create(['room-rect']);
+		expect(job.server).toBe(false);
+		expect(parsePair(job.links[0].slice(job.links[0].indexOf('#')))).toMatchObject({ ok: true });
+	});
+
+	it('a stale stop function does not end a newer start', async () => {
+		const job = await hostJob();
+		const stopFirst = host.start('project-1');
+		cleanup.push(host.start('project-1'));
+		await until(() => expect(host.status(job.id).status).toBe('searching'));
+		stopFirst();
+		await tick(60);
+		expect(host.status(job.id).status).toBe('searching');
+		expect(hub.peers()).toHaveLength(1);
+	});
+
+	it('survives a transport that cannot be opened', async () => {
+		await hostJob();
+		const open = vi.fn(async () => {
+			throw new Error('no relay');
+		});
+		host = new MirrorHost({ open, reencode });
+		startHost();
+		await until(() => expect(open).toHaveBeenCalledTimes(1));
+		await until(() => expect(host.jobs).toHaveLength(1));
+		expect(host.jobs[0].received).toEqual([]);
+	});
+});
+
+describe('MirrorHost frames', () => {
+	it('tells the phone when the host project changed under a transfer', async () => {
+		const job = await hostJob();
+		startHost();
+		const phone = await handPhone(hub, job);
+		await until(() => expect(phone.hostPeer()).not.toBe(''));
+		const bytes = jpeg('sw');
+		const info = await shotInfo(bytes);
+		await phone.send({ t: 'hello', pending: [info] });
+		await until(() => expect(phone.inbox).toHaveLength(1));
+		const other = sampleProject();
+		other.id = 'project-2';
+		store.replace(other);
+		await phone.send({ t: 'photo', shot: info }, bytes);
+		await until(() => expect(phone.inbox).toHaveLength(2));
+		expect(phone.inbox[1]).toEqual({ t: 'ack', hash: info.hash, ok: false, reason: 'storage' });
+	});
+
+	it('forgets the pending count of a phone that leaves', async () => {
+		const job = await hostJob();
+		startHost();
+		const phone = await handPhone(hub, job);
+		await until(() => expect(phone.hostPeer()).not.toBe(''));
+		await phone.send({ t: 'hello', pending: [await shotInfo(jpeg('p1'))] });
+		await until(() => expect(host.status(job.id)).toMatchObject({ peers: 1, expected: 1 }));
+		await phone.transport.leave();
+		await until(() => expect(host.status(job.id)).toMatchObject({ peers: 0, expected: 0 }));
+		expect(host.status(job.id).status).toBe('searching');
+	});
+
+	it('ignores frames after the job expired, even from a connected phone', async () => {
+		const job = await hostJob(60_000);
+		let now = Date.now();
+		host = new MirrorHost({ open: hub.open, reencode, now: () => now });
+		startHost();
+		const phone = await handPhone(hub, job);
+		await until(() => expect(phone.hostPeer()).not.toBe(''));
+		await phone.send({ t: 'hello', pending: [] });
+		await until(() => expect(phone.inbox).toHaveLength(1));
+		now = job.expiresAt + 1;
+		const bytes = jpeg('late');
+		const before = photos();
+		await phone.send({ t: 'photo', shot: await shotInfo(bytes) }, bytes);
+		await phone.send({ t: 'hello', pending: [] });
+		await tick(100);
+		expect(phone.inbox).toHaveLength(1);
+		expect(photos()).toBe(before);
+	});
+
+	it('a photo without body is not placed and gets no answer', async () => {
+		const job = await hostJob();
+		startHost();
+		const phone = await handPhone(hub, job);
+		await until(() => expect(phone.hostPeer()).not.toBe(''));
+		await phone.send({ t: 'hello', pending: [] });
+		await until(() => expect(phone.inbox).toHaveLength(1));
+		const before = photos();
+		await phone.send({ t: 'photo', shot: await shotInfo(jpeg('nb')) });
+		await tick(80);
+		expect(phone.inbox).toHaveLength(1);
+		expect(photos()).toBe(before);
+	});
+
+	it('refuses a photo whose hash does not match the sent bytes', async () => {
+		const job = await hostJob();
+		startHost();
+		const phone = await handPhone(hub, job);
+		await until(() => expect(phone.hostPeer()).not.toBe(''));
+		const bytes = jpeg('real');
+		const info = { ...(await shotInfo(jpeg('claimed'))), size: bytes.byteLength };
+		await phone.send({ t: 'hello', pending: [info] });
+		await phone.send({ t: 'photo', shot: info }, bytes);
+		await until(() => expect(phone.inbox).toHaveLength(2));
+		expect(phone.inbox[1]).toEqual({ t: 'ack', hash: info.hash, ok: false, reason: 'invalid' });
+		expect(host.status(job.id).received).toBe(0);
+	});
+});
+
+describe('MirrorHost mailbox edges', () => {
+	function mailHost(mail: ReturnType<typeof fakeMailbox>, now?: () => number): void {
+		host = new MirrorHost({
+			open: hub.open,
+			reencode,
+			mailbox: mail.env,
+			pollMs: 25,
+			...(now ? { now } : {})
+		});
+	}
+
+	it('skips a photo that vanished from the server and takes the next one', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const first = await sealedPhoto(job, jpeg('v1'));
+		const second = await sealedPhoto(job, jpeg('v2'), 'corner:B');
+		const order = [first.id, second.id];
+		mail.fetcher.mockImplementationOnce(async () =>
+			Response.json(order.map((id) => ({ id, size: 1 })))
+		);
+		mail.state.shots.set(second.id, second.sealed);
+		mailHost(mail);
+		const before = photos();
+		startHost();
+		await until(() => expect(mail.state.placed).toEqual([second.id]));
+		expect(photos()).toBe(before + 1);
+	});
+
+	it('stops the round on a network failure and keeps the photo on the server', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const { sealed, id } = await sealedPhoto(job, jpeg('n1'));
+		mail.state.shots.set(id, sealed);
+		mailHost(mail);
+		mail.state.offline = true;
+		const before = photos();
+		startHost();
+		await until(() => expect(mail.fetcher.mock.calls.length).toBeGreaterThan(1));
+		expect(photos()).toBe(before);
+		expect(mail.state.shots.has(id)).toBe(true);
+		mail.state.offline = false;
+		await until(() => expect(mail.state.placed).toEqual([id]));
+	});
+
+	it('keeps asking after an unauthorized answer, because the token may be fixed later', async () => {
+		const mail = fakeMailbox();
+		await serverJob();
+		mail.state.status = 401;
+		mailHost(mail);
+		startHost();
+		await until(() => expect(mail.fetcher.mock.calls.length).toBeGreaterThan(2));
+	});
+
+	it('also stops for a job the server does not know', async () => {
+		const mail = fakeMailbox();
+		mail.state.status = 404;
+		await serverJob();
+		mailHost(mail);
+		startHost();
+		await until(() => expect(mail.fetcher).toHaveBeenCalledTimes(1));
+		await tick(150);
+		expect(mail.fetcher).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not discard a photo it could not place and does not look at it twice', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const { sealed, id } = await sealedPhoto(job, jpeg('wrongroom'), 'corner:A');
+		const keys = await deriveKeys(job.token);
+		const stranger = await sealMessage(keys.key, job.id, {
+			frame: { t: 'photo', shot: { ...(await shotInfo(jpeg('r9'))), room: 9 } },
+			body: jpeg('r9')
+		});
+		const strangerId = await sha256Hex(stranger);
+		mail.state.shots.set(strangerId, stranger);
+		mailHost(mail);
+		startHost();
+		await until(() => expect(mail.count('GET', `/shots/${strangerId}`)).toBe(1));
+		await tick(150);
+		expect(mail.count('GET', `/shots/${strangerId}`)).toBe(1);
+		expect(mail.state.shots.has(strangerId)).toBe(true);
+		expect(mail.count('DELETE', '/shots/')).toBe(0);
+		mail.state.shots.set(id, sealed);
+		await until(() => expect(mail.state.placed).toEqual([id]));
+	});
+
+	it('ignores sealed frames that are not photos', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const keys = await deriveKeys(job.token);
+		const hello = await sealMessage(keys.key, job.id, { frame: { t: 'hello', pending: [] } });
+		const bare = await sealMessage(keys.key, job.id, {
+			frame: { t: 'photo', shot: await shotInfo(jpeg('bare')) }
+		});
+		const helloId = await sha256Hex(hello);
+		const bareId = await sha256Hex(bare);
+		mail.state.shots.set(helloId, hello);
+		mail.state.shots.set(bareId, bare);
+		mailHost(mail);
+		const before = photos();
+		startHost();
+		await until(() => expect(mail.count('GET', `/shots/${bareId}`)).toBe(1));
+		await tick(150);
+		expect(mail.count('GET', `/shots/${helloId}`)).toBe(1);
+		expect(mail.count('GET', `/shots/${bareId}`)).toBe(1);
+		expect(photos()).toBe(before);
+		expect(mail.count('DELETE', '/shots/')).toBe(0);
+	});
+
+	it('does not accept a photo sealed for another job', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const keys = await deriveKeys(job.token);
+		const bytes = jpeg('alien');
+		const sealed = await sealMessage(keys.key, 'otherjob12345', {
+			frame: { t: 'photo', shot: await shotInfo(bytes) },
+			body: bytes
+		});
+		const id = await sha256Hex(sealed);
+		mail.state.shots.set(id, sealed);
+		mailHost(mail);
+		const before = photos();
+		startHost();
+		await until(() => expect(mail.count('GET', `/shots/${id}`)).toBe(1));
+		await tick(100);
+		expect(photos()).toBe(before);
+		expect(mail.count('DELETE', '/shots/')).toBe(0);
+	});
+
+	it('does not poll a job that expired or whose project is not open', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		let now = Date.now();
+		mailHost(mail, () => now);
+		startHost();
+		await until(() => expect(mail.fetcher).toHaveBeenCalled());
+		const calls = mail.fetcher.mock.calls.length;
+		now = job.expiresAt + 1;
+		await tick(40);
+		const afterExpiry = mail.fetcher.mock.calls.length;
+		await tick(150);
+		expect(mail.fetcher.mock.calls.length).toBe(afterExpiry);
+		expect(afterExpiry).toBeGreaterThanOrEqual(calls);
+	});
+
+	it('does not run two polls for the same job at once', async () => {
+		const mail = fakeMailbox();
+		await serverJob();
+		let open = 0;
+		let overlap = false;
+		mail.fetcher.mockImplementation(async () => {
+			open++;
+			if (open > 1) overlap = true;
+			await tick(60);
+			open--;
+			return Response.json([]);
+		});
+		mailHost(mail);
+		startHost();
+		await tick(250);
+		expect(mail.fetcher.mock.calls.length).toBeGreaterThan(1);
+		expect(overlap).toBe(false);
+	});
+
+	it('revoke fetches what is still waiting on the server before deleting the job', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		const { sealed, id } = await sealedPhoto(job, jpeg('last'));
+		mail.state.shots.set(id, sealed);
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 60_000 });
+		startHost();
+		await until(() => expect(host.jobs).toHaveLength(1));
+		const before = photos();
+		await host.revoke(job.id);
+		expect(photos()).toBe(before + 1);
+		expect(mail.state.placed).toEqual([id]);
+		expect(await getJob(job.id)).toBeUndefined();
+		expect(
+			mail.state.calls.filter(
+				(call) => call.method === 'DELETE' && call.path === `/api/mirror/${job.id}`
+			)
+		).toHaveLength(1);
+	});
+
+	it('revoke still deletes the job when the server is unreachable', async () => {
+		const mail = fakeMailbox();
+		const job = await serverJob();
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 60_000 });
+		startHost();
+		await until(() => expect(host.jobs).toHaveLength(1));
+		mail.state.offline = true;
+		await host.revoke(job.id);
+		expect(await getJob(job.id)).toBeUndefined();
+		expect(host.jobs).toEqual([]);
+	});
+
+	it('revoke of a job without server path does not touch the server', async () => {
+		const mail = fakeMailbox();
+		const job = await hostJob();
+		host = new MirrorHost({ open: hub.open, reencode, mailbox: mail.env, pollMs: 60_000 });
+		await host.revoke(job.id);
+		expect(mail.fetcher).not.toHaveBeenCalled();
+	});
+});

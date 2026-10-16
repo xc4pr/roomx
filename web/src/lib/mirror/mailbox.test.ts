@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	discard,
 	download,
@@ -159,5 +159,177 @@ describe('mailboxHash', () => {
 		expect(await mailboxHash('abc')).toBe(
 			'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'
 		);
+	});
+});
+
+type Call = (env: MailboxEnv) => Promise<{ kind: string }>;
+
+const everyCall: [string, Call][] = [
+	['register', (env) => register('job123456789', HASH, 1, env)],
+	['remove', (env) => remove('job123456789', env)],
+	['list', (env) => list('job123456789', env)],
+	['download', (env) => download('job123456789', HASH, env)],
+	['discard', (env) => discard('job123456789', HASH, env)],
+	['upload', (env) => upload('job123456789', HASH, new Uint8Array(1), 's', env)],
+	['placed', (env) => placed('job123456789', 's', env)]
+];
+
+describe('every call maps the reply status', () => {
+	const statuses: [number, string][] = [
+		[404, 'notFound'],
+		[410, 'gone'],
+		[409, 'network'],
+		[401, 'unauthorized'],
+		[403, 'unauthorized'],
+		[400, 'network'],
+		[503, 'network']
+	];
+
+	for (const [name, call] of everyCall) {
+		it(`${name}`, async () => {
+			for (const [status, kind] of statuses) {
+				const { env } = envWith(() => new Response('', { status }));
+				expect((await call(env)).kind, `${name} ${status}`).toBe(kind);
+			}
+			const offline = envWith(() => {
+				throw new TypeError('offline');
+			});
+			expect((await call(offline.env)).kind).toBe('network');
+		});
+	}
+
+	it('sync calls without server url or token never reach the network', async () => {
+		const { env, fetcher } = envWith(() => new Response('{}'));
+		for (const [name, call] of everyCall.filter(([name]) => !['upload', 'placed'].includes(name))) {
+			expect((await call({ ...env, token: '' })).kind, name).toBe('unauthorized');
+			expect((await call({ ...env, serverUrl: '' })).kind, name).toBe('unauthorized');
+		}
+		expect(fetcher).not.toHaveBeenCalled();
+	});
+});
+
+describe('replies that cannot be trusted', () => {
+	it('list ignores bad entries and takes a missing size as zero', async () => {
+		const { env } = envWith(() =>
+			Response.json([
+				{ id: HASH },
+				{ id: 'A'.repeat(64), size: 1 },
+				{ id: HASH + 'a', size: 1 },
+				{ id: 5, size: 1 },
+				null,
+				'x'
+			])
+		);
+		expect(await list('job123456789', env)).toEqual({ kind: 'ok', value: [{ id: HASH, size: 0 }] });
+	});
+
+	it('list treats an object or an empty body as a failure, an empty array as nothing', async () => {
+		expect((await list('j', envWith(() => Response.json({ shots: [] })).env)).kind).toBe('network');
+		expect((await list('j', envWith(() => new Response('')).env)).kind).toBe('network');
+		expect(await list('j', envWith(() => Response.json([])).env)).toEqual({
+			kind: 'ok',
+			value: []
+		});
+	});
+
+	it('placed treats a missing or malformed list as a failure so nothing is deleted on the phone', async () => {
+		for (const body of [{}, { placed: 'x' }, { placed: null }, [], null]) {
+			const { env } = envWith(() => Response.json(body));
+			expect((await placed('job123456789', 's', env)).kind).toBe('network');
+		}
+		const empty = envWith(() => Response.json({ placed: [] }));
+		expect(await placed('job123456789', 's', empty.env)).toEqual({ kind: 'ok', value: [] });
+	});
+
+	it('download fails when the body breaks off in the middle', async () => {
+		const broken = new Response(
+			new ReadableStream({
+				start(controller) {
+					controller.error(new Error('reset'));
+				}
+			})
+		);
+		const { env } = envWith(() => broken);
+		expect((await download('job123456789', HASH, env)).kind).toBe('network');
+	});
+
+	it('download of an empty body is an ok result with no bytes', async () => {
+		const { env } = envWith(() => new Response(new Uint8Array(0)));
+		const result = await download('job123456789', HASH, env);
+		expect(result.kind === 'ok' && result.value.byteLength).toBe(0);
+	});
+});
+
+describe('requests', () => {
+	it('never send cached answers and carry an abort signal', async () => {
+		const { env, fetcher } = envWith(() => new Response('{}'));
+		await remove('job123456789', env);
+		await placed('job123456789', 's', env);
+		for (const [, init] of fetcher.mock.calls) {
+			expect(init?.cache).toBe('no-store');
+			expect(init?.signal).toBeInstanceOf(AbortSignal);
+		}
+	});
+
+	it('send the secret only to the page origin and the token only to the sync server', async () => {
+		const { env, fetcher } = envWith(() => new Response('{}'));
+		const other = { ...env, serverUrl: 'https://sync.test', origin: 'https://page.test' };
+		await upload('j', HASH, new Uint8Array(1), 'secret', other);
+		await register('j', HASH, 1, other);
+		const [uploadCall, registerCall] = fetcher.mock.calls;
+		expect(String(uploadCall[0]).startsWith('https://page.test/api/mirror/')).toBe(true);
+		expect(new Headers(uploadCall[1]?.headers).get('Authorization')).toBeNull();
+		expect(String(registerCall[0]).startsWith('https://sync.test/api/mirror/')).toBe(true);
+		expect(new Headers(registerCall[1]?.headers).get('X-Roomx-Mailbox')).toBeNull();
+	});
+});
+
+describe('timeouts', () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('a silent server ends in a network failure after 15 s for small calls', async () => {
+		vi.useFakeTimers();
+		let signal: AbortSignal | null | undefined;
+		const { env } = envWith((_url, init) => {
+			signal = init.signal;
+			return new Promise<Response>(() => {});
+		});
+		const pending = list('job123456789', env);
+		await vi.advanceTimersByTimeAsync(14_999);
+		expect(signal?.aborted).toBe(false);
+		await vi.advanceTimersByTimeAsync(1);
+		expect(await pending).toEqual({ kind: 'network' });
+		expect(signal?.aborted).toBe(true);
+	});
+
+	it('photo transfers get 60 s', async () => {
+		vi.useFakeTimers();
+		const { env } = envWith(() => new Promise<Response>(() => {}));
+		let done = false;
+		const pending = upload('job123456789', HASH, new Uint8Array(1), 's', env).then((result) => {
+			done = true;
+			return result;
+		});
+		await vi.advanceTimersByTimeAsync(59_999);
+		expect(done).toBe(false);
+		await vi.advanceTimersByTimeAsync(1);
+		expect(await pending).toEqual({ kind: 'network' });
+	});
+
+	it('a late answer after the timeout changes nothing', async () => {
+		vi.useFakeTimers();
+		let answer: (response: Response) => void = () => {};
+		const { env } = envWith(
+			() =>
+				new Promise<Response>((resolve) => {
+					answer = resolve;
+				})
+		);
+		const pending = remove('job123456789', env);
+		await vi.advanceTimersByTimeAsync(15_000);
+		answer(new Response('{}'));
+		expect(await pending).toEqual({ kind: 'network' });
 	});
 });
