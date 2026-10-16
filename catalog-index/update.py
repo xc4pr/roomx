@@ -307,21 +307,28 @@ def main(argv: list[str]) -> int:
     i.add_argument("--budget-min", type=float, default=270)
     i.add_argument("--max-urls", type=int)
     i.add_argument("--ohne-suche", action="store_true", help="Sitemap und Kategorieseiten nicht absuchen (nur bekannte URLs)")
+    i.add_argument("--state", type=Path, default=g.STATE, help="Zustandsordner (Standard: catalog-index/state)")
+    i.add_argument("--out-dir", type=Path, default=g.OUT, help="Ausgabeordner fuer Index und Berichte (Standard: catalog-index/out)")
     n = sub.add_parser("normalize")
-    n.add_argument("--out", type=Path, default=g.FULL_JSON)
+    n.add_argument("--out", type=Path, default=g.FULL_JSON, help="Datei full.json (NICHT der Ausgabeordner, dafuer gibt es --out-dir)")
+    n.add_argument("--state", type=Path, default=None,
+                   help="Zustandsordner (Standard: catalog-index/state). Ausdruecklich angegeben, wird der Zustand (ids.json, uebernommen.json) auch bei abweichendem --out geschrieben")
+    n.add_argument("--out-dir", type=Path, default=g.OUT, help="Ausgabeordner fuer Berichte und Zwischenspeicher (Standard: catalog-index/out); nicht zu verwechseln mit --out")
     n.add_argument("--kuratiert-cache", action="store_true",
                    help="bei Node-Fehler den Zwischenspeicher out/kuratiert.json benutzen (sonst Exit 1)")
     n.add_argument("--entfernen-erlaubt", action="store_true",
                    help="fehlende alte Eintraege nicht uebernehmen (bewusste Aenderung der Zuordnung); leert state/uebernommen.json")
     s = sub.add_parser("stand")
     s.add_argument("--datum", required=True)
+    s.add_argument("--out", type=Path, default=g.INDEX_TS, help="Datei mit CATALOG_PRICES_AS_OF (Standard: web/src/lib/catalog/index.ts)")
     m = sub.add_parser("import")
     m.add_argument("--von", required=True, type=Path)
     m.add_argument("--ab", nargs="+", action="extend", default=[], metavar="shop=ISO")
+    m.add_argument("--state", type=Path, default=g.STATE, help="Zustandsordner (Standard: catalog-index/state)")
     a = ap.parse_args(argv)
     try:
         if a.befehl == "index":
-            code, b = index_lauf(MODULE[a.shop], budget_min=a.budget_min, max_urls=a.max_urls, ohne_suche=a.ohne_suche)
+            code, b = index_lauf(MODULE[a.shop], state=a.state, out=a.out_dir, budget_min=a.budget_min, max_urls=a.max_urls, ohne_suche=a.ohne_suche)
             print(json.dumps({k: v for k, v in b.items() if k not in ("verschwunden_urls", "fehler_beispiele")}, ensure_ascii=False))
             if b["meldung"]:
                 print(f"{'ABBRUCH' if b['blockiert'] else 'FEHLER'}: {b['meldung']}", file=sys.stderr)
@@ -329,11 +336,14 @@ def main(argv: list[str]) -> int:
                 print(f"FEHLER Suche: {f}", file=sys.stderr)
             return code
         if a.befehl == "normalize":
-            return normalize_lauf(a.out, cache_erlaubt=a.kuratiert_cache, entfernen_erlaubt=a.entfernen_erlaubt)
+            schreiben = a.state is not None or Path(a.out).resolve() == Path(g.FULL_JSON).resolve()
+            return normalize_lauf(a.out, state=a.state if a.state is not None else g.STATE, out=a.out_dir,
+                                  cache_erlaubt=a.kuratiert_cache, entfernen_erlaubt=a.entfernen_erlaubt,
+                                  zustand_schreiben=schreiben)
         if a.befehl == "stand":
-            return setze_stand(g.INDEX_TS, a.datum)
+            return setze_stand(a.out, a.datum)
         ab = dict(x.split("=", 1) for x in a.ab if "=" in x)
-        return import_lauf(a.von, ab)
+        return import_lauf(a.von, ab, state=a.state)
     except Exception as e:  # noqa: BLE001
         print(f"FEHLER: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
