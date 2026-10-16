@@ -83,15 +83,12 @@ async function applyRemote(
 	force: boolean,
 	result: RunResult
 ): Promise<void> {
-	const open = ctx.host.openProjectId() === project.id;
-	if (open) await ctx.host.flush();
 	const changes = ctx.host.changeCount();
+	if (ctx.host.openProjectId() === project.id) await ctx.host.flush();
 	let applied = false;
-	let baseRev = 0;
 	await db.transaction('rw', db.projects, db.sync, db.previews, async () => {
 		const record = await db.sync.get(project.id);
 		if (record?.dirty && !force) return;
-		baseRev = record?.baseRev ?? 0;
 		await db.projects.put(project);
 		await db.sync.put({
 			projectId: project.id,
@@ -106,8 +103,8 @@ async function applyRemote(
 		result.again = true;
 		return;
 	}
-	if (open && (await keepLocalEdit(ctx, project.id, changes, baseRev, result))) return;
-	if (open) {
+	if (ctx.host.openProjectId() === project.id) {
+		if (await keptLocalEdit(ctx, project, changes, result)) return;
 		if (project.deleted) ctx.host.closeOpen();
 		else ctx.host.replaceOpen(project);
 	}
@@ -117,18 +114,18 @@ async function applyRemote(
 	}
 }
 
-// The open project was edited after the flush, while the server state was being stored. Replacing it
-// would drop that edit. It stays open instead, its save lands on top of the server state, and the old
-// base revision makes the next run treat it as a conflict, which keeps both versions.
-async function keepLocalEdit(
+// The open project was edited while the server state was being stored (the count is taken before the
+// flush, so edits during the flush count too). Replacing it would drop that edit. It stays open
+// instead, its save lands on top of the server state, and a base just below the server revision
+// makes the next run plan a conflict, which keeps both versions.
+async function keptLocalEdit(
 	ctx: RunContext,
-	id: string,
+	server: Project,
 	changes: number,
-	baseRev: number,
 	result: RunResult
 ): Promise<boolean> {
 	if (ctx.host.changeCount() === changes) return false;
-	await db.sync.put({ projectId: id, baseRev, dirty: true });
+	await db.sync.put({ projectId: server.id, baseRev: Math.max(0, server.rev - 1), dirty: true });
 	result.again = true;
 	return true;
 }
@@ -140,14 +137,11 @@ async function resolveConflict(
 	result: RunResult
 ): Promise<void> {
 	const server = migrateProject(serverRaw);
-	const open = ctx.host.openProjectId() === id;
-	if (open) await ctx.host.flush();
 	const changes = ctx.host.changeCount();
+	if (ctx.host.openProjectId() === id) await ctx.host.flush();
 	const created: ConflictInfo[] = [];
-	let baseRev = 0;
 	await db.transaction('rw', db.projects, db.sync, db.previews, async () => {
 		const record = await db.sync.get(id);
-		baseRev = record?.baseRev ?? 0;
 		const local = await db.projects.get(id);
 		const syncedAt = ctx.now().toISOString();
 		if (local && record?.dirty && !local.deleted) {
@@ -172,8 +166,8 @@ async function resolveConflict(
 		result.conflicts.push(...created);
 		result.again = true;
 	}
-	if (open && (await keepLocalEdit(ctx, id, changes, baseRev, result))) return;
-	if (open) {
+	if (ctx.host.openProjectId() === id) {
+		if (await keptLocalEdit(ctx, server, changes, result)) return;
 		if (server.deleted) ctx.host.closeOpen();
 		else ctx.host.replaceOpen(server);
 	}

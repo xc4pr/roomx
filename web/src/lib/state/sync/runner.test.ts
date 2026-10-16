@@ -383,6 +383,34 @@ describe('runSync', () => {
 		expect(host.replaced.map((entry) => entry.name)).toEqual(['Server']);
 	});
 
+	it('counts an edit made while the open project was being flushed', async () => {
+		const { server, host, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		server.seed(project('a', { name: 'Server' }), 2);
+		host.open = 'a';
+		host.flush = async () => {
+			host.changes += 1;
+		};
+		const result = await runSync(ctx);
+		expect(result.again).toBe(true);
+		expect(host.replaced).toEqual([]);
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 1, dirty: true });
+	});
+
+	it('does not put a pulled project into the store when another one was opened meanwhile', async () => {
+		const { server, host, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		server.seed(project('a', { name: 'Server' }), 2);
+		vi.spyOn(host, 'openProjectId').mockReturnValueOnce('a').mockReturnValue('b');
+		const result = await runSync(ctx);
+		expect(host.replaced).toEqual([]);
+		expect(result.pulled).toEqual(['a']);
+		expect((await loadProject('a'))?.name).toBe('Server');
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 2, dirty: false });
+	});
+
 	it('leaves projects with unsupported versions alone', async () => {
 		const { server, ctx } = setup();
 		server.seed({ ...project('future'), schemaVersion: 999 }, 1);
