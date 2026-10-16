@@ -7,6 +7,7 @@ import type { Reencode } from '#lib/features/photos/reencode.ts';
 import { minimalJpeg, svgImage } from '#lib/features/photos/testImages.ts';
 import { LIMITS } from '#lib/security/limits.ts';
 import { db } from '#lib/state/db.ts';
+import { loadProject } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
 
 const putPhoto = vi.hoisted(() => vi.fn(async () => undefined));
@@ -434,10 +435,38 @@ describe('placeShot bookkeeping', () => {
 			reason: 'storage'
 		});
 		expect(roomPhotos()).toHaveLength(before);
+		expect(store.canUndo).toBe(false);
 		const real = await vi.importActual<typeof import('#lib/state/persistence.ts')>(
 			'#lib/state/persistence.ts'
 		);
 		saveProject.mockImplementation(real.saveProject);
+	});
+
+	// The phone deletes its copy after the ok, so undoing an earlier edit must not drop the photo.
+	it('keeps a received photo through undo and redo, without an undo step of its own', async () => {
+		const job = await newJob();
+		const height = store.room('room-rect')?.height;
+		store.updateRoom('room-rect', { height: 2600 });
+		store.updateRoom('room-rect', { height: 2700 });
+		store.undo();
+		const result = await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('u'), reencode);
+		expect(result).toEqual({ ok: true, duplicate: false });
+		const placed = roomPhotos().at(-1)?.id;
+		const hasPhoto = () => roomPhotos().some((photo) => photo.id === placed);
+		expect(store.canRedo).toBe(true);
+		store.undo();
+		expect(store.room('room-rect')?.height).toBe(height);
+		expect(hasPhoto()).toBe(true);
+		expect(store.canUndo).toBe(false);
+		store.redo();
+		store.redo();
+		expect(store.room('room-rect')?.height).toBe(2700);
+		expect(hasPhoto()).toBe(true);
+		await store.flush();
+		const saved = await loadProject(store.project?.id ?? '');
+		expect(
+			saved?.rooms.find((room) => room.id === 'room-rect')?.photos.some((p) => p.id === placed)
+		).toBe(true);
 	});
 });
 

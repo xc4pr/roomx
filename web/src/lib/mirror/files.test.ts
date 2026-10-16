@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readShotTag, shotFileName, withShotComment } from './files.ts';
+import { readShotTag, shotFileName, withoutShotComment, withShotComment } from './files.ts';
 import type { ShotTag } from './types.ts';
 
 const jpeg = (): Uint8Array<ArrayBuffer> =>
@@ -61,5 +61,20 @@ describe('JPEG comment', () => {
 		const foreign = withShotComment(jpeg(), { ...tag, jobId: 'short' });
 		expect(readShotTag('x.jpg', foreign)).toBeNull();
 		expect(readShotTag('x.jpg', new Uint8Array([1, 2, 3]))).toBeNull();
+	});
+
+	it('ignores step keys longer than a label', () => {
+		const long = withShotComment(jpeg(), { ...tag, stepKey: `wall:${'1'.repeat(300)}` });
+		expect(readShotTag('x.jpg', long)).toBeNull();
+	});
+
+	// A shared file must hash like the photo sent directly, or both paths would place it.
+	it('comes off again, giving back the original bytes', () => {
+		expect(withoutShotComment(withShotComment(jpeg(), tag))).toEqual(jpeg());
+		expect(withoutShotComment(jpeg())).toEqual(jpeg());
+		const foreign = withShotComment(jpeg(), { ...tag, jobId: 'short' });
+		expect(withoutShotComment(foreign)).toEqual(foreign);
+		const cut = withShotComment(jpeg(), tag).slice(0, 20);
+		expect(withoutShotComment(cut)).toEqual(cut);
 	});
 });

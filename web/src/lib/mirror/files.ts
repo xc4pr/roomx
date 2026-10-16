@@ -1,3 +1,4 @@
+import { LIMITS } from '#lib/security/limits.ts';
 import { MAX_ROOMS_PER_JOB, type ShotTag } from './types.ts';
 
 const MARKER = 'roomx-shot';
@@ -31,6 +32,21 @@ export function withShotComment(
 	return out;
 }
 
+// Removes the segment withShotComment put right after the start marker, so a shared file has the
+// bytes (and the transfer hash) of the photo the phone sends directly.
+export function withoutShotComment(jpeg: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
+	if (jpeg.length < 6 || jpeg[0] !== 0xff || jpeg[1] !== 0xd8 || jpeg[2] !== 0xff) return jpeg;
+	if (jpeg[3] !== 0xfe) return jpeg;
+	const end = 4 + ((jpeg[4] << 8) | jpeg[5]);
+	if (end > jpeg.length) return jpeg;
+	const text = new TextDecoder('utf-8').decode(jpeg.subarray(6, end));
+	if (!COMMENT.test(text)) return jpeg;
+	const out = new Uint8Array(jpeg.length - (end - 2));
+	out.set(jpeg.subarray(0, 2), 0);
+	out.set(jpeg.subarray(end), 2);
+	return out;
+}
+
 function readComments(jpeg: Uint8Array): string[] {
 	const comments: string[] = [];
 	if (jpeg.length < 4 || jpeg[0] !== 0xff || jpeg[1] !== 0xd8) return comments;
@@ -59,7 +75,8 @@ function readComments(jpeg: Uint8Array): string[] {
 }
 
 function valid(tag: ShotTag): ShotTag | null {
-	return tag.room >= 0 && tag.room < MAX_ROOMS_PER_JOB ? tag : null;
+	const fits = tag.room < MAX_ROOMS_PER_JOB && tag.stepKey.length <= LIMITS.label;
+	return tag.room >= 0 && fits ? tag : null;
 }
 
 export function readShotTag(fileName: string, jpeg: Uint8Array<ArrayBuffer>): ShotTag | null {

@@ -87,9 +87,9 @@ export async function placeShot(
 		h: processed.h,
 		takenAt: validTakenAt(shot.takenAt) ?? new Date().toISOString()
 	};
-	store.addPhoto(mapping.roomId, photo);
+	if (!store.addReceivedPhoto(mapping.roomId, photo)) return { ok: false, reason: 'readOnly' };
 	if (!(await isSaved(job.projectId, mapping.roomId, photo.id))) {
-		store.removePhoto(mapping.roomId, photo.id);
+		store.dropReceivedPhoto(mapping.roomId, photo.id);
 		return { ok: false, reason: 'storage' };
 	}
 	if (!job.received.includes(transferHash)) job.received.push(transferHash);

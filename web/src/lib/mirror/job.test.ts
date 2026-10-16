@@ -261,6 +261,14 @@ describe('parsePair', () => {
 		});
 	});
 
+	it('refuses a link that runs longer than a job can', () => {
+		const day = 24 * 60 * 60 * 1000;
+		const far = encodeLink(APP, token, payload({ expiresAt: NOW + JOB_TTL_MS + 2 * day }));
+		expect(parsePair(far.slice(far.indexOf('#')), NOW)).toEqual({ ok: false, error: 'invalid' });
+		const skewed = encodeLink(APP, token, payload({ expiresAt: NOW + JOB_TTL_MS + day / 2 }));
+		expect(parsePair(skewed.slice(skewed.indexOf('#')), NOW).ok).toBe(true);
+	});
+
 	it('reports format errors', () => {
 		const good = encodeLink(APP, token, payload()).split('#')[1];
 		expect(parsePair('', NOW)).toEqual({ ok: false, error: 'format' });

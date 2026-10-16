@@ -7,7 +7,7 @@
 	import { sha256Hex } from '#lib/features/photos/hash.ts';
 	import { sniffImage } from '#lib/features/photos/sniff.ts';
 	import { mirrorHost } from '#lib/mirror/host.svelte.ts';
-	import { readShotTag } from '#lib/mirror/files.ts';
+	import { readShotTag, withoutShotComment } from '#lib/mirror/files.ts';
 	import { perspectiveFor, toHostStepKey } from '#lib/mirror/room.ts';
 	import { MAX_SHOT_BYTES, type ShotTag } from '#lib/mirror/types.ts';
 	import { store } from '#lib/state/project.svelte.ts';
@@ -93,9 +93,10 @@
 
 	async function describe(file: File, bytes: Uint8Array<ArrayBuffer>): Promise<Entry> {
 		const tag = readShotTag(file.name, bytes);
-		const hash = await sha256Hex(bytes);
+		const photo = withoutShotComment(bytes);
+		const hash = await sha256Hex(photo);
 		const plan = classifyShot(tag, hash, file.size, MAX_SHOT_BYTES, mirrorHost.jobs);
-		const entry = makeEntry(file, bytes, tag, plan.state);
+		const entry = makeEntry(file, photo, tag, plan.state);
 		if (plan.roomId && plan.elementIds && tag) {
 			const room = store.room(plan.roomId);
 			const hostKey = toHostStepKey(tag.stepKey, plan.elementIds);
