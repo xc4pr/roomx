@@ -15,6 +15,7 @@
 	import type { CameraSession } from '#lib/mirror/camera.svelte.ts';
 	import { MAX_SHOTS_PER_JOB } from '#lib/mirror/types.ts';
 	import { roomFromMirror } from '#lib/mirror/room.ts';
+	import { reportStorageError } from '#lib/state/storageErrors.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import IconButton from '#lib/ui/IconButton.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
@@ -95,22 +96,30 @@
 	async function storeFile(file: File): Promise<boolean> {
 		const target = step;
 		if (!target) return false;
+		let processed;
 		try {
-			const processed = await processFile(file);
-			await session.addShot(roomIndex, target.key, processed);
-			justSaved = true;
-			clearTimeout(savedTimer);
-			savedTimer = setTimeout(() => (justSaved = false), 900);
-			advanceAfter(target.key);
-			return true;
+			processed = await processFile(file);
 		} catch (error) {
-			const message =
-				error instanceof PhotoError && error.code === 'limit'
-					? t(messages, 'jobLimit', { max: MAX_SHOTS_PER_JOB })
-					: errorMessage(error, file.name);
+			toasts.show({ message: errorMessage(error, file.name), kind: 'error', duration: 8000 });
+			return false;
+		}
+		try {
+			await session.addShot(roomIndex, target.key, processed);
+		} catch (error) {
+			// Past processing, anything but the job limit is the phone's storage failing.
+			const limit = error instanceof PhotoError && error.code === 'limit';
+			if (!limit) reportStorageError(error);
+			const message = limit
+				? t(messages, 'jobLimit', { max: MAX_SHOTS_PER_JOB })
+				: errorMessage(new PhotoError('storage'), file.name);
 			toasts.show({ message, kind: 'error', duration: 8000 });
 			return false;
 		}
+		justSaved = true;
+		clearTimeout(savedTimer);
+		savedTimer = setTimeout(() => (justSaved = false), 900);
+		advanceAfter(target.key);
+		return true;
 	}
 
 	async function handleFiles(input: HTMLInputElement | undefined): Promise<void> {

@@ -8,6 +8,9 @@ export const messages = defineMessages({
 		pairInvalid: 'Der Foto-Auftrag konnte nicht gespeichert werden.',
 		pairExpired: 'Dieser Foto-Auftrag ist abgelaufen. Erstelle am Computer einen neuen.',
 		loading: 'Foto-Auftrag wird geladen…',
+		unreadableTitle: 'Foto-Auftrag nicht lesbar',
+		unreadableText:
+			'Der Browser-Speicher konnte nicht gelesen werden. Deine Fotos sind vermutlich noch da. Lade die Seite neu oder starte den Browser neu.',
 		missingTitle: 'Foto-Auftrag nicht gefunden',
 		missingText:
 			'Auf diesem Gerät gibt es keinen solchen Auftrag. Scanne den QR-Code am Computer noch einmal.',
@@ -113,6 +116,9 @@ export const messages = defineMessages({
 		pairInvalid: 'The photo job could not be saved.',
 		pairExpired: 'This photo job has expired. Create a new one on the computer.',
 		loading: 'Loading photo job…',
+		unreadableTitle: 'Photo job cannot be read',
+		unreadableText:
+			'The browser storage could not be read. Your photos are probably still there. Reload the page or restart the browser.',
 		missingTitle: 'Photo job not found',
 		missingText: 'There is no such job on this device. Scan the QR code on the computer again.',
 		toProjects: 'Go to projects',

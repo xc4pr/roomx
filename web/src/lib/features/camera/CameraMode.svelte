@@ -14,6 +14,7 @@
 	import { CameraSession } from '#lib/mirror/camera.svelte.ts';
 	import { deleteCameraJob, getJob } from '#lib/mirror/jobs.ts';
 	import { roomFromMirror } from '#lib/mirror/room.ts';
+	import { reportStorageError } from '#lib/state/storageErrors.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
@@ -33,7 +34,7 @@
 	const job = $derived(session.job);
 	const status = $derived(session.status);
 
-	let lookup = $state<'loading' | 'found' | 'missing'>('loading');
+	let lookup = $state<'loading' | 'found' | 'missing' | 'unreadable'>('loading');
 	let phase = $state<'ask' | 'later' | 'main'>('main');
 	let capturing = $state<number | null>(null);
 	let now = $state(Date.now());
@@ -81,8 +82,10 @@
 				}
 				phase = seen ? 'main' : 'ask';
 			},
-			() => {
-				if (!cancelled) lookup = 'missing';
+			(error: unknown) => {
+				if (cancelled) return;
+				lookup = 'unreadable';
+				reportStorageError(error);
 			}
 		);
 		return () => {
@@ -213,7 +216,18 @@
 	}
 </script>
 
-{#if lookup === 'missing'}
+{#if lookup === 'unreadable' || status.storageError}
+	<div
+		class="flex h-full flex-col items-center justify-center gap-4 p-6 text-center"
+		data-testid="camera-unreadable"
+	>
+		<div>
+			<p class="text-xl font-bold">{t(messages, 'unreadableTitle')}</p>
+			<p class="mt-1.5 text-muted">{t(messages, 'unreadableText')}</p>
+		</div>
+		<Button variant="primary" href={resolve('/')}>{t(messages, 'toProjects')}</Button>
+	</div>
+{:else if lookup === 'missing'}
 	<div
 		class="flex h-full flex-col items-center justify-center gap-4 p-6 text-center"
 		data-testid="camera-missing"
