@@ -785,17 +785,13 @@ describe('MirrorHost.importShot edges', () => {
 		expect(photos()).toBe(before + 1);
 	});
 
-	// host.svelte.ts:255 takes a fresh copy from the database per call, so the serial queue does not share the received list
-	it.fails(
-		'also places a file once when two imports run before the host loaded its jobs',
-		async () => {
-			const job = await hostJob();
-			const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
-			const before = photos();
-			await Promise.all([host.importShot(tag, jpeg('same2')), host.importShot(tag, jpeg('same2'))]);
-			expect(photos()).toBe(before + 1);
-		}
-	);
+	it('also places a file once when two imports run before the host loaded its jobs', async () => {
+		const job = await hostJob();
+		const tag = { jobId: job.id, room: 0, stepKey: 'corner:A' };
+		const before = photos();
+		await Promise.all([host.importShot(tag, jpeg('same2')), host.importShot(tag, jpeg('same2'))]);
+		expect(photos()).toBe(before + 1);
+	});
 });
 
 describe('MirrorHost creation edges', () => {

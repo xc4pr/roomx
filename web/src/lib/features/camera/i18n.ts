@@ -106,8 +106,7 @@ export const messages = defineMessages({
 		openJobsUnsentOne: '1 ungesendetes Foto',
 		openJobsNone: 'Alle Fotos übertragen',
 		openJobsExpired: 'Abgelaufen, {n} Fotos nicht übertragen',
-		openJobsExpiredOne: 'Abgelaufen, 1 Foto nicht übertragen',
-		openJobsOpen: 'Öffnen'
+		openJobsExpiredOne: 'Abgelaufen, 1 Foto nicht übertragen'
 	},
 	en: {
 		pairFormat: 'The link is incomplete or damaged. Scan the QR code on the computer again.',
@@ -211,7 +210,6 @@ export const messages = defineMessages({
 		openJobsUnsentOne: '1 unsent photo',
 		openJobsNone: 'All photos transferred',
 		openJobsExpired: 'Expired, {n} photos not transferred',
-		openJobsExpiredOne: 'Expired, 1 photo not transferred',
-		openJobsOpen: 'Open'
+		openJobsExpiredOne: 'Expired, 1 photo not transferred'
 	}
 });
