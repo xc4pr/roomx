@@ -114,7 +114,7 @@ function smartPlacement(subject: PlaceSubject, room: Room, others: Item[]): Plac
 	});
 }
 
-function commitNew(template: NewItem, room: Room, placement: Placement): string {
+function commitNew(template: NewItem, room: Room, placement: Placement): string | undefined {
 	const id = store.addItem({
 		...template,
 		roomId: room.id,
@@ -124,6 +124,7 @@ function commitNew(template: NewItem, room: Room, placement: Placement): string 
 		elevation: placement.elevation,
 		...(placement.onItemId ? { onItemId: placement.onItemId } : {})
 	});
+	if (!id) return undefined;
 	if (ui.selectedRoomId !== room.id) selectRoom(room.id);
 	ui.selectedItemId = id;
 	markPlaced(id);
@@ -135,7 +136,7 @@ export function insertItem(
 	template: NewItem,
 	room: Room,
 	options: { raw?: Vec; threshold?: number } = {}
-): string {
+): string | undefined {
 	const mount = itemMount(template);
 	const subject: PlaceSubject = {
 		dims: template.dims,
@@ -159,7 +160,7 @@ export function addCatalogEntry(
 	entry: CatalogEntry,
 	room: Room,
 	options: { raw?: Vec; threshold?: number } = {}
-): string {
+): string | undefined {
 	return insertItem(itemFromCatalog(entry, room.id, pick(entry.name)), room, options);
 }
 

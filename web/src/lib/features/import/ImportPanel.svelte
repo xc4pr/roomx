@@ -146,7 +146,8 @@
 		}
 		const id = project.id;
 		const count = picked.variants.length;
-		store.importVariants(picked.variants, 'brief' in picked ? picked.brief : undefined);
+		if (!store.importVariants(picked.variants, 'brief' in picked ? picked.brief : undefined))
+			return;
 		text = '';
 		toasts.show({
 			message: t(messages, count === 1 ? 'applied_one' : 'applied_other', { n: count }),

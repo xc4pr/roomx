@@ -1,6 +1,7 @@
 import { createRoom } from '#lib/core/defaults.ts';
 import { boundingBox, normalizeDegrees, rotate, roomToBoard } from '#lib/core/geometry.ts';
 import { newId } from '#lib/core/ids.ts';
+import { grownLimit, overflowOf } from '#lib/core/limits.ts';
 import {
 	isWallElement,
 	type BoardPos,
@@ -14,7 +15,9 @@ import {
 	type RoomType,
 	type Variant
 } from '#lib/core/schema.ts';
+import { LIMITS } from '#lib/security/limits.ts';
 import { scheduleCleanup, setKeepProvider } from './cleanup.ts';
+import { announceLimit } from './limits.ts';
 import { emptyProject, loadProject, photoHashesOf, saveProject } from './persistence.ts';
 import { markSaved, markUnsaved } from './storageHealth.svelte.ts';
 import { createBrowserGuard, type TabGuard, type TabGuardOptions } from './tabs.ts';
@@ -58,6 +61,8 @@ export class ProjectStore {
 	#latest = new Map<string, number>();
 	#written = new Map<string, number>();
 	#seq = 0;
+	#writing = 0;
+	#changes = 0;
 	#guard: TabGuard | null = null;
 	#token: symbol | null = null;
 	#createGuard: GuardFactory;
@@ -140,8 +145,14 @@ export class ProjectStore {
 		await this.#reloadFromDisk(id, true);
 	}
 
+	// True while a change waits for its save timer, for a write to start, or is being written.
 	hasUnsaved(): boolean {
-		return this.#pending.size > 0;
+		return this.#pending.size > 0 || this.#writing > 0 || this.#saveTimer !== null;
+	}
+
+	// Counts local changes (not replace()); lets callers tell whether the project moved on.
+	changeCount(): number {
+		return this.#changes;
 	}
 
 	referencedPhotoHashes(): Set<string> {
@@ -168,18 +179,40 @@ export class ProjectStore {
 		return this.project ? ($state.snapshot(this.project) as Project) : null;
 	}
 
-	mutate(recipe: (project: Project) => void, options: MutateOptions = {}): void {
+	// Returns false when nothing was applied: no project, read-only, or a count limit would grow.
+	mutate(recipe: (project: Project) => void, options: MutateOptions = {}): boolean {
 		const project = this.project;
-		if (!project || this.readOnly) return;
-		if (!options.coalesce || options.coalesce !== this.#openKey) {
-			this.#undoStack = [...this.#undoStack, $state.snapshot(project) as Project].slice(
-				-HISTORY_LIMIT
-			);
+		if (!project || this.readOnly) return false;
+		const before = overflowOf(project);
+		const fresh = !options.coalesce || options.coalesce !== this.#openKey;
+		const undo = this.#undoStack;
+		const redo = this.#redoStack;
+		if (fresh) {
+			this.#undoStack = [...undo, $state.snapshot(project) as Project].slice(-HISTORY_LIMIT);
 		}
 		this.#openKey = options.coalesce ?? null;
 		this.#redoStack = [];
 		recipe(project);
+		const hit = grownLimit(before, overflowOf(project));
+		if (hit) {
+			// Back to the state before this change; in a continued gesture (not fresh) that is the
+			// state before the whole gesture, whose snapshot is the top of the undo stack.
+			const previous = this.#undoStack.at(-1);
+			this.#openKey = null;
+			if (fresh) {
+				this.#undoStack = undo;
+				this.#redoStack = redo;
+			} else {
+				this.#undoStack = this.#undoStack.slice(0, -1);
+			}
+			// Without a snapshot (not reachable in practice) the project cannot be rolled back.
+			if (previous) this.project = previous;
+			if (!fresh) this.#touch(0);
+			announceLimit(hit);
+			return false;
+		}
 		this.#touch(options.coalesce ? SAVE_DELAY : 0);
+		return true;
 	}
 
 	sealHistory(): void {
@@ -218,7 +251,14 @@ export class ProjectStore {
 		}
 		for (const entry of [...this.#pending.values()]) {
 			this.#pending.delete(entry.project.id);
-			this.#saving = this.#saving.then(() => this.#write(entry));
+			this.#writing++;
+			this.#saving = this.#saving.then(async () => {
+				try {
+					await this.#write(entry);
+				} finally {
+					this.#writing--;
+				}
+			});
 		}
 		await this.#saving;
 		if (this.#pending.size === 0 && this.#retryTimer !== null) {
@@ -291,6 +331,7 @@ export class ProjectStore {
 	// Single changes are saved right away; only continuous gestures (coalesced) are batched.
 	#touch(delay: number): void {
 		if (!this.project) return;
+		this.#changes++;
 		this.project.updatedAt = new Date().toISOString();
 		this.#schedule(delay);
 	}
@@ -323,9 +364,9 @@ export class ProjectStore {
 		});
 	}
 
-	addRoom(name: string, type: RoomType = 'other'): string {
+	addRoom(name: string, type: RoomType = 'other'): string | undefined {
 		const id = newId();
-		this.mutate((project) => {
+		const applied = this.mutate((project) => {
 			const corners = project.rooms.flatMap((room) =>
 				room.polygon.map((corner) => roomToBoard(room, corner))
 			);
@@ -333,7 +374,7 @@ export class ProjectStore {
 			const y = corners.length > 0 ? Math.round(boundingBox(corners).minY) : 0;
 			project.rooms.push(createRoom(id, name, type, { x, y, rot: 0 }));
 		});
-		return id;
+		return applied ? id : undefined;
 	}
 
 	updateRoom(roomId: string, patch: RoomPatch, options?: MutateOptions): void {
@@ -383,7 +424,7 @@ export class ProjectStore {
 		if (!source) return undefined;
 		const id = newId();
 		const copy = $state.snapshot(source) as Room;
-		this.mutate((project) => {
+		const applied = this.mutate((project) => {
 			const box = boundingBox(copy.polygon.map((corner) => roomToBoard(copy, corner)));
 			project.rooms.push({
 				...copy,
@@ -393,7 +434,7 @@ export class ProjectStore {
 				photos: []
 			});
 		});
-		return id;
+		return applied ? id : undefined;
 	}
 
 	removeRoom(roomId: string): void {
@@ -437,8 +478,8 @@ export class ProjectStore {
 		});
 	}
 
-	addPhoto(roomId: string, photo: Photo): void {
-		this.mutate((project) => {
+	addPhoto(roomId: string, photo: Photo): boolean {
+		return this.mutate((project) => {
 			project.rooms.find((room) => room.id === roomId)?.photos.push(photo);
 		});
 	}
@@ -449,6 +490,10 @@ export class ProjectStore {
 	addReceivedPhoto(roomId: string, photo: Photo): boolean {
 		const room = this.room(roomId);
 		if (!room || this.readOnly) return false;
+		if (room.photos.length >= LIMITS.photosPerRoom) {
+			announceLimit('photosPerRoom');
+			return false;
+		}
 		room.photos.push(photo);
 		for (const state of [...this.#undoStack, ...this.#redoStack]) {
 			const target = state.rooms.find((candidate) => candidate.id === roomId);
@@ -501,11 +546,14 @@ export class ProjectStore {
 		if (!room || this.readOnly || room.photos.some((candidate) => candidate.id === photo.id)) {
 			return false;
 		}
-		this.mutate((project) => {
+		if (room.photos.length >= LIMITS.photosPerRoom) {
+			announceLimit('photosPerRoom');
+			return false;
+		}
+		return this.mutate((project) => {
 			const target = project.rooms.find((candidate) => candidate.id === roomId);
 			target?.photos.splice(Math.min(index, target.photos.length), 0, photo);
 		});
-		return true;
 	}
 
 	#ensureVariant(project: Project): Variant {
@@ -521,9 +569,9 @@ export class ProjectStore {
 		return variant;
 	}
 
-	addVariant(name: string, copyFromId?: string): string {
+	addVariant(name: string, copyFromId?: string): string | undefined {
 		const id = newId();
-		this.mutate((project) => {
+		const applied = this.mutate((project) => {
 			const source = project.variants.find((variant) => variant.id === copyFromId);
 			const copy = source ? ($state.snapshot(source) as Variant) : undefined;
 			const idMap = new Map((copy?.items ?? []).map((item) => [item.id, newId()]));
@@ -544,7 +592,7 @@ export class ProjectStore {
 			});
 			project.activeVariantId = id;
 		});
-		return id;
+		return applied ? id : undefined;
 	}
 
 	renameVariant(variantId: string, name: string): void {
@@ -574,12 +622,12 @@ export class ProjectStore {
 		});
 	}
 
-	addItem(item: Omit<Item, 'id'>): string {
+	addItem(item: Omit<Item, 'id'>): string | undefined {
 		const id = newId();
-		this.mutate((project) => {
+		const applied = this.mutate((project) => {
 			this.#ensureVariant(project).items.push({ ...item, id });
 		});
-		return id;
+		return applied ? id : undefined;
 	}
 
 	updateItem(itemId: string, patch: ItemPatch, options?: MutateOptions): void {
@@ -637,17 +685,17 @@ export class ProjectStore {
 		});
 	}
 
-	importVariants(variants: Variant[], brief?: Brief): void {
-		if (variants.length === 0) return;
-		this.mutate((project) => {
+	importVariants(variants: Variant[], brief?: Brief): boolean {
+		if (variants.length === 0) return false;
+		return this.mutate((project) => {
 			project.variants.push(...variants);
 			project.activeVariantId = variants[0].id;
 			if (brief) project.brief = brief;
 		});
 	}
 
-	acceptSuggestion(variantId: string, elementId: string): void {
-		this.mutate((project) => {
+	acceptSuggestion(variantId: string, elementId: string): boolean {
+		return this.mutate((project) => {
 			const variant = project.variants.find((candidate) => candidate.id === variantId);
 			const suggestion = variant?.suggestions.find(
 				(candidate) => candidate.element.id === elementId

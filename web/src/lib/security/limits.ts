@@ -26,3 +26,26 @@ export const LIMITS = {
 } as const;
 
 export type LimitName = keyof typeof LIMITS;
+
+export const COUNT_LIMITS = [
+	'rooms',
+	'polygonPoints',
+	'elementsPerRoom',
+	'photosPerRoom',
+	'variants',
+	'itemsPerVariant',
+	'suggestionsPerVariant',
+	'shoppingEntries',
+	'briefList',
+	'briefKeep'
+] as const satisfies readonly LimitName[];
+
+export type CountLimit = (typeof COUNT_LIMITS)[number];
+
+// Editing stops at LIMITS; older versions could go beyond, so loading and import accept up to
+// ten times as much instead of locking the project.
+export const STORED_COUNT_FACTOR = 10;
+
+export function storedLimit(name: CountLimit): number {
+	return LIMITS[name] * STORED_COUNT_FACTOR;
+}

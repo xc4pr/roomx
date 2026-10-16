@@ -38,8 +38,8 @@ beforeEach(async () => {
 describe('project store', () => {
 	it('adds rooms next to each other and persists them', async () => {
 		const { store, id } = await openStore();
-		const first = store.addRoom('Schlafzimmer', 'bedroom');
-		const second = store.addRoom('Büro', 'office');
+		const first = store.addRoom('Schlafzimmer', 'bedroom')!;
+		const second = store.addRoom('Büro', 'office')!;
 		expect(store.room(first)?.boardPos).toEqual({ x: 0, y: 0, rot: 0 });
 		expect(store.room(second)?.boardPos).toEqual({ x: 4500, y: 0, rot: 0 });
 		await store.flush();
@@ -49,7 +49,7 @@ describe('project store', () => {
 
 	it('undoes and redoes', async () => {
 		const { store } = await openStore();
-		const roomId = store.addRoom('Raum');
+		const roomId = store.addRoom('Raum')!;
 		store.updateRoom(roomId, { height: 2700 });
 		expect(store.canUndo).toBe(true);
 		store.undo();
@@ -65,7 +65,7 @@ describe('project store', () => {
 
 	it('coalesces a drag into one undo step', async () => {
 		const { store } = await openStore();
-		const roomId = store.addRoom('Raum');
+		const roomId = store.addRoom('Raum')!;
 		for (const x of [100, 200, 300]) {
 			store.moveRoom(roomId, { x, y: 0, rot: 0 }, { coalesce: 'drag' });
 		}
@@ -79,7 +79,7 @@ describe('project store', () => {
 
 	it('drops elements of removed walls', async () => {
 		const { store } = await openStore();
-		const roomId = store.addRoom('Raum');
+		const roomId = store.addRoom('Raum')!;
 		const room = store.room(roomId)!;
 		store.addElement(roomId, createElement('door', room, 4, 1000, sequentialIds()));
 		store.addElement(roomId, createElement('ceilingLamp', room, 1, 0, sequentialIds('lamp')));
@@ -89,8 +89,8 @@ describe('project store', () => {
 
 	it('creates a variant on demand and moves stacked items with their carrier', async () => {
 		const { store } = await openStore();
-		const roomId = store.addRoom('Raum');
-		const deskId = store.addItem({ ...desk, roomId });
+		const roomId = store.addRoom('Raum')!;
+		const deskId = store.addItem({ ...desk, roomId })!;
 		const monitorId = store.addItem({
 			...desk,
 			roomId,
@@ -100,7 +100,7 @@ describe('project store', () => {
 			y: 100,
 			elevation: 740,
 			onItemId: deskId
-		});
+		})!;
 		expect(store.project?.variants).toHaveLength(1);
 		expect(store.activeVariant?.name).toBe('A');
 		store.transformItem(deskId, { x: 2000, y: 1400 });
@@ -114,11 +114,11 @@ describe('project store', () => {
 
 	it('copies variants with remapped stacking and accepts suggestions', async () => {
 		const { store } = await openStore();
-		const roomId = store.addRoom('Raum');
-		const deskId = store.addItem({ ...desk, roomId });
+		const roomId = store.addRoom('Raum')!;
+		const deskId = store.addItem({ ...desk, roomId })!;
 		store.addItem({ ...desk, roomId, name: 'Monitor', onItemId: deskId, elevation: 740 });
 		const sourceId = store.activeVariant!.id;
-		const copyId = store.addVariant('B', sourceId);
+		const copyId = store.addVariant('B', sourceId)!;
 		const copy = store.project!.variants.find((variant) => variant.id === copyId)!;
 		expect(copy.items).toHaveLength(2);
 		expect(copy.items[1].onItemId).toBe(copy.items[0].id);
@@ -142,7 +142,7 @@ describe('project store', () => {
 
 	it('removes a room with its items and keeps tombstones for deleted projects', async () => {
 		const { store, id } = await openStore();
-		const roomId = store.addRoom('Raum');
+		const roomId = store.addRoom('Raum')!;
 		store.addItem({ ...desk, roomId });
 		store.removeRoom(roomId);
 		expect(store.activeVariant?.items).toEqual([]);

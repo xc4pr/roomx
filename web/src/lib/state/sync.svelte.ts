@@ -77,6 +77,7 @@ const fetcher: Fetch = (input, init) => globalThis.fetch(input, init);
 const host: Host = {
 	openProjectId: () => store.project?.id ?? null,
 	flush: () => store.flush(),
+	changeCount: () => store.changeCount(),
 	replaceOpen: (project) => store.replace(project),
 	closeOpen: () => {
 		void store.close();

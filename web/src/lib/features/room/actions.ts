@@ -12,6 +12,7 @@ export function createRoomAndSelect(): string | undefined {
 	const project = store.project;
 	if (!project) return undefined;
 	const id = store.addRoom(t(messages, 'newRoomName', { n: project.rooms.length + 1 }));
+	if (!id) return undefined;
 	fresh.roomId = id;
 	ui.panelTab = 'dims';
 	ui.focusRoomId = null;

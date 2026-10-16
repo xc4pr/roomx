@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project } from '#lib/core/schema.ts';
 import { db } from './db.ts';
@@ -117,5 +118,45 @@ describe('the newest snapshot of a project always wins', () => {
 		expect(await roomNames(b.id)).toEqual(['b1']);
 		expect(a.store.hasUnsaved()).toBe(false);
 		expect(storageHealth.unsaved).toBe(0);
+	});
+});
+
+describe('hasUnsaved covers the whole way to the database', () => {
+	it('stays true while a write is running', async () => {
+		const { store } = await openStore();
+		const realPut = db.projects.put.bind(db.projects) as (project: Project) => Promise<string>;
+		let release: () => void = () => {};
+		const gate = new Promise<void>((resolve) => (release = resolve));
+		vi.spyOn(db.projects, 'put').mockImplementation((async (project: Project) => {
+			await Dexie.waitFor(gate);
+			return realPut(project);
+		}) as unknown as typeof db.projects.put);
+		store.addRoom('A');
+		const flushing = store.flush();
+		await new Promise((resolve) => setTimeout(resolve, 20));
+		expect(store.hasUnsaved()).toBe(true);
+		release();
+		await flushing;
+		expect(store.hasUnsaved()).toBe(false);
+	});
+
+	it('stays true while a continued change waits for the save timer', async () => {
+		const { store } = await openStore();
+		store.addRoom('A');
+		await store.flush();
+		expect(store.hasUnsaved()).toBe(false);
+		store.rename('Neu');
+		expect(store.hasUnsaved()).toBe(true);
+		await store.flush();
+		expect(store.hasUnsaved()).toBe(false);
+	});
+
+	it('counts local changes but not replace()', async () => {
+		const { store } = await openStore();
+		const start = store.changeCount();
+		store.addRoom('A');
+		expect(store.changeCount()).toBe(start + 1);
+		store.replace(structuredClone(store.snapshot()!));
+		expect(store.changeCount()).toBe(start + 1);
 	});
 });

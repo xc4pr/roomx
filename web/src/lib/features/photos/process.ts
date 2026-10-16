@@ -84,6 +84,6 @@ export async function addPhotoFromFile(
 		takenAt: new Date().toISOString(),
 		...(note ? { note } : {})
 	};
-	store.addPhoto(roomId, photo);
+	if (!store.addPhoto(roomId, photo)) throw new PhotoError('limit');
 	return photo;
 }

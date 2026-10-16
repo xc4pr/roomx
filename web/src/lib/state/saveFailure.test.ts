@@ -33,7 +33,7 @@ describe('failing saves are never silent', () => {
 		const { store, id } = await openStore();
 		const quota = new DOMException('The quota has been exceeded.', 'QuotaExceededError');
 		const put = vi.spyOn(db.projects, 'put').mockRejectedValue(quota);
-		const roomId = store.addRoom('Küche', 'kitchen');
+		const roomId = store.addRoom('Küche', 'kitchen')!;
 		await store.flush();
 		expect(currentStorageProblem()).toBe('quota');
 		expect(storageHealth.problem).toBe('quota');

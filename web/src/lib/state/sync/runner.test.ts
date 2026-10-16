@@ -16,7 +16,7 @@ const ids = sequentialIds('copy');
 
 interface Setup {
 	server: FakeServer;
-	host: Host & { open: string | null; replaced: Project[]; closed: number };
+	host: Host & { open: string | null; replaced: Project[]; closed: number; changes: number };
 	ctx: RunContext;
 }
 
@@ -26,10 +26,14 @@ function setup(token = 'token'): Setup {
 		open: null as string | null,
 		replaced: [] as Project[],
 		closed: 0,
+		changes: 0,
 		openProjectId() {
 			return this.open;
 		},
 		async flush() {},
+		changeCount() {
+			return this.changes;
+		},
 		replaceOpen(project: Project) {
 			this.replaced.push(project);
 		},
@@ -335,6 +339,76 @@ describe('runSync', () => {
 		expect(result.again).toBe(true);
 		expect((await loadProject('a'))?.name).toBe('Eilig');
 		expect((await db.sync.get('a'))?.dirty).toBe(true);
+	});
+
+	it('keeps an edit to the open project made while the server state was stored', async () => {
+		const { server, host, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		server.seed(project('a', { name: 'Server' }), 2);
+		host.open = 'a';
+		// The edit lands between the flush and the end of the transaction.
+		const counted = vi.spyOn(host, 'changeCount').mockReturnValueOnce(0).mockReturnValue(1);
+		const result = await runSync(ctx);
+		expect(result.again).toBe(true);
+		expect(host.replaced).toEqual([]);
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 1, dirty: true });
+		// The store then saves the edited state over the server state.
+		await saveProject({ ...project('a'), name: 'Eilig', updatedAt: '2026-10-09' });
+		counted.mockRestore();
+		const next = await runSync(ctx);
+		expect(next.conflicts.map((conflict) => conflict.originalName)).toEqual(['Eilig']);
+		expect((await loadProject(next.conflicts[0].copyId))?.name).toContain('Eilig');
+		expect((await loadProject('a'))?.name).toBe('Server');
+		expect(host.replaced.map((entry) => entry.name)).toEqual(['Server']);
+	});
+
+	it('keeps an edit to the open project made while a conflict was resolved', async () => {
+		const { server, host, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		await saveProject({ ...(await loadProject('a'))!, name: 'Lokal', updatedAt: '2026-10-05' });
+		server.seed(project('a', { name: 'Server' }), 2);
+		host.open = 'a';
+		const counted = vi.spyOn(host, 'changeCount').mockReturnValueOnce(0).mockReturnValue(1);
+		const result = await runSync(ctx);
+		expect(result.conflicts.map((conflict) => conflict.originalName)).toEqual(['Lokal']);
+		expect(host.replaced).toEqual([]);
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 1, dirty: true });
+		await saveProject({ ...project('a'), name: 'Lokal und eilig', updatedAt: '2026-10-09' });
+		counted.mockRestore();
+		const next = await runSync(ctx);
+		expect(next.conflicts.map((conflict) => conflict.originalName)).toEqual(['Lokal und eilig']);
+		expect((await loadProject('a'))?.name).toBe('Server');
+		expect(host.replaced.map((entry) => entry.name)).toEqual(['Server']);
+	});
+
+	it('counts an edit made while the open project was being flushed', async () => {
+		const { server, host, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		server.seed(project('a', { name: 'Server' }), 2);
+		host.open = 'a';
+		host.flush = async () => {
+			host.changes += 1;
+		};
+		const result = await runSync(ctx);
+		expect(result.again).toBe(true);
+		expect(host.replaced).toEqual([]);
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 1, dirty: true });
+	});
+
+	it('does not put a pulled project into the store when another one was opened meanwhile', async () => {
+		const { server, host, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		server.seed(project('a', { name: 'Server' }), 2);
+		vi.spyOn(host, 'openProjectId').mockReturnValueOnce('a').mockReturnValue('b');
+		const result = await runSync(ctx);
+		expect(host.replaced).toEqual([]);
+		expect(result.pulled).toEqual(['a']);
+		expect((await loadProject('a'))?.name).toBe('Server');
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 2, dirty: false });
 	});
 
 	it('leaves projects with unsupported versions alone', async () => {
