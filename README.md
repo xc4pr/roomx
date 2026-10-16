@@ -738,7 +738,7 @@ docker compose -f deploy/compose.yaml up -d --build
 - `ROOMX_TOKEN`: access token. The compose file aborts without a token. You enter the same token in the app under Settings, together with the server address.
 - `ROOMX_DATA`: data folder inside the container (default `/data`, as the volume `roomx-data`). `ROOMX_STATIC`: folder with the built app.
 - Check with `GET /api/health`. The endpoints `/api/projects` and `/api/photos/{digest}` require the token.
-- The photo mailbox for “Take photos with your phone” is served under `/api/mirror`: the computer uses the same token, the phone uploads with a per-job secret derived from the link. Limits: 500 photos and 1.5 GiB per mailbox (one per job), 16 MiB per photo, 5 GiB and 100 mailboxes in total; jobs expire after at most 8 days.
+- The photo mailbox for “Take photos with your phone” is served under `/api/mirror`: the computer uses the same token, the phone uploads with a per-job secret derived from the link. Limits: 500 photos and 1.5 GiB per mailbox (one per job), 16 MiB per photo, 5 GiB and 100 mailboxes in total; jobs expire after at most 8 days. The phone deletes its copy only when the computer has left a receipt signed with the job key, so the server alone cannot make it drop photos. An ended job keeps a small marker until it expires, so a phone that was offline still learns that it ended.
 - Camera, clipboard and service worker need **HTTPS**, except on `localhost`. Put the server behind an HTTPS proxy if you use it anywhere other than `localhost`.
 
 Server without Docker (development):
