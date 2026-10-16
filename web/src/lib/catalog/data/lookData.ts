@@ -174,7 +174,7 @@ export const seriesLooks: Record<string, Look> = {
 	'IKEA|LERHAMN|table': {},
 	'IKEA|LISABO|table': {
 		frameColor: '#d9b98a',
-		legs: 'four'
+		legs: 'splayed'
 	},
 	'IKEA|MALM|bed': {
 		base: 'none',
@@ -291,7 +291,8 @@ export const seriesLooks: Record<string, Look> = {
 		base: 'none',
 		frameColor: '#222222',
 		arms: 'none',
-		back: 'medium'
+		back: 'medium',
+		shape: 'round'
 	},
 	'JYSK|BILLUND|dresser': {
 		base: 'plinth',
@@ -585,6 +586,7 @@ export const seriesLooks: Record<string, Look> = {
 		baseHeight: 150,
 		baseMaterial: 'wood',
 		frameColor: '#c8a572',
+		legs: 'splayed',
 		arms: 'slim',
 		back: 'medium'
 	},
@@ -2112,7 +2114,7 @@ export const entryLooks: Record<string, Look> = {
 		baseMaterial: 'metal',
 		handle: 'knob',
 		frameColor: '#f4f4f0',
-		legs: 'four',
+		legs: 'splayed',
 		drawers: 2
 	},
 	'jysk-lindved-shelf-80x41x118': {
