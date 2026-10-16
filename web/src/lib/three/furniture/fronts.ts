@@ -126,6 +126,8 @@ function slide(c: Plan, k: Cell): void {
 		k.y + GAP / 2,
 		z + SLIDE_T / 2
 	);
+	// Grip strip near the outer edge; handleless sliding doors (`handle: 'none'`) are plain panels.
+	if (c.handle === 'none') return;
 	const side = k.col + 0.5 < k.row.cols / 2 ? 1 : -1;
 	const stripH = Math.min(0.5, k.h * 0.4);
 	patch(c, c.handles, 0.014, stripH, k.cx + side * (k.colW / 2 - 0.05), k.y + k.h / 2, z);

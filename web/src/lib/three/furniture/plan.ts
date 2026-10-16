@@ -102,7 +102,7 @@ function baseHeight(o: CabinetOptions, look: Look, wheelsH: number): number {
 function protrusion(rows: Row[], handle: Handle): number {
 	const hardware = rows.some((r) => r.kind !== 'open' && r.kind !== 'slide');
 	const own = hardware ? HANDLE_LIP[handle] : 0;
-	return rows.some((r) => r.kind === 'slide') ? Math.max(own, PATCH) : own;
+	return handle !== 'none' && rows.some((r) => r.kind === 'slide') ? Math.max(own, PATCH) : own;
 }
 
 function slabThickness(o: CabinetOptions, look: Look, tubes: boolean): number {
