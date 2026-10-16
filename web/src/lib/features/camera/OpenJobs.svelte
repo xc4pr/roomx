@@ -6,6 +6,7 @@
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { listCameraJobs, listShots } from '#lib/mirror/jobs.ts';
 	import type { CameraJob } from '#lib/mirror/types.ts';
+	import { reportStorageError } from '#lib/state/storageErrors.ts';
 	import { messages } from './i18n.ts';
 
 	interface OpenJob {
@@ -29,7 +30,9 @@
 				(next) => {
 					if (!cancelled) jobs = next;
 				},
-				() => undefined
+				(error: unknown) => {
+					if (!cancelled) reportStorageError(error);
+				}
 			);
 		}
 		refresh();

@@ -9,6 +9,7 @@ import { LIMITS } from '#lib/security/limits.ts';
 import { db } from '#lib/state/db.ts';
 import { loadProject } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
+import { currentStorageProblem, reportStorageRecovered } from '#lib/state/storageErrors.ts';
 
 const putPhoto = vi.hoisted(() => vi.fn(async () => undefined));
 const saveProject = vi.hoisted(() => vi.fn());
@@ -421,6 +422,8 @@ describe('placeShot bookkeeping', () => {
 			duplicate: false
 		});
 		expect(job.received).toHaveLength(1);
+		expect(currentStorageProblem()).toBe('failed');
+		reportStorageRecovered();
 		expect(await placeShot(job, { room: 0, stepKey: 'corner:A' }, bytes, reencode)).toEqual({
 			ok: true,
 			duplicate: true

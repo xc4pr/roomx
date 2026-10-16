@@ -7,6 +7,7 @@ import { checkImageBytes } from '#lib/features/photos/sniff.ts';
 import { LIMITS } from '#lib/security/limits.ts';
 import { loadProject, putPhoto } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
+import { reportStorageError } from '#lib/state/storageErrors.ts';
 import { markReceived } from './jobs.ts';
 import { placedPerspective, toHostStepKey } from './room.ts';
 import type { HostJob, PlaceResult } from './types.ts';
@@ -95,8 +96,9 @@ export async function placeShot(
 	if (!job.received.includes(transferHash)) job.received.push(transferHash);
 	try {
 		await markReceived(job.id, transferHash);
-	} catch {
+	} catch (error) {
 		// The photo is in the project; the in-memory hash still stops duplicates in this session.
+		reportStorageError(error);
 	}
 	return { ok: true, duplicate: false };
 }
