@@ -293,7 +293,7 @@ Die meisten planen am PC oder Laptop, fotografieren aber mit dem Handy. «Mit de
 
 ### 3D erstellen und ansehen
 
-Tippe oben rechts auf **«3D erstellen»**. RoomX prüft zuerst deinen Plan und nennt Probleme, zum Beispiel ungültige Grundrisse, Elemente, die über die Wand hinausragen, fehlende Pflichtfotos oder [unverbundene Räume](#räume-verbinden). Mit «Trotzdem erstellen» geht es weiter, mit «Zurück zum Plan» korrigierst du zuerst.
+Tippe oben rechts auf **«3D erstellen»**. RoomX prüft zuerst deinen Plan und nennt Probleme, zum Beispiel ungültige Grundrisse, Elemente, die über die Wand hinausragen, fehlende Pflichtfotos oder [unverbundene Räume](#räume-verbinden). Mit «3D trotzdem erstellen» geht es weiter, mit «Zurück zum Plan» korrigierst du zuerst.
 
 <p align="center">
   <img src=".github/assets/screenshots/de/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht der Wohnung mit Wohnzimmer, Schlafzimmer und Büro" width="860">
@@ -335,7 +335,7 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 - Möbel **ziehen** oder **antippen**: Antippen stellt es in den Raum.
 - **Nicht mehr im Sortiment:** Eine Karte mit diesem Vermerk zeigt einen Artikel, den der Händler online nicht mehr führt. Er bleibt im Katalog, damit ältere Projekte weiter laden.
 - **Beim Händler ansehen:** Jede Katalogkarte eines geprüften Artikels hat den Link «Beim Händler ansehen». Er öffnet die Seite des Händlers in einem neuen Tab; RoomX selbst macht dabei keine Anfragen.
-- **Wöchentliches Update:** Preise und Sortiment des grossen Katalogs werden einmal je Woche automatisch aktualisiert. Ein Artikel, der aus dem Sortiment des Händlers verschwunden ist, bleibt mit dem Vermerk «Nicht mehr im Sortiment» im Katalog, damit ältere Projekte weiter laden. Die geprüften Artikel werden dabei verglichen, ändern sich aber erst nach einer Prüfung von Hand. Sieht ein Wochenlauf fehlerhaft aus, zum Beispiel weil viele Artikel verschwunden scheinen oder sich viele Preise auf einmal ändern, wird nichts veröffentlicht und die bisherigen Daten bleiben.
+- **Wöchentliches Update:** Preise und Sortiment des grossen Katalogs werden einmal je Woche automatisch aktualisiert. Ein Artikel, der aus dem Sortiment des Händlers verschwunden ist, bleibt mit dem Vermerk «Nicht mehr im Sortiment» im Katalog, damit ältere Projekte weiter laden. Die über 450 von Hand geprüften Möbel werden dabei verglichen, ändern sich aber nur nach einer erneuten Prüfung. Sieht ein Wochenlauf fehlerhaft aus, zum Beispiel weil viele Artikel verschwunden scheinen oder sich viele Preise auf einmal ändern, wird nichts veröffentlicht und die bisherigen Daten bleiben.
 
 > [!NOTE]
 > Die Masse im Katalog sind **Richtwerte**. Artikel, die es nicht mehr gibt, bleiben im Katalog, damit alte Projekte weiter laden; sie tragen den Vermerk **«Nicht mehr im Sortiment»**, ungeprüfte Artikel den Vermerk **«Masse ungeprüft»**. Ältere Katalog-IDs werden automatisch auf den neuen Artikel umgeleitet. Die Preise sind **Richtpreise in CHF** vom Schweizer Markt und erscheinen mit dem Monat des letzten Updates, zum Beispiel «Richtpreis, Stand Oktober 2026». Prüfe Masse und Preis immer beim Händler, bevor du kaufst.
@@ -487,7 +487,7 @@ Du erreichst sie über das Zahnrad oben rechts in der Projektliste.
 | **Alles zurücksetzen** | «Alle lokalen Daten löschen» entfernt alle Projekte, Fotos und Einstellungen von diesem Gerät. RoomX bietet vorher an, zuerst zu sichern. Das lässt sich nicht rückgängig machen. |
 
 <p align="center">
-  <img src=".github/assets/screenshots/de/settings-about.webp" alt="Einstellungen, Abschnitt Über RoomX: Logo, Version v1.1.0, Build-Datum, die Zeile Alles bleibt auf deinem Gerät, die Links Datenschutz &amp; Haftung und Open-Source-Lizenzen, die zwei Wege für Rückmeldungen und der Knopf Diagnose kopieren" width="760">
+  <img src=".github/assets/screenshots/de/settings-about.webp" alt="Einstellungen, Abschnitt Über RoomX: Logo, Versionsnummer, Build-Datum, die Zeile Alles bleibt auf deinem Gerät, die Links Datenschutz &amp; Haftung und Open-Source-Lizenzen, die zwei Wege für Rückmeldungen und der Knopf Diagnose kopieren" width="760">
 </p>
 
 ### Tastaturkürzel
@@ -713,7 +713,7 @@ Die E2E-Tests der Foto-Funktion laufen gegen einen lokalen Relay: Die Build-Vari
 
 Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push und prüft Prettier, Typen, Unit-Tests, Server-Tests, die Python-Tests des Katalog-Updates, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
 
-Ein zweiter Workflow, `.github/workflows/catalog-update.yml`, aktualisiert den grossen Katalog jeden Montag um 04:17 Schweizer Zeit mit den Skripten in `catalog-index/`. Er liest die Produktseiten der Händler langsam, je Händler eine Anfrage nach der anderen. Verschwundene Artikel werden markiert, nie gelöscht. Verschwinden zu viele Artikel oder ändern sich zu viele Preise auf einmal, veröffentlicht der Lauf nichts und eröffnet stattdessen ein Issue; Abweichungen bei geprüften Artikeln meldet er ebenfalls als Issue und übernimmt sie nie selbst. Sonst testet er die App, committet ohne Versions-Tag auf `main`, startet den Pages-Workflow und mergt `main` in `dev`. Von Hand lässt er sich ebenfalls starten (`workflow_dispatch`); mit `dry_run` committet er nichts.
+Ein zweiter Workflow, `.github/workflows/catalog-update.yml`, aktualisiert den grossen Katalog jeden Montag um 04:17 Schweizer Zeit mit den Skripten in `catalog-index/`. Er liest die Produktseiten der Händler langsam, je Händler eine Anfrage nach der anderen. Verschwundene Artikel werden markiert, nie gelöscht. Verschwinden zu viele Artikel oder ändern sich zu viele Preise auf einmal, veröffentlicht der Lauf nichts und eröffnet stattdessen ein Issue; Abweichungen bei den von Hand geprüften Möbeln meldet er ebenfalls als Issue und übernimmt sie nie selbst. Sonst testet er die App, committet ohne Versions-Tag auf `main`, startet den Pages-Workflow und mergt `main` in `dev`. Von Hand lässt er sich ebenfalls starten (`workflow_dispatch`); mit `dry_run` committet er nichts, eröffnet aber trotzdem Issues.
 
 ### Veröffentlichung über GitHub Pages
 
