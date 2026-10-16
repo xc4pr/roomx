@@ -374,7 +374,7 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 
 **Socket distance.** Furniture that needs power (TV, monitor, lamps, appliances) shows the way to the nearest socket on the plan. If it is more than 1.5 m away, or if no socket has been recorded in the room at all, you get a hint.
 
-**Variants.** At the top you find the variants of your furnishing, for example “A” and “B”. The plus creates a new variant, either empty or as a copy of an existing one. The menu lets you rename or delete variants. This way you can try two furnishings without losing anything. A plan from the AI assistant also arrives as a variant.
+**Variants.** At the top you find the variants of your furnishing, for example “A” and “B”. The plus creates a new variant, either empty or as a copy of an existing one. The menu lets you rename or delete variants. This way you can try two furnishings without losing anything. A plan from the AI assistant also arrives as a variant. A project holds up to 100 variants, 200 rooms and 5000 pieces of furniture per variant; RoomX tells you when a limit is reached.
 
 **Budget, list and needs.**
 
