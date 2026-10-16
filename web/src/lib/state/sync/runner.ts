@@ -8,6 +8,8 @@ import { planSync, type LocalEntry, type RemoteEntry, type SyncAction } from './
 export interface Host {
 	openProjectId(): string | null;
 	flush(): Promise<void>;
+	// Rises with every change to the open project, so a run can tell that it was edited meanwhile.
+	changeCount(): number;
 	replaceOpen(project: Project): void;
 	closeOpen(): void;
 }
@@ -83,10 +85,13 @@ async function applyRemote(
 ): Promise<void> {
 	const open = ctx.host.openProjectId() === project.id;
 	if (open) await ctx.host.flush();
+	const changes = ctx.host.changeCount();
 	let applied = false;
+	let baseRev = 0;
 	await db.transaction('rw', db.projects, db.sync, db.previews, async () => {
 		const record = await db.sync.get(project.id);
 		if (record?.dirty && !force) return;
+		baseRev = record?.baseRev ?? 0;
 		await db.projects.put(project);
 		await db.sync.put({
 			projectId: project.id,
@@ -101,6 +106,7 @@ async function applyRemote(
 		result.again = true;
 		return;
 	}
+	if (open && (await keepLocalEdit(ctx, project.id, changes, baseRev, result))) return;
 	if (open) {
 		if (project.deleted) ctx.host.closeOpen();
 		else ctx.host.replaceOpen(project);
@@ -109,6 +115,22 @@ async function applyRemote(
 		result.pulled.push(project.id);
 		result.photoHashes.push(...projectPhotoHashes(project));
 	}
+}
+
+// The open project was edited after the flush, while the server state was being stored. Replacing it
+// would drop that edit. It stays open instead, its save lands on top of the server state, and the old
+// base revision makes the next run treat it as a conflict, which keeps both versions.
+async function keepLocalEdit(
+	ctx: RunContext,
+	id: string,
+	changes: number,
+	baseRev: number,
+	result: RunResult
+): Promise<boolean> {
+	if (ctx.host.changeCount() === changes) return false;
+	await db.sync.put({ projectId: id, baseRev, dirty: true });
+	result.again = true;
+	return true;
 }
 
 async function resolveConflict(
@@ -120,9 +142,12 @@ async function resolveConflict(
 	const server = migrateProject(serverRaw);
 	const open = ctx.host.openProjectId() === id;
 	if (open) await ctx.host.flush();
+	const changes = ctx.host.changeCount();
 	const created: ConflictInfo[] = [];
+	let baseRev = 0;
 	await db.transaction('rw', db.projects, db.sync, db.previews, async () => {
 		const record = await db.sync.get(id);
+		baseRev = record?.baseRev ?? 0;
 		const local = await db.projects.get(id);
 		const syncedAt = ctx.now().toISOString();
 		if (local && record?.dirty && !local.deleted) {
@@ -147,6 +172,7 @@ async function resolveConflict(
 		result.conflicts.push(...created);
 		result.again = true;
 	}
+	if (open && (await keepLocalEdit(ctx, id, changes, baseRev, result))) return;
 	if (open) {
 		if (server.deleted) ctx.host.closeOpen();
 		else ctx.host.replaceOpen(server);
