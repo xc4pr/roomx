@@ -70,7 +70,7 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/furnish.webp" alt="Möbelkatalog neben dem Grundriss mit eingerichtetem Wohnzimmer" width="100%"><br>
       <b>Einrichten</b><br>
-      Über 450 Möbel von IKEA, JYSK, Tchibo und allgemeine Modelle. Ziehen, drehen, stapeln, eigene Möbel anlegen, Varianten vergleichen.
+      Über 450 geprüfte Möbel und ein grosser Katalog mit mehreren tausend Artikeln von IKEA, JYSK und Tchibo, dazu allgemeine Modelle. Ziehen, drehen, stapeln, eigene Möbel anlegen, Varianten vergleichen.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/furnish-hints.webp" alt="Ein Möbel in Rot mit dem Hinweis, dass es den Türbereich blockiert" width="100%"><br>
@@ -287,7 +287,9 @@ Die meisten planen am PC oder Laptop, fotografieren aber mit dem Handy. «Mit de
 
 **iPhone und iPad:** Der Link öffnet sich in Safari, nicht in der installierten App, und beide haben getrennten Speicher. Zum Weitermachen öffnest du denselben Link wieder (QR-Code erneut scannen) oder RoomX in Safari und wählst «Offene Foto-Aufträge». Safari löscht Daten einer Webseite nach 7 Tagen ohne Besuch. Übertrage die Fotos deshalb bald.
 
-**Grenzen:** Beide Geräte müssen gleichzeitig offen sein; eine Übertragung im Hintergrund ist nicht möglich. Firmennetze oder Mobilfunk können die direkte Verbindung verhindern. Dann hilft «Fotos stattdessen senden». Welche Dienste den Geräten beim Finden helfen, steht unter [Datenschutz](#datenschutz).
+**Mit dem eigenen Server:** Nutzt du RoomX von deinem eigenen Server und ist der Abgleich eingerichtet, lädt das Handy jedes Foto zusätzlich dorthin hoch. Die Fotos werden schon auf dem Handy verschlüsselt; der Server speichert nur versiegelte Daten, die er nicht lesen kann. Der PC holt sie ab, solange das Projekt in RoomX offen ist, auch wenn er beim Fotografieren ausgeschaltet war. Beide Geräte müssen dann nicht gleichzeitig offen sein. Die direkte Verbindung läuft daneben weiter, doppelte Fotos werden übersprungen. Ein Foto wird vom Server gelöscht, sobald der PC es abgeholt hat; der Rest bei «Auftrag beenden» oder wenn der Auftrag abläuft. Das Handy muss deinen Server erreichen können.
+
+**Grenzen:** Beide Geräte müssen gleichzeitig offen sein (ausser mit dem eigenen Server, siehe oben); eine Übertragung im Hintergrund ist nicht möglich. Firmennetze oder Mobilfunk können die direkte Verbindung verhindern. Dann hilft «Fotos stattdessen senden». Welche Dienste den Geräten beim Finden helfen, steht unter [Datenschutz](#datenschutz).
 
 ### 3D erstellen und ansehen
 
@@ -563,7 +565,7 @@ Ja, nach dem ersten Laden. Die App legt ihre Dateien im Browser ab und startet a
 <details>
 <summary><b>Warum kommen die Fotos nicht an?</b></summary>
 
-Prüfe der Reihe nach: RoomX muss am PC (im Projekt mit dem offenen Auftrag) und auf dem Handy gleichzeitig offen sein, und beide müssen online sein. Der Auftrag darf nicht abgelaufen (7 Tage) oder beendet sein. Auf dem iPhone muss der Link in Safari offen sein, nicht in der installierten App. Firmennetze oder Mobilfunk können die direkte Verbindung blockieren: Nutze dann «Fotos stattdessen senden» am Handy und «Fotos aus Dateien» am PC.
+Prüfe der Reihe nach: RoomX muss am PC (im Projekt mit dem offenen Auftrag) und auf dem Handy gleichzeitig offen sein, und beide müssen online sein. Der Auftrag darf nicht abgelaufen (7 Tage) oder beendet sein. Auf dem iPhone muss der Link in Safari offen sein, nicht in der installierten App. Firmennetze oder Mobilfunk können die direkte Verbindung blockieren: Nutze dann «Fotos stattdessen senden» am Handy und «Fotos aus Dateien» am PC. Mit dem eigenen Server prüfst du, ob das Handy ihn erreicht.
 </details>
 
 <details>
@@ -608,6 +610,7 @@ Kurz gesagt: **Deine Daten bleiben auf deinem Gerät.**
 - Daten verlassen dein Gerät nur, wenn **du** sie weitergibst: mit einem KI-Paket, einem Backup oder einem anderen Export.
 - Fotos werden beim Hinzufügen im Browser verkleinert und ohne Metadaten wie den Aufnahmeort gespeichert.
 - **Mit dem Handy fotografieren** ist die einzige Ausnahme von «kein Server». Nur solange ein Foto-Auftrag offen ist und RoomX auf dem Gerät offen ist, verbinden sich PC und Handy über öffentliche Vermittlungsdienste (Nostr-Relays: nos.lol, relay.damus.io, relay.primal.net, relay.snort.social, nostr.data.haus) und öffentliche STUN-Server (Cloudflare, Google). Sonst geht keine Anfrage nach aussen. Diese Dienste sehen IP-Adressen und verschlüsselte Verbindungsdaten, nie Fotos, Raumdaten oder Projekte. Die Fotos gehen direkt zwischen deinen eigenen Geräten und sind zusätzlich Ende-zu-Ende verschlüsselt (AES-256-GCM, der Schlüssel steht nur im QR-Code und im Link). Der Link enthält Raumnamen und Grundrisse: Teile ihn nur mit Personen, denen du diese anvertraust. Ein Auftrag gilt 7 Tage, «Auftrag beenden» macht ihn sofort ungültig. Fotos, die du stattdessen über das Teilen-Menü sendest, laufen über den Dienst, den du wählst.
+- Mit dem eigenen Server können Fotos zusätzlich verschlüsselt dort liegen, bis der PC sie abholt; der Server kann sie nicht lesen.
 - Die Dateien der App liefert GitHub Pages aus. Beim Aufruf verarbeitet GitHub technische Zugriffsdaten wie die IP-Adresse. Der Betreiber von RoomX erhält sie nicht.
 - Links zu Möbelhäusern («Beim Händler ansehen») öffnen sich nur in einem neuen Tab, wenn du sie antippst. RoomX macht keine Anfragen an die Händler, und es werden keine Projektdaten übergeben.
 - Die Daten im Browser sind nicht zusätzlich verschlüsselt. Sperre dein Gerät.
@@ -702,6 +705,8 @@ cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/
 
 Die E2E-Tests laufen gegen den echten Server (Port 4273, `web/tests/server.mjs`). Für WebKit nutzt `test:e2e:webkit` das Playwright-Docker-Image `mcr.microsoft.com/playwright`, es braucht also Docker.
 
+Die E2E-Tests der Foto-Funktion laufen gegen einen lokalen Relay: Die Build-Variablen `ROOMX_MIRROR_RELAYS` (zum Beispiel `ws://127.0.0.1:4275`) und `ROOMX_MIRROR_STUN=none` ersetzen die öffentlichen Dienste, damit die Tests sie nie erreichen.
+
 ### Branches und Continuous Integration
 
 Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push und prüft Prettier, Typen, Unit-Tests, Server-Tests, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
@@ -733,6 +738,7 @@ docker compose -f deploy/compose.yaml up -d --build
 - `ROOMX_TOKEN`: Zugangs-Token. Das Compose-File bricht ohne Token ab. Dasselbe Token trägst du in der App unter Einstellungen ein, dazu die Server-Adresse.
 - `ROOMX_DATA`: Datenordner im Container (Standard `/data`, als Volume `roomx-data`). `ROOMX_STATIC`: Ordner mit der gebauten App.
 - Prüfen: `GET /api/health`. Die Endpunkte `/api/projects` und `/api/photos/{digest}` verlangen das Token.
+- Der Foto-Briefkasten für «Mit dem Handy fotografieren» liegt unter `/api/mirror` und nutzt dasselbe Token. Grenzen: 500 Fotos und 1,5 GiB je Briefkasten (einer je Auftrag), 16 MiB je Foto, 5 GiB und 100 Briefkästen insgesamt; Aufträge laufen nach höchstens 8 Tagen ab.
 - Kamera, Zwischenablage und Service Worker brauchen **HTTPS**, ausser auf `localhost`. Stelle den Server hinter einen HTTPS-Proxy, wenn du ihn ausserhalb von `localhost` nutzt.
 
 Server ohne Docker (Entwicklung):
