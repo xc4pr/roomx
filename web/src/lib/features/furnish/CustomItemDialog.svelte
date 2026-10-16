@@ -37,7 +37,7 @@
 		}
 		const label = name.trim() || t(categoryNames, category);
 		const priceChf = parsePrice(price);
-		insertItem(
+		const id = insertItem(
 			customItem(
 				{
 					name: label,
@@ -51,6 +51,8 @@
 			),
 			room
 		);
+		// At the furniture limit the store shows why; the dialog keeps the entries.
+		if (!id) return;
 		open = false;
 		name = '';
 		price = '';

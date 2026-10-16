@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIMITS } from '#lib/security/limits.ts';
+import { LIMITS, storedLimit } from '#lib/security/limits.ts';
 import { migrateProject } from './migrations.ts';
 import { SCHEMA_VERSION } from './schema.ts';
 
@@ -58,7 +58,7 @@ describe('repair of over-long strings on load', () => {
 	});
 
 	it('never cuts a too long list', () => {
-		const rooms = Array.from({ length: LIMITS.rooms + 1 }, (_, index) => room(`r${index}`));
+		const rooms = Array.from({ length: storedLimit('rooms') + 1 }, (_, index) => room(`r${index}`));
 		expect(() => migrateProject({ ...base(), rooms })).toThrow();
 	});
 });

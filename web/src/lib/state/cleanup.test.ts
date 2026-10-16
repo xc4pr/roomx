@@ -41,7 +41,7 @@ async function openWithPhoto() {
 	const store = new ProjectStore();
 	const id = await createProject('Wohnung');
 	await store.open(id);
-	const roomId = store.addRoom('Raum');
+	const roomId = store.addRoom('Raum')!;
 	store.addPhoto(roomId, photoOf(A));
 	await store.flush();
 	await db.photos.put(stored(A, 0));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIMITS } from '../security/limits.ts';
+import { LIMITS, storedLimit } from '../security/limits.ts';
 import { CatalogEntrySchema } from './catalog.ts';
 import { sampleCatalog, sampleLookup, samplePlan, sampleProject } from './fixtures.ts';
 import { sequentialIds } from './ids.ts';
@@ -236,7 +236,7 @@ describe('limits in a project', () => {
 
 	it('rejects absurd amounts instead of loading them', () => {
 		const rooms = sampleProject();
-		rooms.rooms = Array.from({ length: LIMITS.rooms + 1 }, () => rooms.rooms[0]);
+		rooms.rooms = Array.from({ length: storedLimit('rooms') + 1 }, () => rooms.rooms[0]);
 		expect(ProjectSchema.safeParse(rooms).success).toBe(false);
 		const name = sampleProject();
 		name.rooms[0].name = 'x'.repeat(LIMITS.name + 1);
@@ -247,7 +247,7 @@ describe('limits in a project', () => {
 				id: 'v',
 				name: 'A',
 				source: 'user',
-				items: Array.from({ length: LIMITS.itemsPerVariant + 1 }, () => item()),
+				items: Array.from({ length: storedLimit('itemsPerVariant') + 1 }, () => item()),
 				suggestions: []
 			}
 		];
@@ -261,7 +261,7 @@ describe('limits in a project', () => {
 			h: 10,
 			takenAt: '2026-01-01T00:00:00.000Z'
 		};
-		photos.rooms[0].photos = Array.from({ length: LIMITS.photosPerRoom + 1 }, () => photo);
+		photos.rooms[0].photos = Array.from({ length: storedLimit('photosPerRoom') + 1 }, () => photo);
 		expect(ProjectSchema.safeParse(photos).success).toBe(false);
 		const captions = sampleProject();
 		captions.rooms[0].photos = [
@@ -274,6 +274,19 @@ describe('limits in a project', () => {
 			}
 		];
 		expect(ProjectSchema.safeParse(captions).success).toBe(false);
+	});
+
+	it('loads a project with more variants than editing allows, unchanged', () => {
+		const project = sampleProject();
+		const variant = { id: 'v', name: 'A', source: 'user' as const, items: [], suggestions: [] };
+		project.variants = Array.from({ length: LIMITS.variants + 1 }, (_, index) => ({
+			...variant,
+			id: `v${index}`
+		}));
+		const loaded = migrateProject(JSON.parse(JSON.stringify(project)));
+		expect(loaded.variants).toHaveLength(LIMITS.variants + 1);
+		project.variants = Array.from({ length: storedLimit('variants') + 1 }, () => variant);
+		expect(() => migrateProject(JSON.parse(JSON.stringify(project)))).toThrow();
 	});
 
 	it('loads data saved before the limits existed', () => {

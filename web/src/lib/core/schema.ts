@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import '../security/zod.ts';
 import { COLOR_PATTERN, safeColor } from '../security/color.ts';
-import { LIMITS } from '../security/limits.ts';
+import { LIMITS, storedLimit } from '../security/limits.ts';
 import { normalizeLinkInput } from '../security/url.ts';
 
 export const SCHEMA_VERSION = 1;
@@ -320,10 +320,10 @@ export const VariantSchema = z.object({
 	id: IdSchema,
 	name: NameTextSchema,
 	source: z.enum(['user', 'ai']),
-	items: z.array(ItemSchema).max(LIMITS.itemsPerVariant),
-	suggestions: z.array(SuggestionSchema).max(LIMITS.suggestionsPerVariant),
+	items: z.array(ItemSchema).max(storedLimit('itemsPerVariant')),
+	suggestions: z.array(SuggestionSchema).max(storedLimit('suggestionsPerVariant')),
 	roomNotes: z.record(IdSchema, LongTextSchema).optional(),
-	shoppingList: z.array(ShoppingEntrySchema).max(LIMITS.shoppingEntries).optional()
+	shoppingList: z.array(ShoppingEntrySchema).max(storedLimit('shoppingEntries')).optional()
 });
 
 export const WorkstationSchema = z.object({
@@ -331,7 +331,7 @@ export const WorkstationSchema = z.object({
 	monitorInch: z.number().positive().optional(),
 	computer: z.enum(['laptop', 'pc', 'both']).optional(),
 	sitStand: z.boolean().optional(),
-	devices: z.array(LabelTextSchema).max(LIMITS.briefList).optional()
+	devices: z.array(LabelTextSchema).max(storedLimit('briefList')).optional()
 });
 
 export const KeepItemSchema = z.object({
@@ -343,15 +343,15 @@ export const BriefSchema = z.object({
 	persons: z.object({
 		adults: z.number().int().min(0),
 		children: z.number().int().min(0),
-		childAges: z.array(z.number().min(0)).max(LIMITS.briefList).optional(),
+		childAges: z.array(z.number().min(0)).max(storedLimit('briefList')).optional(),
 		pets: NameTextSchema.optional()
 	}),
-	bedSizes: z.array(LabelTextSchema).max(LIMITS.briefList).default([]),
-	workstations: z.array(WorkstationSchema).max(LIMITS.briefList).default([]),
+	bedSizes: z.array(LabelTextSchema).max(storedLimit('briefList')).default([]),
+	workstations: z.array(WorkstationSchema).max(storedLimit('briefList')).default([]),
 	style: LongTextSchema.optional(),
 	budgetChf: z.number().min(0).optional(),
-	retailers: z.array(LabelTextSchema).max(LIMITS.briefList).optional(),
-	keep: z.array(KeepItemSchema).max(LIMITS.briefKeep).optional(),
+	retailers: z.array(LabelTextSchema).max(storedLimit('briefList')).optional(),
+	keep: z.array(KeepItemSchema).max(storedLimit('briefKeep')).optional(),
 	wishes: LongTextSchema.optional()
 });
 
@@ -367,12 +367,12 @@ export const RoomSchema = z.object({
 	id: IdSchema,
 	name: NameTextSchema,
 	type: RoomTypeSchema,
-	polygon: z.array(PointSchema).min(3).max(LIMITS.polygonPoints),
+	polygon: z.array(PointSchema).min(3).max(storedLimit('polygonPoints')),
 	height: PositiveMm,
 	boardPos: BoardPosSchema,
-	elements: z.array(ElementSchema).max(LIMITS.elementsPerRoom),
-	photos: z.array(PhotoSchema).max(LIMITS.photosPerRoom),
-	slopes: z.array(SlopeSchema).max(LIMITS.polygonPoints).optional(),
+	elements: z.array(ElementSchema).max(storedLimit('elementsPerRoom')),
+	photos: z.array(PhotoSchema).max(storedLimit('photosPerRoom')),
+	slopes: z.array(SlopeSchema).max(storedLimit('polygonPoints')).optional(),
 	separate: z.boolean().optional(),
 	floorColor: StoredColorSchema,
 	wallColor: StoredColorSchema,
@@ -388,8 +388,8 @@ export const ProjectSchema = z.object({
 	updatedAt: TimestampSchema,
 	deleted: z.boolean().optional(),
 	brief: BriefSchema.optional(),
-	rooms: z.array(RoomSchema).max(LIMITS.rooms),
-	variants: z.array(VariantSchema).max(LIMITS.variants),
+	rooms: z.array(RoomSchema).max(storedLimit('rooms')),
+	variants: z.array(VariantSchema).max(storedLimit('variants')),
 	activeVariantId: IdSchema.optional()
 });
 
