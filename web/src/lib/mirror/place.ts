@@ -8,7 +8,7 @@ import { LIMITS } from '#lib/security/limits.ts';
 import { loadProject, putPhoto } from '#lib/state/persistence.ts';
 import { store } from '#lib/state/project.svelte.ts';
 import { markReceived } from './jobs.ts';
-import { perspectiveFor, toHostStepKey } from './room.ts';
+import { placedPerspective, toHostStepKey } from './room.ts';
 import type { HostJob, PlaceResult } from './types.ts';
 
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
@@ -82,7 +82,7 @@ export async function placeShot(
 	const photo: Photo = {
 		id: newPhotoId(),
 		hash: processed.hash,
-		perspective: perspectiveFor(current, stepKey),
+		perspective: placedPerspective(current, stepKey, mapping.corners),
 		w: processed.w,
 		h: processed.h,
 		takenAt: validTakenAt(shot.takenAt) ?? new Date().toISOString()

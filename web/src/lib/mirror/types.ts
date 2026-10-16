@@ -46,6 +46,8 @@ export interface HostJobRoom {
 	roomId: string;
 	// Real element ids in the order sent to the phone, so `e3` maps back to elementIds[3].
 	elementIds: string[];
+	// Corner count when the job was made; the phone numbers corner and wall steps by it.
+	corners?: number;
 }
 
 // Kept on the computer that created the job. Never synced, never exported.

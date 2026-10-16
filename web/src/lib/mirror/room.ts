@@ -62,13 +62,25 @@ const PREFIX_KINDS: Record<string, PerspectiveKind> = {
 	electric: 'element'
 };
 
+const PHONE_CAPTION = { de: 'Foto vom Handy', en: 'Photo from phone' };
+
 export function perspectiveFor(room: Room, stepKey: string): Perspective {
 	const step = generateTour(room).find((candidate) => candidate.key === stepKey);
 	if (step) return step.perspective;
 	const kind = PREFIX_KINDS[stepKey.split(':')[0]] ?? 'free';
-	return {
-		kind,
-		stepKey,
-		caption: { de: 'Foto vom Handy', en: 'Photo from phone' }
-	};
+	return { kind, stepKey, caption: { ...PHONE_CAPTION } };
+}
+
+// Corner and wall steps are numbered along the polygon. Once the room has more or fewer corners
+// than when the job was made, such a step may name another corner, so the photo gets none.
+export function placedPerspective(
+	room: Room,
+	stepKey: string,
+	corners: number | undefined
+): Perspective {
+	const renumbered =
+		corners !== undefined && corners !== room.polygon.length && /^(corner|wall):/.test(stepKey);
+	return renumbered
+		? { kind: 'free', caption: { ...PHONE_CAPTION } }
+		: perspectiveFor(room, stepKey);
 }

@@ -59,7 +59,7 @@ export const messages = defineMessages({
 		endedNone: 'Auf dem Handy liegen keine ungesendeten Fotos mehr. Du kannst den Auftrag löschen.',
 		fallbackTitle: 'Keine Verbindung zum Computer',
 		fallbackText:
-			'Du kannst die Fotos auch über das Teilen-Menü senden, zum Beispiel per AirDrop, Quick Share oder E-Mail. Öffne danach am Computer im Tab «Fotos» beim Auftrag «Fotos aus Dateien» und wähle die Dateien.',
+			'Du kannst die Fotos auch über das Teilen-Menü senden, zum Beispiel per AirDrop, Quick Share oder E-Mail. Klicke danach am Computer im Tab «Fotos» beim Auftrag auf «Fotos aus Dateien» und wähle die Dateien.',
 		sendInstead: 'Fotos stattdessen senden',
 		sendCount: 'Senden ({n})',
 		delete: 'Löschen',
@@ -162,7 +162,7 @@ export const messages = defineMessages({
 		endedNone: 'No unsent photos are left on this phone. You can delete the job.',
 		fallbackTitle: 'No connection to the computer',
 		fallbackText:
-			'You can also send the photos with the share sheet, for example by AirDrop, Quick Share or email. Then, on the computer, open the “Photos” tab, choose the “Photos from files” job and select the files.',
+			'You can also send the photos with the share sheet, for example by AirDrop, Quick Share or email. Then, on the computer, click “Photos from files” at the job in the “Photos” tab and select the files.',
 		sendInstead: 'Send photos instead',
 		sendCount: 'Send ({n})',
 		delete: 'Delete',

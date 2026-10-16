@@ -130,6 +130,23 @@ describe('placeShot', () => {
 		});
 	});
 
+	// Corner letters follow the polygon, so after a corner was added they may name another corner.
+	it('places corner photos without a step once the room has more corners', async () => {
+		const job = await newJob();
+		await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('c1'), reencode);
+		expect(roomPhotos().at(-1)?.perspective).toMatchObject({ kind: 'corner', stepKey: 'corner:A' });
+		const polygon = store.room('room-rect')?.polygon ?? [];
+		const [a, b] = polygon;
+		store.setPolygon('room-rect', [a, { x: (a.x + b.x) / 2, y: a.y }, ...polygon.slice(1)]);
+		await placeShot(job, { room: 0, stepKey: 'corner:A' }, jpeg('c2'), reencode);
+		expect(roomPhotos().at(-1)?.perspective).toEqual({
+			kind: 'free',
+			caption: { de: 'Foto vom Handy', en: 'Photo from phone' }
+		});
+		await placeShot(job, { room: 0, stepKey: 'ceiling' }, jpeg('c3'), reencode);
+		expect(roomPhotos().at(-1)?.perspective).toMatchObject({ kind: 'ceiling', stepKey: 'ceiling' });
+	});
+
 	it('refuses markup, non-images and images that cannot be re-encoded', async () => {
 		const job = await newJob();
 		const svg = new Uint8Array(svgImage());

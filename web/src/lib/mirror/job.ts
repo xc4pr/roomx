@@ -273,7 +273,8 @@ export async function createHostJob(
 		rooms: built.map(({ elementIds }, index) => ({
 			index,
 			roomId: chosen[index].id,
-			elementIds
+			elementIds,
+			corners: chosen[index].polygon.length
 		})),
 		links,
 		received: [],
