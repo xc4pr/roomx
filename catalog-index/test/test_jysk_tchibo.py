@@ -135,6 +135,22 @@ class TchiboTests(unittest.TestCase):
         self.assertEqual(d["farbe"], "Türkis-blaugrün")
         self.assertEqual(d["masse_zeilen"][0], "B x H x T ca. 16,5 x 10 x 25,5 cm")
 
+    def test_preis_ab_1000_mit_apostroph(self):
+        bestpreis = '<div class="ds-price-best"><span>30-Tage-Bestpreis: </span><span class="ds-price-raw">849.00 CHF</span></div>'
+        aktion = ('<div class="ds-stack pdp-price-display" data-v-6a3574be><div class="ds-price">'
+                  '<del class="ds-price-previous"><span class="ds-price-a11y">Vorheriger Preis</span>'
+                  '<span class="ds-price-raw">1&#39;099.00 CHF</span></del><!----><ins>'
+                  '<span class="ds-price-a11y">Aktueller Preis</span><span class="ds-price-raw ds-price-number">849.00</span>'
+                  '<span class="ds-currency-raw ds-price-currency">CHF</span></ins></div>' + bestpreis + '</div>')
+        d = tchibo.parse_produkt(aktion)
+        self.assertEqual((d["preis_chf"], d["aktionspreis_chf"]), (1099, 849))
+        regulaer = ('<div class="ds-stack pdp-price-display"><div class="ds-price"><ins>'
+                    '<span class="ds-price-a11y">Aktueller Preis</span><span class="ds-price-raw ds-price-number">1&#39;299.00</span>'
+                    '<span class="ds-currency-raw ds-price-currency">CHF</span></ins></div>'
+                    + bestpreis.replace("849.00", "1&#39;299.00") + '</div>')
+        d = tchibo.parse_produkt(regulaer)
+        self.assertEqual((d["preis_chf"], d["aktionspreis_chf"]), (1299, None))
+
     def test_ausverkauft_bleibt_erhalten(self):
         seite = ('<script type="application/ld+json">{"@type":"Product","name":"Sessel","mpn":"1","offers":[{"availability":"https://schema.org/OutOfStock","price":"99.00"}]}</script>')
         z = tchibo.parse_produkt(seite)

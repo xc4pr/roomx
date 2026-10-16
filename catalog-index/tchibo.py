@@ -12,6 +12,7 @@ Produktseite: JSON-LD Product (Name, mpn, Verfuegbarkeit), Preise aus dem sichtb
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import sys
@@ -102,8 +103,8 @@ def parse_kategorie(page: str) -> dict:
 # ------------------------------------------------------------ Produktseite
 
 PREIS_BLOCK = re.compile(r'class="[^"]*pdp-price-display[^"]*"')
-PREV = re.compile(r'<del class="ds-price-previous">.*?<span class="ds-price-raw">\s*([\d.,\']+)\s*CHF</span>', re.S)
-AKT = re.compile(r'<ins>.*?<span class="ds-price-raw ds-price-number">\s*([\d.,\']+)\s*</span>', re.S)
+PREV = re.compile(r'<del class="ds-price-previous">(?:(?!</del>).)*?<span class="ds-price-raw">\s*([\d.,\']+)\s*CHF</span>', re.S)
+AKT = re.compile(r'<ins>(?:(?!</ins>).)*?<span class="ds-price-raw ds-price-number">\s*([\d.,\']+)\s*</span>', re.S)
 DL = re.compile(r"<dt[^>]*>(.*?)</dt>\s*(?:<!--.*?-->\s*)*<dd[^>]*>(.*?)</dd>", re.S)
 # Die Bestellnummer auf der Seite (wie im kuratierten Katalog); `mpn` im JSON-LD ist eine andere Nummer.
 BESTELLNUMMER = re.compile(r"Bestellnummer:\s*(\d{4,8})")
@@ -129,10 +130,11 @@ def parse_produkt(page: str) -> dict:
         out["artikelnummer"] = bestell.group(1)
     # Preisblock: "Vorheriger Preis" (durchgestrichen) und "Aktueller Preis"
     m = PREIS_BLOCK.search(page)
-    block = re.sub(r' data-v-[0-9a-f]+(?:="")?', "", page[m.start(): m.start() + 6000]) if m else ""
+    # Preise ab 1000 mit Apostroph als Tausendertrennzeichen, im HTML als &#39;
+    block = html.unescape(re.sub(r' data-v-[0-9a-f]+(?:="")?', "", page[m.start(): m.start() + 6000])) if m else ""
     prev, akt = PREV.search(block), AKT.search(block)
-    aktuell = g.zahl(akt.group(1)) if akt else ld_preis
-    vorher = g.zahl(prev.group(1)) if prev else None
+    aktuell = g.zahl(akt.group(1).replace("'", "")) if akt else ld_preis
+    vorher = g.zahl(prev.group(1).replace("'", "")) if prev else None
     if vorher is not None and aktuell is not None and vorher > aktuell:
         out["preis_chf"], out["aktionspreis_chf"] = vorher, aktuell
     else:
