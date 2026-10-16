@@ -562,3 +562,100 @@ export function seeded(seed: number): () => number {
 export function split(total: number, parts: number): number[] {
 	return Array.from({ length: parts }, (_, index) => ((index + 0.5) / parts - 0.5) * total);
 }
+
+const TUB_STEPS = 18;
+const TUB_STEP = Math.PI / 12;
+
+// Open wall of a tub chair: an elliptical band of 270 degrees, back at +z, open to the front (-z).
+// The top edge falls from full height at the back to `low` at both ends. The unit box is the outer ellipse and
+// y runs from -0.5 to 0.5; `wall` is the wall thickness as a share of the width.
+function tubGeometry(low: number, wall: number): BufferGeometry {
+	const positions: number[] = [];
+	const indices: number[] = [];
+	const rOut = 0.5;
+	const rIn = 0.5 - wall;
+	const edge = Math.cos(TUB_STEPS * TUB_STEP);
+	const top = (phi: number): number => low + (1 - low) * ((Math.cos(phi) - edge) / (1 - edge));
+	const point = (r: number, phi: number, v: number): Vector3 =>
+		new Vector3(r * Math.sin(phi), -0.5 + v, r * Math.cos(phi));
+	const quad = (a: Vector3, b: Vector3, c: Vector3, d: Vector3, away: Vector3): void => {
+		const n = new Vector3().subVectors(b, a).cross(new Vector3().subVectors(c, a));
+		const at = positions.length / 3;
+		for (const v of [a, b, c, d]) positions.push(v.x, v.y, v.z);
+		if (n.dot(away) >= 0) indices.push(at, at + 1, at + 2, at, at + 2, at + 3);
+		else indices.push(at, at + 2, at + 1, at, at + 3, at + 2);
+	};
+	const out = new Vector3();
+	for (let i = -TUB_STEPS; i < TUB_STEPS; i++) {
+		const p0 = i * TUB_STEP;
+		const p1 = (i + 1) * TUB_STEP;
+		const mid = (p0 + p1) / 2;
+		const t0 = top(p0);
+		const t1 = top(p1);
+		out.set(Math.sin(mid), 0, Math.cos(mid));
+		quad(point(rOut, p0, 0), point(rOut, p1, 0), point(rOut, p1, t1), point(rOut, p0, t0), out);
+		quad(
+			point(rIn, p0, 0),
+			point(rIn, p1, 0),
+			point(rIn, p1, t1),
+			point(rIn, p0, t0),
+			out.clone().negate()
+		);
+		quad(
+			point(rIn, p0, t0),
+			point(rIn, p1, t1),
+			point(rOut, p1, t1),
+			point(rOut, p0, t0),
+			new Vector3(0, 1, 0)
+		);
+		quad(
+			point(rIn, p0, 0),
+			point(rIn, p1, 0),
+			point(rOut, p1, 0),
+			point(rOut, p0, 0),
+			new Vector3(0, -1, 0)
+		);
+	}
+	for (const end of [-TUB_STEPS, TUB_STEPS]) {
+		const phi = end * TUB_STEP;
+		const away = new Vector3(Math.cos(phi), 0, -Math.sin(phi)).multiplyScalar(end);
+		quad(
+			point(rIn, phi, 0),
+			point(rOut, phi, 0),
+			point(rOut, phi, top(phi)),
+			point(rIn, phi, top(phi)),
+			away
+		);
+	}
+	const geometry = new BufferGeometry();
+	geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
+	geometry.setIndex(indices);
+	geometry.computeVertexNormals();
+	return geometry;
+}
+
+export function tub(
+	parent: Group,
+	material: MeshStandardMaterial,
+	dx: number,
+	height: number,
+	dz: number,
+	x: number,
+	y: number,
+	z: number,
+	low = 0.6,
+	wall = 0.08
+): Mesh {
+	const mesh = place(
+		new Mesh(
+			cached(`tub${low}|${wall}`, () => tubGeometry(low, wall)),
+			material
+		),
+		[dx, height, dz],
+		x,
+		y,
+		z
+	);
+	parent.add(mesh);
+	return mesh;
+}

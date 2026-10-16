@@ -1,7 +1,15 @@
 import { Group, type MeshStandardMaterial } from 'three';
 import type { Look } from '#lib/core/catalog.ts';
-import { footing, footSpec, postFooting, standMaterial, type FootSpec } from './feet.ts';
-import { ball, box, cyl, mat, soft, split, tube, type Palette } from './kit.ts';
+import {
+	footing,
+	footSpec,
+	postFooting,
+	slantLeg,
+	splayedFooting,
+	standMaterial,
+	type FootSpec
+} from './feet.ts';
+import { ball, box, cyl, mat, soft, split, tub, tube, type Palette } from './kit.ts';
 
 type Build = (w: number, d: number, h: number, p: Palette, look?: Look) => Group;
 
@@ -83,10 +91,13 @@ function sofaFooting(
 	look: Look,
 	p: Palette,
 	h: number
-): { spec: FootSpec; m: MeshStandardMaterial; metal: boolean } {
+): { spec: FootSpec; m: MeshStandardMaterial; metal: boolean; splay: boolean } {
 	const original = Math.min(0.1, h * 0.12);
+	const spec = footSpec(look, SOFA_FEET, original, h * 0.3);
+	const splay = look.legs === 'splayed' && (spec.legacy || spec.kind === 'legs');
 	return {
-		spec: footSpec(look, SOFA_FEET, original, h * 0.3),
+		splay,
+		spec: splay && spec.legacy ? { ...spec, height: Math.min(0.16, h * 0.2) } : spec,
 		m: standMaterial(look, p, look.base === 'frame'),
 		metal: (look.baseMaterial ?? (look.base === 'frame' ? 'metal' : 'wood')) === 'metal'
 	};
@@ -115,7 +126,12 @@ function sofaBody(
 	);
 	const inner = w - armW * 2;
 
-	if (stand.spec.legacy) {
+	if (stand.splay) {
+		const pts = [-1, 1].flatMap((sx) =>
+			[-1, 1].map((sz): [number, number] => [sx * (w / 2 - 0.09), sz * (d / 2 - 0.09)])
+		);
+		splayedFooting(g, stand.m, pts, legH);
+	} else if (stand.spec.legacy) {
 		for (const sx of [-1, 1]) {
 			for (const sz of [-1, 1]) {
 				box(g, legs, 0.05, legH, 0.05, sx * (w / 2 - 0.07), 0, sz * (d / 2 - 0.07));
@@ -205,10 +221,28 @@ function cantileverArmchair(w: number, d: number, h: number, p: Palette, look: L
 
 const sofa: Build = (w, d, h, p, look = {}) => sofaBody(w, d, h, p, { arms: true }, look);
 
-const armchair: Build = (w, d, h, p, look = {}) =>
-	look.legs === 'cantilever'
+// Tub chair (ANDRUP): a round seat in a shell that wraps three quarters of the circle, on a metal swivel foot.
+function tubArmchair(w: number, d: number, h: number, p: Palette, look: Look): Group {
+	const g = new Group();
+	const shell = mat('fabric', p.main);
+	const cushion = mat('fabric', p.light);
+	const metal = mat('metal', look.frameColor ?? p.darkMetal);
+	const wall = Math.min(0.06, w * 0.09);
+	const seatY = h * 0.4;
+	const shellY = h * 0.24;
+	cyl(g, metal, w * 0.56, 0.025, d * 0.56, 0, 0, 0, 0.9, 28);
+	cyl(g, metal, 0.07, shellY - 0.025, 0.07, 0, 0.025, 0, 1, 16);
+	tub(g, shell, w, h - shellY, d, 0, shellY, 0, 0.62, wall / w);
+	cyl(g, cushion, w - wall * 2 - 0.01, h * 0.1, d - wall * 2 - 0.01, 0, seatY - h * 0.1, 0, 1, 28);
+	return g;
+}
+
+const armchair: Build = (w, d, h, p, look = {}) => {
+	if (look.shape === 'round') return tubArmchair(w, d, h, p, look);
+	return look.legs === 'cantilever'
 		? cantileverArmchair(w, d, h, p, look)
 		: sofaBody(w, d, h, p, { arms: true, seats: 1 }, look);
+};
 
 const cornerSofa: Build = (w, d, h, p, look = {}) => {
 	const g = new Group();
@@ -233,7 +267,9 @@ const cornerSofa: Build = (w, d, h, p, look = {}) => {
 		[w / 2 - 0.08, d / 2 - 0.08],
 		[w / 2 - chaiseW + 0.08, -d / 2 + 0.08]
 	] as const;
-	if (stand.spec.legacy) {
+	if (stand.splay) {
+		splayedFooting(g, stand.m, points, legH);
+	} else if (stand.spec.legacy) {
 		for (const [x, z] of points) box(g, legs, 0.05, legH, 0.05, x, 0, z);
 	} else {
 		postFooting(
@@ -308,9 +344,34 @@ const chair: Build = (w, d, h, p, look = {}) => {
 		return g;
 	}
 	const leg = Math.min(0.045, w * 0.12);
-	for (const sx of [-1, 1]) {
-		box(g, frame, leg, seatY, leg, sx * (w / 2 - leg / 2), 0, -(d / 2 - leg / 2));
-		box(g, frame, leg, h, leg, sx * (w / 2 - leg / 2), 0, d / 2 - leg / 2);
+	if (look.legs === 'splayed') {
+		const run = seatY - 0.04;
+		const off = Math.min(run * 0.16, d * 0.08);
+		const foot = (sx: number, sz: number): [number, number] => [
+			sx * (w / 2 - leg * 1.2),
+			sz * (d / 2 - leg * 1.2)
+		];
+		for (const sx of [-1, 1]) {
+			for (const sz of [-1, 1]) {
+				const [x, z] = foot(sx, sz);
+				slantLeg(g, frame, [x, z], [x - sx * off, z - sz * off], 0, run, leg);
+			}
+			box(
+				g,
+				frame,
+				leg,
+				h - run,
+				leg,
+				sx * (w / 2 - leg * 1.2 - off),
+				run,
+				d / 2 - leg * 1.2 - off
+			);
+		}
+	} else {
+		for (const sx of [-1, 1]) {
+			box(g, frame, leg, seatY, leg, sx * (w / 2 - leg / 2), 0, -(d / 2 - leg / 2));
+			box(g, frame, leg, h, leg, sx * (w / 2 - leg / 2), 0, d / 2 - leg / 2);
+		}
 	}
 	box(g, seat, w, 0.04, d, 0, seatY - 0.04, 0);
 	box(g, frame, w - leg * 2, 0.04, 0.02, 0, seatY - 0.12, d / 2 - leg / 2);

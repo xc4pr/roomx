@@ -23,7 +23,8 @@ export const LOOK_LEGS = [
 	'panel',
 	'cross',
 	'cantilever',
-	'tframe'
+	'tframe',
+	'splayed'
 ] as const;
 export const LOOK_ARMS = ['none', 'slim', 'wide', 'rolled'] as const;
 export const LOOK_BACKS = ['low', 'medium', 'high', 'wing'] as const;
@@ -53,8 +54,9 @@ export const LookSectionSchema = z
 // `base`: none = body on the floor, plinth = recessed toe kick, feet = short feet, legs = tall legs,
 // frame = metal tube frame carrying the body. `sides`: ladder = open frame sides (IVAR). Heights in mm.
 // Tables, desks, seating: `legs` is the stand (four legs, trestle, central pedestal, sled runners, side panels,
-// crossed legs, cantilever frame like POÄNG, T-frame of a sit-stand desk); `drawers` counts drawers (desk unit,
-// bed storage); `shelf` adds a lower shelf. Seating: `arms`, `back` (wing = wing chair), `cushions` = seat cushions.
+// crossed legs, cantilever frame like POÄNG, T-frame of a sit-stand desk, splayed = four legs angled outwards);
+// `drawers` counts drawers (flat under a desk top, bed storage), `rows` give a desk its side unit; `shelf` adds a
+// lower shelf. Seating: `arms`, `back` (wing = wing chair), `cushions` = seat cushions, `shape: round` = tub chair.
 // Beds: `headboard`, `footboard`. Mirrors: `shape`, `border` (frame width, colour `frameColor`). Lamps: `shade`,
 // `shadeColor`, `stem`; `frameColor` colours stem and base.
 export const LookSchema = z
