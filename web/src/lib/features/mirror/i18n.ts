@@ -39,6 +39,8 @@ export const messages = defineMessages({
 		how1: 'Scanne den QR-Code mit der Kamera deines Handys.',
 		how2: 'Fotografiere jetzt oder später, auch ohne Verbindung.',
 		how3: 'Die Fotos kommen an, sobald RoomX hier und auf dem Handy gleichzeitig offen ist.',
+		how3Server:
+			'Die Fotos kommen über deinen Server an, auch wenn dieser Computer beim Fotografieren aus ist.',
 		how4: 'Der Auftrag gilt 7 Tage.',
 		revoke: 'Auftrag beenden',
 		revokeTitle: 'Auftrag beenden?',
@@ -56,11 +58,9 @@ export const messages = defineMessages({
 		importPick: 'Dateien wählen',
 		importDrop: 'JPEG-Dateien hierher ziehen',
 		importAnother: 'Weitere Dateien',
-		importReading: 'Dateien werden gelesen…',
 		importButton: 'Importieren',
 		importNoneReady:
 			'Keine dieser Dateien lässt sich zuordnen. Importiert werden nur Fotos mit dem Status «Bereit».',
-		importCount: '{n} bereit',
 		importClear: 'Liste leeren',
 		importTooMany: 'Höchstens {max} Dateien auf einmal. Der Rest wurde ignoriert.',
 		importNotJpeg: '{name} ist keine JPEG-Datei.',
@@ -82,8 +82,8 @@ export const messages = defineMessages({
 		thumbnailAlt: 'Vorschau von {name}'
 	},
 	en: {
-		open: 'Photograph with your phone',
-		dialogTitle: 'Photograph with your phone',
+		open: 'Take photos with your phone',
+		dialogTitle: 'Take photos with your phone',
 		pickIntro: 'Choose the rooms you want to photograph with your phone. RoomX creates a QR code.',
 		pickRooms: 'Rooms',
 		roomProgress: '{done} of {total} required photos',
@@ -117,6 +117,8 @@ export const messages = defineMessages({
 		how1: 'Scan the QR code with your phone camera.',
 		how2: 'Take photos now or later, even without a connection.',
 		how3: 'Photos arrive as soon as RoomX is open here and on the phone at the same time.',
+		how3Server:
+			'The photos arrive through your server, even if this computer is off while you take them.',
 		how4: 'The job is valid for 7 days.',
 		revoke: 'End job',
 		revokeTitle: 'End job?',
@@ -134,10 +136,8 @@ export const messages = defineMessages({
 		importPick: 'Choose files',
 		importDrop: 'Drop JPEG files here',
 		importAnother: 'More files',
-		importReading: 'Reading files…',
 		importButton: 'Import',
-		importNoneReady: 'None of these files can be matched. Only photos marked "Ready" are imported.',
-		importCount: '{n} ready',
+		importNoneReady: 'None of these files can be matched. Only photos marked “Ready” are imported.',
 		importClear: 'Clear list',
 		importTooMany: 'At most {max} files at once. The rest was ignored.',
 		importNotJpeg: '{name} is not a JPEG file.',

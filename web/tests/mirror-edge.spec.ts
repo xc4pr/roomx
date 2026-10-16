@@ -67,7 +67,7 @@ test('Rückfall: ohne PC nach 30 s Teilen, Dateien am PC importieren', async ({
 	await openRoomCapture(phone, 'now');
 	await takePhotos(phone, 2, browserName);
 	await closeCapture(phone);
-	await expect(phone.getByTestId('camera-status')).toContainText('Suche PC');
+	await expect(phone.getByTestId('camera-status')).toContainText('Suche Computer');
 	await expect(phone.getByTestId('camera-fallback')).toHaveCount(0);
 
 	await phone.clock.fastForward(31_000);
