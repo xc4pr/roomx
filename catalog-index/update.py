@@ -110,7 +110,12 @@ def index_lauf(modul, state: Path = g.STATE, out: Path = g.OUT, budget_min: floa
             erledigt.add(url)
             b["abgerufen"] += 1
             neu_gesehen = e[url]["geprueft"] is None
-            zeile = modul.hole(shop, url, ctx)
+            try:
+                zeile = modul.hole(shop, url, ctx)
+            except g.Blockiert:
+                raise
+            except Exception as ex:  # untypische Seite: Fehler dieser URL, nicht des Laufs
+                zeile = {"url": url, "ergebnis": "fehler", "fehler": f"{type(ex).__name__}: {str(ex)[:200]}", "weiter": None}
             erledigt.update({zeile["url"], zeile.get("weiter_von") or url})
             if zeile["ergebnis"] == "fehler":
                 b["fehler"] += 1

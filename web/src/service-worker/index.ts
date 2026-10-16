@@ -1,7 +1,7 @@
 import { version } from '$app/env';
 import { assets, immutable } from '$app/manifest';
 import { self as sw } from '$app/service-worker';
-import { respondFromCache } from './respond.ts';
+import { respondFromCache, staleCaches } from './respond.ts';
 
 const CACHE = `roomx-${version}`;
 // The worker's scope is the app's base path ('/' on the own server, '/roomx/' on GitHub Pages).
@@ -17,9 +17,7 @@ sw.addEventListener('activate', (event) => {
 	event.waitUntil(
 		caches
 			.keys()
-			.then((keys) =>
-				Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))
-			)
+			.then((keys) => Promise.all(staleCaches(keys, CACHE).map((key) => caches.delete(key))))
 			// A failed cleanup must not keep the worker from taking control.
 			.catch(() => undefined)
 			.then(() => sw.clients.claim())

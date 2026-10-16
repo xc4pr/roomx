@@ -255,5 +255,21 @@ class SitemapRangTest(unittest.TestCase):
         self.assertEqual(len(liste), 4)
 
 
+class GzipGrenzeTest(unittest.TestCase):
+    def test_gzip_bombe_wird_abgelehnt(self):
+        import gzip
+        bombe = gzip.compress(b"\0" * 5_000_000)
+        self.assertLess(len(bombe), 10_000)
+        url = "https://www.ikea.com/ch/de/p/bombe/"
+        alt, g.MAX_BYTES = g.MAX_BYTES, 100_000
+        try:
+            with self.assertRaises(ValueError):
+                shop({url: Antwort(200, bombe)}).hole(url)
+            ok = shop({url: Antwort(200, gzip.compress(b"<html>ok</html>"))}).hole(url)
+            self.assertEqual(ok.text if hasattr(ok, "text") else ok.html, "<html>ok</html>")
+        finally:
+            g.MAX_BYTES = alt
+
+
 if __name__ == "__main__":
     unittest.main()

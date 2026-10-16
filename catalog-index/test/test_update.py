@@ -645,5 +645,51 @@ class ImportUndStand(unittest.TestCase):
                 os.environ["ROOMX_INDEX_LOCKS"] = alt
 
 
+class UntypischeSeite(unittest.TestCase):
+    """Eine Ausnahme aus modul.hole ist Fehler dieser URL, ausser Blockiert."""
+
+    def modul(self, wirf):
+        class M:
+            def __getattr__(self, n):
+                return getattr(jysk, n)
+
+            def hole(self, shop, url, ctx):
+                if url.endswith("/a/"):
+                    raise wirf
+                return jysk.hole(shop, url, ctx)
+        return M()
+
+    def test_fremde_ausnahme_beendet_lauf_nicht(self):
+        state, out = tmp(), tmp()
+        vorbereiten(state, {"a": None, "b": None})
+        op = FalscherOpener({**sitemap(), **seiten("a", "b")})
+        code, b = update.index_lauf(self.modul(AttributeError("'str' object has no attribute 'get'")), state=state, out=out,
+                                    opener=op, lock_dir=tmp(), pause=0.0, ohne_suche=True)
+        self.assertEqual((code, b["abgerufen"], b["fehler"]), (0, 2, 1))
+        self.assertIn("AttributeError", b["fehler_beispiele"][0])
+        z = zs.Zustand(state / "jysk.jsonl", jysk.PRAEFIX).laden()
+        self.assertEqual(z.eintraege[PFAD + "b/"]["status"], "produkt")
+
+    def test_blockiert_bleibt_code_2(self):
+        state, out = tmp(), tmp()
+        vorbereiten(state, {"a": None, "b": None})
+        op = FalscherOpener({**sitemap(), **seiten("a", "b")})
+        code, b = update.index_lauf(self.modul(g.Blockiert("403")), state=state, out=out,
+                                    opener=op, lock_dir=tmp(), pause=0.0, ohne_suche=True)
+        self.assertEqual((code, b["blockiert"]), (2, True))
+
+
+class BerichtTextTest(unittest.TestCase):
+    def test_shop_text_entschaerft(self):
+        t = bericht.md_text("Kommode | a\nb @xc4pr " + "x" * 300)
+        self.assertNotIn("\n", t)
+        self.assertNotIn("@x", t)
+        self.assertIn("\\|", t)
+        self.assertEqual(len(t), 200)
+        self.assertTrue(t.endswith("\u2026"))
+        md = bericht.kuratiert_tabelle([{"id": "i", "alt": 1, "neu": 2, "grund": "Preis", "url": "https://x/a|b"}])
+        self.assertIn("a\\|b", md)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import datetime as dt
 import fcntl
-import gzip
 import json
 import os
 import re
 import sys
 import tempfile
 import time
+import zlib
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -201,7 +201,13 @@ class Shop:
             finally:
                 fcntl.flock(f, fcntl.LOCK_UN)
         if roh[:2] == b"\x1f\x8b":
-            roh = gzip.decompress(roh)
+            d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+            try:
+                roh = d.decompress(roh, MAX_BYTES + 1)
+            except zlib.error as ex:
+                raise ValueError(f"gzip fehlerhaft: {ex}") from ex
+            if len(roh) > MAX_BYTES or d.unconsumed_tail:
+                raise ValueError(f"entpackt mehr als {MAX_BYTES} Bytes")
         if weiter:
             weiter = urllib.parse.urljoin(url, weiter)
         return Antwort(url, status, weiter, roh.decode("utf-8", "replace"))
