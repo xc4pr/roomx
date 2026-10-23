@@ -130,6 +130,10 @@ describe('export with neighbours', () => {
 		expect(doc.rooms[0].walls[1].neighbours).toEqual([
 			{ roomId: 'right', roomName: 'Flur', wall: 4, from: 0, to: 3000, thickness: 150 }
 		]);
+		// The exported file is the schema-parsed document, so the thickness has to survive parsing.
+		expect(ExportSchema.parse(doc).rooms[0].walls[1].neighbours).toEqual(
+			doc.rooms[0].walls[1].neighbours
+		);
 		expect(doc.rooms[1].walls[3].elements[0]).toMatchObject({
 			id: 'pass@right',
 			sharedFrom: 'pass',
