@@ -90,7 +90,8 @@ export const ExportWallSchema = z.object({
 				roomName: z.string(),
 				wall: z.number().int(),
 				from: Mm,
-				to: Mm
+				to: Mm,
+				thickness: Mm
 			})
 		)
 		.optional()
