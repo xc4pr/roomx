@@ -686,6 +686,7 @@ Requirements: Node 24 and pnpm 12.
 ```bash
 pnpm -C web install
 pnpm -C web dev          # dev server on http://localhost:5173
+pnpm -C web lint         # Prettier check (pnpm -C web format fixes it)
 pnpm -C web check        # type and Svelte checks
 pnpm -C web test         # unit tests (Vitest)
 pnpm -C web build        # static files in web/build (self-hosted version unless EDITION says otherwise)
@@ -702,7 +703,8 @@ pnpm -C web test:e2e            # E2E in Chromium (desktop and iPad landscape), 
 pnpm -C web test:e2e:webkit     # E2E in WebKit (iPad landscape and portrait) in a Docker image
 pnpm -C web test:e2e:pages      # E2E against the public version (built with EDITION=free) in Chromium, with network audit
 pnpm -C web test:e2e:pages:webkit   # the same in WebKit, in a Docker image
-cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest
+python3 -m unittest discover -s catalog-index/test   # tests of the catalogue update
+cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest && .venv/bin/ruff check
 ```
 
 The E2E tests run against the real server (port 4273, `web/tests/server.mjs`). For WebKit, `test:e2e:webkit` uses the Playwright Docker image `mcr.microsoft.com/playwright`, so it needs Docker.
@@ -711,7 +713,7 @@ The E2E tests of the photo feature run against a local relay: the build variable
 
 ### Branches and continuous integration
 
-Work happens on the branch **`dev`**; **`main` is the published state**. The CI (`.github/workflows/ci.yml`) runs on every push and checks Prettier, types, unit tests, server tests, the Python tests of the catalogue update, the builds and the E2E tests (Chromium, WebKit, and the Pages edition including a network audit that makes sure the public version sends no requests to other servers).
+Work happens on the branch **`dev`**; **`main` is the published state**. The CI (`.github/workflows/ci.yml`) runs on every push to `dev` and on every pull request to `main` and checks Prettier, types, unit tests, server tests and Ruff, the Python tests of the catalogue update, the builds and the E2E tests (Chromium, WebKit, and the Pages edition including a network audit that makes sure the public version sends no requests to other servers).
 
 A second workflow, `.github/workflows/catalog-update.yml`, updates the large catalogue every Monday at 04:17 Swiss time with the scripts in `catalog-index/`. It reads the retailers’ product pages slowly, one request at a time per retailer. Items that disappear are marked, never deleted. If too many items disappear or too many prices change at once, the run publishes nothing and opens an issue instead; differences in the hand-checked items are also reported as an issue and never applied automatically. Otherwise the run tests the app, commits to `main` without a version tag, starts the Pages workflow and merges `main` into `dev`. It can be started by hand (`workflow_dispatch`); with `dry_run` it commits nothing but still opens issues.
 
@@ -742,6 +744,7 @@ docker compose -f deploy/compose.yaml up -d --build
 - `ROOMX_TOKEN`: access token. The compose file aborts without a token. You enter the same token in the app under Settings, together with the server address.
 - `ROOMX_BIND`: address the port is published on. The default `127.0.0.1` allows only this machine, for an HTTPS proxy on the same machine; use `0.0.0.0` only if the proxy runs elsewhere.
 - `ROOMX_DATA`: data folder inside the container (default `/data`, as the volume `roomx-data`). `ROOMX_STATIC`: folder with the built app.
+- `ROOMX_ALLOWED_ORIGINS`: optional, comma-separated origins (`scheme://host[:port]`, no path, no wildcard) that may call the API from another origin, for example `http://localhost:5173` for the dev server. Leave it empty when this server also serves the app: same-origin requests need no CORS. An invalid entry stops the server at startup.
 - Check with `GET /api/health`. The endpoints `/api/projects` and `/api/photos/{digest}` require the token.
 - The photo mailbox for “Take photos with your phone” is served under `/api/mirror`: the computer uses the same token, the phone uploads with a per-job secret derived from the link. Limits: 500 photos and 1.5 GiB per mailbox (one per job), 16 MiB per photo, 5 GiB and 100 mailboxes in total; jobs expire after at most 8 days. The phone deletes its copy only when the computer has left a receipt signed with the job key, so the server alone cannot make it drop photos. An ended job keeps a small marker until it expires, so a phone that was offline still learns that it ended.
 - Camera, clipboard and service worker need **HTTPS**, except on `localhost`. Put the server behind an HTTPS proxy if you use it anywhere other than `localhost`.
