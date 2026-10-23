@@ -101,6 +101,31 @@ describe('resolvePlan', () => {
 		expect(beds[0]).toMatchObject({ id: 'my-bed', x: 2000, locked: true });
 		expect(resolved.issues.map((issue) => issue.code)).toEqual(['lockedKept']);
 	});
+
+	it('places items on a locked item, whether the plan lists it or leaves it out', () => {
+		const { project, items } = resolveSample();
+		const lockedDesk = { ...byName(items, 'Schreibtisch'), id: 'my-desk', locked: true };
+		project.variants = [
+			{ id: 'v1', name: 'Mein Stand', source: 'user', items: [lockedDesk], suggestions: [] }
+		];
+		project.activeVariantId = 'v1';
+		const listed = samplePlan();
+		listed.variants[0].rooms[0].items[1] = { id: 'my-desk' };
+		listed.variants[0].rooms[0].items[2] = { catalogId: 'generic-monitor-27', on: 'my-desk' };
+		const omitted = samplePlan();
+		omitted.variants[0].rooms[0].items.splice(1, 2, {
+			catalogId: 'generic-monitor-27',
+			on: 'my-desk'
+		});
+		for (const plan of [listed, omitted]) {
+			const resolved = resolvePlan(plan, project, sampleLookup);
+			expect(resolved.issues.filter((issue) => issue.severity === 'error')).toEqual([]);
+			expect(byName(resolved.variants[0].items, 'Monitor')).toMatchObject({
+				onItemId: 'my-desk',
+				elevation: lockedDesk.elevation + lockedDesk.dims.h
+			});
+		}
+	});
 });
 
 describe('checks', () => {

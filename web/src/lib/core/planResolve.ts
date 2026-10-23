@@ -116,6 +116,7 @@ export function itemRef(planItem: PlanItem, index: number): string {
 function resolveRoomItems(
 	planRoom: PlanRoom,
 	room: Room,
+	locked: readonly Item[],
 	lockedIds: ReadonlySet<string>,
 	lookup: CatalogLookup,
 	newId: IdFactory,
@@ -123,7 +124,10 @@ function resolveRoomItems(
 	report: (issue: Omit<PlanIssue, 'variantIndex' | 'roomId'>) => void
 ): Item[] {
 	const resolved: Item[] = [];
-	const byPlanId = new Map<string, Item>();
+	// Locked items stay in the variant, so plan items may stand on them by their export id.
+	const byPlanId = new Map<string, Item>(
+		locked.filter((item) => item.roomId === room.id).map((item) => [item.id, item])
+	);
 	let pending = planRoom.items.map((planItem, index) => ({ planItem, index }));
 
 	const tryResolve = (planItem: PlanItem, index: number): 'done' | 'wait' => {
@@ -336,7 +340,9 @@ export function resolvePlan(
 			}
 			const report = (issue: Omit<PlanIssue, 'variantIndex' | 'roomId'>) =>
 				issues.push({ ...issue, variantIndex, roomId: room.id });
-			items.push(...resolveRoomItems(planRoom, room, lockedIds, lookup, newId, language, report));
+			items.push(
+				...resolveRoomItems(planRoom, room, locked, lockedIds, lookup, newId, language, report)
+			);
 			planRoom.electrical.forEach((electrical, index) => {
 				const result = resolveElectrical(electrical, room, newId);
 				if (result === 'incomplete' || result === 'unknownWall') {
