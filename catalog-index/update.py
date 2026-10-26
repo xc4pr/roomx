@@ -160,7 +160,7 @@ def zeilen_aus_zustand(state: Path) -> dict[str, dict]:
             if e["zeile"] is None:
                 continue
             rows[name][url] = {"shop": name, "url": url, "ergebnis": "produkt", "im_umfang": e["umfang"],
-                               "verschwunden": zs.ist_verschwunden(e), **e["zeile"]}
+                               "verschwunden": zs.ist_verschwunden(e), "geprueft": e["geprueft"], **e["zeile"]}
     return rows
 
 

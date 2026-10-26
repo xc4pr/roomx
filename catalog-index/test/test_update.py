@@ -445,6 +445,35 @@ class NormalizeTest(unittest.TestCase):
         self.assertEqual(neu["100.000.01"], alt)
         self.assertNotEqual(neu["100.000.02"], alt)
 
+    def test_umbenannte_seite_ergibt_einen_eintrag_mit_alter_id(self):
+        u0, u1 = "https://www.ikea.com/ch/de/p/a-waschbeckschr-000/", "https://www.ikea.com/ch/de/p/a-waschbeckenschrank-000/"
+        a = self.aufbau({u0: ("produkt", ikea_zeile("A Waschbeckschr - schwarz 80x48 cm", "396.294.48", 10))})
+        self.assertEqual(self.lauf(*a), 0)
+        alt = json.loads(a[4].read_text())[0]["id"]
+        for status_alt in ("produkt", "404"):
+            with self.subTest(alte_seite=status_alt):
+                z = zs.Zustand(a[1] / "ikea.jsonl", "https://www.ikea.com/ch/de/p/").laden()
+                z.eintraege[u0]["status"] = status_alt
+                z.uebernimm({"url": u1, "ergebnis": "produkt", **ikea_zeile("A Waschbeckenschrank - schwarz 80x48 cm", "396.294.48", 10),
+                             "im_umfang": True}, "2026-10-26", True)
+                z.speichern()
+                self.assertEqual(self.lauf(*a), 0)
+                neu = json.loads(a[4].read_text())
+                self.assertEqual([(e["id"], e["url"], e["priceChf"]) for e in neu], [(alt, u1, 10)])
+                self.assertFalse(neu[0].get("discontinued", False))
+                rep = json.loads((a[2] / "report.json").read_text())
+                self.assertEqual(rep["shops"]["ikea"]["verworfen"].get("gleiche_artikelnummer"), 1)
+
+    def test_gleiche_artikelnummer_am_selben_tag_behaelt_bisherige_url(self):
+        u0, u1 = "https://www.ikea.com/ch/de/p/b-kommode-000/", "https://www.ikea.com/ch/de/p/a-kommode-000/"
+        a = self.aufbau({u0: ("produkt", ikea_zeile("B Kommode - schwarz 80x48 cm", "100.000.07", 10))})
+        self.assertEqual(self.lauf(*a), 0)
+        z = zs.Zustand(a[1] / "ikea.jsonl", "https://www.ikea.com/ch/de/p/").laden()
+        z.eintrag(u1).update(umfang=True, status="produkt", geprueft="2026-10-15", zeile=ikea_zeile("A Kommode - schwarz 80x48 cm", "100.000.07", 10))
+        z.speichern()
+        self.assertEqual(self.lauf(*a), 0)
+        self.assertEqual([e["url"] for e in json.loads(a[4].read_text())], [u0])
+
     def test_doppelte_artikelnummer_bricht_ab(self):
         a = self.aufbau({"https://www.ikea.com/ch/de/p/malm-000/": ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "5.5", 10))})
         doppelt = [{"id": "ikea-x1", "brand": "IKEA", "articleNo": "5.5", "name": {"de": "X1", "en": "X1"}},

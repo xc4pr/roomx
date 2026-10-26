@@ -406,6 +406,18 @@ def englisch(de, art, shop, serie, arten, woerter):
     return namen_en.name_en_info(de, shop, serie, woerter, arten)
 
 
+def zweite_urls(shop, rows, alte_urls):
+    """Fuehrt der Shop einen Artikel unter mehreren URLs (etwa nach einer Umbenennung), zaehlt nur eine:
+    die lebende, dann die zuletzt gepruefte, dann die bisherige. Sonst entstuenden zwei Eintraege mit derselben Nummer."""
+    alte = {u.rstrip('/') for u in alte_urls if u}
+    je_nr = defaultdict(list)
+    for url, r in rows.items():
+        nr = artnr_zahl(r.get('artikelnummer'))
+        if nr and r.get('ergebnis') == 'produkt' and (shop != 'ikea' or r.get('im_umfang') is True):
+            je_nr[nr].append((not r.get('verschwunden'), r.get('geprueft') or '', url.rstrip('/') in alte, url))
+    return {rang[3] for kandidaten in je_nr.values() for rang in sorted(kandidaten)[:-1]}
+
+
 def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, arten=None, woerter=None, vorher=None):
     """Kernlauf. Gibt (eintraege, bericht, offen_zuordnung, offen_farben) zurueck; veraendert ids_tab.
     vorher: bisherige full.json; ihre IDs gehen an einen neuen Schluessel mit derselben Artikelnummer."""
@@ -422,7 +434,11 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
         rows = rows_by_shop.get(shop, {})
         b = {'zeilen': len(rows), 'produkte': 0, 'im_umfang': 0, 'uebernommen': 0, 'eintraege': 0, 'discontinued': 0, 'verworfen': Counter()}
         bericht[shop] = b
-        for r in rows.values():
+        zweitseiten = zweite_urls(shop, rows, {e.get('url') for e in vorher or []})
+        for url, r in rows.items():
+            if url in zweitseiten:
+                b['verworfen']['gleiche_artikelnummer'] += 1
+                continue
             if r.get('ergebnis') != 'produkt':
                 b['verworfen']['kein_produkt'] += 1
                 continue
