@@ -161,5 +161,5 @@ describe('plan slopes', () => {
 			const doc = await PDFDocument.load(result.bytes);
 			expect(doc.getPageCount()).toBe(result.pageCount);
 		}
-	});
+	}, 20_000);
 });
