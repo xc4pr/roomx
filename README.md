@@ -180,7 +180,12 @@ Under **Dimensions** there are three ways to set the shape:
 
 **Height.** Enter the ceiling height. It is used for 3D, the checks and the AI package.
 
-**Sloped ceilings.** For each wall you can set a slope: enter the **knee wall** height (ceiling height right at the wall) and the **angle**. RoomX works out the distance from the wall at which the full room height is reached and where 2 m of headroom begins. Slopes appear hatched in the plan and in 3D, and furniture that does not fit underneath is flagged.
+**Sloped ceilings.** For each wall you can set a slope. Enter the **knee wall** height (ceiling height right at the wall), and the slope as an **angle** or as a **depth** (the distance from the wall to the full room height). RoomX shows both values. Example: room height 2.50 m, knee wall 0.50 m and depth 2 m give 45°. RoomX works out the distance from the wall at which the full room height is reached and where 2 m of headroom begins. Slopes appear hatched in the plan and in 3D, and furniture that does not fit underneath is flagged.
+
+- **Sections:** A slope can cover only part of a wall. Enter **From** and **To**, counted from the corner at the start of the wall. A wall can have several sections. Outside them the wall is normal height; at the ends, vertical cheeks form, in the plan and in 3D.
+- **Dormers:** In a section, enter **From**, **To** and the **Height**. The ceiling there is at least as high as the dormer. The button **Window in the dormer** puts a window in the dormer front. A dormer as high as the room interrupts the slope.
+- **Roof window:** The roof window is in the palette, in the group **Openings**, and only in rooms with a slope. You set its position along the wall, the **Lower edge above floor** and its width × length (default 78 × 118 cm; the length runs along the slope). In the plan it is a symbol in the hatching, in 3D an opening with light. For the AI assistant it counts as a window.
+- Doors and windows higher than the knee wall cut the slope cleanly, like a small dormer.
 
 **More settings in the panel:**
 
@@ -213,7 +218,7 @@ In the room panel, section **Elements**, you find the palette:
 
 | Group | Elements |
 |---|---|
-| Openings | Door, Window |
+| Openings | Door, Window, Roof window |
 | Electrical | Socket, Switch, Wall lamp, LAN / TV, Ceiling lamp |
 | Heating and climate | Radiator, Wall air conditioner, Floor air conditioner, Fireplace, Wood stove, Tiled stove |
 | Sanitary | Toilet, Washbasin, Shower, Bathtub |

@@ -180,7 +180,12 @@ Unter **Masse** gibt es drei Arten, die Form festzulegen:
 
 **Höhe.** Trage die Raumhöhe ein. Sie gilt für 3D, Prüfungen und das KI-Paket.
 
-**Dachschrägen.** Pro Wand kannst du eine Schräge einstellen: Gib die **Kniestockhöhe** (Deckenhöhe direkt an der Wand) und die **Neigung** an. RoomX rechnet aus, ab welchem Abstand die volle Raumhöhe erreicht ist und wo die Stehhöhe von 2 m beginnt. Schrägen erscheinen schraffiert im Plan und in 3D, und Möbel, die nicht darunter passen, werden markiert.
+**Dachschrägen.** Pro Wand kannst du eine Schräge einstellen. Gib die **Kniestockhöhe** (Deckenhöhe direkt an der Wand) an und die Schräge als **Neigung** oder als **Tiefe** (Abstand von der Wand bis zur vollen Raumhöhe). RoomX zeigt beide Werte. Beispiel: Raumhöhe 2,50 m, Kniestock 0,50 m und Tiefe 2 m ergeben 45°. RoomX rechnet aus, ab welchem Abstand die volle Raumhöhe erreicht ist und wo die Stehhöhe von 2 m beginnt. Schrägen erscheinen schraffiert im Plan und in 3D, und Möbel, die nicht darunter passen, werden markiert.
+
+- **Abschnitte:** Eine Schräge kann nur einen Teil der Wand belegen. Trage **Von** und **Bis** ab der Ecke am Wandanfang ein. Je Wand sind mehrere Abschnitte möglich. Ausserhalb ist die Wand normal hoch; an den Enden entstehen senkrechte Wangen, im Plan und in 3D.
+- **Gauben:** In einem Abschnitt gibst du **Von**, **Bis** und die **Höhe** an. Dort ist die Decke mindestens so hoch. Der Knopf **Fenster in die Gaube** setzt ein Fenster in die Gaubenfront. Eine Gaube, die so hoch ist wie der Raum, unterbricht die Schräge.
+- **Dachfenster:** Das Dachfenster findest du in der Palette in der Gruppe **Öffnungen**, aber nur in Räumen mit Schräge. Du legst die Lage entlang der Wand fest, die **Unterkante über Boden** und Breite × Länge (Standard 78 × 118 cm; die Länge läuft entlang der Schräge). Im Plan ist es ein Symbol in der Schraffur, in 3D eine Öffnung mit Licht. Für den KI-Assistenten ist es ein Fenster.
+- Türen und Fenster, die höher sind als die Kniestockwand, schneiden die Schräge sauber aus, wie eine kleine Gaube.
 
 **Weitere Einstellungen im Panel:**
 
@@ -213,7 +218,7 @@ Im Panel des Raums, Bereich **Elemente**, findest du die Palette:
 
 | Gruppe | Elemente |
 |---|---|
-| Öffnungen | Tür, Fenster |
+| Öffnungen | Tür, Fenster, Dachfenster |
 | Elektro | Steckdose, Schalter, Wandlampe, LAN / TV, Deckenlampe |
 | Heizung und Klima | Heizkörper, Klima-Wandgerät, Klima-Standgerät, Cheminée, Kaminofen, Kachelofen |
 | Sanitär | WC, Waschtisch, Dusche, Badewanne |
