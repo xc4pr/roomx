@@ -296,6 +296,48 @@ describe('stairwell in the room meshes', () => {
 		expect(holes[0].every((q) => q.x >= nx - 1 || q.y >= ny - 1)).toBe(true);
 	});
 
+	it('opens exactly the treads that lie in an L-shaped room, also around its inner corner', () => {
+		const l = (id: string, floorId: string): Room => ({
+			...big(id, floorId),
+			polygon: [
+				{ x: 2450, y: 0 },
+				{ x: 7000, y: 0 },
+				{ x: 7000, y: 5000 },
+				{ x: 0, y: 5000 },
+				{ x: 0, y: 2360 },
+				{ x: 2450, y: 2360 }
+			]
+		});
+		const cases: Partial<Stair>[] = [
+			{ shape: 'l', x: 3000, y: 500 },
+			{ shape: 'u', x: 3000, y: 600 },
+			{ shape: 'spiral', x: 1500, y: 1500, width: 1200, rotation: 180, turn: 'right' },
+			{ shape: 'spiral', x: 2450, y: 2360, rotation: 90 }
+		];
+		for (const patch of cases) {
+			const upper = l('b', 'og');
+			const p: Project = {
+				...project([stair(patch.shape, patch)]),
+				rooms: [big('a', 'eg'), upper]
+			};
+			const treads = stairContext(p, p.stairs![0])!.opening.map((tread) => tread.polygon);
+			const holes = roomHoles(p, upper).floor;
+			const label = JSON.stringify(patch);
+			let wrong = 0;
+			for (let x = 25; x < 7000; x += 50) {
+				for (let y = 25; y < 5000; y += 50) {
+					const point = { x, y };
+					if (!pointInPolygon(point, upper.polygon)) continue;
+					const open = holes.filter((hole) => pointInPolygon(point, hole)).length % 2 === 1;
+					const tread = treads.some((polygon) => pointInPolygon(point, polygon));
+					if (tread && !open) wrong++;
+					if (!tread && open && patch.shape !== 'spiral') wrong++;
+				}
+			}
+			expect(wrong, label).toBe(0);
+		}
+	});
+
 	it('cuts L, U and spiral openings to an L-shaped room', () => {
 		const l: Room = {
 			...big('b', 'og'),

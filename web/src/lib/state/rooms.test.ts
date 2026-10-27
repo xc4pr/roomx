@@ -135,7 +135,7 @@ describe('floors and stairs', () => {
 	it('adds a floor above a stair that leads nowhere yet', async () => {
 		const { store } = await openStore();
 		store.enableFloors();
-		const og = store.project!.floors!.at(-1)!.id;
+		const og = store.addFloor('OG')!;
 		store.addStair({
 			fromFloorId: og,
 			shape: 'straight',
@@ -145,6 +145,7 @@ describe('floors and stairs', () => {
 			width: 900,
 			turn: 'left'
 		});
+		expect(store.moveFloor(og, 0)).toBe(false);
 		const dg = store.addFloor('DG');
 		expect(dg).toBeDefined();
 		expect(store.moveFloor(dg!, 0)).toBe(false);

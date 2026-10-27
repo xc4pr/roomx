@@ -59,13 +59,16 @@ export type RoomPatch = Partial<
 		| 'floorId'
 	>
 >;
-// No stair may lead to another floor than before. A stair without a floor above may gain one.
+// No stair may lead to another floor than before. A stair without a floor above may only gain a
+// newly added one.
 function keepsStairs(project: Project, floors: Floor[]): boolean {
 	const before = stairTargets(project);
 	const after = stairTargets({ ...project, floors });
-	return [...before].every(
-		([stairId, target]) => target === undefined || after.get(stairId) === target
-	);
+	const known = new Set((project.floors ?? []).map((floor) => floor.id));
+	return [...before].every(([stairId, target]) => {
+		const next = after.get(stairId);
+		return target === undefined ? next === undefined || !known.has(next) : next === target;
+	});
 }
 
 export type FloorPatch = Partial<Omit<Floor, 'id'>>;

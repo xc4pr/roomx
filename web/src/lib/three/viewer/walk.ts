@@ -249,7 +249,7 @@ function inPortal(portal: Portal, point: Vec): boolean {
 	);
 }
 
-function nearHole(hole: readonly Vec[], point: Vec, radius: number): boolean {
+export function nearHole(hole: readonly Vec[], point: Vec, radius: number): boolean {
 	return (
 		pointInPolygon(point, hole) ||
 		hole.some((a, i) => pointOnSegmentDistance(point, a, hole[(i + 1) % hole.length]) < radius)

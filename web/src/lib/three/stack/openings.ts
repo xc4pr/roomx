@@ -1,4 +1,5 @@
-import { roomFloorId, stairContext } from '#lib/core/floors.ts';
+import { ShapeUtils, Vector2 } from 'three';
+import { roomFloorId, SPIRAL_NEWEL, stairContext, type StairContext } from '#lib/core/floors.ts';
 import { boardToRoom, roomToBoard, type Vec } from '#lib/core/geometry.ts';
 import type { Project, Room } from '#lib/core/schema.ts';
 import { outlineLoops } from './slab.ts';
@@ -13,6 +14,8 @@ export interface RoomHoles {
 }
 
 const MIN_AREA = 1000;
+const MIN_PIECE_AREA = 1;
+const DISC_POINTS = 48;
 
 function area(polygon: readonly Vec[]): number {
 	return (
@@ -71,25 +74,62 @@ function withoutDuplicates(polygon: readonly Vec[]): Vec[] {
 	});
 }
 
+// A concave room as triangles, so that every piece of the opening is cut by a convex shape.
+function convexParts(polygon: readonly Vec[]): Vec[][] {
+	if (isConvex(polygon)) return [[...polygon]];
+	const contour = polygon.map((p) => new Vector2(p.x, p.y));
+	return ShapeUtils.triangulateShape(contour, []).map((face) => face.map((i) => polygon[i]));
+}
+
 // The part of each tread of the opening (board coordinates, convex) that lies in the room, in room
-// coordinates. Several rooms can share one opening, so every room takes its own pieces. A concave
-// room is clipped by the convex tread instead.
+// coordinates, as convex pieces. Several rooms can share one opening, so every room takes its own.
 function parts(room: Room, treads: readonly (readonly Vec[])[]): Vec[][] {
-	const convex = isConvex(room.polygon);
+	const shapes = convexParts(room.polygon);
 	const result: Vec[][] = [];
 	for (const tread of treads) {
 		const local = tread.map((p) => boardToRoom(room, p));
-		const piece = withoutDuplicates(convex ? clip(local, room.polygon) : clip(room.polygon, local));
-		if (piece.length >= 3 && Math.abs(area(piece)) > MIN_AREA) result.push(piece);
+		for (const shape of shapes) {
+			const piece = withoutDuplicates(clip(local, shape));
+			if (piece.length >= 3 && Math.abs(area(piece)) > MIN_PIECE_AREA) result.push(piece);
+		}
 	}
 	return result;
+}
+
+// Loops around the pieces; tiny gaps between pieces and a mere touch of an opening are dropped.
+function loops(pieces: readonly Vec[][]): Vec[][] {
+	return outlineLoops(pieces).filter((loop) => Math.abs(area(loop)) > MIN_AREA);
+}
+
+// The treads of a spiral stair can turn further than a full circle and overlap; the opening is
+// then the whole disc.
+function openingTreads(context: StairContext): Vec[][] {
+	const treads = context.opening.map((tread) => tread.polygon);
+	const { stair } = context;
+	if (stair.shape !== 'spiral' || treads.length === 0) return treads;
+	const centre = { x: stair.x, y: stair.y };
+	const angle = (p: Vec) => Math.atan2(p.y - centre.y, p.x - centre.x);
+	const turn = treads.reduce((sum, tread) => {
+		let delta = Math.abs(angle(tread[tread.length - 1]) - angle(tread[0]));
+		if (delta > Math.PI) delta = 2 * Math.PI - delta;
+		return sum + delta;
+	}, 0);
+	if (turn < 2 * Math.PI - 1e-6) return treads;
+	// Around the circle, so the polygon covers the arcs of the treads.
+	const radius = (SPIRAL_NEWEL + stair.width) / Math.cos(Math.PI / DISC_POINTS);
+	return [
+		Array.from({ length: DISC_POINTS }, (_, i) => ({
+			x: centre.x + radius * Math.cos((2 * Math.PI * i) / DISC_POINTS),
+			y: centre.y + radius * Math.sin((2 * Math.PI * i) / DISC_POINTS)
+		}))
+	];
 }
 
 function stairwellTreads(project: Project, floorId: string, side: 'to' | 'from'): Vec[][] {
 	return (project.stairs ?? []).flatMap((stair) => {
 		const context = stairContext(project, stair);
 		if (!context || context[side].id !== floorId) return [];
-		return context.opening.map((tread) => tread.polygon);
+		return openingTreads(context);
 	});
 }
 
@@ -98,8 +138,8 @@ export function roomHoles(project: Project, room: Room): RoomHoles {
 	if (floorId === undefined) return { floor: [], ceiling: [], ceilingParts: [] };
 	const ceilingParts = parts(room, stairwellTreads(project, floorId, 'from'));
 	return {
-		floor: outlineLoops(parts(room, stairwellTreads(project, floorId, 'to'))),
-		ceiling: outlineLoops(ceilingParts),
+		floor: loops(parts(room, stairwellTreads(project, floorId, 'to'))),
+		ceiling: loops(ceilingParts),
 		ceilingParts
 	};
 }

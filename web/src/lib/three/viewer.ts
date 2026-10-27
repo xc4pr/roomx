@@ -106,6 +106,7 @@ import {
 	buildWalkMap,
 	floorHoles,
 	moveOnMap,
+	nearHole,
 	stickCurve,
 	walkInputs,
 	walkStep,
@@ -1092,11 +1093,20 @@ export function createViewer(
 			}
 		}
 		const target = framesOnLevel(frames, walkLevel);
+		// Floor to stand on: inside a room and clear of any stairwell in it.
+		const solid = (x: number, z: number) => {
+			const hit = floorAt(target, x, z);
+			const frame = hit && target.find((candidate) => candidate.room.id === hit.roomId);
+			return (
+				!!frame &&
+				!floorHoles(content?.project, frame).some((hole) => nearHole(hole, hit, WALK_RADIUS / MM))
+			);
+		};
 		for (const board of candidates) {
 			const world = toWorld(board);
-			if (floorAt(target, world.x, world.z)) return { x: world.x, z: world.z };
+			if (solid(world.x, world.z)) return { x: world.x, z: world.z };
 		}
-		if (floorAt(target, walk.x, walk.z)) return { x: walk.x, z: walk.z };
+		if (solid(walk.x, walk.z)) return { x: walk.x, z: walk.z };
 		const frame = target[0];
 		if (!frame) return undefined;
 		const spot =
