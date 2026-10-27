@@ -344,14 +344,16 @@ describe('roof slopes', () => {
 		}
 	});
 
-	it('finds the cut above a door higher than the knee wall, but keeps the old heights for now', () => {
+	it('cuts the slope above a door that is higher than the knee wall', () => {
 		const attic = room({ slopes: [{ id: 's', wall: 1, kneeHeight: 1000, angle: 45 }] });
 		attic.elements = [createElement('door', attic, 1, 2000, newId)];
 		const [cut] = openingCuts(attic, attic.slopes![0]);
 		expect(cut).toMatchObject({ from: 1600, to: 2400, height: 2000 });
-		expect(slopeDormers(attic, attic.slopes![0])).toEqual([]);
-		expect(wallHeightAt(attic, 1, 2000)).toBe(1000);
-		expect(validateRoom(attic).map((issue) => issue.code)).toEqual(['elementTooHigh']);
+		expect(slopeDormers(attic, attic.slopes![0])).toEqual([cut]);
+		expect(wallHeightAt(attic, 1, 2000)).toBe(2000);
+		expect(wallHeightAt(attic, 1, 1000)).toBe(1000);
+		expect(validateRoom(attic)).toEqual([]);
+		expect(ceilingHeightAt({ ...attic, elements: undefined }, { x: 2000, y: 0 })).toBe(1000);
 	});
 
 	it('places a roof window in its slope and flags one without slope', () => {

@@ -538,7 +538,7 @@ function slopeCovers(room: Pick<Room, 'polygon'>, slope: Slope, along: number): 
 const CUT_SUFFIX = '#cut';
 
 // One cut per door or window on the slope wall that reaches above the knee height: the slope is
-// cut cleanly above such an opening instead of leaving a notch (package A, not yet in slopeDormers).
+// cut cleanly above such an opening instead of leaving a notch.
 export function openingCuts(room: Sloped, slope: Slope, dormers: readonly Dormer[] = []): Dormer[] {
 	const cuts: Dormer[] = [];
 	for (const element of room.elements ?? []) {
@@ -555,8 +555,10 @@ export function openingCuts(room: Sloped, slope: Slope, dormers: readonly Dormer
 	return cuts;
 }
 
-export function slopeDormers(_room: Sloped, slope: Slope): Dormer[] {
-	return [...(slope.dormers ?? [])];
+// Dormers of a slope, including the cuts above tall openings (isOpeningCut).
+export function slopeDormers(room: Sloped, slope: Slope): Dormer[] {
+	const dormers = slope.dormers ?? [];
+	return [...dormers, ...openingCuts(room, slope, dormers)];
 }
 
 export function isOpeningCut(dormer: Pick<Dormer, 'id'>): boolean {
