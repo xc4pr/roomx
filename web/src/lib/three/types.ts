@@ -1,4 +1,5 @@
 import type { RailingRun } from '#lib/core/outdoor.ts';
+import type { Vec } from '#lib/core/geometry.ts';
 import type { Object3D } from 'three';
 import type { CatalogEntry, Look } from '#lib/core/catalog.ts';
 import type { Dims, Item, ModelType, Project, Room } from '#lib/core/schema.ts';
@@ -125,6 +126,8 @@ export interface RoomBuildOptions extends SceneOptions {
 	sections?: readonly WallSection[];
 	// Balcony railing along the free edges (railingRuns).
 	railing?: readonly RailingRun[];
+	// Stairwell openings (room coordinates) in this room's floor and ceiling.
+	stairwell?: { floor: readonly Vec[][]; ceiling: readonly Vec[][] };
 }
 
 export type RoomBuilder = (room: Room, options: RoomBuildOptions) => Object3D;

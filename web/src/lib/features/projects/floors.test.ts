@@ -9,6 +9,7 @@ import { collectWarnings } from '#lib/features/board/buildCheck.ts';
 import { createRoom } from '#lib/core/defaults.ts';
 import { createProjectWithFloors } from './create.ts';
 import {
+	floorNamesFor,
 	floorRemovable,
 	insertIndex,
 	orderedFloorNames,
@@ -127,5 +128,22 @@ describe('plan per floor', () => {
 			'unconnected',
 			'unconnected'
 		]);
+	});
+});
+
+describe('localized floor names', () => {
+	it('offers English names and keeps the building order for both languages', () => {
+		expect(floorNamesFor('de')).toEqual(['UG', 'EG', '1. OG', '2. OG', 'DG']);
+		expect(floorNamesFor('en')).toEqual([
+			'Basement',
+			'Ground floor',
+			'1st floor',
+			'2nd floor',
+			'Attic'
+		]);
+		const project = { floors: [{ id: 'a', name: 'Ground floor', slabThickness: 300 }] };
+		expect(unusedFloorNames(project, floorNamesFor('en'))).not.toContain('Ground floor');
+		expect(insertIndex(project, 'Basement')).toBe(0);
+		expect(insertIndex(project, 'Attic')).toBeUndefined();
 	});
 });

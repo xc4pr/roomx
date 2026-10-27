@@ -1,4 +1,4 @@
-import { floorIndex, floorRooms } from '#lib/core/floors.ts';
+import { floorIndex, floorRooms, roomFloorId } from '#lib/core/floors.ts';
 import type { Project, Room } from '#lib/core/schema.ts';
 
 type Floored = Pick<Project, 'rooms' | 'floors'>;
@@ -14,4 +14,16 @@ export function underlayRooms(project: Floored, floorId: string | undefined): Ro
 	const index = floorIndex(project, floorId);
 	const below = index > 0 ? project.floors?.[index - 1] : undefined;
 	return below ? floorRooms(project, below.id) : [];
+}
+
+// The floor a selected room is on, if it differs from the shown one (so the plan follows the selection).
+export function floorOfSelection(
+	project: Floored,
+	selectedRoomId: string | null,
+	shownFloorId: string | undefined
+): string | undefined {
+	if (!selectedRoomId || !shownFloorId) return undefined;
+	const room = project.rooms.find((candidate) => candidate.id === selectedRoomId);
+	const floorId = room ? roomFloorId(project, room) : undefined;
+	return floorId && floorId !== shownFloorId ? floorId : undefined;
 }

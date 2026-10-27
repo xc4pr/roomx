@@ -66,7 +66,7 @@
 		snapToCentimetre
 	} from './rooms.ts';
 	import { connections } from './connections.svelte.ts';
-	import { planRooms, underlayRooms } from './floorView.ts';
+	import { floorOfSelection, planRooms, underlayRooms } from './floorView.ts';
 	import DockMarks from './DockMarks.svelte';
 	import LinkMarks from './LinkMarks.svelte';
 	import StairControls from '#lib/features/stairs/StairControls.svelte';
@@ -107,7 +107,13 @@
 	let confirmRoomId = $state<string | null>(null);
 
 	let floorsOpen = $state(false);
+	let toolColumnHeight = $state(0);
 	const floorId = $derived(activeFloorId(store.project));
+	$effect(() => {
+		const project = store.project;
+		const target = project ? floorOfSelection(project, ui.selectedRoomId, floorId) : undefined;
+		if (target) ui.floorId = target;
+	});
 	const floored = $derived(store.project ? floorsEnabled(store.project) : false);
 	const rooms = $derived(store.project ? planRooms(store.project, floorId) : []);
 	const underlay = $derived(store.project ? underlayRooms(store.project, floorId) : []);
@@ -883,6 +889,7 @@
 	</div>
 
 	<div
+		bind:clientHeight={toolColumnHeight}
 		class="pointer-events-none absolute top-[max(0.75rem,var(--safe-top))] left-[max(0.75rem,var(--safe-left))] z-10 flex flex-col gap-2 {sheetFull
 			? 'invisible'
 			: ''}"
@@ -947,7 +954,7 @@
 		{/if}
 	</div>
 
-	<StairControls {build} />
+	<StairControls {build} reserve={toolColumnHeight + 24} />
 
 	{#if ui.focusRoomId}
 		<div

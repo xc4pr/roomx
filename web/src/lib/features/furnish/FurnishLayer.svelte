@@ -20,7 +20,8 @@
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
-	import { selectRoom, ui } from '#lib/state/ui.svelte.ts';
+	import { activeFloorId, selectRoom, ui } from '#lib/state/ui.svelte.ts';
+	import { dropTargets } from './targets.ts';
 	import {
 		addCatalogEntry,
 		applyPlacement,
@@ -471,14 +472,15 @@
 	}
 
 	function moveTo(current: Gesture, item: Item, x: number, y: number, key: string): void {
-		const rooms = store.project?.rooms ?? [];
 		let target = store.room(item.roomId);
 		if (!target || !viewport) return;
 		if (!pointInPolygon(viewport.clientToRoom(target, x, y), target.polygon, 400)) {
-			const other = rooms.find(
-				(candidate) =>
-					candidate.id !== target!.id &&
-					pointInPolygon(viewport.clientToRoom(candidate, x, y), candidate.polygon, 150)
+			const other = dropTargets(
+				store.project ?? { rooms: [] },
+				activeFloorId(store.project),
+				target
+			).find((candidate) =>
+				pointInPolygon(viewport.clientToRoom(candidate, x, y), candidate.polygon, 150)
 			);
 			if (other) target = other;
 		}

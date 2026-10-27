@@ -10,7 +10,7 @@
 		suggestFloorName
 	} from '#lib/core/floors.ts';
 	import { common } from '#lib/i18n/common.ts';
-	import { t } from '#lib/i18n/index.svelte.ts';
+	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import Button from '#lib/ui/Button.svelte';
 	import Chip from '#lib/ui/Chip.svelte';
@@ -19,7 +19,13 @@
 	import NumberField from '#lib/ui/NumberField.svelte';
 	import Switch from '#lib/ui/Switch.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
-	import { DEFAULT_MULTI, floorRemovable, insertIndex, unusedFloorNames } from './floors.ts';
+	import {
+		DEFAULT_MULTI,
+		floorNamesFor,
+		floorRemovable,
+		insertIndex,
+		unusedFloorNames
+	} from './floors.ts';
 	import { messages } from './i18n.ts';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
@@ -28,7 +34,9 @@
 	const enabled = $derived(project ? floorsEnabled(project) : false);
 	const canSwitchOff = $derived(project ? canDisableFloors(project) : false);
 	const floors = $derived(project?.floors ?? []);
-	const unused = $derived(project ? unusedFloorNames(project) : []);
+	const names = $derived(floorNamesFor(locale.language));
+	const unused = $derived(project ? unusedFloorNames(project, names) : []);
+	let refused = $state(false);
 
 	function toggle(on: boolean): void {
 		if (on) store.enableFloors([...DEFAULT_MULTI]);
@@ -37,7 +45,11 @@
 
 	function add(name: string): void {
 		if (!project) return;
-		store.addFloor(name, insertIndex(project, name));
+		refused = store.addFloor(name, insertIndex(project, name)) === undefined;
+	}
+
+	function move(floorId: string, index: number): void {
+		refused = !store.moveFloor(floorId, index);
 	}
 </script>
 
@@ -75,13 +87,13 @@
 								icon={ArrowUp}
 								label={t(messages, 'floorUp')}
 								disabled={index === floors.length - 1}
-								onclick={() => store.moveFloor(floor.id, index + 1)}
+								onclick={() => move(floor.id, index + 1)}
 							/>
 							<IconButton
 								icon={ArrowDown}
 								label={t(messages, 'floorDown')}
 								disabled={index === 0}
-								onclick={() => store.moveFloor(floor.id, index - 1)}
+								onclick={() => move(floor.id, index - 1)}
 							/>
 							<IconButton
 								icon={Trash2}
@@ -137,12 +149,21 @@
 			</ul>
 
 			<div class="grid gap-2">
+				{#if refused}
+					<p class="text-sm text-danger" role="alert" data-testid="floors-refused">
+						{t(messages, 'floorStairHint')}
+					</p>
+				{/if}
 				<div class="flex flex-wrap gap-2">
 					{#each unused as name (name)}
 						<Chip onclick={() => add(name)} icon={Plus}>{name}</Chip>
 					{/each}
 					{#if unused.length === 0}
-						<Button variant="secondary" icon={Plus} onclick={() => add(suggestFloorName(project))}>
+						<Button
+							variant="secondary"
+							icon={Plus}
+							onclick={() => add(suggestFloorName(project, names))}
+						>
 							{t(messages, 'floorAdd')}
 						</Button>
 					{/if}

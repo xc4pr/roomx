@@ -5,6 +5,7 @@ import { degToRad, MM, toWorld } from './coords.ts';
 import { buildFurniture } from './furniture/index.ts';
 import { railingRuns } from '#lib/core/outdoor.ts';
 import { buildRoom } from './room/index.ts';
+import { roomHoles } from './stack/openings.ts';
 import { buildStack } from './stack/index.ts';
 import type { RoomInfo } from './room/index.ts';
 import {
@@ -14,7 +15,13 @@ import {
 	type SceneOptions
 } from './types.ts';
 import { disposeObject } from './viewer/dispose.ts';
-import { roomFrames, sceneVariant, sharedOpenings, sharedSections } from './viewer/layout.ts';
+import {
+	roomFrames,
+	sceneVariant,
+	sharedOpenings,
+	sharedSections,
+	stackedFloors
+} from './viewer/layout.ts';
 
 export interface BuiltScene {
 	root: Group;
@@ -80,6 +87,7 @@ export function buildScene(
 	const variant = sceneVariant(content);
 	const shared = sharedOpenings(content);
 	const sections = sharedSections(content);
+	const stacked = stackedFloors(content);
 
 	for (const frame of roomFrames(content)) {
 		const { room } = frame;
@@ -92,7 +100,8 @@ export function buildScene(
 			wallHeightFactor,
 			shared: shared.get(room.id),
 			sections: sections.get(room.id),
-			railing: railingRuns(content.project.rooms, room)
+			railing: railingRuns(content.project.rooms, room),
+			stairwell: stacked ? roomHoles(content.project, room) : undefined
 		};
 		const roomObject = buildRoom(room, roomOptions);
 		group.add(roomObject);

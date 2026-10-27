@@ -264,6 +264,20 @@ function floorLegend(ctx: PdfContext, hasUp: boolean, hasDown: boolean): LegendE
 
 // Side view of one stair, unrolled along its walking line: lower floor, steps, slab with the
 // opening above the stairwell, ceiling of the lower storey.
+// Distance along the unrolled stair where the opening in the slab above starts. The step number
+// comes from the height like in the core, not from the position in the tread list.
+export function openingStart(context: StairContext): number {
+	const { risers } = context.layout;
+	const run = Math.max(1, risers.count - 1) * risers.tread;
+	const first = context.opening.reduce<number | undefined>(
+		(lowest, tread) => (lowest === undefined || tread.height < lowest ? tread.height : lowest),
+		undefined
+	);
+	if (first === undefined) return run;
+	const step = Math.round(first / risers.riser);
+	return Math.max(0, Math.min(run, (step - 1) * risers.tread));
+}
+
 function drawSection(
 	page: PDFPage,
 	ctx: PdfContext,
@@ -291,8 +305,7 @@ function drawSection(
 	steps.push(at(run, context.height), at(run + margin, context.height));
 	polyline(page, steps, { width: 1.4, color: p.accent });
 
-	const treadIndex = context.layout.treads.findIndex((tread) => context.opening.includes(tread));
-	const openFrom = treadIndex >= 0 ? Math.min(run, treadIndex * risers.tread) : run;
+	const openFrom = openingStart(context);
 	const slabBottom = clear;
 	const slabParts: [number, number][] = [
 		[-margin, openFrom],

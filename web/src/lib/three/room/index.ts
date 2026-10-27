@@ -6,6 +6,7 @@ import {
 	LineBasicMaterial,
 	LineSegments,
 	Mesh,
+	Path,
 	Shape,
 	ShapeGeometry,
 	Vector2,
@@ -122,8 +123,24 @@ export function setOverheadVisible(room: Object3D, visible: boolean): void {
 	if (overhead) overhead.visible = visible;
 }
 
-function polygonShape(points: readonly { x: number; y: number }[]): Shape {
-	return new Shape(points.map((point) => new Vector2(point.x * MM, point.y * MM)));
+function polygonShape(
+	points: readonly { x: number; y: number }[],
+	holes: readonly (readonly { x: number; y: number }[])[] = []
+): Shape {
+	const shape = new Shape(points.map((point) => new Vector2(point.x * MM, point.y * MM)));
+	for (const hole of holes) {
+		shape.holes.push(new Path(hole.map((point) => new Vector2(point.x * MM, point.y * MM))));
+	}
+	return shape;
+}
+
+function flatGeometry(
+	points: readonly { x: number; y: number }[],
+	holes: readonly (readonly { x: number; y: number }[])[]
+): ShapeGeometry {
+	const geometry = new ShapeGeometry(polygonShape(points, holes));
+	geometry.rotateX(-Math.PI / 2);
+	return geometry;
 }
 
 function buildWall(
@@ -454,8 +471,9 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	const shape = polygonShape(room.polygon);
 	const floorGeometry = new ShapeGeometry(shape);
 	floorGeometry.rotateX(-Math.PI / 2);
+	const stairwell = options.stairwell;
 	const floor = new Mesh(
-		floorGeometry,
+		stairwell?.floor.length ? flatGeometry(room.polygon, stairwell.floor) : floorGeometry,
 		materials.get({
 			color: openAir ? outdoorFloorColor(room) : (room.floorColor ?? PALETTE.floor),
 			roughness: 0.85
@@ -527,7 +545,10 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	} else if (roof) {
 		addRoof(overhead, room, roof, materials, options.ceiling);
 	} else {
-		const ceiling = new Mesh(floorGeometry, materials.get(roofMaterial));
+		const ceiling = new Mesh(
+			stairwell?.ceiling.length ? flatGeometry(room.polygon, stairwell.ceiling) : floorGeometry,
+			materials.get(roofMaterial)
+		);
 		ceiling.position.y = height;
 		ceiling.userData.part = 'ceiling';
 		ceiling.visible = options.ceiling;

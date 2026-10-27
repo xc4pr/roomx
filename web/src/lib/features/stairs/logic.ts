@@ -135,3 +135,9 @@ export function cutLine(context: StairContext): { line: CutLine; above: number }
 		above: index
 	};
 }
+
+// Tallest the stair editor may be so that it ends below the tool column at the top left (`reserve`
+// px from the top of the board): editor and floor switcher never overlap, also on a phone.
+export function editorMaxHeight(reserve: number): string {
+	return `min(70%, calc(100% - ${Math.max(0, Math.round(reserve))}px - max(1rem, var(--safe-bottom)) - 4.25rem))`;
+}

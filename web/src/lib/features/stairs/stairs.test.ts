@@ -12,6 +12,7 @@ import {
 	angleFromHandle,
 	canAddStair,
 	cutLine,
+	editorMaxHeight,
 	newStair,
 	roomStairZones,
 	snapAngle,
@@ -209,5 +210,13 @@ describe('store', () => {
 			x: 1230,
 			y: 570
 		});
+	});
+});
+
+describe('stair editor height', () => {
+	it('leaves room for the tool column above it', () => {
+		expect(editorMaxHeight(0)).toContain('calc(100% - 0px');
+		expect(editorMaxHeight(300.4)).toContain('calc(100% - 300px');
+		expect(editorMaxHeight(-5)).toContain('calc(100% - 0px');
 	});
 });

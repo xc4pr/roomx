@@ -1,11 +1,25 @@
 import { FLOOR_NAMES } from '#lib/core/defaults.ts';
 import { roomFloorId } from '#lib/core/floors.ts';
+import type { Language } from '#lib/core/units.ts';
 import type { Project } from '#lib/core/schema.ts';
 
 export const DEFAULT_MULTI: readonly string[] = ['EG', '1. OG'];
 
+export const FLOOR_NAMES_EN: readonly string[] = [
+	'Basement',
+	'Ground floor',
+	'1st floor',
+	'2nd floor',
+	'Attic'
+];
+
+export function floorNamesFor(language: Language): readonly string[] {
+	return language === 'en' ? FLOOR_NAMES_EN : FLOOR_NAMES;
+}
+
 function rank(name: string): number {
-	return (FLOOR_NAMES as readonly string[]).indexOf(name);
+	const german = (FLOOR_NAMES as readonly string[]).indexOf(name);
+	return german >= 0 ? german : FLOOR_NAMES_EN.indexOf(name);
 }
 
 // Selected suggestions in building order (bottom to top).
@@ -20,9 +34,12 @@ export function toggleFloorName(selected: readonly string[], name: string): stri
 }
 
 // Names of the suggestions that no floor uses yet.
-export function unusedFloorNames(project: Pick<Project, 'floors'>): string[] {
+export function unusedFloorNames(
+	project: Pick<Project, 'floors'>,
+	names: readonly string[] = FLOOR_NAMES
+): string[] {
 	const used = new Set((project.floors ?? []).map((floor) => floor.name));
-	return FLOOR_NAMES.filter((name) => !used.has(name));
+	return names.filter((name) => !used.has(name));
 }
 
 // Where a new floor with a suggested name belongs; undefined = at the top.

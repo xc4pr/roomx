@@ -1110,7 +1110,7 @@ export function createViewer(
 		walkMap = null;
 		const spot = bestStandPoint(frame.room.polygon, WALK_RADIUS / MM) ?? frame.room.polygon[0];
 		const world = roomToWorld(frame, spot);
-		walkMap ??= buildWalkMap(walkInputs(walkFrames()), WALK_RADIUS);
+		walkMap ??= buildWalkMap(walkInputs(walkFrames(), content?.project), WALK_RADIUS);
 		walk.saved = { pose: currentPose(), fov: camera.fov };
 		walk.x = world.x;
 		walk.z = world.z;
@@ -1220,7 +1220,7 @@ export function createViewer(
 
 	function stepWalk(dt: number): boolean {
 		if (mode !== 'walk' || flight) return false;
-		walkMap ??= buildWalkMap(walkInputs(walkFrames()), WALK_RADIUS);
+		walkMap ??= buildWalkMap(walkInputs(walkFrames(), content?.project), WALK_RADIUS);
 		const input = walkInput();
 		let busy = false;
 		if (input.turn !== 0) {

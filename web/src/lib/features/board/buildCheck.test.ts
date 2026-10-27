@@ -164,3 +164,25 @@ describe('collectWarnings for a scope of rooms', () => {
 		expect(collectWarnings(rooms, none, [])).toEqual([{ kind: 'noRooms' }]);
 	});
 });
+
+describe('unconnected rooms with floors', () => {
+	it('groups a room without a floorId with the first floor', () => {
+		const floors = [
+			{ id: 'eg', name: 'EG', slabThickness: 300 },
+			{ id: 'og', name: 'OG', slabThickness: 300 }
+		];
+		const rooms = [
+			{ ...createRoom('a', 'Lose'), boardPos: { x: 0, y: 9000, rot: 0 } },
+			{ ...createRoom('b', 'Wohnen'), floorId: 'eg' },
+			{
+				...createRoom('d', 'Bad', 'bath', { x: 4000 + WALL_THICKNESS, y: 0, rot: 0 }),
+				floorId: 'eg'
+			},
+			{ ...createRoom('c', 'Oben'), floorId: 'og' }
+		];
+		const warnings = collectWarnings(rooms, none, undefined, [], floors);
+		expect(warnings.filter((w) => w.kind === 'unconnected')).toEqual([
+			{ kind: 'unconnected', roomId: 'a' }
+		]);
+	});
+});

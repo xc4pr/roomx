@@ -19,6 +19,7 @@
 	import { messages } from './i18n.ts';
 	import {
 		canAddStair,
+		editorMaxHeight,
 		MAX_STAIR_WIDTH,
 		MIN_STAIR_WIDTH,
 		newStair,
@@ -27,7 +28,7 @@
 		TURN_STEP
 	} from './logic.ts';
 
-	let { build }: { build: boolean } = $props();
+	let { build, reserve = 0 }: { build: boolean; reserve?: number } = $props();
 
 	const project = $derived(store.project);
 	const floorId = $derived(activeFloorId(project));
@@ -116,7 +117,7 @@
 {#if build && project && floorId}
 	{#if showAdd}
 		<div
-			class="absolute bottom-[calc(max(1rem,var(--safe-bottom))+3.5rem)] left-[max(0.75rem,var(--safe-left))] z-10"
+			class="absolute right-[max(1.25rem,var(--safe-right))] bottom-[calc(max(1rem,var(--safe-bottom))+4.5rem)] z-10"
 		>
 			<Button
 				variant="secondary"
@@ -132,7 +133,8 @@
 
 	{#if stair}
 		<section
-			class="absolute bottom-[calc(max(1rem,var(--safe-bottom))+3.5rem)] left-[max(0.75rem,var(--safe-left))] z-10 grid max-h-[70%] w-[min(24rem,calc(100%-1.5rem))] animate-rise-in gap-3 overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-surface p-3.5 shadow-float"
+			class="absolute bottom-[calc(max(1rem,var(--safe-bottom))+3.5rem)] left-[max(0.75rem,var(--safe-left))] z-10 grid w-[min(24rem,calc(100%-1.5rem))] animate-rise-in gap-3 overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-surface p-3.5 shadow-float"
+			style:max-height={editorMaxHeight(reserve)}
 			aria-label={t(messages, 'title')}
 			data-testid="stair-editor"
 		>

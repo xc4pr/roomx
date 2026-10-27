@@ -1,17 +1,12 @@
 import { BufferGeometry, ExtrudeGeometry, Group, Mesh, Path, Shape } from 'three';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
-import { floorRooms, stairContext, type StairContext } from '#lib/core/floors.ts';
-import {
-	boardToRoom,
-	distance,
-	pointInPolygon,
-	roomToBoard,
-	type Vec
-} from '#lib/core/geometry.ts';
-import { isOpenAir, type Floor, type Room } from '#lib/core/schema.ts';
+import { floorRooms } from '#lib/core/floors.ts';
+import { distance, roomToBoard, type Vec } from '#lib/core/geometry.ts';
+import { isOpenAir } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
 import { PALETTE, type MaterialSet } from '../room/materials.ts';
 import type { SceneContent } from '../types.ts';
+import { holeToBoard, roomHoles } from './openings.ts';
 
 const EDGE_TOLERANCE = 2;
 // The slab stays this far (mm) below the upper floor and above the lower ceiling so that nothing flickers.
@@ -141,26 +136,6 @@ export interface SlabInfo {
 	holes: number;
 }
 
-// Stairwell openings that cut into a floor: outline loops of the stair treads that open the slab above.
-export function stairwellOpenings(
-	content: Pick<SceneContent, 'project'>,
-	floor: Floor
-): { context: StairContext; loops: Vec[][] }[] {
-	return (content.project.stairs ?? [])
-		.map((stair) => stairContext(content.project, stair))
-		.filter(
-			(context): context is StairContext => context !== undefined && context.to.id === floor.id
-		)
-		.map((context) => ({ context, loops: outlineLoops(context.opening.map((t) => t.polygon)) }));
-}
-
-function loopCentre(loop: readonly Vec[]): Vec {
-	return {
-		x: loop.reduce((sum, p) => sum + p.x, 0) / loop.length,
-		y: loop.reduce((sum, p) => sum + p.y, 0) / loop.length
-	};
-}
-
 // One plain slab under the rooms of every shown upper floor, cut open where a stair arrives.
 export function buildSlabs(
 	content: SceneContent,
@@ -180,14 +155,13 @@ export function buildSlabs(
 		if (level === undefined || !below) return;
 		const thickness = below.slabThickness - 2 * SLAB_GAP;
 		if (thickness <= 0) return;
-		const openings = stairwellOpenings(content, floor);
 		for (const room of floorRooms(project, floor.id)) {
 			if (!shown.has(room.id) || isOpenAir(room)) continue;
 			const outline = growOutline(
 				room.polygon.map((p) => roomToBoard(room, p)),
 				WALL_THICKNESS
 			);
-			const holes = openings.flatMap(({ loops }) => loops.filter((loop) => insideRoom(room, loop)));
+			const holes = roomHoles(project, room).floor.map((hole) => holeToBoard(room, hole));
 			const mesh = new Mesh(slabGeometry(outline, holes, thickness), material);
 			mesh.position.y = (level - below.slabThickness + SLAB_GAP) * MM;
 			mesh.name = `slab-${room.id}`;
@@ -203,8 +177,4 @@ export function buildSlabs(
 		}
 	});
 	return group;
-}
-
-function insideRoom(room: Room, loop: readonly Vec[]): boolean {
-	return pointInPolygon(boardToRoom(room, loopCentre(loop)), room.polygon, 1);
 }

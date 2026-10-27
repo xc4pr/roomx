@@ -20,6 +20,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { roomFloorId } from '#lib/core/floors.ts';
+	import { floorsWithRooms, toggleHidden } from './floorToggle.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import { activeFloorId, ui } from '#lib/state/ui.svelte.ts';
@@ -94,7 +95,7 @@
 	const selection = $derived(
 		picked ?? (roomId && rooms.some((room) => room.id === roomId) ? roomId : 'all')
 	);
-	const floors = $derived(store.project?.floors ?? []);
+	const floors = $derived(store.project ? floorsWithRooms(store.project) : []);
 	const roomShown = (room: (typeof rooms)[number]) => {
 		const id = store.project ? roomFloorId(store.project, room) : undefined;
 		return id === undefined || !hiddenFloors.includes(id);
@@ -343,8 +344,11 @@
 	}
 
 	function toggleFloor(id: string): void {
-		if (hiddenFloors.includes(id)) hiddenFloors = hiddenFloors.filter((other) => other !== id);
-		else if (floors.length - hiddenFloors.length > 1) hiddenFloors = [...hiddenFloors, id];
+		hiddenFloors = toggleHidden(
+			floors.map((floor) => floor.id),
+			hiddenFloors,
+			id
+		);
 	}
 
 	async function capture(): Promise<void> {

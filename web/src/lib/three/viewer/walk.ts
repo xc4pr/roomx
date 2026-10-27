@@ -9,7 +9,8 @@ import {
 	walls,
 	type Vec
 } from '#lib/core/geometry.ts';
-import type { Point } from '#lib/core/schema.ts';
+import type { Point, Project } from '#lib/core/schema.ts';
+import { roomHoles } from '../stack/openings.ts';
 import { roomToWorld, type RoomFrame } from './layout.ts';
 
 export function canStandAt(polygon: readonly Point[], point: Vec, radius: number): boolean {
@@ -91,6 +92,8 @@ export interface WalkDoor {
 export interface WalkRoomInput {
 	polygon: readonly Vec[];
 	doors: readonly WalkDoor[];
+	// Openings in the floor (the stairwell) that must not be walked over.
+	holes?: readonly (readonly Vec[])[];
 }
 
 interface Segment {
@@ -108,7 +111,11 @@ interface Portal {
 }
 
 export interface WalkMap {
-	rooms: { polygon: readonly Vec[]; segments: Segment[] }[];
+	rooms: {
+		polygon: readonly Vec[];
+		segments: Segment[];
+		holes: readonly (readonly Vec[])[];
+	}[];
 	portals: Portal[];
 }
 
@@ -215,7 +222,8 @@ export function buildWalkMap(inputs: readonly WalkRoomInput[], radius: number): 
 	return {
 		rooms: inputs.map((room, index) => ({
 			polygon: room.polygon,
-			segments: cutSegments(room.polygon, [...connected[index]])
+			segments: cutSegments(room.polygon, [...connected[index]]),
+			holes: room.holes ?? []
 		})),
 		portals
 	};
@@ -233,7 +241,17 @@ function inPortal(portal: Portal, point: Vec): boolean {
 	);
 }
 
+function nearHole(hole: readonly Vec[], point: Vec, radius: number): boolean {
+	return (
+		pointInPolygon(point, hole) ||
+		hole.some((a, i) => pointOnSegmentDistance(point, a, hole[(i + 1) % hole.length]) < radius)
+	);
+}
+
 export function standable(map: WalkMap, point: Vec, radius: number): boolean {
+	if (map.rooms.some((room) => room.holes.some((hole) => nearHole(hole, point, radius)))) {
+		return false;
+	}
 	if (map.portals.some((portal) => inPortal(portal, point))) return true;
 	return map.rooms.some(
 		(room) =>
@@ -276,7 +294,7 @@ export function moveOnMap(map: WalkMap, from: Vec, to: Vec, radius: number): Vec
 	return from;
 }
 
-export function walkInputs(frames: readonly RoomFrame[]): WalkRoomInput[] {
+export function walkInputs(frames: readonly RoomFrame[], project?: Project): WalkRoomInput[] {
 	return frames.map((frame) => {
 		const toWorldPoint = (point: Vec): Vec => {
 			const world = roomToWorld(frame, point);
@@ -297,7 +315,11 @@ export function walkInputs(frames: readonly RoomFrame[]): WalkRoomInput[] {
 				roomId: frame.room.id
 			});
 		}
-		return { polygon, doors };
+		const holes =
+			project && frame.floorId !== undefined
+				? roomHoles(project, frame.room).floor.map((hole) => hole.map(toWorldPoint))
+				: [];
+		return { polygon, doors, holes };
 	});
 }
 

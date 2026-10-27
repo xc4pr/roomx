@@ -18,6 +18,7 @@ import { DEFAULT_SCENE_OPTIONS } from '../types.ts';
 import { loweredWalls } from '../viewer/cutaway.ts';
 import { shapeOfFootprints } from '../viewer/fit.ts';
 import { roomFrames } from '../viewer/layout.ts';
+import { buildWalkMap, standable, walkInputs } from '../viewer/walk.ts';
 import { outlineLoops } from './slab.ts';
 import { Soup } from './soup.ts';
 import { stairTriangles } from './stairs.ts';
@@ -205,6 +206,75 @@ describe('floor stack in 3D', () => {
 		const second = parts(build(p).root, 'stair')[0].geometry;
 		expect(second).toBe(first);
 		expect(triangles(first)).toBeGreaterThan(0);
+	});
+});
+
+function openingCentre(p: Project) {
+	const context = stairContext(p, p.stairs![0])!;
+	const open = context.opening[context.opening.length - 1].polygon;
+	return {
+		x: open.reduce((sum, v) => sum + v.x, 0) / open.length,
+		y: open.reduce((sum, v) => sum + v.y, 0) / open.length
+	};
+}
+
+describe('stairwell in the room meshes', () => {
+	it('opens the floor of the upper room and the ceiling of the lower room', () => {
+		const p = project();
+		const scene = build(p);
+		const c = openingCentre(p);
+		const floors = parts(scene.root, 'floor').filter((mesh) => mesh.parent?.name === 'room-b');
+		const ceilings = parts(scene.root, 'ceiling').filter(
+			(mesh) => mesh.parent?.parent?.name === 'room-a'
+		);
+		expect(floors).toHaveLength(1);
+		expect(ceilings).toHaveLength(1);
+		expect(dropHits(floors, c.x * MM, 9, -c.y * MM)).toHaveLength(0);
+		expect(dropHits(floors, 6.5, 9, -4.5)).toHaveLength(1);
+		expect(dropHits(ceilings, c.x * MM, 9, -c.y * MM)).toHaveLength(0);
+		expect(dropHits(ceilings, 6.5, 9, -4.5)).toHaveLength(1);
+	});
+
+	it('cuts every upper room the opening overlaps', () => {
+		const p = project();
+		const c = openingCentre(p);
+		const split = Math.round(c.x);
+		const rect = (id: string, x0: number, x1: number): Room => ({
+			...big(id, 'og'),
+			polygon: [
+				{ x: x0, y: 0 },
+				{ x: x1, y: 0 },
+				{ x: x1, y: 5000 },
+				{ x: x0, y: 5000 }
+			]
+		});
+		const two: Project = {
+			...p,
+			rooms: [big('a', 'eg'), rect('b', 0, split), rect('c', split, 7000)]
+		};
+		const scene = build(two, ['a', 'b', 'c']);
+		const slabs = parts(scene.root, 'slab');
+		expect(slabs).toHaveLength(2);
+		expect(slabs.every((mesh) => mesh.userData.slab.holes === 1)).toBe(true);
+		const floors = parts(scene.root, 'floor').filter((mesh) =>
+			['room-b', 'room-c'].includes(mesh.parent?.name ?? '')
+		);
+		expect(dropHits(floors, c.x * MM, 9, -c.y * MM)).toHaveLength(0);
+	});
+
+	it('blocks the walk map over the stairwell', () => {
+		const p = project();
+		const c = openingCentre(p);
+		const frames = roomFrames({ project: p, roomIds: ['a', 'b'] }).filter(
+			(frame) => frame.floorId === 'og'
+		);
+		const at = { x: c.x * MM, y: c.y * MM };
+		const frame = frames[0];
+		const world = { x: frame.origin.x + at.x, y: frame.origin.z - at.y };
+		const open = buildWalkMap(walkInputs(frames), 0.22);
+		const closed = buildWalkMap(walkInputs(frames, p), 0.22);
+		expect(standable(open, world, 0.22)).toBe(true);
+		expect(standable(closed, world, 0.22)).toBe(false);
 	});
 });
 
