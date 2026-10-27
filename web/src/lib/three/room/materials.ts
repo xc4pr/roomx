@@ -30,7 +30,15 @@ export const PALETTE = {
 	dark: '#2b2e33',
 	lampShade: '#fff4d9',
 	lampGlow: '#ffb45a',
-	usb: '#2b7bd0'
+	usb: '#2b7bd0',
+	ceramic: '#f4f5f2',
+	chrome: '#c4c8cc',
+	worktop: '#8c867b',
+	brick: '#b9ab98',
+	tile: '#e8e4da',
+	stoveBlack: '#26282c',
+	appliance: '#33363b',
+	steel: '#b4b8bc'
 } as const;
 
 export class MaterialSet {

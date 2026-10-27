@@ -7,6 +7,7 @@ import { bed } from './bed.ts';
 import { decor } from './decor.ts';
 import { devices } from './devices.ts';
 import { box, disposeKit, mat, palette, type Palette } from './kit.ts';
+import { kitchen } from './kitchen.ts';
 import { lighting } from './lighting.ts';
 import { seating } from './seating.ts';
 import { storage } from './storage.ts';
@@ -29,13 +30,7 @@ const builders: Record<ModelType, Build> = {
 	...devices,
 	...decor,
 	...lighting,
-	kitchenBase: storage.sideboard,
-	kitchenWall: storage.sideboard,
-	kitchenTall: storage.wardrobe,
-	kitchenSink: storage.sideboard,
-	hob: plainBox,
-	oven: plainBox,
-	fridge: storage.wardrobe
+	...kitchen
 };
 
 const FLAT: ReadonlySet<string> = new Set(['rug', 'roundRug', 'throw', 'ledStrip']);

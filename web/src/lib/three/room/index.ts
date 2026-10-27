@@ -12,7 +12,7 @@ import {
 	type Object3D
 } from 'three';
 import { ceilingHeightAt, doorSwing, wallElements, wallSlope } from '#lib/core/geometry.ts';
-import type { Room } from '#lib/core/schema.ts';
+import { isFreeElement, type Room } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
 import type { RoomBuilder, RoomBuildOptions } from '../types.ts';
 import { GeometryBuilder } from './builder.ts';
@@ -32,6 +32,10 @@ import {
 	addWindow,
 	type WallContext
 } from './fixtures.ts';
+import { drawOf } from './draw.ts';
+import { addFreeElement } from './fixturesFree.ts';
+import { addKitchenRun } from './fixturesKitchen.ts';
+import { addAcWall, addBathtub, addShower, addToilet, addWashbasin } from './fixturesSanitary.ts';
 import { fullThicknessAt, wallFrames, wallOpenings, type WallFrame } from './frames.ts';
 import { MaterialSet, PALETTE } from './materials.ts';
 import { Parts } from './parts.ts';
@@ -197,6 +201,24 @@ function buildWall(
 				break;
 			case 'radiator':
 				addRadiator(ctx, element);
+				break;
+			case 'washbasin':
+				addWashbasin(drawOf(parts), element);
+				break;
+			case 'toilet':
+				addToilet(drawOf(parts), element);
+				break;
+			case 'shower':
+				addShower(drawOf(parts), element, frame.length);
+				break;
+			case 'bathtub':
+				addBathtub(drawOf(parts), element);
+				break;
+			case 'kitchenRun':
+				addKitchenRun(drawOf(parts), element, ctx.height);
+				break;
+			case 'acWall':
+				addAcWall(drawOf(parts), element);
 				break;
 			case 'socket':
 				if (options.electrical) addSocket(ctx, element);
@@ -371,6 +393,15 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 		applyWallHeight(wall, options.wallHeightFactor);
 		root.add(wall);
 	}
+
+	const free = new Group();
+	free.name = 'freeElements';
+	const freeParts = new Parts(materials);
+	for (const element of room.elements) {
+		if (isFreeElement(element)) addFreeElement(freeParts, room, element);
+	}
+	freeParts.attach(free, 'freeElement');
+	root.add(free);
 
 	const overhead = new Group();
 	overhead.name = 'overhead';
