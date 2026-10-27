@@ -2,9 +2,9 @@ import { DEFAULT_ROOM, FLOOR_NAMES } from './defaults.ts';
 import {
 	add,
 	boardToRoom,
-	ceilingHeightAt,
 	centroid,
 	distance,
+	lowestCeiling,
 	pointInPolygon,
 	rotate,
 	type Vec
@@ -358,15 +358,19 @@ export function checkStairs(project: Floored & Pick<Project, 'stairs'>): StairIs
 			const centre = centroid(tread.polygon);
 			const below = roomAt(lower, centre);
 			if (!below) outside = true;
+			// The lowest ceiling over the whole tread, so a slope over its edge counts too.
+			const lowest = (room: Room) =>
+				lowestCeiling(
+					room,
+					tread.polygon.map((p) => boardToRoom(room, p))
+				);
 			let ceiling: number;
 			if (open.has(tread)) {
 				const above = roomAt(upper, centre);
-				const upperCeiling = above
-					? ceilingHeightAt(above, boardToRoom(above, centre))
-					: floorClearHeight(project, context.to);
+				const upperCeiling = above ? lowest(above) : floorClearHeight(project, context.to);
 				ceiling = context.height + upperCeiling;
 			} else {
-				ceiling = below ? ceilingHeightAt(below, boardToRoom(below, centre)) : clear;
+				ceiling = below ? lowest(below) : clear;
 			}
 			const headroom = Math.round(ceiling - tread.height);
 			if (headroom < MIN_HEADROOM && (!worst || headroom < (worst.headroom ?? Infinity))) {

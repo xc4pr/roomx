@@ -126,7 +126,7 @@ describe('export with neighbours', () => {
 		];
 		right.name = 'Flur';
 		const doc = buildExport({ ...sampleProject(), rooms: [left, right] });
-		expect(ExportSchema.safeParse(doc).success).toBe(true);
+		expect(ExportSchema.parse(doc).rooms[0].walls[1].neighbours?.[0].thickness).toBe(150);
 		expect(doc.rooms[0].walls[1].neighbours).toEqual([
 			{ roomId: 'right', roomName: 'Flur', wall: 4, from: 0, to: 3000, thickness: 150 }
 		]);

@@ -180,6 +180,28 @@ describe('stairs', () => {
 		expect(checkStairs(flat)).toEqual([]);
 	});
 
+	it('measures the headroom over the whole tread, not only at its centre', () => {
+		const square = [
+			{ x: 0, y: 0 },
+			{ x: 6000, y: 0 },
+			{ x: 6000, y: 6000 },
+			{ x: 0, y: 6000 }
+		];
+		const upper = room('o', 'og', {
+			polygon: square,
+			height: 2500,
+			slopes: [{ id: 's', wall: 4, kneeHeight: 900, angle: 45 }]
+		});
+		const p = project({
+			floors,
+			rooms: [room('a', 'eg', { polygon: square, height: 2500 }), upper],
+			stairs: [stair()]
+		});
+		const issues = checkStairs(p);
+		expect(issues.map((issue) => issue.code)).toEqual(['stairHeadroom']);
+		expect(issues[0].headroom).toBeLessThan(2000);
+	});
+
 	it('reports a stair on the top floor and treads outside every room', () => {
 		const p = project({
 			floors,
