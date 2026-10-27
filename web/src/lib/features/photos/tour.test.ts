@@ -185,6 +185,29 @@ describe('generateTour with fixtures', () => {
 		expect(pointInPolygon(stove.position, room.polygon)).toBe(true);
 		expect(steps.some((step) => step.key === `element:${room.elements[2].id}`)).toBe(false);
 	});
+
+	it('adds optional steps for a roof window, a floor air conditioner and a free obstacle', () => {
+		const room: Room = {
+			...rectangleRoom(),
+			elements: [],
+			slopes: [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]
+		};
+		const ids = sequentialIds('y');
+		room.elements = [
+			createElement('roofWindow', room, 1, 1000, ids),
+			createElement('acFloor', room, 3, 2000, ids),
+			createElement('freeObstacle', room, 2, 1500, ids)
+		];
+		const steps = generateTour(room);
+		for (const element of room.elements) {
+			const step = steps.find((candidate) => candidate.key === `element:${element.id}`);
+			expect(step?.optional, element.kind).toBe(true);
+			expect(pointInPolygon(step!.position, room.polygon), element.kind).toBe(true);
+		}
+		expect(
+			steps.find((step) => step.key === `element:${room.elements[0].id}`)!.perspective.caption.en
+		).toBe('Roof window, wall 1');
+	});
 });
 
 describe('generateTour outdoors', () => {

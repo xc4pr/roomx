@@ -293,7 +293,8 @@ export const instructionTexts = defineMessages({
 			'- Balkon, Terrasse und Garten sind offen (`openAir: true`): keine Wände, keine Decke. Die `walls` sind nur die Kanten des Umrisses; ein Nachbar (`neighbours`) an einer Kante ist das Haus. Türen und Fenster dort gehören zum Haus.',
 			'- Ohne Decke gibt es keine Höhengrenze. Eine Höhengrenze gilt nur unter der Überdachung (`cover` mit `polygon` in Raumkoordinaten und `height`): Möbel unter `cover.polygon` dürfen `cover.height` nicht überragen.',
 			'- Das Geländer (`railing` mit `height` und `runs`, Strecken `from` bis `to` entlang einer Wand) bleibt frei: Stelle nichts dagegen und nichts darauf, das Kinder zum Klettern nutzen könnten (Stühle, Kisten, Pflanzkübel, niedrige Tische).',
-			'- Der Wintergarten hat Glaswände und ein Glasdach; dort gilt die Raumhöhe wie in einem Innenraum.'
+			'- Der Wintergarten hat Glaswände und ein Glasdach; dort gilt die Raumhöhe wie in einem Innenraum.',
+			'- Auf Balkon, Terrasse und Garten keine Steckdosen, Schalter, Wandleuchten oder Netzwerkdosen vorschlagen (sie hätten keine Wand); eine Deckenleuchte nur unter der Überdachung. Elektro gehört an eine Wand des angrenzenden Innenraums.'
 		),
 		mistakes: lines(
 			'## 8. Typische Fehler',
@@ -602,7 +603,8 @@ export const instructionTexts = defineMessages({
 			'- Balcony, terrace and garden are open (`openAir: true`): no walls, no ceiling. The `walls` are only the edges of the outline; a neighbour (`neighbours`) on an edge is the house. Doors and windows there belong to the house.',
 			'- Without a ceiling there is no height limit. A height limit applies only under the cover (`cover` with `polygon` in room coordinates and `height`): furniture under `cover.polygon` must not be taller than `cover.height`.',
 			'- Keep the railing (`railing` with `height` and `runs`, stretches `from` to `to` along a wall) free: place nothing against it and nothing on it that children could use to climb (chairs, crates, planters, low tables).',
-			'- The conservatory has glass walls and a glass roof; the room height applies there as in an indoor room.'
+			'- The conservatory has glass walls and a glass roof; the room height applies there as in an indoor room.',
+			'- Do not propose sockets, switches, wall lamps or network outlets on a balcony, terrace or garden (there is no wall for them); a ceiling lamp only under the cover. Electrical belongs on a wall of the adjoining indoor room.'
 		),
 		mistakes: lines(
 			'## 8. Typical mistakes',

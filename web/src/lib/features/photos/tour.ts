@@ -21,6 +21,7 @@ import {
 	isElectrical,
 	isFreeElement,
 	isOpenAir,
+	isRoofWindow,
 	isWallElement,
 	type FreeElementKind,
 	type Perspective,
@@ -60,7 +61,9 @@ const FREE_DETAIL_KINDS: readonly FreeElementKind[] = [
 	'fireplace',
 	'stove',
 	'tiledStove',
-	'column'
+	'acFloor',
+	'column',
+	'freeObstacle'
 ];
 const ELECTRIC_DISTANCE = 1200;
 
@@ -316,6 +319,23 @@ function elementSteps(room: Room, wallList: Wall[]): TourStep[] {
 					{
 						de: `${names.de[element.kind]}, Wand ${target.number}`,
 						en: `${names.en[element.kind]}, wall ${target.number}`
+					}
+				)
+			);
+		}
+		for (const element of room.elements.filter(isRoofWindow)) {
+			if (element.wall !== target.number) continue;
+			steps.push(
+				detailStep(
+					room,
+					target,
+					element.offset + element.width / 2,
+					DETAIL_DISTANCE,
+					`element:${element.id}`,
+					element.id,
+					{
+						de: `${elementKindNames.de.roofWindow}, Wand ${target.number}`,
+						en: `${elementKindNames.en.roofWindow}, wall ${target.number}`
 					}
 				)
 			);
