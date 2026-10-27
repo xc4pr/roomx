@@ -720,6 +720,7 @@ Voraussetzungen: Node 24 und pnpm 12.
 ```bash
 pnpm -C web install
 pnpm -C web dev          # Dev-Server auf http://localhost:5173
+pnpm -C web lint         # Prettier-Prüfung (pnpm -C web format korrigiert die Formatierung)
 pnpm -C web check        # Typen und Svelte-Prüfung
 pnpm -C web test         # Unit-Tests (Vitest)
 pnpm -C web build        # statische Dateien in web/build (selbst gehostete Version, wenn EDITION nichts anderes sagt)
@@ -736,7 +737,8 @@ pnpm -C web test:e2e            # E2E in Chromium (Desktop und iPad quer), baut 
 pnpm -C web test:e2e:webkit     # E2E in WebKit (iPad quer und hoch) im Docker-Image
 pnpm -C web test:e2e:pages      # E2E gegen die öffentliche Version (gebaut mit EDITION=free) in Chromium, mit Netzwerk-Audit
 pnpm -C web test:e2e:pages:webkit   # dasselbe in WebKit, im Docker-Image
-cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest
+python3 -m unittest discover -s catalog-index/test   # Tests des Katalog-Updates
+cd server && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/pytest && .venv/bin/ruff check
 ```
 
 Die E2E-Tests laufen gegen den echten Server (Port 4273, `web/tests/server.mjs`). Für WebKit nutzt `test:e2e:webkit` das Playwright-Docker-Image `mcr.microsoft.com/playwright`, es braucht also Docker.
@@ -745,7 +747,7 @@ Die E2E-Tests der Foto-Funktion laufen gegen einen lokalen Relay: Die Build-Vari
 
 ### Branches und Continuous Integration
 
-Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push und prüft Prettier, Typen, Unit-Tests, Server-Tests, die Python-Tests des Katalog-Updates, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
+Gearbeitet wird auf dem Branch **`dev`**; **`main` ist der veröffentlichte Stand**. Die CI (`.github/workflows/ci.yml`) läuft bei jedem Push auf `dev` und bei jedem Pull Request auf `main` und prüft Prettier, Typen, Unit-Tests, Server-Tests und Ruff, die Python-Tests des Katalog-Updates, die Builds und die E2E-Tests (Chromium, WebKit und die Pages-Version samt Netzwerk-Audit, der sicherstellt, dass die öffentliche Version keine Anfragen an andere Server schickt).
 
 Ein zweiter Workflow, `.github/workflows/catalog-update.yml`, aktualisiert den grossen Katalog jeden Montag um 04:17 Schweizer Zeit mit den Skripten in `catalog-index/`. Er liest die Produktseiten der Händler langsam, je Händler eine Anfrage nach der anderen. Verschwundene Artikel werden markiert, nie gelöscht. Verschwinden zu viele Artikel oder ändern sich zu viele Preise auf einmal, veröffentlicht der Lauf nichts und eröffnet stattdessen ein Issue; Abweichungen bei den von Hand geprüften Möbeln meldet er ebenfalls als Issue und übernimmt sie nie selbst. Sonst testet er die App, committet ohne Versions-Tag auf `main`, startet den Pages-Workflow und mergt `main` in `dev`. Von Hand lässt er sich ebenfalls starten (`workflow_dispatch`); mit `dry_run` committet er nichts, eröffnet aber trotzdem Issues.
 
@@ -776,6 +778,7 @@ docker compose -f deploy/compose.yaml up -d --build
 - `ROOMX_TOKEN`: Zugangs-Token. Das Compose-File bricht ohne Token ab. Dasselbe Token trägst du in der App unter Einstellungen ein, dazu die Server-Adresse.
 - `ROOMX_BIND`: Adresse, an der der Port erreichbar ist. Der Standard `127.0.0.1` lässt nur diesen Rechner zu, für einen HTTPS-Proxy auf demselben Rechner; `0.0.0.0` nur, wenn der Proxy anderswo läuft.
 - `ROOMX_DATA`: Datenordner im Container (Standard `/data`, als Volume `roomx-data`). `ROOMX_STATIC`: Ordner mit der gebauten App.
+- `ROOMX_ALLOWED_ORIGINS`: optional, durch Kommas getrennte Origins (`schema://host[:port]`, ohne Pfad, ohne Platzhalter), die die API von einem anderen Origin aus aufrufen dürfen, zum Beispiel `http://localhost:5173` für den Dev-Server. Leer lassen, wenn dieser Server auch die App ausliefert: Anfragen vom selben Origin brauchen kein CORS. Ein ungültiger Eintrag stoppt den Server beim Start.
 - Prüfen: `GET /api/health`. Die Endpunkte `/api/projects` und `/api/photos/{digest}` verlangen das Token.
 - Der Foto-Briefkasten für «Mit dem Handy fotografieren» liegt unter `/api/mirror`: Der Computer nutzt dasselbe Token, das Handy lädt mit einem Geheimnis je Auftrag hoch, das aus dem Link abgeleitet ist. Grenzen: 500 Fotos und 1,5 GiB je Briefkasten (einer je Auftrag), 16 MiB je Foto, 5 GiB und 100 Briefkästen insgesamt; Aufträge laufen nach höchstens 8 Tagen ab. Das Handy löscht seine Kopie erst, wenn der Computer eine mit dem Auftragsschlüssel signierte Quittung hinterlegt hat; der Server allein kann es also nicht dazu bringen. Ein beendeter Auftrag bleibt bis zum Ablauf als kleiner Vermerk stehen, damit auch ein Handy, das offline war, vom Ende erfährt.
 - Kamera, Zwischenablage und Service Worker brauchen **HTTPS**, ausser auf `localhost`. Stelle den Server hinter einen HTTPS-Proxy, wenn du ihn ausserhalb von `localhost` nutzt.
