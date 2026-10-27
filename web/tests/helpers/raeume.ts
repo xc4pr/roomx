@@ -51,10 +51,19 @@ export const roomOf = (project: StoredProject) =>
 		freeElements?: unknown;
 	};
 
+// WebKit may still scroll the panel back to a focused field, so the click repeats until it took.
+export async function chooseRoomType(page: Page, type: string): Promise<void> {
+	const chip = page.getByTestId(`room-type-${type}`);
+	await expect(async () => {
+		await chip.click();
+		await expect(chip).toHaveAttribute('aria-pressed', 'true', { timeout: 1_000 });
+	}).toPass({ timeout: 10_000 });
+}
+
 export async function newRoom(page: Page, name: string, type: string): Promise<string> {
 	const id = await createProject(page, name);
 	await addRoom(page);
-	await page.getByTestId(`room-type-${type}`).click();
+	await chooseRoomType(page, type);
 	await waitForProject(page, id, (p) => roomOf(p).type === type, `Raumtyp ${type}`);
 	return id;
 }
@@ -201,7 +210,7 @@ export async function addNamedRoom(
 		await fillChecked(field, String(mm / 10));
 		await field.press('Enter');
 	}
-	await page.getByTestId(`room-type-${type}`).click();
+	await chooseRoomType(page, type);
 	await waitForProject(
 		page,
 		id,
