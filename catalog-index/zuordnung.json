@@ -2001,72 +2001,76 @@
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > ENHET Küchenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenBase",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > KNOXHULT Küchenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenBase",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Einbauschränke": {
-  "category": "wardrobe",
-  "model": "wardrobe",
+  "category": "kitchen",
+  "model": "kitchenTall",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Hochschränke": {
-  "category": "wardrobe",
-  "model": "wardrobe",
+  "category": "kitchen",
+  "model": "kitchenTall",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Hängeschränke": {
-  "category": "shelf",
-  "model": "wallShelf",
+  "category": "kitchen",
+  "model": "kitchenWall",
   "mount": "wall"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Küchenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenBase",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchenschränke > METOD Spülenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenSink",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchensysteme > ENHET Küchen > ENHET Küchensystem > ENHET Küchenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenBase",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchensysteme > ENHET Küchen > ENHET Küchensystem > Knöpfe & Möbelgriffe": "aus",
  "ikea|Küchen & Elektrogeräte > Küchensysteme > KNOXHULT Küchen > KNOXHULT Küchenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenBase",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchensysteme > KNOXHULT Küchen > Knöpfe & Möbelgriffe": "aus",
  "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > Knöpfe & Möbelgriffe": "aus",
  "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Einbauschränke": {
-  "category": "wardrobe",
-  "model": "wardrobe",
+  "category": "kitchen",
+  "model": "kitchenTall",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Hochschränke": {
-  "category": "wardrobe",
-  "model": "wardrobe",
+  "category": "kitchen",
+  "model": "kitchenTall",
   "mount": "floor"
  },
- "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Hängeschränke": "aus",
+ "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Hängeschränke": {
+  "category": "kitchen",
+  "model": "kitchenWall",
+  "mount": "wall"
+ },
  "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Küchenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenBase",
   "mount": "floor"
  },
  "ikea|Küchen & Elektrogeräte > Küchensysteme > METOD Küchen > METOD System > METOD Spülenschränke": {
-  "category": "sideboard",
-  "model": "sideboard",
+  "category": "kitchen",
+  "model": "kitchenSink",
   "mount": "floor"
  },
  "ikea|Küchenzubehör & Geschirr > Picknick & Camping-Zubehör > Lunch- & Vorratsboxen": "aus",
