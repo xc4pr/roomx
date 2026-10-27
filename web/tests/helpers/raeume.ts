@@ -181,15 +181,42 @@ export async function roomBox(page: Page, roomId: string) {
 	return box;
 }
 
+/** A point in the room's box where the room itself is on top, not the panel or a neighbour. */
+async function openPoint(page: Page, roomId: string): Promise<{ x: number; y: number } | null> {
+	const box = await roomBox(page, roomId);
+	return page.evaluate(
+		({ box, roomId }) => {
+			const steps = [0.5, 0.35, 0.65, 0.2, 0.8];
+			for (const fy of steps)
+				for (const fx of steps) {
+					const x = box.x + fx * box.width;
+					const y = box.y + fy * box.height;
+					const hit = document.elementFromPoint(x, y)?.closest('[data-room-id]');
+					if (hit?.getAttribute('data-room-id') === roomId) return { x, y };
+				}
+			return null;
+		},
+		{ box, roomId }
+	);
+}
+
 export async function selectRoomById(page: Page, roomId: string): Promise<void> {
 	const project = await readProject(page, projectIdOf(page));
 	const name = project?.rooms.find((room) => room.id === roomId)?.name;
-	// On a narrow screen a tap right after fit-all can still land on the neighbour: tap until the panel shows this room.
+	// On a narrow screen the bottom sheet can cover the room and the fit button, and a tap right after fit-all can
+	// still land on the neighbour: close the panel when nothing of the room is on top, and tap until the panel shows
+	// this room.
+	const close = page.getByTestId('panel-close');
 	await expect(async () => {
-		await page.getByTestId('fit-all').click();
+		if (!(await openPoint(page, roomId)) && (await close.isVisible())) await close.click();
+		await page.getByTestId('fit-all').click({ timeout: 3000 });
 		await page.waitForTimeout(700);
-		const box = await roomBox(page, roomId);
-		await tapAt(page, box.x + box.width / 2, box.y + box.height / 2);
+		const point = await openPoint(page, roomId);
+		if (!point) {
+			if (await close.isVisible()) await close.click();
+			throw new Error(`room ${roomId} is covered`);
+		}
+		await tapAt(page, point.x, point.y);
 		await page.getByTestId('tab-dims').click();
 		await expect(page.getByTestId('room-name')).toBeVisible({ timeout: 2000 });
 		if (name !== undefined)
