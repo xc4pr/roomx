@@ -180,6 +180,10 @@ Under **Dimensions** there are three ways to set the shape:
 
 **Height.** Enter the ceiling height. It is used for 3D, the checks and the AI package.
 
+<p align="center">
+  <img src=".github/assets/screenshots/en/sloped-ceiling.webp" alt="3D view of an attic room with a partial slope, a dormer with a window and a roof window" width="860">
+</p>
+
 **Sloped ceilings.** For each wall you can set a slope. Enter the **knee wall** height (ceiling height right at the wall), and the slope as an **angle** or as a **depth** (the distance from the wall to the full room height). RoomX shows both values. Example: room height 2.50 m, knee wall 0.50 m and depth 2 m give 45°. RoomX works out the distance from the wall at which the full room height is reached and where 2 m of headroom begins. Slopes appear hatched in the plan and in 3D, and furniture that does not fit underneath is flagged.
 
 - **Sections:** A slope can cover only part of a wall. Enter **From** and **To**, counted from the corner at the start of the wall. A wall can have several sections. Outside them the wall is normal height; at the ends, vertical cheeks form, in the plan and in 3D.
@@ -214,6 +218,10 @@ An apartment is made of several rooms. So that RoomX knows how they fit together
 
 #### Outdoor areas
 
+<p align="center">
+  <img src=".github/assets/screenshots/en/balcony.webp" alt="3D view of a flat with a balcony in front of the living room, with railing, a roof strip and garden furniture" width="860">
+</p>
+
 A balcony, terrace or garden has no walls and no ceiling. It is only a floor, drawn with a dashed outline. It connects like a room: the door sits in the wall of the inside room, and the shared wall belongs to the house.
 
 **Railing.** A balcony gets a railing along its free edges. Set its height under **Railing height**, default 1.0 m.
@@ -231,6 +239,10 @@ A balcony, terrace or garden has no walls and no ceiling. It is only a floor, dr
 **Furnish.** Columns and obstacles also work outdoors, for example two pillars under a balcony above. In Furnish, garden furniture appears at the top once the catalogue marks it.
 
 ### Floors and stairs
+
+<p align="center">
+  <img src=".github/assets/screenshots/en/floors-stairs.webp" alt="3D section of a house with two floors, an L-shaped stair and the stairwell with railing on the upper floor" width="860">
+</p>
 
 A house can have several floors. A new project starts with one floor. With one floor there is no floor selector.
 
@@ -284,6 +296,10 @@ The palette shows only what fits the room type: sanitary items only in a bathroo
 > RoomX does not replace electrical planning. Have sockets and wiring planned and installed by qualified professionals.
 
 #### Bathroom
+
+<p align="center">
+  <img src=".github/assets/screenshots/en/bath-kitchen.webp" alt="3D view of a bathroom with toilet, washbasin and shower with a glass wall, next to a kitchen with a kitchen run, upper cabinets and a dining table" width="860">
+</p>
 
 A toilet (standard 37 × 55 cm, wall-hung), a washbasin (60 × 45 cm), a shower (90 × 90 cm; the switch **Partition** draws glass on the open sides) and a bathtub (170 × 75 cm). All of them stand against a wall. The shower and the bathtub can go **Into corner …** to stand in a corner.
 

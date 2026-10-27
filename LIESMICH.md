@@ -180,6 +180,10 @@ Unter **Masse** gibt es drei Arten, die Form festzulegen:
 
 **Höhe.** Trage die Raumhöhe ein. Sie gilt für 3D, Prüfungen und das KI-Paket.
 
+<p align="center">
+  <img src=".github/assets/screenshots/de/sloped-ceiling.webp" alt="3D-Ansicht eines Dachzimmers mit Teil-Schräge, Gaube mit Fenster und Dachfenster" width="860">
+</p>
+
 **Dachschrägen.** Pro Wand kannst du eine Schräge einstellen. Gib die **Kniestockhöhe** (Deckenhöhe direkt an der Wand) an und die Schräge als **Neigung** oder als **Tiefe** (Abstand von der Wand bis zur vollen Raumhöhe). RoomX zeigt beide Werte. Beispiel: Raumhöhe 2,50 m, Kniestock 0,50 m und Tiefe 2 m ergeben 45°. RoomX rechnet aus, ab welchem Abstand die volle Raumhöhe erreicht ist und wo die Stehhöhe von 2 m beginnt. Schrägen erscheinen schraffiert im Plan und in 3D, und Möbel, die nicht darunter passen, werden markiert.
 
 - **Abschnitte:** Eine Schräge kann nur einen Teil der Wand belegen. Trage **Von** und **Bis** ab der Ecke am Wandanfang ein. Je Wand sind mehrere Abschnitte möglich. Ausserhalb ist die Wand normal hoch; an den Enden entstehen senkrechte Wangen, im Plan und in 3D.
@@ -214,6 +218,10 @@ Eine Wohnung besteht aus mehreren Räumen. Damit RoomX weiss, wie sie zusammenh�
 
 #### Aussenbereiche
 
+<p align="center">
+  <img src=".github/assets/screenshots/de/balcony.webp" alt="3D-Ansicht einer Wohnung mit Balkon vor dem Wohnzimmer, mit Geländer, Überdachungsstreifen und Gartenmöbeln" width="860">
+</p>
+
 Balkon, Terrasse und Garten haben keine Wände und keine Decke. Sie bestehen nur aus dem Boden, der mit einem gestrichelten Umriss gezeichnet wird. Sie docken an wie Räume: Die Tür sitzt in der Wand des Innenraums, und die gemeinsame Wand gehört zum Haus.
 
 **Geländer.** Ein Balkon bekommt entlang der freien Kanten ein Geländer. Die Höhe stellst du unter **Geländerhöhe** ein, Standard 1,0 m.
@@ -231,6 +239,10 @@ Balkon, Terrasse und Garten haben keine Wände und keine Decke. Sie bestehen nur
 **Einrichten.** Stützen und Hindernisse gibt es auch draussen, zum Beispiel zwei Pfeiler unter einem Balkon darüber. Im Einrichten stehen Gartenmöbel oben, sobald der Katalog sie kennzeichnet.
 
 ### Stockwerke und Treppen
+
+<p align="center">
+  <img src=".github/assets/screenshots/de/floors-stairs.webp" alt="3D-Schnitt eines Hauses mit zwei Stockwerken, einer L-Treppe und dem Treppenauge mit Geländer im oberen Stockwerk" width="860">
+</p>
 
 Ein Haus kann mehrere Stockwerke haben. Ein neues Projekt startet mit einem Stockwerk. Bei einem Stockwerk gibt es keine Stockwerk-Bedienung.
 
@@ -284,6 +296,10 @@ Praktisch sind «Unter Fenster zentrieren» (zum Beispiel für den Heizkörper) 
 > RoomX ersetzt keine Elektroplanung. Lass Steckdosen und Leitungen von Fachleuten planen und ausführen.
 
 #### Bad
+
+<p align="center">
+  <img src=".github/assets/screenshots/de/bath-kitchen.webp" alt="3D-Ansicht eines Bads mit WC, Lavabo und Dusche mit Glaswand neben einer Küche mit Küchenzeile, Oberschränken und Esstisch" width="860">
+</p>
 
 Ein WC (Standard 37 × 55 cm, wandhängend), ein Waschtisch (60 × 45 cm), eine Dusche (90 × 90 cm; der Schalter **Trennwand** zeichnet Glas auf die offenen Seiten) und eine Badewanne (170 × 75 cm). Alle stehen an einer Wand. Dusche und Wanne stellst du mit **In die Ecke …** in eine Ecke.
 
