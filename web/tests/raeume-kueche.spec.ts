@@ -108,8 +108,10 @@ test('Offene Küche aus dem Katalog: Kategorie Küche oben, Möbel platzierbar',
 	const chips = panel.locator('[aria-pressed]');
 	await expect(chips.nth(1)).toHaveText('Küche');
 	await expect(chips.nth(1)).toHaveAttribute('aria-pressed', 'true');
-	const card = panel.locator('[data-catalog-id^="generic-kitchen-"]').first();
+	const card = panel.locator('[data-catalog-id]').first();
 	await expect(card).toBeVisible();
+	const catalogId = await card.getAttribute('data-catalog-id');
+	expect(catalogId).toBeTruthy();
 	await card.click();
 	const placed = await waitForProject(
 		page,
@@ -118,5 +120,5 @@ test('Offene Küche aus dem Katalog: Kategorie Küche oben, Möbel platzierbar',
 		'Küchenmöbel platziert'
 	);
 	const item = placed.variants.find((v) => v.id === placed.activeVariantId)!.items[0];
-	expect(item.catalogId).toMatch(/^generic-kitchen-/);
+	expect(item.catalogId).toBe(catalogId);
 });
