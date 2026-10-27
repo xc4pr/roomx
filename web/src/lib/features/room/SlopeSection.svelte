@@ -41,7 +41,7 @@
 		sectionSpan,
 		widenToWholeWall
 	} from './sections.ts';
-	import { clampAngle, defaultSlope, SLOPE_ANGLES, slopeInfo } from './slopeInfo.ts';
+	import { clampAngle, defaultSlope, formatAngle, SLOPE_ANGLES, slopeInfo } from './slopeInfo.ts';
 
 	let { room }: { room: Room } = $props();
 
@@ -359,12 +359,15 @@
 										h: format(2500),
 										k: format(500),
 										d: format(2000),
-										a: exampleAngle
+										a: formatAngle(exampleAngle, locale.language)
 									})}
 								</p>
 							{/if}
 							<p class="px-1 text-sm font-semibold" data-testid="slope-both-{side.number}-{index}">
-								{t(messages, 'slopeBoth', { angle: slope.angle, depth: format(depth) })}
+								{t(messages, 'slopeBoth', {
+									angle: formatAngle(slope.angle, locale.language),
+									depth: format(depth)
+								})}
 							</p>
 							{#if info.kind !== 'none'}
 								<p class="px-1 text-sm font-medium" data-testid="slope-info-{side.number}-{index}">

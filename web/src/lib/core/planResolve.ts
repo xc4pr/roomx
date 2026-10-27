@@ -1,7 +1,7 @@
 import { AnchorError, resolveAnchor, resolveOnTop } from './anchor.ts';
 import type { CatalogEntry, CatalogLookup } from './catalog.ts';
 import { createElement, socketWidth } from './defaults.ts';
-import { ceilingHeightAt, footprint, normalizeDegrees } from './geometry.ts';
+import { footprint, lowestCeiling, normalizeDegrees } from './geometry.ts';
 import { newId as randomId, type IdFactory } from './ids.ts';
 import type { Plan, PlanElectrical, PlanItem, PlanRoom } from './plan.ts';
 import { isWallElement } from './schema.ts';
@@ -106,8 +106,7 @@ function hangingHeight(
 	placement: { x: number; y: number; rotation: number },
 	dims: Dims
 ): number {
-	const corners = footprint({ ...placement, dims });
-	return Math.floor(Math.min(...corners.map((corner) => ceilingHeightAt(room, corner))));
+	return Math.floor(lowestCeiling(room, footprint({ ...placement, dims })));
 }
 
 export function itemRef(planItem: PlanItem, index: number): string {

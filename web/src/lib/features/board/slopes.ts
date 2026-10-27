@@ -162,7 +162,7 @@ export function slopeShape(room: SlopedRoom, slope: Slope): SlopeShape | undefin
 	}
 
 	const stops = [
-		...new Set([visible.from, visible.to, ...dormers.flatMap((d) => [d.from, d.to])])
+		...new Set([range.from, range.to, ...dormers.flatMap((d) => [d.from, d.to])])
 	].sort((a, b) => a - b);
 	const strips: { from: number; to: number; start: number }[] = [];
 	for (let i = 0; i + 1 < stops.length; i++) {

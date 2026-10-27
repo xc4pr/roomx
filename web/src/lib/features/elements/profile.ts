@@ -38,22 +38,35 @@ function kinks(room: SlopedRoom, target: Wall): number[] {
 			{ x: target.start.x - source.start.x, y: target.start.y - source.start.y },
 			inward
 		);
-		for (const level of [0, slopeRun(room, slope)]) {
-			found.push((level - start) / rate);
+		const tangent = Math.tan((slope.angle * Math.PI) / 180);
+		const levels = [0, slopeRun(room, slope)];
+		for (const dormer of slopeDormers(room, slope)) {
+			const top = Math.min(room.height, dormer.height);
+			if (top > slope.kneeHeight) levels.push((top - slope.kneeHeight) / tangent);
 		}
+		for (const level of levels) found.push((level - start) / rate);
 	}
 	return found;
 }
 
-// Places on the wall itself where the ceiling height jumps: ends of a slope section and the
-// sides of dormers and cuts above openings.
+// Places on the wall itself where the ceiling height jumps: ends of any slope section and the
+// sides of any dormer or cut, also those of other walls' slopes, where their lines cross this wall.
 function jumps(room: SlopedRoom, target: Wall): number[] {
 	const found: number[] = [];
 	for (const slope of room.slopes ?? []) {
-		if (slope.wall !== target.number) continue;
+		const source = wall(room.polygon, slope.wall);
+		if (!source) continue;
+		const rate = dot(target.direction, source.direction);
+		if (Math.abs(rate) < EPS) continue;
+		const start = dot(
+			{ x: target.start.x - source.start.x, y: target.start.y - source.start.y },
+			source.direction
+		);
+		const bounds: number[] = [];
 		const span = slopeSpan(room, slope);
-		if (span) found.push(span.from, span.to);
-		for (const dormer of slopeDormers(room, slope)) found.push(dormer.from, dormer.to);
+		if (span) bounds.push(span.from, span.to);
+		for (const dormer of slopeDormers(room, slope)) bounds.push(dormer.from, dormer.to);
+		for (const bound of bounds) found.push((bound - start) / rate);
 	}
 	return found.filter((along) => along > EPS && along < target.length - EPS);
 }
@@ -158,14 +171,35 @@ export function spanLimit(
 	);
 }
 
+// Height limit for an opening that is being moved. A door or window that is taller than the wall
+// surface at its new place carries its own cut in the slope, so it may rise up to the room height.
+export function movingLimit(
+	room: SlopedRoom,
+	wallNumber: number,
+	element: { id: string; elevation: number; height: number },
+	offset: number,
+	width: number
+): number {
+	const without = {
+		...room,
+		elements: (room.elements ?? []).filter((other) => other.id !== element.id)
+	};
+	const base = spanLimit(without, wallNumber, offset, width);
+	const hasSlope = (room.slopes ?? []).some((slope) => slope.wall === wallNumber);
+	return hasSlope && element.elevation + element.height > base + 0.5 ? room.height : base;
+}
+
 export function clampToProfile(
 	room: SlopedRoom,
 	wallNumber: number,
 	offset: number,
 	width: number,
 	elevation: number,
-	height: number
+	height: number,
+	moving?: { id: string; elevation: number; height: number }
 ): number {
-	const limit = spanLimit(room, wallNumber, offset, width);
+	const limit = moving
+		? movingLimit(room, wallNumber, moving, offset, width)
+		: spanLimit(room, wallNumber, offset, width);
 	return Math.max(0, Math.min(elevation, Math.round(limit) - height));
 }

@@ -3,6 +3,7 @@ import { rectanglePolygon } from '#lib/core/defaults.ts';
 import {
 	clampToProfile,
 	isFlatProfile,
+	movingLimit,
 	profileSegments,
 	spanLimit,
 	wallProfile
@@ -120,5 +121,68 @@ describe('wall profile', () => {
 		const points = wallProfile(withDoor, 1);
 		expect(points.some((p) => p.along === 1000 && p.height === 2000)).toBe(true);
 		expect(points.some((p) => p.along === 1900 && p.height === 2000)).toBe(true);
+	});
+
+	it('steps where a slope section of another wall starts or ends', () => {
+		const narrow = {
+			polygon: rectanglePolygon(4000, 1500),
+			height: 2500,
+			slopes: [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 30, from: 0, to: 2000 }]
+		};
+		const top = 1000 + 1500 * Math.tan(Math.PI / 6);
+		const points = wallProfile(narrow, 3);
+		expect(points).toHaveLength(4);
+		expect(points[0]).toEqual({ along: 0, height: 2500 });
+		expect(points[1].along).toBeCloseTo(2000);
+		expect(points[1].height).toBeCloseTo(2500);
+		expect(points[2].along).toBeCloseTo(2000);
+		expect(points[2].height).toBeCloseTo(top);
+		expect(points[3].along).toBeCloseTo(4000);
+		expect(points[3].height).toBeCloseTo(top);
+	});
+
+	it('bends where a dormer height meets the slope on a gable wall', () => {
+		const gable = {
+			polygon: rectanglePolygon(4000, 3000),
+			height: 3000,
+			slopes: [
+				{
+					id: 's1',
+					wall: 1,
+					kneeHeight: 1000,
+					angle: 45,
+					dormers: [{ id: 'd1', from: 3000, to: 4000, height: 2100 }]
+				}
+			]
+		};
+		const points = wallProfile(gable, 2);
+		const near = (along: number, height: number) =>
+			points.some((p) => Math.abs(p.along - along) < 1 && Math.abs(p.height - height) < 1);
+		expect(near(0, 2100)).toBe(true);
+		expect(near(1100, 2100)).toBe(true);
+		expect(near(2000, 3000)).toBe(true);
+	});
+
+	it('keeps a tall window at its elevation when it is nudged along a knee wall', () => {
+		const attic = {
+			polygon: rectanglePolygon(4000, 3000),
+			height: 2500,
+			slopes: [{ id: 's1', wall: 1, kneeHeight: 800, angle: 45 }]
+		};
+		const window = {
+			id: 'w1',
+			kind: 'window' as const,
+			windowType: 'tiltTurn' as const,
+			status: 'existing' as const,
+			wall: 1,
+			offset: 1000,
+			width: 900,
+			height: 1300,
+			elevation: 600
+		};
+		const withWindow = { ...attic, elements: [window] };
+		expect(clampToProfile(withWindow, 1, 1010, 900, 600, 1300, window)).toBe(600);
+		expect(movingLimit(withWindow, 1, window, 1010, 900)).toBe(2500);
+		expect(clampToProfile(withWindow, 1, 1010, 900, 600, 1300)).toBe(0);
 	});
 });

@@ -1,5 +1,6 @@
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
+import { walls } from '#lib/core/geometry.ts';
 import { rectangleRoom } from '#lib/core/fixtures.ts';
 import type { Room } from '#lib/core/schema.ts';
 import { messages } from './i18n.ts';
@@ -7,7 +8,14 @@ import { PAPER_PALETTE } from './palette.ts';
 import { buildPdf } from './pdf.ts';
 import type { PdfContext } from './pdfKit.ts';
 import { planLegend } from './pdfPlan.ts';
-import { hasSlopes, planSlopes, slopeLegend, slopeSummary, zoneHatch } from './pdfSlopes.ts';
+import {
+	hasSlopes,
+	planSlopes,
+	slopeLegend,
+	slopeSummary,
+	wallSlopeLabels,
+	zoneHatch
+} from './pdfSlopes.ts';
 import { translator } from './text.ts';
 import { furnishedProject, loadTestFonts } from './testing.ts';
 
@@ -101,6 +109,17 @@ describe('plan slopes', () => {
 		const base = planLegend(ctx(), false, hasSlopes(plain)).length;
 		expect(planLegend(ctx(), false, hasSlopes(dormer)).length).toBe(base + 1);
 		expect(planLegend(ctx(), false, false).length).toBe(base - 2);
+	});
+
+	it('labels every slope section of a wall, not only the first', () => {
+		const sectioned = room([
+			{ id: 'a', wall: 1, kneeHeight: 1000, angle: 45, from: 0, to: 1500 },
+			{ id: 'b', wall: 1, kneeHeight: 700, angle: 30, from: 2500, to: 4000 }
+		]);
+		const target = walls(sectioned.polygon)[0]!;
+		const labels = wallSlopeLabels(sectioned, target);
+		expect(labels.map((label) => label.slope.id)).toEqual(['a', 'b']);
+		expect(labels.map((label) => label.along)).toEqual([750, 3250]);
 	});
 
 	it('hatches in a stable grid', () => {

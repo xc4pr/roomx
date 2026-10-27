@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampAngle, defaultSlope, slopeInfo } from './slopeInfo.ts';
+import { clampAngle, defaultSlope, formatAngle, slopeInfo } from './slopeInfo.ts';
 
 describe('slopeInfo', () => {
 	it('derives the distances from the wall', () => {
@@ -33,5 +33,13 @@ describe('slopeInfo', () => {
 		expect(clampAngle(2)).toBe(5);
 		expect(clampAngle(120)).toBe(85);
 		expect(clampAngle(37.26)).toBe(37.3);
+	});
+});
+
+describe('formatAngle', () => {
+	it('uses the decimal separator of the language', () => {
+		expect(formatAngle(43.6, 'de')).toBe('43,6');
+		expect(formatAngle(43.6, 'en')).toBe('43.6');
+		expect(formatAngle(45, 'de')).toBe('45');
 	});
 });

@@ -28,4 +28,16 @@ describe('ceilingClearance', () => {
 		expect(ceilingClearance(room, item(2000, 800))).toBeUndefined();
 		expect(ceilingClearance({ ...room, slopes: [] }, item(300, 800))).toBeUndefined();
 	});
+
+	it('sees a slope section between the corners of the footprint', () => {
+		const sectioned = {
+			...room,
+			slopes: [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45, from: 1800, to: 2200 }]
+		};
+		const wide = { ...item(300, 800), dims: { w: 3000, d: 400, h: 800 } };
+		expect(ceilingClearance(sectioned, { ...wide, x: 2000, y: 300 })).toEqual({
+			height: 1100,
+			tooLow: false
+		});
+	});
 });

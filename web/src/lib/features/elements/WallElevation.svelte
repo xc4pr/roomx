@@ -28,7 +28,7 @@
 		type SnapKind
 	} from './logic.ts';
 	import { resolvePills, pillWidth, type PillSpec } from './pills.ts';
-	import { isFlatProfile, profileSegments, spanLimit, wallProfile } from './profile.ts';
+	import { isFlatProfile, movingLimit, profileSegments, wallProfile } from './profile.ts';
 	import { session } from './session.svelte.ts';
 
 	let { roomId, wall: wallNumber }: { roomId: string; wall: number } = $props();
@@ -356,7 +356,7 @@
 			const snapped = snapElevation({
 				elevation: current.elevation - dy / scale,
 				height: element.height,
-				roomHeight: Math.round(spanLimit(room, wallNumber, nextOffset, element.width)),
+				roomHeight: Math.round(movingLimit(room, wallNumber, element, nextOffset, element.width)),
 				neighbors,
 				threshold
 			});

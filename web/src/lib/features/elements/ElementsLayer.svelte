@@ -551,7 +551,8 @@
 						clampOffset(element.offset + delta.along, element.width, target.length),
 						element.width,
 						element.elevation + delta.up,
-						element.height
+						element.height,
+						element
 					)
 				},
 				options

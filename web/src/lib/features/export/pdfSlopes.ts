@@ -7,6 +7,7 @@ import {
 	slopeSpan,
 	wall,
 	wallPoint,
+	wallSlopes,
 	walls,
 	type Vec,
 	type Wall
@@ -354,6 +355,25 @@ export function wallProfilePoints(room: Room, target: Wall, frame: WallFrame): P
 	}));
 }
 
+// One label per slope section on the wall itself: its middle and the highest point of the wall there.
+export function wallSlopeLabels(
+	room: Room,
+	target: Wall
+): { slope: Slope; along: number; top: number }[] {
+	const points = wallProfile(room, target.number);
+	return wallSlopes(room, target.number).map((slope) => {
+		const span = slopeSpan(room, slope) ?? { from: 0, to: target.length };
+		const inside = points.filter(
+			(point) => point.along >= span.from - 0.5 && point.along <= span.to + 0.5
+		);
+		return {
+			slope,
+			along: (span.from + span.to) / 2,
+			top: Math.max(...(inside.length > 0 ? inside : points).map((point) => point.height))
+		};
+	});
+}
+
 export function drawProfileLabels(
 	page: PDFPage,
 	ctx: PdfContext,
@@ -382,20 +402,21 @@ export function drawProfileLabels(
 			});
 		}
 	});
-	const own = room.slopes?.find((slope) => slope.wall === target.number);
-	if (own) {
-		const top = Math.max(...points.map((point) => point.height));
-		drawText(
-			page,
-			ctx,
-			ctx.tr('wallKnee', {
-				knee: Math.round(own.kneeHeight),
-				angle: Math.round(own.angle * 10) / 10
-			}),
-			(frame.left + frame.right) / 2,
-			wallYAt(frame, top) + 5,
-			{ size: 7.5, align: 'center', color: p.ink, bold: true }
-		);
+	const own = wallSlopeLabels(room, target);
+	if (own.length > 0) {
+		for (const label of own) {
+			drawText(
+				page,
+				ctx,
+				ctx.tr('wallKnee', {
+					knee: Math.round(label.slope.kneeHeight),
+					angle: Math.round(label.slope.angle * 10) / 10
+				}),
+				wallXAt(frame, label.along),
+				wallYAt(frame, label.top) + 5,
+				{ size: 7.5, align: 'center', color: p.ink, bold: true }
+			);
+		}
 		return;
 	}
 	for (const segment of profileSegments(room, target.number)) {

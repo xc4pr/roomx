@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { rectanglePolygon } from '#lib/core/defaults.ts';
 import type { Slope } from '#lib/core/schema.ts';
-import { areaMm2 } from '#lib/core/geometry.ts';
+import { areaMm2, slopeRun, wall } from '#lib/core/geometry.ts';
 import { clipSegmentToPolygon, clipToHalfPlane, longestSegment, slopeShapes } from './slopes.ts';
 
 const room = (slopes: Slope[]) => ({
@@ -143,5 +143,26 @@ describe('slopes', () => {
 		expect(shape.dormers[0].cut).toBe(true);
 		const hatched = shape.pieces.reduce((sum, piece) => sum + areaMm2(piece), 0);
 		expect(hatched).toBeCloseTo(4000 * 1500 - 900 * 1000);
+	});
+
+	it('hatches a slope without a section across the whole room strip, also beyond the wall ends', () => {
+		const polygon = [
+			{ x: 0, y: 0 },
+			{ x: 3000, y: 0 },
+			{ x: 3000, y: 1500 },
+			{ x: 5000, y: 1500 },
+			{ x: 5000, y: 3500 },
+			{ x: 0, y: 3500 }
+		];
+		const slope: Slope = { id: 's1', wall: 1, kneeHeight: 1000, angle: 30 };
+		const room = { polygon, height: 2500, slopes: [slope] };
+		const target = wall(polygon, 1);
+		if (!target) throw new Error('no wall');
+		const run = slopeRun(room, slope);
+		const strip = clipToHalfPlane(polygon, target.start, target.inward, run);
+		const shape = slopeShapes(room)[0];
+		const hatched = shape.pieces.reduce((sum, piece) => sum + areaMm2(piece), 0);
+		expect(hatched).toBeCloseTo(areaMm2(strip), 0);
+		expect(hatched).toBeGreaterThan(3000 * run + 1e6);
 	});
 });

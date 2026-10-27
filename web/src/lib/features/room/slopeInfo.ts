@@ -36,3 +36,9 @@ export function defaultSlope(room: Pick<Room, 'height'>): { kneeHeight: number; 
 export function clampAngle(angle: number): number {
 	return Math.min(MAX_ANGLE, Math.max(MIN_ANGLE, Math.round(angle * 10) / 10));
 }
+
+// An angle in degrees with the decimal separator of the language, e.g. 43,6 in German.
+export function formatAngle(angle: number, language: 'de' | 'en'): string {
+	const text = String(Math.round(angle * 10) / 10);
+	return language === 'de' ? text.replace('.', ',') : text;
+}
