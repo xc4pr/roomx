@@ -4,10 +4,12 @@ import { z } from 'zod';
 import {
 	ELEMENT_KINDS,
 	isElectrical,
+	isOpenAir,
 	isWallElement,
 	type Project,
 	type Room
 } from '#lib/core/schema.ts';
+import { elementFitsRoom } from '#lib/core/elements.ts';
 import { generateTour } from '#lib/features/photos/tour.ts';
 import { locale } from '#lib/i18n/index.svelte.ts';
 import { LIMITS } from '#lib/security/limits.ts';
@@ -40,6 +42,7 @@ const MAX_COORDINATE = 1_000_000;
 const MAX_PARTS = 50;
 const MAX_DONE = 2000;
 const PREFIX = 'pair=';
+const OPEN_AIR_MARK = '~openAir';
 const PAIR_CLOCK_SLACK_MS = 24 * 60 * 60 * 1000;
 
 type WireElement = [kind: number, wall: number, offset: number, width: number];
@@ -86,7 +89,7 @@ function toWire(payload: JobPayload): Wire {
 				element.offset,
 				element.width
 			]),
-			room.done
+			room.openAir ? [...room.done, OPEN_AIR_MARK] : room.done
 		])
 	};
 }
@@ -153,7 +156,8 @@ function fromWire(wire: z.infer<typeof WireSchema>): JobPayload {
 				offset,
 				width
 			})),
-			done
+			done: done.filter((key) => key !== OPEN_AIR_MARK),
+			...(done.includes(OPEN_AIR_MARK) ? { openAir: true } : {})
 		}))
 	};
 }
@@ -175,6 +179,7 @@ function mirrorRoom(room: Room, index: number): { mirror: MirrorRoom; elementIds
 	const wallCount = room.polygon.length;
 	const kept = room.elements
 		.filter(isWallElement)
+		.filter((element) => elementFitsRoom(room, element))
 		.filter(
 			(element) =>
 				(element.kind === 'door' ||
@@ -206,7 +211,8 @@ function mirrorRoom(room: Room, index: number): { mirror: MirrorRoom; elementIds
 				offset: clamp(element.offset),
 				width: Math.max(1, clamp(element.width))
 			})),
-			done: [...done]
+			done: [...done],
+			...(isOpenAir(room) ? { openAir: true } : {})
 		}
 	};
 }

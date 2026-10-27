@@ -3,7 +3,13 @@ import { wallLinks } from '#lib/core/adjacency.ts';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 import { rectangleRoom } from '#lib/core/fixtures.ts';
 import type { Room } from '#lib/core/schema.ts';
-import { bandOutline, thicknessAt, wallBadgePlacement, wallPieces } from './wallBands.ts';
+import {
+	bandOutline,
+	glassBandPath,
+	thicknessAt,
+	wallBadgePlacement,
+	wallPieces
+} from './wallBands.ts';
 
 function pair(thickness: number): Room[] {
 	return [
@@ -15,6 +21,18 @@ function pair(thickness: number): Room[] {
 		}
 	];
 }
+
+describe('glass band', () => {
+	it('skips the stretch shared with the house', () => {
+		const rooms = pair(100);
+		const links = wallLinks(rooms).filter((link) => link.roomId === 'a');
+		const all = glassBandPath(rooms[0]!.polygon, []);
+		const open = glassBandPath(rooms[0]!.polygon, links);
+		expect(all.split('Z').length - 1).toBe(4);
+		expect(open.split('Z').length - 1).toBeGreaterThan(4);
+		expect(open).not.toBe(all);
+	});
+});
 
 describe('wall bands', () => {
 	for (const thickness of [100, 300]) {

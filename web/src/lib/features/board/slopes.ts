@@ -15,11 +15,14 @@ import {
 	type Wall
 } from '#lib/core/geometry.ts';
 import { STANDING_HEIGHT } from '#lib/core/export.ts';
-import type { Room, Slope } from '#lib/core/schema.ts';
+import { isOpenAir, type Room, type Slope } from '#lib/core/schema.ts';
 
 export type Segment = readonly [Vec, Vec];
 
-type SlopedRoom = Pick<Room, 'polygon' | 'height' | 'slopes'> & { elements?: Room['elements'] };
+type SlopedRoom = Pick<Room, 'polygon' | 'height' | 'slopes'> & {
+	elements?: Room['elements'];
+	type?: Room['type'];
+};
 
 export interface DormerShape {
 	id: string;
@@ -203,7 +206,13 @@ export function slopeShape(room: SlopedRoom, slope: Slope): SlopeShape | undefin
 	};
 }
 
+// A slope kept from an earlier room type is not drawn in an open-air area.
+export function slopesShown(room: SlopedRoom): boolean {
+	return room.type === undefined || !isOpenAir({ type: room.type });
+}
+
 export function slopeShapes(room: SlopedRoom): SlopeShape[] {
+	if (!slopesShown(room)) return [];
 	return (room.slopes ?? []).flatMap((slope) => {
 		const shape = slopeShape(room, slope);
 		return shape ? [shape] : [];

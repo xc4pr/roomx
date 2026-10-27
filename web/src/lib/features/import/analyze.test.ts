@@ -86,6 +86,34 @@ describe('analyzePlanText', () => {
 		for (const conflict of all) expect(conflict.text).not.toMatch(/\{\w+\}/);
 	});
 
+	it('names the cover, not the room, when an item is too tall in an open-air area', () => {
+		const make = (type: 'bedroom' | 'terrace', cover: boolean) => {
+			const opts = options();
+			const room = opts.project.rooms[0]!;
+			room.type = type;
+			if (cover) room.cover = { polygon: room.polygon, height: 2400 };
+			const result = analyzePlanText(
+				planJson((plan) => {
+					plan.variants[0].rooms[0].items = [
+						{
+							id: 'tall',
+							name: 'Schrank',
+							category: 'wardrobe',
+							dims: { w: 600, d: 400, h: 2900 },
+							x: 2000,
+							y: 1500
+						}
+					];
+				}),
+				opts
+			);
+			if (result.status !== 'ready') throw new Error(result.status);
+			return result.preview[0].rooms[0].errors.map((conflict) => conflict.text).join(' ');
+		};
+		expect(make('terrace', true)).toContain('höher als die Überdachung');
+		expect(make('bedroom', false)).toContain('höher als der Raum');
+	});
+
 	it('imports the valid parts and lists the skipped ones', () => {
 		const result = analyzePlanText(
 			planJson((plan) => {

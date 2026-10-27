@@ -16,7 +16,7 @@
 	import { messages } from './i18n.ts';
 	import { coverMark, railingLines } from './outdoor.ts';
 	import { cornerLabelPosition, pathOf, wallNormal } from './shape.ts';
-	import { bandPaths, thicknessAt, wallBadgePlacement } from './wallBands.ts';
+	import { bandPaths, glassBandPath, thicknessAt, wallBadgePlacement } from './wallBands.ts';
 
 	interface Props {
 		room: Room;
@@ -61,16 +61,17 @@
 	const paths = $derived(bandPaths(room.polygon, roomLinks));
 	const band = $derived(paths.band);
 	const outline = $derived(paths.outline);
+	const glassBand = $derived(glassBandPath(room.polygon, roomLinks));
 	const middle = $derived(centroid(room.polygon));
 	const openAir = $derived(isOpenAir(room));
 	const glass = $derived(room.type === 'winterGarden');
 	const railing = $derived(
-		openAir && room.railing ? railingLines(store.project?.rooms ?? [], room) : []
+		room.type === 'balcony' && room.railing ? railingLines(store.project?.rooms ?? [], room) : []
 	);
 	const cover = $derived(room.cover && openAir ? pathOf(room.cover.polygon) : undefined);
-	const coverAt = $derived(coverMark(room));
+	const coverAt = $derived(openAir ? coverMark(room) : undefined);
 	const coverText = $derived(
-		room.cover
+		room.cover && openAir
 			? t(messages, 'coverLabel', {
 					height: formatLength(room.cover.height, settings.unit, locale.language)
 				})
@@ -156,7 +157,7 @@
 			/>
 		{:else}
 			<path
-				d={band}
+				d={glass ? glassBand : band}
 				fill-rule="evenodd"
 				style="fill: {bandFill}"
 				pointer-events="none"

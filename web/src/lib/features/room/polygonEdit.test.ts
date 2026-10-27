@@ -1,8 +1,10 @@
+import { stripCover } from '#lib/core/outdoor.ts';
 import { describe, expect, it } from 'vitest';
 import { rectanglePolygon } from '#lib/core/defaults.ts';
 import { roomToBoard } from '#lib/core/geometry.ts';
 import type { RoomElement } from '#lib/core/schema.ts';
 import {
+	reframeCover,
 	reframeElements,
 	reframePolygon,
 	remapAfterInsert,
@@ -101,5 +103,47 @@ describe('reframeElements', () => {
 			expect(Math.abs(a.y - b.y)).toBeLessThan(1);
 		}
 		expect(movedColumn).toMatchObject({ rotation: 300 });
+	});
+});
+
+describe('reframeCover', () => {
+	const polygon = [
+		{ x: 0, y: 0 },
+		{ x: 4000, y: 0 },
+		{ x: 4000, y: 2000 },
+		{ x: 0, y: 2000 }
+	];
+	const from = { x: 0, y: 0, rot: 0 };
+	const to = { x: 100, y: 50, rot: 90 };
+
+	it('rebuilds a whole-area cover on the new outline', () => {
+		const wider = polygon.map((p) => (p.x === 4000 ? { ...p, x: 5000 } : p));
+		const cover = { polygon, height: 2400 };
+		expect(reframeCover({ polygon, cover }, wider, from, to)?.polygon).toEqual(wider);
+	});
+
+	it('keeps a strip a strip along its wall', () => {
+		const cover = { polygon: stripCover({ polygon }, 1, 1500, 2400)!.polygon, height: 2400 };
+		const wider = polygon.map((p) => (p.x === 4000 ? { ...p, x: 5000 } : p));
+		const result = reframeCover({ polygon, cover }, wider, from, to);
+		expect(result?.polygon.map((p) => p.x)).toEqual([0, 5000, 5000, 0]);
+	});
+
+	it('keeps a hand-drawn cover in place on the board', () => {
+		const cover = {
+			polygon: [
+				{ x: 100, y: 100 },
+				{ x: 900, y: 100 },
+				{ x: 900, y: 700 }
+			],
+			height: 2400
+		};
+		const result = reframeCover({ polygon, cover }, polygon, from, to)!;
+		cover.polygon.forEach((p, i) => {
+			const a = roomToBoard({ boardPos: from }, p);
+			const b = roomToBoard({ boardPos: to }, result.polygon[i]);
+			expect(Math.abs(a.x - b.x)).toBeLessThan(1);
+			expect(Math.abs(a.y - b.y)).toBeLessThan(1);
+		});
 	});
 });

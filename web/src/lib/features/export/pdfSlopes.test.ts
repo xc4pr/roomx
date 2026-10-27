@@ -36,6 +36,22 @@ function area(points: readonly { x: number; y: number }[]): number {
 	return Math.abs(sum) / 2;
 }
 
+describe('slopes in open air', () => {
+	const slope = [{ id: 's', wall: 1, kneeHeight: 1000, angle: 45 }];
+
+	it('are neither hatched nor listed for a balcony, terrace or garden, but kept for a conservatory', () => {
+		for (const type of ['balcony', 'terrace', 'garden'] as const) {
+			const open = { ...room(slope), type };
+			expect(planSlopes(open)).toEqual([]);
+			expect(hasSlopes(open)).toBe(false);
+			expect(slopeSummary(ctx(), open)).toBeUndefined();
+		}
+		const glass = { ...room(slope), type: 'winterGarden' as const };
+		expect(planSlopes(glass).length).toBeGreaterThan(0);
+		expect(hasSlopes(glass)).not.toBe(false);
+	});
+});
+
 describe('plan slopes', () => {
 	it('hatches only the section and draws cheeks at its ends', () => {
 		const [shape] = planSlopes(

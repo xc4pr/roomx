@@ -200,6 +200,27 @@ describe('buildExport with outdoor areas', () => {
 		expect(room.railing).toBeUndefined();
 	});
 
+	it('leftovers after a type change: no cover for a conservatory, no slopes or roof windows for open air', () => {
+		const project = withBalcony();
+		const balcony = project.rooms.find((r) => r.id === 'room-balcony')!;
+		const exported = () =>
+			buildExport(project, { exportedAt: NOW }).rooms.find((r) => r.id === 'room-balcony')!;
+		balcony.slopes = [{ id: 's', wall: 1, kneeHeight: 1000, angle: 45 }];
+		balcony.elements = [
+			{ ...createElement('roofWindow', balcony, 1, 200, () => 'rw'), kind: 'roofWindow' } as never
+		];
+		let room = exported();
+		expect(room.slopes).toBeUndefined();
+		expect(room.roofWindows).toBeUndefined();
+		expect(room.cover).toBeDefined();
+		balcony.type = 'winterGarden';
+		room = exported();
+		expect(room.cover).toBeUndefined();
+		expect(room.slopes).toHaveLength(1);
+		balcony.type = 'terrace';
+		expect(exported().railing).toBeUndefined();
+	});
+
 	it('exports a project without outdoor areas as before', () => {
 		const document = buildExport(sampleProject(), { exportedAt: NOW });
 		expect(document.areas).toBeUndefined();

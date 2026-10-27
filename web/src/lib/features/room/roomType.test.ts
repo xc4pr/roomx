@@ -23,6 +23,17 @@ beforeEach(async () => {
 	await Promise.all(db.tables.map((table) => table.clear()));
 });
 
+describe('noticeMessage', () => {
+	it('uses singular and plural for moved doors and windows', () => {
+		expect(noticeMessage({ moved: [{ room: 'Wohnen', count: 1 }], unfit: 0 })).toContain(
+			'1 Tür oder Fenster ist'
+		);
+		expect(noticeMessage({ moved: [{ room: 'Wohnen', count: 2 }], unfit: 0 })).toContain(
+			'2 Türen und Fenster sind'
+		);
+	});
+});
+
 describe('selectableTypes', () => {
 	it('offers the outdoor types for every room', () => {
 		for (const current of ['living', 'terrace'] as const) {

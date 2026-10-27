@@ -39,7 +39,10 @@ export function describeTypeChange(
 
 export function noticeMessage(notice: TypeChangeNotice): string {
 	const parts = notice.moved.map((entry) =>
-		t(messages, 'typeMoved', { n: entry.count, room: entry.room })
+		t(messages, entry.count === 1 ? 'typeMoved_one' : 'typeMoved_other', {
+			n: entry.count,
+			room: entry.room
+		})
 	);
 	if (notice.unfit > 0) parts.push(t(messages, 'typeUnfit', { n: notice.unfit }));
 	return parts.join(' ');

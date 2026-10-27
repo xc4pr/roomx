@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { boardToRoom, cornerLabel, interiorAngle, type Vec } from '#lib/core/geometry.ts';
-	import type { BoardPos, Point, Room, RoomElement } from '#lib/core/schema.ts';
+	import type { BoardPos, Cover, Point, Room, RoomElement } from '#lib/core/schema.ts';
 	import {
+		reframeCover,
 		reframeElements,
 		remapAfterInsert,
 		reframePolygon
 	} from '#lib/features/room/polygonEdit.ts';
+	import { wholeCover } from '#lib/core/outdoor.ts';
+	import { inferCover } from '#lib/features/room/cover.ts';
 	import { gridForZoom, snapCorner } from '#lib/features/room/cornerSnap.ts';
 	import { polygonProblem } from '#lib/features/room/walls.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -31,6 +34,7 @@
 		polygon: Point[];
 		boardPos: BoardPos;
 		elements: RoomElement[];
+		room: Pick<Room, 'polygon' | 'cover'>;
 	}
 
 	let active = $state<Active | null>(null);
@@ -46,8 +50,16 @@
 			index,
 			polygon,
 			boardPos: { ...$state.snapshot(room.boardPos) },
-			elements: $state.snapshot(room.elements) as RoomElement[]
+			elements: $state.snapshot(room.elements) as RoomElement[],
+			room: { polygon, cover: coverSnapshot() }
 		};
+	}
+
+	// After an insert the whole-area cover already follows the new outline; the snapshot is the one
+	// the drag starts from.
+	function coverSnapshot(): Cover | undefined {
+		const cover = $state.snapshot(room.cover) as Cover | undefined;
+		return cover && { ...cover, polygon: cover.polygon.map((p) => ({ ...p })) };
 	}
 
 	function grab(event: PointerEvent, index: number): void {
@@ -68,6 +80,9 @@
 				if (!target) return;
 				target.polygon = next;
 				target.elements = remapAfterInsert(target.elements, wallIndex + 1, along);
+				if (target.cover && inferCover({ polygon, cover: target.cover }).mode === 'whole') {
+					target.cover = wholeCover({ polygon: next }, target.cover.height);
+				}
 			},
 			{ coalesce: key }
 		);
@@ -77,7 +92,7 @@
 	function move(event: PointerEvent): void {
 		if (!active || event.pointerId !== active.pointerId) return;
 		event.stopPropagation();
-		const { index, polygon, boardPos, elements } = active;
+		const { index, polygon, boardPos, elements, room: before } = active;
 		const n = polygon.length;
 		const board = viewport.clientToBoard(event.clientX, event.clientY);
 		const local = boardToRoom({ boardPos }, board);
@@ -102,6 +117,7 @@
 				const target = project.rooms.find((candidate) => candidate.id === room.id);
 				if (!target) return;
 				target.elements = reframeElements(elements, boardPos, framed.boardPos);
+				target.cover = reframeCover(before, framed.polygon, boardPos, framed.boardPos);
 				target.polygon = framed.polygon;
 				target.boardPos = framed.boardPos;
 			},

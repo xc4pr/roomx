@@ -7,7 +7,8 @@ import {
 	sub,
 	type Vec
 } from '#lib/core/geometry.ts';
-import type { BoardPos, Point, RoomElement } from '#lib/core/schema.ts';
+import type { BoardPos, Cover, Point, Room, RoomElement } from '#lib/core/schema.ts';
+import { refitCover } from './cover.ts';
 
 export function reframePolygon(
 	boardPos: BoardPos,
@@ -70,4 +71,25 @@ export function reframeElements(
 		if (element.kind === 'ceilingLamp') return { ...element, x, y };
 		return { ...element, x, y, rotation: normalizeDegrees(element.rotation + from.rot - to.rot) };
 	});
+}
+
+// The cover follows a corner drag: a whole-area or strip cover is rebuilt on the new outline, a
+// hand-drawn one keeps its place on the board.
+export function reframeCover(
+	room: Pick<Room, 'polygon' | 'cover'>,
+	polygon: readonly Point[],
+	from: BoardPos,
+	to: BoardPos
+): Cover | undefined {
+	const cover = room.cover;
+	if (!cover) return undefined;
+	const next = refitCover(room, [...polygon]);
+	if (next !== cover) return next;
+	return {
+		...cover,
+		polygon: cover.polygon.map((p) => {
+			const q = boardToRoom({ boardPos: to }, roomToBoard({ boardPos: from }, p));
+			return { x: Math.round(q.x), y: Math.round(q.y) };
+		})
+	};
 }

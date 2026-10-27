@@ -43,6 +43,19 @@ async function mirrorRoomOf(
 }
 
 describe('roomFromMirror', () => {
+	it('open-air room: phone tour asks for no walls, corners or ceiling and sends no wall elements', async () => {
+		const terrace = furnished();
+		terrace.type = 'terrace';
+		const { mirror } = await mirrorRoomOf(terrace);
+		expect(mirror.openAir).toBe(true);
+		expect(mirror.elements).toEqual([]);
+		expect(mirror.done).not.toContain('~openAir');
+		const keys = generateTour(roomFromMirror(mirror)).map((step) => step.key);
+		expect(keys.length).toBeGreaterThan(0);
+		expect(keys.some((key) => /^(corner|wall|ceiling)/.test(key))).toBe(false);
+		expect((await mirrorRoomOf()).mirror.openAir).toBeUndefined();
+	});
+
 	it('is schema valid with phone ids', async () => {
 		const { mirror, elementIds } = await mirrorRoomOf();
 		const phone = roomFromMirror(mirror);

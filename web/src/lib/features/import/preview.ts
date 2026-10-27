@@ -3,7 +3,13 @@ import { checkRoomItems, type ItemIssue } from '#lib/core/checks.ts';
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import type { Plan } from '#lib/core/plan.ts';
 import type { ResolvedPlan } from '#lib/core/planResolve.ts';
-import type { Item, ItemCategory, Project, Room } from '#lib/core/schema.ts';
+import {
+	isOpenAir,
+	type Item,
+	type ItemCategory,
+	type Project,
+	type Room
+} from '#lib/core/schema.ts';
 import { formatLength, type Language, type LengthUnit } from '#lib/core/units.ts';
 import { translator, type Translate } from '#lib/features/export/text.ts';
 import { elementKindNames } from '#lib/i18n/common.ts';
@@ -117,7 +123,11 @@ function conflictText(
 	const element = issue.elementId
 		? room.elements.find((candidate) => candidate.id === issue.elementId)
 		: undefined;
-	return tr(CONFLICT_KEYS[issue.code], {
+	const key =
+		issue.code === 'tooTall' && isOpenAir(room)
+			? 'conflictTooTallCover'
+			: CONFLICT_KEYS[issue.code];
+	return tr(key, {
 		a: name(0),
 		b: name(1),
 		element: element ? elementKindNames[options.language][element.kind] : '',

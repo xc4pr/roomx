@@ -407,7 +407,7 @@ function drawOutdoor(
 	fit: Fit,
 	roomWalls: ReturnType<typeof walls>
 ): void {
-	if (room.cover) {
+	if (room.cover && isOpenAir(room)) {
 		polygon(
 			page,
 			room.cover.polygon.map((p) => toPage(fit, p)),
@@ -446,13 +446,13 @@ export function outdoorLegend(ctx: PdfContext, rooms: readonly Room[]): LegendEn
 			}
 		}
 	];
-	if (rooms.some((room) => room.railing)) {
+	if (rooms.some((room) => room.type === 'balcony' && room.railing)) {
 		entries.push({
 			label: ctx.tr('legendRailing'),
 			draw: (page, x, y) => strokeLine(page, { x, y }, { x: x + 16, y }, { width: 3, color: p.ink })
 		});
 	}
-	if (rooms.some((room) => room.cover)) {
+	if (rooms.some((room) => room.cover && isOpenAir(room))) {
 		entries.push({
 			label: ctx.tr('legendCover'),
 			draw: (page, x, y) =>

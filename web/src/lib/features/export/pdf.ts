@@ -235,7 +235,7 @@ function drawPlanPage(ctx: PdfContext, room: Room): void {
 		size: 8,
 		color: ctx.palette.muted
 	});
-	const freeLines = roomOnlyLines(ctx, room.elements);
+	const freeLines = roomOnlyLines(ctx, room.elements, isOpenAir(room));
 	if (freeLines.length > 0) {
 		flow.paragraph(symbolTranslator(ctx.language)('freeTitle'), { size: 8.5, bold: true });
 		for (const line of freeLines) flow.paragraph(`- ${line}`, { size: 8, indent: 6 });

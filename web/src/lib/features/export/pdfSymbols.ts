@@ -11,6 +11,7 @@ import { clearanceZone, kitchenModuleSpans, kitchenUpperSpans } from '#lib/core/
 import {
 	isFireElement,
 	isFreeElement,
+	isOpenAir,
 	isWallElement,
 	type FreeElement,
 	type KitchenRun,
@@ -413,8 +414,9 @@ export function drawSymbols(
 	fit: Fit
 ): void {
 	for (const element of elements) {
-		if (element.kind === 'roofWindow') drawRoofWindow(page, ctx, room, element, fit);
-		else if (isFreeElement(element)) drawFreeSymbol(page, ctx, element, fit);
+		if (element.kind === 'roofWindow') {
+			if (!isOpenAir(room)) drawRoofWindow(page, ctx, room, element, fit);
+		} else if (isFreeElement(element)) drawFreeSymbol(page, ctx, element, fit);
 		else if (isWallElement(element) && isSymbolKind(element.kind)) {
 			drawWallSymbol(page, ctx, room, element, fit);
 		}
@@ -530,12 +532,17 @@ export function sizeLine(element: FreeElement, ctx: PdfContext): string {
 	return parts.join(' · ');
 }
 
-export function roomOnlyLines(ctx: PdfContext, elements: readonly RoomElement[]): string[] {
+export function roomOnlyLines(
+	ctx: PdfContext,
+	elements: readonly RoomElement[],
+	openAir = false
+): string[] {
 	const tr = symbolTranslator(ctx.language);
 	const lines: string[] = [];
 	for (const element of elements) {
 		if (isFreeElement(element)) lines.push(sizeLine(element, ctx));
 		else if (element.kind === 'roofWindow') {
+			if (openAir) continue;
 			const name = elementKindNames[ctx.language].roofWindow;
 			const status =
 				element.status === 'existing' ? '' : ` (${ctx.tr(`status_${element.status}`)})`;

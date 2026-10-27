@@ -23,7 +23,7 @@ export function roomFromMirror(room: MirrorRoom): Room {
 	return {
 		id: `mirror-${room.index}`,
 		name: room.name,
-		type: 'other',
+		type: room.openAir ? 'terrace' : 'other',
 		polygon: room.polygon,
 		height: room.height,
 		boardPos: { x: 0, y: 0, rot: 0 },

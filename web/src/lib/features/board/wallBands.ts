@@ -1,6 +1,6 @@
 import type { WallLink } from '#lib/core/adjacency.ts';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
-import { walls, type Vec } from '#lib/core/geometry.ts';
+import { wallPoint, walls, type Vec } from '#lib/core/geometry.ts';
 import { pathOf } from './shape.ts';
 
 export interface WallPiece {
@@ -171,4 +171,39 @@ export function wallBadgePlacement(
 				? before
 				: Math.min(hi, Math.max(lo, mid));
 	return { along, inside: true };
+}
+
+// Glass band of a conservatory: only the edges that do not border the house. On a shared wall the
+// house draws the wall.
+export function glassBandPath(
+	polygon: readonly Vec[],
+	links: readonly WallLink[],
+	thickness = WALL_THICKNESS
+): string {
+	const parts: string[] = [];
+	for (const side of walls(polygon)) {
+		const shared = links
+			.filter((link) => link.wall === side.number)
+			.map((link) => ({ from: Math.max(0, link.from), to: Math.min(side.length, link.to) }))
+			.filter((span) => span.to - span.from > 1)
+			.sort((a, b) => a.from - b.from);
+		let at = 0;
+		const add = (from: number, to: number): void => {
+			if (to - from < 1) return;
+			parts.push(
+				pathOf([
+					wallPoint(side, from, 0),
+					wallPoint(side, to, 0),
+					wallPoint(side, to, -thickness),
+					wallPoint(side, from, -thickness)
+				])
+			);
+		};
+		for (const span of shared) {
+			add(at, span.from);
+			at = Math.max(at, span.to);
+		}
+		add(at, side.length);
+	}
+	return parts.join(' ');
 }

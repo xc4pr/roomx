@@ -26,6 +26,9 @@ export interface MirrorRoom {
 	elements: MirrorElement[];
 	// Step keys (phone form) that already have a photo on the computer.
 	done: string[];
+	// Balcony, terrace or garden: no walls, no ceiling, so the tour asks for floor photos only.
+	// Travels as a marker among the done keys, which an older phone simply ignores.
+	openAir?: boolean;
 }
 
 // Content of one QR code / link. A job with many rooms is split into several parts with the same token.

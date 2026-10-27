@@ -14,7 +14,12 @@ import {
 } from '#lib/core/geometry.ts';
 import { STANDING_HEIGHT } from '#lib/core/export.ts';
 import type { Room, Slope } from '#lib/core/schema.ts';
-import { clipSegmentToPolygon, longestSegment, type Segment } from '#lib/features/board/slopes.ts';
+import {
+	clipSegmentToPolygon,
+	longestSegment,
+	slopesShown,
+	type Segment
+} from '#lib/features/board/slopes.ts';
 import { profileSegments, wallProfile } from '#lib/features/elements/profile.ts';
 import type { Fit } from './layout.ts';
 import { applyFit } from './layout.ts';
@@ -26,9 +31,9 @@ export interface SlopeLegend {
 }
 
 export function hasSlopes(
-	room: Pick<Room, 'slopes' | 'polygon' | 'height' | 'elements'>
+	room: Pick<Room, 'slopes' | 'polygon' | 'height' | 'elements'> & Partial<Pick<Room, 'type'>>
 ): false | SlopeLegend {
-	if ((room.slopes?.length ?? 0) === 0) return false;
+	if (!slopesShown(room) || (room.slopes?.length ?? 0) === 0) return false;
 	return {
 		dormers: (room.slopes ?? []).some((slope) => slopeDormers(room, slope).length > 0)
 	};
@@ -73,13 +78,15 @@ export interface PlanSlope {
 	full: Segment[];
 }
 
-type PlanRoom = Pick<Room, 'polygon' | 'height' | 'slopes' | 'elements'>;
+type PlanRoom = Pick<Room, 'polygon' | 'height' | 'slopes' | 'elements'> &
+	Partial<Pick<Room, 'type'>>;
 
 function inRoom(room: PlanRoom, from: Vec, to: Vec): Segment[] {
 	return clipSegmentToPolygon(from, to, room.polygon);
 }
 
 export function planSlopes(room: PlanRoom): PlanSlope[] {
+	if (!slopesShown(room)) return [];
 	return (room.slopes ?? []).flatMap((slope) => {
 		const target = wall(room.polygon, slope.wall);
 		const run = slopeRun(room, slope);
@@ -165,7 +172,7 @@ export function slopeCaption(ctx: PdfContext, slope: Slope): string {
 }
 
 export function slopeSummary(ctx: PdfContext, room: Room): string | undefined {
-	if (!room.slopes || room.slopes.length === 0) return undefined;
+	if (!hasSlopes(room) || !room.slopes) return undefined;
 	const tr = symbolTranslator(ctx.language);
 	const parts = room.slopes.map((slope) => {
 		const full = Math.round(slopeRun(room, slope));

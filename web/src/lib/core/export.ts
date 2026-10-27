@@ -410,7 +410,10 @@ export function exportRoom(
 	const roomWalls = walls(room.polygon);
 	const freeElements = room.elements.filter(isFreeElement).map((e) => exportFreeElement(room, e));
 	const keepClear = exportKeepClear(room);
-	const roofWindows = room.elements.filter(isRoofWindow).map((e) => exportRoofWindow(room, e));
+	const sloped = !isOpenAir(room);
+	const roofWindows = sloped
+		? room.elements.filter(isRoofWindow).map((e) => exportRoofWindow(room, e))
+		: [];
 	return {
 		id: room.id,
 		name: room.name,
@@ -487,7 +490,7 @@ export function exportRoom(
 					]
 				: []
 		),
-		...(room.slopes && room.slopes.length > 0
+		...(sloped && room.slopes && room.slopes.length > 0
 			? {
 					slopes: room.slopes.map((slope) => {
 						const standing = STANDING_HEIGHT - slope.kneeHeight;
@@ -526,7 +529,7 @@ export function exportRoom(
 		...(isOutdoor(room) ? { outdoor: true } : {}),
 		...(isOpenAir(room) ? { openAir: true } : {}),
 		...(railing ? { railing } : {}),
-		...(room.cover && isOutdoor(room)
+		...(room.cover && isOpenAir(room)
 			? {
 					cover: {
 						polygon: room.cover.polygon.map(roundPoint),
