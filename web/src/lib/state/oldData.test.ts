@@ -13,6 +13,8 @@ const modules = import.meta.glob<Record<string, unknown>>('./fixtures/project-v*
 });
 
 import longText from './fixtures/long-text-v1.json';
+import slopesV1 from './fixtures/slopes-v1.json';
+import { ceilingHeightAt } from '#lib/core/geometry.ts';
 
 const fixtures = Object.entries(modules)
 	.map(([path, document]) => ({
@@ -83,6 +85,36 @@ describe.each(fixtures)('old data from schema version $version', ({ document }) 
 		expect(migrated.name).toBe(original.name);
 		expect(migrated.rooms).toEqual(original.rooms);
 		expect(migrated.updatedAt).toBe(original.updatedAt);
+	});
+});
+
+describe('roof slopes from version 1', () => {
+	it('keep wall, knee height and angle, get an id and give the same ceiling heights', async () => {
+		const id = await store(slopesV1);
+		const project = await loadProject(id);
+		const attic = project!.rooms.find((room) => room.id === 'room-attic')!;
+		expect(attic.slopes).toEqual([
+			{ id: 'slope-1', wall: 1, kneeHeight: 800, angle: 40 },
+			{ id: 'slope-2', wall: 3, kneeHeight: 1000, angle: 35 }
+		]);
+		const original = slopesV1.rooms[1];
+		const old = (p: { x: number; y: number }) =>
+			Math.min(
+				original.height,
+				...original.slopes!.map((slope) => {
+					const fromWall = slope.wall === 1 ? p.y : 3500 - p.y;
+					return slope.kneeHeight + fromWall * Math.tan((slope.angle * Math.PI) / 180);
+				})
+			);
+		for (const p of [
+			{ x: 100, y: 100 },
+			{ x: 2500, y: 1750 },
+			{ x: 4900, y: 3400 },
+			{ x: -500, y: 300 }
+		]) {
+			expect(ceilingHeightAt({ ...attic, elements: [] }, p)).toBeCloseTo(old(p), 6);
+		}
+		expect(attic.elements).toEqual(original.elements);
 	});
 });
 

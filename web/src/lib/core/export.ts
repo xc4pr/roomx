@@ -26,7 +26,6 @@ import {
 	ShoppingEntrySchema,
 	SuggestionSchema,
 	ELEMENT_KINDS,
-	isWallElement,
 	type Project,
 	type Room,
 	type WallElement
@@ -250,7 +249,7 @@ export function exportRoom(
 			};
 		}),
 		ceilingElements: room.elements.flatMap((element) =>
-			isWallElement(element)
+			element.kind !== 'ceilingLamp'
 				? []
 				: [
 						{

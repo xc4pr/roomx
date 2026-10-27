@@ -1,5 +1,15 @@
-import type { Door, Item, Point, Room, RoomElement, Slope, WallElement } from './schema.ts';
-import { isWallElement } from './schema.ts';
+import type {
+	Door,
+	Dormer,
+	Item,
+	Point,
+	RoofWindow,
+	Room,
+	RoomElement,
+	Slope,
+	WallElement
+} from './schema.ts';
+import { isFreeElement, isWallElement } from './schema.ts';
 
 export interface Vec {
 	x: number;
@@ -448,8 +458,10 @@ export function nearestWall(
 	return best;
 }
 
+// Wall elements: middle of their span on the wall line; free elements and the ceiling lamp: their
+// centre; roof windows: the point on the wall line below their middle (see roofWindowPlacement).
 export function elementPosition(polygon: readonly Point[], element: RoomElement): Vec | undefined {
-	if (!isWallElement(element)) return { x: element.x, y: element.y };
+	if (element.kind === 'ceilingLamp' || isFreeElement(element)) return { x: element.x, y: element.y };
 	const target = wall(polygon, element.wall);
 	return target ? wallPoint(target, element.offset + element.width / 2) : undefined;
 }
@@ -477,22 +489,80 @@ export function boardToRoom(room: Pick<Room, 'boardPos'>, p: Vec): Vec {
 	return rotate(sub(p, { x: room.boardPos.x, y: room.boardPos.y }), -room.boardPos.rot);
 }
 
-type Sloped = Pick<Room, 'polygon' | 'height' | 'slopes'>;
+// Elements are optional: without them, openings that reach above a slope do not cut it.
+type Sloped = Pick<Room, 'polygon' | 'height' | 'slopes'> & { elements?: Room['elements'] };
+
+function tanDeg(degrees: number): number {
+	return Math.tan((degrees * Math.PI) / 180);
+}
 
 // A slope starts at its wall at knee height and rises into the room until it meets the flat ceiling.
-export function slopeRun(room: Pick<Room, 'height'>, slope: Slope): number {
+export function slopeRun(room: Pick<Room, 'height'>, slope: Pick<Slope, 'kneeHeight' | 'angle'>): number {
 	const rise = Math.max(0, room.height - slope.kneeHeight);
-	return rise / Math.tan((slope.angle * Math.PI) / 180);
+	return rise / tanDeg(slope.angle);
+}
+
+// Angle of a slope given by its depth: the distance from the wall to where it reaches full height.
+// Room height 2500, knee height 500 and depth 2000 give 45 degrees.
+export function slopeAngleFromDepth(height: number, kneeHeight: number, depth: number): number {
+	const rise = height - kneeHeight;
+	if (rise <= 0 || depth <= 0) return 85;
+	const angle = (Math.atan(rise / depth) * 180) / Math.PI;
+	return Math.min(85, Math.max(5, Math.round(angle * 10) / 10));
+}
+
+// Stretch of the wall a slope covers, or undefined when it covers the whole wall line (version 1
+// slopes and slopes without from/to keep the old behaviour beyond the wall ends).
+export function slopeSpan(room: Pick<Room, 'polygon'>, slope: Slope): Span | undefined {
+	if (slope.from === undefined && slope.to === undefined) return undefined;
+	const length = wall(room.polygon, slope.wall)?.length ?? 0;
+	const from = Math.max(0, Math.min(length, slope.from ?? 0));
+	const to = Math.max(from, Math.min(length, slope.to ?? length));
+	return { from, to };
+}
+
+function slopeCovers(room: Pick<Room, 'polygon'>, slope: Slope, along: number): boolean {
+	const span = slopeSpan(room, slope);
+	return !span || (along >= span.from && along <= span.to);
+}
+
+const CUT_SUFFIX = '#cut';
+
+// Dormers of a slope, including one per door or window on the slope wall that reaches above
+// the knee height: the slope is cut cleanly above such an opening instead of leaving a notch.
+export function slopeDormers(room: Sloped, slope: Slope): Dormer[] {
+	const dormers = [...(slope.dormers ?? [])];
+	for (const element of room.elements ?? []) {
+		if (element.kind !== 'door' && element.kind !== 'window') continue;
+		if (element.wall !== slope.wall) continue;
+		const top = element.elevation + element.height;
+		if (top <= slope.kneeHeight || top > room.height) continue;
+		const from = element.offset;
+		const to = element.offset + element.width;
+		if (!slopeCovers(room, slope, from) && !slopeCovers(room, slope, to)) continue;
+		const covered = dormers.some((d) => d.from <= from && d.to >= to && d.height >= top);
+		if (!covered) dormers.push({ id: element.id + CUT_SUFFIX, from, to, height: top });
+	}
+	return dormers;
+}
+
+export function isOpeningCut(dormer: Pick<Dormer, 'id'>): boolean {
+	return dormer.id.endsWith(CUT_SUFFIX);
 }
 
 export function slopeHeightAt(room: Sloped, slope: Slope, p: Vec): number {
 	const target = wall(room.polygon, slope.wall);
 	if (!target) return room.height;
+	const along = dot(sub(p, target.start), target.direction);
+	if (!slopeCovers(room, slope, along)) return room.height;
 	const fromWall = Math.max(0, dot(sub(p, target.start), target.inward));
-	return Math.min(
-		room.height,
-		slope.kneeHeight + fromWall * Math.tan((slope.angle * Math.PI) / 180)
-	);
+	let height = Math.min(room.height, slope.kneeHeight + fromWall * tanDeg(slope.angle));
+	for (const dormer of slopeDormers(room, slope)) {
+		if (along >= dormer.from && along <= dormer.to) {
+			height = Math.max(height, Math.min(room.height, dormer.height));
+		}
+	}
+	return height;
 }
 
 export function ceilingHeightAt(room: Sloped, p: Vec): number {
@@ -501,8 +571,23 @@ export function ceilingHeightAt(room: Sloped, p: Vec): number {
 	return height;
 }
 
+export function wallSlopes(room: Pick<Room, 'slopes'>, wallNumber: number): Slope[] {
+	return (room.slopes ?? [])
+		.filter((slope) => slope.wall === wallNumber)
+		.sort((a, b) => (a.from ?? 0) - (b.from ?? 0));
+}
+
 export function wallSlope(room: Pick<Room, 'slopes'>, wallNumber: number): Slope | undefined {
-	return room.slopes?.find((slope) => slope.wall === wallNumber);
+	return wallSlopes(room, wallNumber)[0];
+}
+
+// The slope on this wall that covers the position along it, if any.
+export function slopeAt(
+	room: Pick<Room, 'polygon' | 'slopes'>,
+	wallNumber: number,
+	along: number
+): Slope | undefined {
+	return wallSlopes(room, wallNumber).find((slope) => slopeCovers(room, slope, along));
 }
 
 // Height of the wall surface at a position along the wall: knee height on a sloped wall,
@@ -521,6 +606,81 @@ export function slopeContour(
 ): { from: Vec; to: Vec } | undefined {
 	const target = wall(room.polygon, slope.wall);
 	if (!target || clearHeight <= slope.kneeHeight || clearHeight > room.height) return undefined;
-	const distance = (clearHeight - slope.kneeHeight) / Math.tan((slope.angle * Math.PI) / 180);
-	return { from: wallPoint(target, 0, distance), to: wallPoint(target, target.length, distance) };
+	const distance = (clearHeight - slope.kneeHeight) / tanDeg(slope.angle);
+	const span = slopeSpan(room, slope) ?? { from: 0, to: target.length };
+	return { from: wallPoint(target, span.from, distance), to: wallPoint(target, span.to, distance) };
+}
+
+// The same line in pieces, interrupted where a dormer keeps the ceiling at least that high.
+export function slopeContours(
+	room: Sloped,
+	slope: Slope,
+	clearHeight: number
+): { from: Vec; to: Vec }[] {
+	const target = wall(room.polygon, slope.wall);
+	const whole = slopeContour(room, slope, clearHeight);
+	if (!target || !whole) return [];
+	const distance = (clearHeight - slope.kneeHeight) / tanDeg(slope.angle);
+	const span = slopeSpan(room, slope) ?? { from: 0, to: target.length };
+	const gaps = slopeDormers(room, slope)
+		.filter((dormer) => dormer.height >= clearHeight)
+		.map((dormer) => ({ from: Math.max(span.from, dormer.from), to: Math.min(span.to, dormer.to) }))
+		.filter((gap) => gap.to > gap.from)
+		.sort((a, b) => a.from - b.from);
+	const pieces: { from: Vec; to: Vec }[] = [];
+	let cursor = span.from;
+	for (const gap of gaps) {
+		if (gap.from > cursor) {
+			pieces.push({ from: wallPoint(target, cursor, distance), to: wallPoint(target, gap.from, distance) });
+		}
+		cursor = Math.max(cursor, gap.to);
+	}
+	if (span.to > cursor) {
+		pieces.push({ from: wallPoint(target, cursor, distance), to: wallPoint(target, span.to, distance) });
+	}
+	return pieces;
+}
+
+export interface RoofWindowPlacement {
+	slope: Slope;
+	wall: Wall;
+	// Horizontal distance of the lower and upper edge from the wall.
+	near: number;
+	far: number;
+	bottom: number;
+	top: number;
+	// Floor projection: lower edge (start, end), then upper edge (end, start).
+	corners: Vec[];
+}
+
+// Where a roof window lies in its slope. The lower edge sits on the slope at "elevation" (at least
+// the knee height); the window rises "length" along the slope.
+export function roofWindowPlacement(
+	room: Pick<Room, 'polygon' | 'height' | 'slopes'>,
+	element: RoofWindow
+): RoofWindowPlacement | undefined {
+	const target = wall(room.polygon, element.wall);
+	const slope = slopeAt(room, element.wall, element.offset + element.width / 2);
+	if (!target || !slope) return undefined;
+	const radians = (slope.angle * Math.PI) / 180;
+	const bottom = Math.max(element.elevation, slope.kneeHeight);
+	const near = (bottom - slope.kneeHeight) / Math.tan(radians);
+	const far = near + element.length * Math.cos(radians);
+	const top = bottom + element.length * Math.sin(radians);
+	const start = element.offset;
+	const end = element.offset + element.width;
+	return {
+		slope,
+		wall: target,
+		near,
+		far,
+		bottom,
+		top,
+		corners: [
+			wallPoint(target, start, near),
+			wallPoint(target, end, near),
+			wallPoint(target, end, far),
+			wallPoint(target, start, far)
+		]
+	};
 }

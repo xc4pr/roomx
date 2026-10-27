@@ -4,7 +4,7 @@ import { COLOR_PATTERN, safeColor } from '../security/color.ts';
 import { LIMITS, storedLimit } from '../security/limits.ts';
 import { normalizeLinkInput } from '../security/url.ts';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const Mm = z.number().int();
 export const PositiveMm = Mm.positive();
@@ -45,9 +45,17 @@ export const ROOM_TYPES = [
 	'hall',
 	'dining',
 	'storage',
-	'other'
+	'other',
+	'balcony',
+	'terrace',
+	'garden',
+	'winterGarden'
 ] as const;
 export const RoomTypeSchema = z.enum(ROOM_TYPES);
+// Open-air areas have no walls and no ceiling, only a floor outline. A winter garden has glass
+// walls and a glass roof. None of them counts towards the living area.
+export const OPEN_AIR_TYPES = ['balcony', 'terrace', 'garden'] as const;
+export const OUTDOOR_TYPES = [...OPEN_AIR_TYPES, 'winterGarden'] as const;
 
 export const ELEMENT_STATUSES = ['existing', 'planned', 'suggested'] as const;
 export const ElementStatusSchema = z.enum(ELEMENT_STATUSES);
@@ -61,9 +69,33 @@ export const WALL_ELEMENT_KINDS = [
 	'switch',
 	'wallLamp',
 	'dataPort',
-	'radiator'
+	'radiator',
+	'washbasin',
+	'toilet',
+	'shower',
+	'bathtub',
+	'kitchenRun',
+	'acWall'
 ] as const;
-export const ELEMENT_KINDS = [...WALL_ELEMENT_KINDS, 'ceilingLamp'] as const;
+// Free elements stand anywhere in the room (x, y = centre, rotation like furniture: 0 = front
+// towards +y). The ceiling lamp keeps its older, simpler shape (x, y only).
+export const FREE_ELEMENT_KINDS = [
+	'column',
+	'freeObstacle',
+	'fireplace',
+	'stove',
+	'tiledStove',
+	'acFloor'
+] as const;
+export const FIRE_KINDS = ['fireplace', 'stove', 'tiledStove'] as const;
+// Elements in the plane of a roof slope.
+export const SLOPE_ELEMENT_KINDS = ['roofWindow'] as const;
+export const ELEMENT_KINDS = [
+	...WALL_ELEMENT_KINDS,
+	'ceilingLamp',
+	...FREE_ELEMENT_KINDS,
+	...SLOPE_ELEMENT_KINDS
+] as const;
 export const ELECTRICAL_KINDS = [
 	'socket',
 	'switch',
@@ -157,6 +189,138 @@ export const CeilingLampSchema = z.object({
 	y: Mm
 });
 
+export const WashbasinSchema = z.object({
+	...elementBase,
+	...wallPlacement,
+	kind: z.literal('washbasin'),
+	depth: PositiveMm
+});
+
+export const ToiletSchema = z.object({
+	...elementBase,
+	...wallPlacement,
+	kind: z.literal('toilet'),
+	depth: PositiveMm
+});
+
+// A shower or bathtub at offset 0 or at the wall end sits in that corner.
+export const ShowerSchema = z.object({
+	...elementBase,
+	...wallPlacement,
+	kind: z.literal('shower'),
+	depth: PositiveMm,
+	screen: z.boolean().optional()
+});
+
+export const BathtubSchema = z.object({
+	...elementBase,
+	...wallPlacement,
+	kind: z.literal('bathtub'),
+	depth: PositiveMm
+});
+
+export const KITCHEN_GRIDS = ['sms', 'euro'] as const;
+export const KITCHEN_MODULE_KINDS = ['base', 'sink', 'hob', 'dishwasher', 'tall', 'table'] as const;
+export const KITCHEN_APPLIANCES = ['oven', 'steamer', 'microwave', 'fridge'] as const;
+
+export const KitchenModuleSchema = z.object({
+	id: IdSchema,
+	kind: z.enum(KITCHEN_MODULE_KINDS),
+	width: PositiveMm,
+	appliances: z.array(z.enum(KITCHEN_APPLIANCES)).max(KITCHEN_APPLIANCES.length).optional()
+});
+
+// A kitchen run along a wall: width = length of the run, height = worktop height. Modules sit
+// side by side from the start of the run; a stretch without module is a plain base cabinet.
+// Tall modules reach tallHeight and carry no worktop; upper cabinets hang above the others.
+export const KitchenRunSchema = z.object({
+	...elementBase,
+	...wallPlacement,
+	kind: z.literal('kitchenRun'),
+	depth: PositiveMm,
+	grid: z.enum(KITCHEN_GRIDS),
+	tallHeight: PositiveMm,
+	modules: z.array(KitchenModuleSchema).max(storedLimit('elementsPerRoom')),
+	upper: z.object({ depth: PositiveMm, height: PositiveMm, elevation: Mm.min(0) }).optional()
+});
+
+// Wall unit of an air conditioner; clearance = free zone in front of the air outlet.
+export const AcWallSchema = z.object({
+	...elementBase,
+	...wallPlacement,
+	kind: z.literal('acWall'),
+	depth: PositiveMm,
+	clearance: Mm.min(0)
+});
+
+const freePlacement = {
+	x: Mm,
+	y: Mm,
+	rotation: z.number(),
+	width: PositiveMm,
+	depth: PositiveMm,
+	height: PositiveMm,
+	elevation: Mm.min(0)
+};
+
+// toCeiling: the element reaches the ceiling (or the cover outdoors) wherever it stands; height
+// is then only the stored fallback.
+export const ColumnSchema = z.object({
+	...elementBase,
+	...freePlacement,
+	kind: z.literal('column'),
+	shape: z.enum(['round', 'square']),
+	toCeiling: z.boolean().optional()
+});
+
+export const FreeObstacleSchema = z.object({
+	...elementBase,
+	...freePlacement,
+	kind: z.literal('freeObstacle'),
+	toCeiling: z.boolean().optional()
+});
+
+// Fireplaces keep furniture out of a zone of depth "clearance" in front of the firebox opening.
+export const FireplaceSchema = z.object({
+	...elementBase,
+	...freePlacement,
+	kind: z.literal('fireplace'),
+	clearance: Mm.min(0)
+});
+
+export const StoveSchema = z.object({
+	...elementBase,
+	...freePlacement,
+	kind: z.literal('stove'),
+	clearance: Mm.min(0)
+});
+
+export const TiledStoveSchema = z.object({
+	...elementBase,
+	...freePlacement,
+	kind: z.literal('tiledStove'),
+	clearance: Mm.min(0)
+});
+
+export const AcFloorSchema = z.object({
+	...elementBase,
+	...freePlacement,
+	kind: z.literal('acFloor'),
+	clearance: Mm.min(0)
+});
+
+// A roof window lies in the slope that covers "offset" on its wall: width along the wall, length
+// up the slope, elevation = height of its lower edge above the floor.
+export const RoofWindowSchema = z.object({
+	...elementBase,
+	kind: z.literal('roofWindow'),
+	wall: z.number().int().min(1),
+	offset: Mm,
+	width: PositiveMm,
+	length: PositiveMm,
+	elevation: Mm.min(0)
+});
+
 export const WallElementSchema = z.discriminatedUnion('kind', [
 	DoorSchema,
 	WindowSchema,
@@ -166,7 +330,22 @@ export const WallElementSchema = z.discriminatedUnion('kind', [
 	SwitchSchema,
 	WallLampSchema,
 	DataPortSchema,
-	RadiatorSchema
+	RadiatorSchema,
+	WashbasinSchema,
+	ToiletSchema,
+	ShowerSchema,
+	BathtubSchema,
+	KitchenRunSchema,
+	AcWallSchema
+]);
+
+export const FreeElementSchema = z.discriminatedUnion('kind', [
+	ColumnSchema,
+	FreeObstacleSchema,
+	FireplaceSchema,
+	StoveSchema,
+	TiledStoveSchema,
+	AcFloorSchema
 ]);
 
 export const ElementSchema = z.discriminatedUnion('kind', [
@@ -179,7 +358,20 @@ export const ElementSchema = z.discriminatedUnion('kind', [
 	WallLampSchema,
 	DataPortSchema,
 	RadiatorSchema,
-	CeilingLampSchema
+	WashbasinSchema,
+	ToiletSchema,
+	ShowerSchema,
+	BathtubSchema,
+	KitchenRunSchema,
+	AcWallSchema,
+	CeilingLampSchema,
+	ColumnSchema,
+	FreeObstacleSchema,
+	FireplaceSchema,
+	StoveSchema,
+	TiledStoveSchema,
+	AcFloorSchema,
+	RoofWindowSchema
 ]);
 
 export const PERSPECTIVE_KINDS = ['corner', 'wall', 'ceiling', 'floor', 'element', 'free'] as const;
@@ -224,6 +416,7 @@ export const ITEM_CATEGORIES = [
 	'textile',
 	'decor',
 	'electronics',
+	'kitchen',
 	'other'
 ] as const;
 export const ItemCategorySchema = z.enum(ITEM_CATEGORIES);
@@ -272,7 +465,14 @@ export const MODEL_TYPES = [
 	'tableLamp',
 	'pendantLamp',
 	'wallLamp',
-	'ledStrip'
+	'ledStrip',
+	'kitchenBase',
+	'kitchenWall',
+	'kitchenTall',
+	'kitchenSink',
+	'hob',
+	'oven',
+	'fridge'
 ] as const;
 export const ModelTypeSchema = z.enum(MODEL_TYPES);
 
@@ -357,10 +557,43 @@ export const BriefSchema = z.object({
 
 export const BoardPosSchema = z.object({ x: Mm, y: Mm, rot: z.number() });
 
+// Within [from, to] along the slope wall the ceiling is at least "height" (at most the room
+// height). A dormer as high as the room cuts the slope there, which is how a slope covers only
+// part of a wall with vertical cheeks at its ends.
+export const DormerSchema = z.object({
+	id: IdSchema,
+	from: Mm.min(0),
+	to: Mm,
+	height: PositiveMm
+});
+
+// The ceiling starts on the wall at kneeHeight and rises at angle until it meets the flat
+// ceiling. from/to limit the slope to a stretch of the wall (distance from the wall start);
+// without them it covers the whole wall line, as before version 2.
 export const SlopeSchema = z.object({
+	id: IdSchema,
 	wall: z.number().int().min(1),
 	kneeHeight: Mm.min(0),
-	angle: z.number().min(5).max(85)
+	angle: z.number().min(5).max(85),
+	from: Mm.min(0).optional(),
+	to: Mm.optional(),
+	dormers: z.array(DormerSchema).max(storedLimit('polygonPoints')).optional()
+});
+
+export const RailingSchema = z.object({ height: PositiveMm });
+
+// Roof over an open-air area (balcony above, pergola): polygon in room coordinates, height of
+// its underside above the floor.
+export const CoverSchema = z.object({
+	polygon: z.array(PointSchema).min(3).max(storedLimit('polygonPoints')),
+	height: PositiveMm
+});
+
+// open: kitchen in a living or dining room ("open kitchen"). mode builtin = fixed kitchen
+// elements, catalog = kitchen furniture from the catalogue that can be planned freely.
+export const KitchenSettingsSchema = z.object({
+	open: z.boolean().optional(),
+	mode: z.enum(['builtin', 'catalog']).optional()
 });
 
 export const RoomSchema = z.object({
@@ -374,9 +607,38 @@ export const RoomSchema = z.object({
 	photos: z.array(PhotoSchema).max(storedLimit('photosPerRoom')),
 	slopes: z.array(SlopeSchema).max(storedLimit('polygonPoints')).optional(),
 	separate: z.boolean().optional(),
+	floorId: IdSchema.optional(),
+	railing: RailingSchema.optional(),
+	cover: CoverSchema.optional(),
+	kitchen: KitchenSettingsSchema.optional(),
 	floorColor: StoredColorSchema,
 	wallColor: StoredColorSchema,
 	notes: LongTextSchema.optional()
+});
+
+// Floors are listed from bottom to top. height = clear room height of the floor (empty: highest
+// room on it), slabThickness = slab above the floor's rooms.
+export const FloorSchema = z.object({
+	id: IdSchema,
+	name: NameTextSchema,
+	slabThickness: Mm.min(0),
+	height: PositiveMm.optional()
+});
+
+export const STAIR_SHAPES = ['straight', 'l', 'u', 'spiral'] as const;
+
+// A stair leads from fromFloorId to the next floor up. x, y, rotation are board coordinates of
+// the foot of the stair (middle of the front edge of the first step, rotation 0 = walking towards
+// +y, like furniture). turn: side to which an L, U or spiral stair turns.
+export const StairSchema = z.object({
+	id: IdSchema,
+	fromFloorId: IdSchema,
+	shape: z.enum(STAIR_SHAPES),
+	x: Mm,
+	y: Mm,
+	rotation: z.number(),
+	width: PositiveMm,
+	turn: z.enum(['left', 'right'])
 });
 
 export const ProjectSchema = z.object({
@@ -389,6 +651,8 @@ export const ProjectSchema = z.object({
 	deleted: z.boolean().optional(),
 	brief: BriefSchema.optional(),
 	rooms: z.array(RoomSchema).max(storedLimit('rooms')),
+	floors: z.array(FloorSchema).max(storedLimit('floors')).optional(),
+	stairs: z.array(StairSchema).max(storedLimit('stairs')).optional(),
 	variants: z.array(VariantSchema).max(storedLimit('variants')),
 	activeVariantId: IdSchema.optional()
 });
@@ -410,6 +674,26 @@ export type WallLamp = z.infer<typeof WallLampSchema>;
 export type DataPort = z.infer<typeof DataPortSchema>;
 export type Radiator = z.infer<typeof RadiatorSchema>;
 export type CeilingLamp = z.infer<typeof CeilingLampSchema>;
+export type Washbasin = z.infer<typeof WashbasinSchema>;
+export type Toilet = z.infer<typeof ToiletSchema>;
+export type Shower = z.infer<typeof ShowerSchema>;
+export type Bathtub = z.infer<typeof BathtubSchema>;
+export type KitchenGrid = (typeof KITCHEN_GRIDS)[number];
+export type KitchenModuleKind = (typeof KITCHEN_MODULE_KINDS)[number];
+export type KitchenAppliance = (typeof KITCHEN_APPLIANCES)[number];
+export type KitchenModule = z.infer<typeof KitchenModuleSchema>;
+export type KitchenRun = z.infer<typeof KitchenRunSchema>;
+export type AcWall = z.infer<typeof AcWallSchema>;
+export type Column = z.infer<typeof ColumnSchema>;
+export type FreeObstacle = z.infer<typeof FreeObstacleSchema>;
+export type Fireplace = z.infer<typeof FireplaceSchema>;
+export type Stove = z.infer<typeof StoveSchema>;
+export type TiledStove = z.infer<typeof TiledStoveSchema>;
+export type AcFloor = z.infer<typeof AcFloorSchema>;
+export type RoofWindow = z.infer<typeof RoofWindowSchema>;
+export type FreeElement = z.infer<typeof FreeElementSchema>;
+export type FreeElementKind = (typeof FREE_ELEMENT_KINDS)[number];
+export type FireKind = (typeof FIRE_KINDS)[number];
 export type WallElement = z.infer<typeof WallElementSchema>;
 export type RoomElement = z.infer<typeof ElementSchema>;
 export type Perspective = z.infer<typeof PerspectiveSchema>;
@@ -426,12 +710,41 @@ export type Variant = z.infer<typeof VariantSchema>;
 export type Workstation = z.infer<typeof WorkstationSchema>;
 export type Brief = z.infer<typeof BriefSchema>;
 export type BoardPos = z.infer<typeof BoardPosSchema>;
+export type Dormer = z.infer<typeof DormerSchema>;
 export type Slope = z.infer<typeof SlopeSchema>;
+export type Railing = z.infer<typeof RailingSchema>;
+export type Cover = z.infer<typeof CoverSchema>;
+export type KitchenSettings = z.infer<typeof KitchenSettingsSchema>;
+export type OpenAirType = (typeof OPEN_AIR_TYPES)[number];
+export type OutdoorType = (typeof OUTDOOR_TYPES)[number];
+export type Floor = z.infer<typeof FloorSchema>;
+export type StairShape = (typeof STAIR_SHAPES)[number];
+export type Stair = z.infer<typeof StairSchema>;
 export type Room = z.infer<typeof RoomSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 
 export function isWallElement(element: RoomElement): element is WallElement {
-	return element.kind !== 'ceilingLamp';
+	return (WALL_ELEMENT_KINDS as readonly string[]).includes(element.kind);
+}
+
+export function isFreeElement(element: RoomElement): element is FreeElement {
+	return (FREE_ELEMENT_KINDS as readonly string[]).includes(element.kind);
+}
+
+export function isFireElement(element: RoomElement): element is Fireplace | Stove | TiledStove {
+	return (FIRE_KINDS as readonly string[]).includes(element.kind);
+}
+
+export function isRoofWindow(element: RoomElement): element is RoofWindow {
+	return element.kind === 'roofWindow';
+}
+
+export function isOpenAir(room: Pick<Room, 'type'>): boolean {
+	return (OPEN_AIR_TYPES as readonly string[]).includes(room.type);
+}
+
+export function isOutdoor(room: Pick<Room, 'type'>): boolean {
+	return (OUTDOOR_TYPES as readonly string[]).includes(room.type);
 }
 
 export function isElectrical(element: RoomElement): boolean {

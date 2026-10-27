@@ -4,7 +4,8 @@ import type { Project } from './schema.ts';
 export type Overflow = Record<CountLimit, number>;
 
 // How far each count limit is exceeded, summed over all containers of that kind. The mapping
-// follows ProjectSchema: slopes share the polygonPoints limit, brief lists share briefList.
+// follows ProjectSchema: slopes and dormers share the polygonPoints limit, kitchen modules share
+// elementsPerRoom, brief lists share briefList.
 export function overflowOf(project: Project): Overflow {
 	const over = Object.fromEntries(COUNT_LIMITS.map((name) => [name, 0])) as Overflow;
 	const add = (name: CountLimit, count: number | undefined) => {
@@ -12,10 +13,16 @@ export function overflowOf(project: Project): Overflow {
 	};
 	add('rooms', project.rooms.length);
 	add('variants', project.variants.length);
+	add('floors', project.floors?.length);
+	add('stairs', project.stairs?.length);
 	for (const room of project.rooms) {
 		add('polygonPoints', room.polygon.length);
 		add('polygonPoints', room.slopes?.length);
+		for (const slope of room.slopes ?? []) add('polygonPoints', slope.dormers?.length);
 		add('elementsPerRoom', room.elements.length);
+		for (const element of room.elements) {
+			if (element.kind === 'kitchenRun') add('elementsPerRoom', element.modules.length);
+		}
 		add('photosPerRoom', room.photos.length);
 	}
 	for (const variant of project.variants) {

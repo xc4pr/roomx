@@ -9,6 +9,8 @@ export const LIMITS = {
 	url: 2000,
 	timestamp: 64,
 	rooms: 200,
+	floors: 20,
+	stairs: 50,
 	polygonPoints: 500,
 	elementsPerRoom: 1000,
 	photosPerRoom: 500,
@@ -29,6 +31,8 @@ export type LimitName = keyof typeof LIMITS;
 
 export const COUNT_LIMITS = [
 	'rooms',
+	'floors',
+	'stairs',
 	'polygonPoints',
 	'elementsPerRoom',
 	'photosPerRoom',

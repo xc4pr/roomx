@@ -1,0 +1,891 @@
+{
+	"id": "fixture-v2",
+	"name": "Wohnung Müller-Köhler",
+	"schemaVersion": 2,
+	"rev": 3,
+	"createdAt": "2026-09-01T08:00:00.000Z",
+	"updatedAt": "2026-10-01T09:30:00.000Z",
+	"rooms": [
+		{
+			"id": "room-rect",
+			"name": "Schlafzimmer",
+			"type": "bedroom",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 4000,
+					"y": 0
+				},
+				{
+					"x": 4000,
+					"y": 3000
+				},
+				{
+					"x": 0,
+					"y": 3000
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 0,
+				"y": 0,
+				"rot": 0
+			},
+			"elements": [
+				{
+					"id": "door-1",
+					"kind": "door",
+					"status": "existing",
+					"wall": 1,
+					"offset": 200,
+					"width": 800,
+					"height": 2000,
+					"elevation": 0,
+					"hinge": "start",
+					"swing": "in"
+				},
+				{
+					"id": "window-1",
+					"kind": "window",
+					"status": "existing",
+					"wall": 3,
+					"offset": 1400,
+					"width": 1200,
+					"height": 1400,
+					"elevation": 900,
+					"windowType": "tiltTurn"
+				},
+				{
+					"id": "socket-1",
+					"kind": "socket",
+					"status": "existing",
+					"wall": 2,
+					"offset": 400,
+					"width": 160,
+					"height": 80,
+					"elevation": 260,
+					"gang": 2,
+					"usb": false
+				},
+				{
+					"id": "e-1",
+					"status": "existing",
+					"wall": 4,
+					"offset": 560,
+					"width": 80,
+					"height": 80,
+					"elevation": 260,
+					"kind": "socket",
+					"gang": 1,
+					"usb": false
+				},
+				{
+					"id": "builtin-1",
+					"kind": "builtin",
+					"status": "existing",
+					"wall": 1,
+					"offset": 1600,
+					"width": 1200,
+					"height": 2300,
+					"elevation": 0,
+					"depth": 600
+				},
+				{
+					"id": "lamp-1",
+					"kind": "ceilingLamp",
+					"status": "existing",
+					"x": 2000,
+					"y": 1500
+				}
+			],
+			"photos": [
+				{
+					"id": "photo-1",
+					"hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+					"perspective": {
+						"kind": "corner",
+						"ref": "A",
+						"caption": {
+							"de": "Ecke A, von der Tür aus",
+							"en": "Corner A, seen from the door"
+						}
+					},
+					"w": 64,
+					"h": 48,
+					"takenAt": "2026-01-01T00:00:00.000Z",
+					"note": "Heizung links"
+				}
+			],
+			"floorId": "floor-eg"
+		},
+		{
+			"id": "room-l",
+			"name": "Wohnzimmer",
+			"type": "living",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 5000,
+					"y": 0
+				},
+				{
+					"x": 5000,
+					"y": 2000
+				},
+				{
+					"x": 2500,
+					"y": 2000
+				},
+				{
+					"x": 2500,
+					"y": 4000
+				},
+				{
+					"x": 0,
+					"y": 4000
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 5000,
+				"y": 0,
+				"rot": 0
+			},
+			"elements": [],
+			"photos": [],
+			"floorId": "floor-eg"
+		},
+		{
+			"id": "room-bath",
+			"name": "Bad",
+			"type": "bath",
+			"floorId": "floor-eg",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 2400,
+					"y": 0
+				},
+				{
+					"x": 2400,
+					"y": 2000
+				},
+				{
+					"x": 0,
+					"y": 2000
+				}
+			],
+			"height": 2400,
+			"boardPos": {
+				"x": 4150,
+				"y": 0,
+				"rot": 0
+			},
+			"photos": [],
+			"elements": [
+				{
+					"id": "bath-wc",
+					"kind": "toilet",
+					"status": "existing",
+					"wall": 1,
+					"offset": 200,
+					"width": 370,
+					"height": 400,
+					"elevation": 0,
+					"depth": 550
+				},
+				{
+					"id": "bath-basin",
+					"kind": "washbasin",
+					"status": "existing",
+					"wall": 1,
+					"offset": 900,
+					"width": 600,
+					"height": 850,
+					"elevation": 0,
+					"depth": 450
+				},
+				{
+					"id": "bath-shower",
+					"kind": "shower",
+					"status": "existing",
+					"wall": 2,
+					"offset": 1100,
+					"width": 900,
+					"height": 2000,
+					"elevation": 0,
+					"depth": 900,
+					"screen": true
+				},
+				{
+					"id": "bath-tub",
+					"kind": "bathtub",
+					"status": "planned",
+					"wall": 3,
+					"offset": 0,
+					"width": 1700,
+					"height": 600,
+					"elevation": 0,
+					"depth": 750
+				},
+				{
+					"id": "bath-ac",
+					"kind": "acWall",
+					"status": "existing",
+					"wall": 4,
+					"offset": 500,
+					"width": 800,
+					"height": 300,
+					"elevation": 2000,
+					"depth": 220,
+					"clearance": 1000
+				}
+			]
+		},
+		{
+			"id": "room-kitchen",
+			"name": "Küche",
+			"type": "kitchen",
+			"floorId": "floor-eg",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 3300,
+					"y": 0
+				},
+				{
+					"x": 3300,
+					"y": 2800
+				},
+				{
+					"x": 0,
+					"y": 2800
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 0,
+				"y": 3150,
+				"rot": 0
+			},
+			"photos": [],
+			"kitchen": {
+				"mode": "builtin"
+			},
+			"elements": [
+				{
+					"id": "kitchen-run",
+					"kind": "kitchenRun",
+					"status": "existing",
+					"wall": 1,
+					"offset": 0,
+					"width": 3300,
+					"height": 900,
+					"elevation": 0,
+					"depth": 600,
+					"grid": "sms",
+					"tallHeight": 2100,
+					"upper": {
+						"depth": 350,
+						"height": 700,
+						"elevation": 1450
+					},
+					"modules": [
+						{
+							"id": "m-1",
+							"kind": "tall",
+							"width": 550,
+							"appliances": [
+								"fridge"
+							]
+						},
+						{
+							"id": "m-2",
+							"kind": "sink",
+							"width": 550
+						},
+						{
+							"id": "m-3",
+							"kind": "dishwasher",
+							"width": 550
+						},
+						{
+							"id": "m-4",
+							"kind": "base",
+							"width": 550
+						},
+						{
+							"id": "m-5",
+							"kind": "hob",
+							"width": 550,
+							"appliances": [
+								"oven"
+							]
+						},
+						{
+							"id": "m-6",
+							"kind": "tall",
+							"width": 550,
+							"appliances": [
+								"steamer",
+								"microwave"
+							]
+						}
+					]
+				},
+				{
+					"id": "kitchen-stove",
+					"kind": "stove",
+					"status": "existing",
+					"x": 2600,
+					"y": 2300,
+					"rotation": 180,
+					"width": 500,
+					"depth": 450,
+					"height": 1100,
+					"elevation": 0,
+					"clearance": 800
+				},
+				{
+					"id": "kitchen-door",
+					"kind": "door",
+					"status": "existing",
+					"wall": 3,
+					"offset": 500,
+					"width": 800,
+					"height": 2000,
+					"elevation": 0,
+					"hinge": "end",
+					"swing": "in"
+				}
+			]
+		},
+		{
+			"id": "room-terrace",
+			"name": "Terrasse",
+			"type": "terrace",
+			"floorId": "floor-eg",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 3300,
+					"y": 0
+				},
+				{
+					"x": 3300,
+					"y": 2500
+				},
+				{
+					"x": 0,
+					"y": 2500
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 0,
+				"y": 6100,
+				"rot": 0
+			},
+			"photos": [],
+			"cover": {
+				"polygon": [
+					{
+						"x": 0,
+						"y": 0
+					},
+					{
+						"x": 3300,
+						"y": 0
+					},
+					{
+						"x": 3300,
+						"y": 1500
+					},
+					{
+						"x": 0,
+						"y": 1500
+					}
+				],
+				"height": 2600
+			},
+			"elements": [
+				{
+					"id": "pillar-1",
+					"kind": "column",
+					"status": "existing",
+					"x": 300,
+					"y": 1300,
+					"rotation": 0,
+					"width": 250,
+					"depth": 250,
+					"height": 2600,
+					"elevation": 0,
+					"shape": "square",
+					"toCeiling": true
+				},
+				{
+					"id": "pillar-2",
+					"kind": "column",
+					"status": "existing",
+					"x": 3000,
+					"y": 1300,
+					"rotation": 0,
+					"width": 250,
+					"depth": 250,
+					"height": 2600,
+					"elevation": 0,
+					"shape": "square",
+					"toCeiling": true
+				},
+				{
+					"id": "planter",
+					"kind": "freeObstacle",
+					"status": "existing",
+					"x": 1650,
+					"y": 2200,
+					"rotation": 0,
+					"width": 1200,
+					"depth": 400,
+					"height": 600,
+					"elevation": 0
+				}
+			]
+		},
+		{
+			"id": "room-balcony",
+			"name": "Balkon",
+			"type": "balcony",
+			"floorId": "floor-og",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 3300,
+					"y": 0
+				},
+				{
+					"x": 3300,
+					"y": 1500
+				},
+				{
+					"x": 0,
+					"y": 1500
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 0,
+				"y": 6100,
+				"rot": 0
+			},
+			"photos": [],
+			"elements": [],
+			"railing": {
+				"height": 1000
+			}
+		},
+		{
+			"id": "room-attic",
+			"name": "Dachzimmer",
+			"type": "bedroom",
+			"floorId": "floor-og",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 5000,
+					"y": 0
+				},
+				{
+					"x": 5000,
+					"y": 3500
+				},
+				{
+					"x": 0,
+					"y": 3500
+				}
+			],
+			"height": 2400,
+			"boardPos": {
+				"x": 0,
+				"y": 0,
+				"rot": 0
+			},
+			"photos": [],
+			"elements": [
+				{
+					"id": "attic-door",
+					"kind": "door",
+					"status": "existing",
+					"wall": 1,
+					"offset": 300,
+					"width": 800,
+					"height": 2000,
+					"elevation": 0,
+					"hinge": "start",
+					"swing": "in"
+				},
+				{
+					"id": "attic-roofwindow",
+					"kind": "roofWindow",
+					"status": "existing",
+					"wall": 3,
+					"offset": 2000,
+					"width": 780,
+					"length": 1180,
+					"elevation": 1100
+				},
+				{
+					"id": "attic-fire",
+					"kind": "tiledStove",
+					"status": "existing",
+					"x": 4300,
+					"y": 600,
+					"rotation": 0,
+					"width": 1000,
+					"depth": 700,
+					"height": 1800,
+					"elevation": 0,
+					"clearance": 800
+				}
+			],
+			"slopes": [
+				{
+					"id": "slope-north",
+					"wall": 1,
+					"kneeHeight": 900,
+					"angle": 40,
+					"from": 0,
+					"to": 3500,
+					"dormers": [
+						{
+							"id": "dormer-1",
+							"from": 1500,
+							"to": 2700,
+							"height": 2200
+						}
+					]
+				},
+				{
+					"id": "slope-south",
+					"wall": 3,
+					"kneeHeight": 1000,
+					"angle": 45
+				}
+			]
+		},
+		{
+			"id": "room-living",
+			"name": "Wohnen",
+			"type": "living",
+			"floorId": "floor-og",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 4000,
+					"y": 0
+				},
+				{
+					"x": 4000,
+					"y": 3000
+				},
+				{
+					"x": 0,
+					"y": 3000
+				}
+			],
+			"height": 2400,
+			"boardPos": {
+				"x": 5150,
+				"y": 0,
+				"rot": 0
+			},
+			"photos": [],
+			"elements": [],
+			"kitchen": {
+				"open": true,
+				"mode": "catalog"
+			}
+		},
+		{
+			"id": "room-garden",
+			"name": "Garten",
+			"type": "garden",
+			"floorId": "floor-eg",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 6000,
+					"y": 0
+				},
+				{
+					"x": 6000,
+					"y": 4000
+				},
+				{
+					"x": 0,
+					"y": 4000
+				}
+			],
+			"height": 2500,
+			"boardPos": {
+				"x": 4000,
+				"y": 6100,
+				"rot": 0
+			},
+			"photos": [],
+			"elements": []
+		},
+		{
+			"id": "room-winter",
+			"name": "Wintergarten",
+			"type": "winterGarden",
+			"floorId": "floor-eg",
+			"polygon": [
+				{
+					"x": 0,
+					"y": 0
+				},
+				{
+					"x": 3000,
+					"y": 0
+				},
+				{
+					"x": 3000,
+					"y": 2500
+				},
+				{
+					"x": 0,
+					"y": 2500
+				}
+			],
+			"height": 2600,
+			"boardPos": {
+				"x": -3150,
+				"y": 0,
+				"rot": 0
+			},
+			"photos": [],
+			"elements": [],
+			"slopes": [
+				{
+					"id": "winter-roof",
+					"wall": 3,
+					"kneeHeight": 2100,
+					"angle": 12
+				}
+			]
+		}
+	],
+	"variants": [
+		{
+			"id": "v-7",
+			"name": "A: ruhig",
+			"source": "ai",
+			"items": [
+				{
+					"id": "v-1",
+					"roomId": "room-rect",
+					"catalogId": "ikea-malm-bed-160x200",
+					"name": "MALM Bettgestell 160×200",
+					"category": "bed",
+					"model": "bed",
+					"mount": "floor",
+					"dims": {
+						"w": 1760,
+						"d": 2090,
+						"h": 1000
+					},
+					"x": 1045,
+					"y": 1820,
+					"rotation": 270,
+					"elevation": 0,
+					"color": "#f2f2f0",
+					"priceChf": 249
+				},
+				{
+					"id": "v-2",
+					"roomId": "room-rect",
+					"catalogId": "generic-desk-160x80",
+					"name": "Schreibtisch 160×80",
+					"category": "desk",
+					"model": "desk",
+					"mount": "floor",
+					"dims": {
+						"w": 1600,
+						"d": 800,
+						"h": 740
+					},
+					"x": 3580,
+					"y": 2000,
+					"rotation": 90,
+					"elevation": 0,
+					"color": "#d8c3a5",
+					"priceChf": 299
+				},
+				{
+					"id": "v-3",
+					"roomId": "room-rect",
+					"catalogId": "generic-monitor-27",
+					"name": "Monitor 27\"",
+					"category": "electronics",
+					"model": "monitor",
+					"mount": "on-top",
+					"dims": {
+						"w": 615,
+						"d": 200,
+						"h": 450
+					},
+					"x": 3880,
+					"y": 2000,
+					"rotation": 90,
+					"elevation": 740,
+					"onItemId": "v-2",
+					"color": "#222222",
+					"power": 1,
+					"priceChf": 250
+				},
+				{
+					"id": "v-4",
+					"roomId": "room-rect",
+					"catalogId": "generic-rug-200x300",
+					"name": "Teppich 200×300",
+					"category": "rug",
+					"model": "rug",
+					"mount": "floor",
+					"dims": {
+						"w": 2000,
+						"d": 3000,
+						"h": 10
+					},
+					"x": 2100,
+					"y": 1600,
+					"rotation": 90,
+					"elevation": 0,
+					"color": "#c9b79c",
+					"priceChf": 199
+				},
+				{
+					"id": "v-5",
+					"roomId": "room-rect",
+					"name": "Wandregal",
+					"category": "shelf",
+					"dims": {
+						"w": 1100,
+						"d": 260,
+						"h": 50
+					},
+					"x": 2350,
+					"y": 130,
+					"rotation": 0,
+					"elevation": 1500
+				}
+			],
+			"suggestions": [
+				{
+					"roomId": "room-rect",
+					"element": {
+						"id": "v-6",
+						"status": "suggested",
+						"wall": 4,
+						"offset": 300,
+						"width": 240,
+						"height": 80,
+						"elevation": 300,
+						"kind": "socket",
+						"gang": 3,
+						"usb": false,
+						"reason": "Nachttisch links"
+					}
+				}
+			],
+			"roomNotes": {
+				"room-rect": "Bett an der ruhigen Wand."
+			},
+			"shoppingList": [
+				{
+					"catalogId": "ikea-malm-bed-160x200",
+					"name": "MALM",
+					"qty": 1,
+					"priceChf": 249
+				}
+			]
+		}
+	],
+	"brief": {
+		"persons": {
+			"adults": 2,
+			"children": 1,
+			"childAges": [
+				4
+			]
+		},
+		"bedSizes": [
+			"160x200"
+		],
+		"workstations": [
+			{
+				"monitors": 2,
+				"monitorInch": 27,
+				"computer": "laptop",
+				"devices": [
+					"Dock"
+				]
+			}
+		],
+		"style": "ruhig, hell",
+		"budgetChf": 3000,
+		"wishes": "Grosse Pflanze am Fenster, Schränke bis zur Decke."
+	},
+	"activeVariantId": "v-7",
+	"floors": [
+		{
+			"id": "floor-eg",
+			"name": "EG",
+			"slabThickness": 300
+		},
+		{
+			"id": "floor-og",
+			"name": "1. OG",
+			"slabThickness": 250,
+			"height": 2400
+		}
+	],
+	"stairs": [
+		{
+			"id": "stair-1",
+			"fromFloorId": "floor-eg",
+			"shape": "l",
+			"x": 9000,
+			"y": 500,
+			"rotation": 0,
+			"width": 900,
+			"turn": "left"
+		}
+	]
+}

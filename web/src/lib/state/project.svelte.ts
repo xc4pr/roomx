@@ -3,7 +3,6 @@ import { boundingBox, normalizeDegrees, rotate, roomToBoard } from '#lib/core/ge
 import { newId } from '#lib/core/ids.ts';
 import { grownLimit, overflowOf } from '#lib/core/limits.ts';
 import {
-	isWallElement,
 	type BoardPos,
 	type Brief,
 	type Item,
@@ -13,6 +12,7 @@ import {
 	type Room,
 	type RoomElement,
 	type RoomType,
+	type Slope,
 	type Variant
 } from '#lib/core/schema.ts';
 import { LIMITS } from '#lib/security/limits.ts';
@@ -390,25 +390,46 @@ export class ProjectStore {
 			if (!room) return;
 			room.polygon = polygon;
 			room.elements = room.elements.filter(
-				(element) => !isWallElement(element) || element.wall <= polygon.length
+				(element) => !('wall' in element) || element.wall <= polygon.length
 			);
 			if (room.slopes) room.slopes = room.slopes.filter((slope) => slope.wall <= polygon.length);
 		}, options);
 	}
 
+	// One slope over the whole wall. If the wall has exactly one slope, it keeps its id, stretch
+	// and dormers and only takes the new knee height and angle.
 	setSlope(
 		roomId: string,
 		wallNumber: number,
 		slope: { kneeHeight: number; angle: number } | null,
 		options?: MutateOptions
 	): void {
+		const room = this.room(roomId);
+		const current = room?.slopes?.filter((candidate) => candidate.wall === wallNumber) ?? [];
+		const next =
+			slope && current.length === 1
+				? [{ ...current[0], ...slope }]
+				: slope
+					? [{ id: newId(), wall: wallNumber, ...slope }]
+					: [];
+		this.setWallSlopes(roomId, wallNumber, next, options);
+	}
+
+	// Replaces all slopes of one wall (several stretches, each with its dormers).
+	setWallSlopes(
+		roomId: string,
+		wallNumber: number,
+		slopes: readonly Slope[],
+		options?: MutateOptions
+	): void {
 		this.mutate((project) => {
 			const room = project.rooms.find((candidate) => candidate.id === roomId);
 			if (!room) return;
 			const others = (room.slopes ?? []).filter((candidate) => candidate.wall !== wallNumber);
-			const next = slope ? [...others, { wall: wallNumber, ...slope }] : others;
-			if (next.length > 0) room.slopes = next.sort((a, b) => a.wall - b.wall);
-			else delete room.slopes;
+			const next = [...others, ...slopes.map((slope) => ({ ...slope, wall: wallNumber }))];
+			if (next.length > 0) {
+				room.slopes = next.sort((a, b) => a.wall - b.wall || (a.from ?? 0) - (b.from ?? 0));
+			} else delete room.slopes;
 		}, options);
 	}
 

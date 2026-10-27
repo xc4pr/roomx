@@ -5,6 +5,8 @@ import { toasts } from '#lib/ui/toast.svelte.ts';
 export const messages = defineMessages({
 	de: {
 		rooms: 'Höchstens {n} Räume je Projekt. Lösche einen Raum, um einen neuen anzulegen.',
+		floors: 'Höchstens {n} Stockwerke je Projekt.',
+		stairs: 'Höchstens {n} Treppen je Projekt.',
 		polygonPoints: 'Höchstens {n} Eckpunkte je Raum.',
 		elementsPerRoom: 'Höchstens {n} Elemente je Raum. Lösche eines, um ein neues zu setzen.',
 		photosPerRoom: 'Höchstens {n} Fotos je Raum. Lösche ein Foto, um ein neues zu speichern.',
@@ -17,6 +19,8 @@ export const messages = defineMessages({
 	},
 	en: {
 		rooms: 'At most {n} rooms per project. Delete a room to add a new one.',
+		floors: 'At most {n} floors per project.',
+		stairs: 'At most {n} stairs per project.',
 		polygonPoints: 'At most {n} corners per room.',
 		elementsPerRoom: 'At most {n} elements per room. Delete one to add a new one.',
 		photosPerRoom: 'At most {n} photos per room. Delete a photo to save a new one.',

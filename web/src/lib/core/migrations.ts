@@ -10,8 +10,27 @@ const MIGRATIONS: Record<number, Migration> = {
 		createdAt: document.createdAt ?? document.updatedAt ?? new Date(0).toISOString(),
 		variants: document.variants ?? [],
 		rev: document.rev ?? 0
+	}),
+	// Version 2 allows several slopes per wall, so each slope gets an id.
+	1: (document) => ({
+		...document,
+		rooms: Array.isArray(document.rooms) ? document.rooms.map(withSlopeIds) : document.rooms
 	})
 };
+
+function withSlopeIds(room: unknown): unknown {
+	if (typeof room !== 'object' || room === null) return room;
+	const slopes = (room as RawDocument).slopes;
+	if (!Array.isArray(slopes)) return room;
+	return {
+		...room,
+		slopes: slopes.map((slope: unknown, index) =>
+			typeof slope === 'object' && slope !== null && !('id' in slope)
+				? { ...slope, id: `slope-${index + 1}` }
+				: slope
+		)
+	};
+}
 
 export class UnsupportedVersionError extends Error {
 	readonly version: number;

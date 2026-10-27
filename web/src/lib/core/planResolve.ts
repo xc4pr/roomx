@@ -4,6 +4,7 @@ import { createElement, socketWidth } from './defaults.ts';
 import { ceilingHeightAt, footprint, normalizeDegrees } from './geometry.ts';
 import { newId as randomId, type IdFactory } from './ids.ts';
 import type { Plan, PlanElectrical, PlanItem, PlanRoom } from './plan.ts';
+import { isWallElement } from './schema.ts';
 import type { Brief, Dims, Item, Mount, Project, Room, Suggestion, Variant } from './schema.ts';
 import type { Language } from './units.ts';
 import { LIMITS } from '#lib/security/limits.ts';
@@ -266,7 +267,7 @@ function resolveElectrical(
 	if (electrical.wall === undefined || electrical.offset === undefined) return 'incomplete';
 	if (electrical.wall > room.polygon.length) return 'unknownWall';
 	const element = createElement(electrical.kind, room, electrical.wall, 0, newId);
-	if (element.kind === 'ceilingLamp') return 'incomplete';
+	if (!isWallElement(element)) return 'incomplete';
 	element.status = 'suggested';
 	element.offset = electrical.offset;
 	if (electrical.elevation !== undefined) element.elevation = electrical.elevation;

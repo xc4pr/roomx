@@ -1,4 +1,5 @@
 import { SOCKET_WARN_DISTANCE } from './defaults.ts';
+import { clearanceZone, elementFitsRoom, elementVolumes, freeElementShape } from './elements.ts';
 import {
 	ceilingHeightAt,
 	convexInsidePolygon,
@@ -10,6 +11,7 @@ import {
 	itemFootprint,
 	pointInPolygon,
 	pointOnSegmentDistance,
+	roofWindowPlacement,
 	wall,
 	wallElementFootprint,
 	wallElements,
@@ -17,10 +19,22 @@ import {
 	walls,
 	type Vec
 } from './geometry.ts';
-import { isWallElement, type Item, type Room, type RoomElement } from './schema.ts';
+import {
+	isFreeElement,
+	isWallElement,
+	type Item,
+	type Room,
+	type RoomElement,
+	type WallElement
+} from './schema.ts';
 
 export type RoomIssueCode =
-	'polygonInvalid' | 'elementOutsideWall' | 'elementTooHigh' | 'elementOverlap';
+	| 'polygonInvalid'
+	| 'elementOutsideWall'
+	| 'elementTooHigh'
+	| 'elementOverlap'
+	| 'roofWindowOffSlope'
+	| 'elementNotForRoomType';
 
 export interface RoomIssue {
 	code: RoomIssueCode;
@@ -38,6 +52,8 @@ export type ItemIssueCode =
 	| 'doorBlocked'
 	| 'windowBlocked'
 	| 'radiatorBlocked'
+	| 'fireZone'
+	| 'airflowBlocked'
 	| 'socketFar';
 
 export interface ItemIssue {
@@ -63,15 +79,58 @@ function usesOpening(a: RoomElement): boolean {
 	return a.kind === 'door' || a.kind === 'window';
 }
 
+const NEW_FLOOR_FIXTURES: readonly RoomElement['kind'][] = [
+	'washbasin',
+	'toilet',
+	'shower',
+	'bathtub',
+	'kitchenRun',
+	'acWall'
+];
+const FLOOR_FIXTURES: readonly RoomElement['kind'][] = [
+	...NEW_FLOOR_FIXTURES,
+	'builtin',
+	'obstacle',
+	'radiator'
+];
+
+// Two fixtures on one wall must not take the same place. Pairs of the older kinds (built-in,
+// obstacle, radiator) keep their earlier rule, so existing rooms get no new findings.
+function fixturesClash(a: WallElement, b: WallElement): boolean {
+	if (!FLOOR_FIXTURES.includes(a.kind) || !FLOOR_FIXTURES.includes(b.kind)) return false;
+	return NEW_FLOOR_FIXTURES.includes(a.kind) || NEW_FLOOR_FIXTURES.includes(b.kind);
+}
+
 export function validateRoom(room: Room): RoomIssue[] {
 	const issues: RoomIssue[] = [];
 	if (!isSimplePolygon(room.polygon) || walls(room.polygon).some((w) => w.length < 1)) {
 		issues.push({ code: 'polygonInvalid', roomId: room.id, elementIds: [] });
 	}
 	for (const element of room.elements) {
-		if (!isWallElement(element)) {
+		if (!elementFitsRoom(room, element)) {
+			issues.push({ code: 'elementNotForRoomType', roomId: room.id, elementIds: [element.id] });
+		}
+		if (element.kind === 'ceilingLamp') {
 			if (!pointInPolygon(element, room.polygon, 1)) {
 				issues.push({ code: 'elementOutsideWall', roomId: room.id, elementIds: [element.id] });
+			}
+			continue;
+		}
+		if (isFreeElement(element)) {
+			if (!convexInsidePolygon(freeElementShape(element), room.polygon, 2)) {
+				issues.push({ code: 'elementOutsideWall', roomId: room.id, elementIds: [element.id] });
+			}
+			continue;
+		}
+		if (element.kind === 'roofWindow') {
+			const placement = roofWindowPlacement(room, element);
+			if (!placement || placement.top > room.height + 1) {
+				issues.push({
+					code: 'roofWindowOffSlope',
+					roomId: room.id,
+					elementIds: [element.id],
+					wall: element.wall
+				});
 			}
 			continue;
 		}
@@ -113,7 +172,8 @@ export function validateRoom(room: Room): RoomIssue[] {
 					b.elevation,
 					b.elevation + b.height
 				);
-				if (horizontal && vertical && (usesOpening(a) || usesOpening(b) || a.kind === b.kind)) {
+				const clash = usesOpening(a) || usesOpening(b) || a.kind === b.kind || fixturesClash(a, b);
+				if (horizontal && vertical && clash) {
 					issues.push({
 						code: 'elementOverlap',
 						roomId: room.id,
@@ -177,23 +237,39 @@ export function checkRoomItems(
 		if (!solid(item)) continue;
 
 		for (const element of room.elements) {
+			const volumes = elementVolumes(room, element);
+			if (
+				volumes.some(
+					(volume) =>
+						convexOverlap(shape, volume.shape, 2) &&
+						verticalOverlap(item.elevation, top(item), volume.bottom, volume.top)
+				)
+			) {
+				issues.push({
+					code: 'elementCollision',
+					severity: 'error',
+					roomId: room.id,
+					itemIds: [item.id],
+					elementId: element.id
+				});
+			}
+			const zone = clearanceZone(room, element);
+			if (
+				zone &&
+				convexOverlap(shape, zone.shape, 2) &&
+				verticalOverlap(item.elevation, top(item), zone.bottom, zone.top)
+			) {
+				issues.push({
+					code: zone.kind === 'fire' ? 'fireZone' : 'airflowBlocked',
+					severity: zone.kind === 'fire' ? 'error' : 'warning',
+					roomId: room.id,
+					itemIds: [item.id],
+					elementId: element.id
+				});
+			}
 			if (!isWallElement(element)) continue;
 			const elementTop = element.elevation + element.height;
-			if (element.kind === 'builtin' || element.kind === 'obstacle') {
-				const zone = wallElementFootprint(room.polygon, element, element.depth);
-				if (
-					convexOverlap(shape, zone, 2) &&
-					verticalOverlap(item.elevation, top(item), element.elevation, elementTop)
-				) {
-					issues.push({
-						code: 'elementCollision',
-						severity: 'error',
-						roomId: room.id,
-						itemIds: [item.id],
-						elementId: element.id
-					});
-				}
-			} else if (element.kind === 'door') {
+			if (element.kind === 'door') {
 				const swing = element.swing === 'in' ? doorSwing(room.polygon, element) : undefined;
 				const zone = swing?.polygon ?? wallElementFootprint(room.polygon, element, DOOR_CLEARANCE);
 				if (convexOverlap(shape, zone, 2) && item.elevation < elementTop) {
