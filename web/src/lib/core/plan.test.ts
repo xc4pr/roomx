@@ -235,7 +235,15 @@ describe('roof slopes in checks and export', () => {
 		const doc = buildExport(project);
 		expect(ExportSchema.safeParse(doc).success).toBe(true);
 		expect(doc.rooms[0].slopes).toEqual([
-			{ wall: 1, kneeHeight: 1000, angleDeg: 45, fullHeightAt: 1500, standingHeightAt: 1000 }
+			{
+				id: 's1',
+				wall: 1,
+				kneeHeight: 1000,
+				angleDeg: 45,
+				fullHeightAt: 1500,
+				standingHeightAt: 1000,
+				dormers: [{ id: 'door-1#cut', from: 200, to: 1000, height: 2000, openingCut: true }]
+			}
 		]);
 		expect(doc.rooms[1].slopes).toBeUndefined();
 	});

@@ -31,7 +31,7 @@ import { buildWallBlock, drawLegend, drawRoomPlan, legendRows, planLegend } from
 import { findingLines } from './pdfFindings.ts';
 import { roomOnlyLines, symbolLegend } from './pdfSymbols.ts';
 import { symbolTranslator } from './pdfText.ts';
-import { hasSlopes, slopeSummary } from './pdfSlopes.ts';
+import { hasSlopes, slopeLegend, slopeSummary } from './pdfSlopes.ts';
 import {
 	Flow,
 	drawText,
@@ -169,7 +169,7 @@ function drawTitlePage(ctx: PdfContext, project: Project, rooms: Room[], date: D
 		planLegend(
 			ctx,
 			true,
-			rooms.some((room) => hasSlopes(room)),
+			slopeLegend(rooms),
 			symbolLegend(
 				ctx,
 				rooms.flatMap((room) => room.elements)

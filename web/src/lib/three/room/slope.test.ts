@@ -7,7 +7,7 @@ import { DEFAULT_SCENE_OPTIONS, type RoomBuildOptions } from '../types.ts';
 import { wallFrames } from './frames.ts';
 import { applyWallHeight, buildRoom, setCeilingShown, wallGroups } from './index.ts';
 import { profileTop, wallProfile } from './profile.ts';
-import { roofEdges, roofSurface } from './roof.ts';
+import { roofEdges, roofModel, roofSurface } from './roof.ts';
 
 const OPTIONS: RoomBuildOptions = {
 	...DEFAULT_SCENE_OPTIONS,
@@ -272,5 +272,198 @@ describe('sloped room geometry', () => {
 		expect(positions(empty)).toEqual(positions(plain));
 		expect(meshes(plain, 'slope')).toHaveLength(0);
 		expect(meshes(plain, 'ceiling')).toHaveLength(1);
+	});
+});
+
+const door = (
+	offset: number,
+	width: number,
+	height: number,
+	wall = 1
+): Room['elements'][number] => ({
+	id: `door-${offset}`,
+	kind: 'door',
+	status: 'existing',
+	wall,
+	offset,
+	width,
+	height,
+	elevation: 0,
+	hinge: 'start',
+	swing: 'in'
+});
+
+function span(triangles: readonly (readonly { x: number; y: number }[])[]): [number, number] {
+	const xs = triangles.flatMap((triangle) => triangle.map((point) => point.x));
+	return [Math.min(...xs), Math.max(...xs)];
+}
+
+describe('partial slopes, dormers and cuts', () => {
+	const partial: Slope[] = [
+		{ id: 'p', wall: 1, kneeHeight: 1000, angle: 45, from: 1000, to: 3000 }
+	];
+
+	it('keeps the ceiling flat outside the section and closes it with cheeks', () => {
+		const room = sloped(rectangleRoom(), partial);
+		const model = roofModel(room);
+		expect(span(model.surface.sloped)).toEqual([1000, 3000]);
+		expect(model.cheeks).toHaveLength(2);
+		for (const cheek of model.cheeks) {
+			expect([1000, 3000]).toContain(Math.round(cheek.from.x));
+			expect(Math.abs(cheek.from.x - cheek.to.x)).toBeLessThan(1e-6);
+			expect(cheek.fromHigh).toBeCloseTo(2500, 3);
+			expect(cheek.fromLow).toBeCloseTo(1000, 1);
+			expect(cheek.toLow).toBeCloseTo(2500, 1);
+		}
+		const flat = model.surface.flat.reduce(
+			(sum, [a, b, c]) => sum + Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2,
+			0
+		);
+		expect(flat).toBeGreaterThan(areaMm2(room.polygon) - 2000 * 1500 - 1);
+	});
+
+	it('does not tilt the walls next to a section', () => {
+		const room = sloped(rectangleRoom(), partial);
+		expect(profileOf(room, 1)).toEqual([
+			[0, 2500],
+			[1000, 2500],
+			[1000, 1000],
+			[3000, 1000],
+			[3000, 2500],
+			[4000, 2500]
+		]);
+		expect(profileOf(room, 2)).toEqual([
+			[0, 2500],
+			[3000, 2500]
+		]);
+	});
+
+	it('builds a dormer with a front at its height and a flat ceiling', () => {
+		const room = sloped(rectangleRoom(), [
+			{
+				id: 'd',
+				wall: 1,
+				kneeHeight: 1000,
+				angle: 45,
+				dormers: [{ id: 'g', from: 1000, to: 3000, height: 1800 }]
+			}
+		]);
+		expect(profileOf(room, 1)).toEqual([
+			[0, 1000],
+			[1000, 1000],
+			[1000, 1800],
+			[3000, 1800],
+			[3000, 1000],
+			[4000, 1000]
+		]);
+		const model = roofModel(room);
+		const flatDormer = model.surface.sloped.filter((triangle) =>
+			triangle.every((point) => Math.abs(point.h - 1800) < 0.01)
+		);
+		expect(flatDormer.length).toBeGreaterThan(0);
+		for (const [a, b, c] of flatDormer) {
+			expect(Math.min(a.x, b.x, c.x)).toBeGreaterThanOrEqual(1000 - 1e-6);
+			expect(Math.max(a.y, b.y, c.y)).toBeLessThanOrEqual(800 + 1e-6);
+		}
+		expect(model.cheeks).toHaveLength(2);
+		for (const cheek of model.cheeks) {
+			expect(cheek.fromLow).toBeCloseTo(1000, 1);
+			expect(cheek.fromHigh).toBeCloseTo(1800, 3);
+			expect(cheek.toHigh).toBeCloseTo(1800, 3);
+			expect(cheek.toLow).toBeCloseTo(1800, 1);
+		}
+	});
+
+	it.each([
+		['at the wall end', 0],
+		['inside the wall', 1200]
+	])('cuts the slope cleanly above a tall door %s', (_name, offset) => {
+		const room: Room = {
+			...rectangleRoom(),
+			elements: [door(offset, 900, 2200)],
+			slopes: SINGLE
+		};
+		const profile = wallProfile(room, wallFrames(room.polygon)[0]);
+		expect(profileTop(profile, offset + 450)).toBeCloseTo(2200, 3);
+		expect(profileTop(profile, offset + 1500)).toBeCloseTo(1000, 3);
+		expect(profileTop(profile, offset + 900, 'right')).toBeCloseTo(1000, 3);
+		expect(profileTop(profile, offset + 900, 'left')).toBeCloseTo(2200, 3);
+		const model = roofModel(room);
+		expect(model.cheeks).toHaveLength(offset === 0 ? 1 : 2);
+		expect(profileOf(room, 4).every(([, h]) => h >= 1000)).toBe(true);
+		const root = buildRoom(room, OPTIONS);
+		const [first] = wallGroups(root);
+		root.updateMatrixWorld(true);
+		const bodies = meshes(first, 'wallBody');
+		const shoot = (u: number, height: number) =>
+			new Raycaster(new Vector3(u, height, 3), new Vector3(0, 0, -1)).intersectObjects(
+				bodies,
+				false
+			).length;
+		expect(shoot((offset + 1800) / 1000, 1.5)).toBe(0);
+		expect(shoot((offset + 1800) / 1000, 0.5)).toBeGreaterThan(0);
+	});
+
+	it('keeps the wall profile equal to the ceiling beside steps', () => {
+		const room: Room = {
+			...rectangleRoom(),
+			elements: [door(0, 900, 2200)],
+			slopes: [
+				...partial,
+				{
+					id: 'g',
+					wall: 3,
+					kneeHeight: 1000,
+					angle: 45,
+					dormers: [{ id: 'gd', from: 500, to: 1500, height: 2000 }]
+				}
+			]
+		};
+		for (const frame of wallFrames(room.polygon)) {
+			const profile = wallProfile(room, frame);
+			for (let step = 1; step < 80; step++) {
+				const along = (frame.length * step) / 80 + 0.37;
+				const expected = ceilingHeightAt(room, {
+					x: frame.start.x + frame.direction.x * along + frame.inward.x * 1e-4,
+					y: frame.start.y + frame.direction.y * along + frame.inward.y * 1e-4
+				});
+				expect(Math.abs(profileTop(profile, along, 'right') - expected)).toBeLessThan(1);
+			}
+		}
+	});
+});
+
+describe('roof windows', () => {
+	const window = {
+		id: 'rw',
+		kind: 'roofWindow',
+		status: 'existing',
+		wall: 1,
+		offset: 1000,
+		width: 780,
+		length: 1180,
+		elevation: 1100
+	} as const;
+
+	it('cuts a hole into the slope and adds frame, glass and daylight', () => {
+		const room: Room = { ...rectangleRoom(), elements: [window], slopes: SINGLE };
+		const plain = roofModel({ ...room, elements: [] });
+		const model = roofModel(room);
+		const projected = (triangles: typeof model.surface.sloped) =>
+			triangles.reduce(
+				(sum, [a, b, c]) =>
+					sum + Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2,
+				0
+			);
+		const [, , far] = model.windows[0].placement.corners;
+		const hole = 780 * (far.y - model.windows[0].placement.corners[0].y);
+		expect(hole).toBeGreaterThan(0);
+		expect(projected(plain.surface.sloped) - projected(model.surface.sloped)).toBeCloseTo(hole, 0);
+		const root = buildRoom(room, OPTIONS);
+		expect(meshes(root, 'roofWindow')).toHaveLength(1);
+		expect(root.getObjectByName('daylight')).toBeDefined();
+		expect(
+			buildRoom({ ...room, elements: [] }, OPTIONS).getObjectByName('daylight')
+		).toBeUndefined();
 	});
 });

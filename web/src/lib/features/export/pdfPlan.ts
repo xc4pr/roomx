@@ -51,6 +51,7 @@ import {
 	drawProfileLabels,
 	drawSlopeLabels,
 	profileIsSloped,
+	type SlopeLegend,
 	wallProfilePoints,
 	type WallFrame
 } from './pdfSlopes.ts';
@@ -513,7 +514,7 @@ export function legendRows(
 export function planLegend(
 	ctx: PdfContext,
 	withItems: boolean,
-	withSlopes = false,
+	withSlopes: boolean | SlopeLegend = false,
 	symbols: readonly LegendEntry[] = []
 ): LegendEntry[] {
 	const p = ctx.palette;
@@ -638,6 +639,24 @@ export function planLegend(
 				}
 			}
 		);
+		if (typeof withSlopes === 'object' && withSlopes.dormers) {
+			entries.push({
+				label: symbolTranslator(ctx.language)('legendDormer'),
+				draw: (page, x, y) => {
+					const dash = { width: 0.8, color: p.muted, dash: [2.4, 1.6] };
+					polyline(
+						page,
+						[
+							{ x, y: y - 4 },
+							{ x, y: y + 4 },
+							{ x: x + 16, y: y + 4 },
+							{ x: x + 16, y: y - 4 }
+						],
+						dash
+					);
+				}
+			});
+		}
 	}
 	entries.push(...symbols);
 	entries.push({

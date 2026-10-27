@@ -4,6 +4,11 @@ import { translator, type Translate } from './text.ts';
 
 export const symbolMessages = defineMessages({
 	de: {
+		legendDormer: 'Gaube oder Ausschnitt in der Schräge (gestrichelt)',
+		slopeSection: 'Abschnitt {from} bis {to} mm von der Startecke',
+		slopeDormers: 'Gauben: {list}',
+		slopeDormerEntry: '{from} bis {to} mm, Höhe {h} mm',
+		slopeCutEntry: 'Ausschnitt über Öffnung {from} bis {to} mm, Höhe {h} mm',
 		legendFireZone: 'Sperrzone Feuer (gestrichelt)',
 		legendAirZone: 'Freihaltezone Luftauslass (gestrichelt)',
 		legendUpperCabinets: 'Oberschränke (gestrichelt)',
@@ -28,6 +33,11 @@ export const symbolMessages = defineMessages({
 		findCollision: 'Möbel {item} kollidiert mit {element}.'
 	},
 	en: {
+		legendDormer: 'Dormer or cut in the slope (dashed)',
+		slopeSection: 'section {from} to {to} mm from the start corner',
+		slopeDormers: 'dormers: {list}',
+		slopeDormerEntry: '{from} to {to} mm, height {h} mm',
+		slopeCutEntry: 'cut above opening {from} to {to} mm, height {h} mm',
 		legendFireZone: 'Fire clearance zone (dashed)',
 		legendAirZone: 'Air outlet clearance (dashed)',
 		legendUpperCabinets: 'Upper cabinets (dashed)',

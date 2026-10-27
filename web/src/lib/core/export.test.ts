@@ -75,3 +75,86 @@ describe('buildExport with fixed built-ins', () => {
 		expect(ExportSchema.parse(JSON.parse(JSON.stringify(document)))).toEqual(document);
 	});
 });
+
+describe('buildExport with roof slopes', () => {
+	function sloped(): Project {
+		const project = sampleProject();
+		const room = project.rooms[0]!;
+		room.slopes = [
+			{
+				id: 'slope-1',
+				wall: 1,
+				kneeHeight: 1000,
+				angle: 45,
+				from: 1500,
+				to: 3500,
+				dormers: [{ id: 'dormer-1', from: 2000, to: 2800, height: 2200 }]
+			},
+			{ id: 'slope-2', wall: 3, kneeHeight: 700, angle: 30 }
+		];
+		room.elements.push(
+			{
+				id: 'roof-1',
+				kind: 'roofWindow',
+				status: 'planned',
+				wall: 1,
+				offset: 2100,
+				width: 780,
+				length: 1180,
+				elevation: 1200
+			},
+			{
+				id: 'window-tall',
+				kind: 'window',
+				status: 'existing',
+				wall: 3,
+				offset: 1000,
+				width: 1000,
+				height: 1600,
+				elevation: 600,
+				windowType: 'tiltTurn'
+			}
+		);
+		return project;
+	}
+
+	it('lists the section, dormers, opening cuts and roof windows', () => {
+		const document = buildExport(sloped(), { exportedAt: NOW });
+		const room = document.rooms[0]!;
+		const [partial, whole] = room.slopes!;
+		expect(partial).toMatchObject({
+			id: 'slope-1',
+			wall: 1,
+			from: 1500,
+			to: 3500,
+			fullHeightAt: 1500
+		});
+		expect(partial!.dormers).toEqual([{ id: 'dormer-1', from: 2000, to: 2800, height: 2200 }]);
+		expect(whole!.from).toBeUndefined();
+		const cut = whole!.dormers!.find((dormer) => dormer.id === 'window-tall#cut');
+		expect(cut).toEqual({
+			id: 'window-tall#cut',
+			from: 1000,
+			to: 2000,
+			height: 2200,
+			openingCut: true
+		});
+		const [roof] = room.roofWindows!;
+		expect(roof).toMatchObject({ id: 'roof-1', status: 'planned', wall: 1, offsetFromStart: 2100 });
+		expect(roof!.top).toBeGreaterThan(roof!.elevation);
+		expect(roof!.floorPolygon).toHaveLength(4);
+		expect(room.walls.flatMap((wall) => wall.elements).some((e) => e.kind === 'roofWindow')).toBe(
+			false
+		);
+		expect(ExportSchema.parse(JSON.parse(JSON.stringify(document)))).toEqual(document);
+	});
+
+	it('leaves slopes without anything new as before', () => {
+		const project = sampleProject();
+		project.rooms[0]!.slopes = [{ id: 's', wall: 1, kneeHeight: 2100, angle: 45 }];
+		const room = buildExport(project, { exportedAt: NOW }).rooms[0]!;
+		expect(room.slopes![0]!.from).toBeUndefined();
+		expect(room.slopes![0]!.dormers).toBeUndefined();
+		expect(room.roofWindows).toBeUndefined();
+	});
+});

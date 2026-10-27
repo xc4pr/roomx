@@ -16,8 +16,12 @@ import {
 	interiorAngle,
 	itemFootprint,
 	perimeter,
+	isOpeningCut,
+	roofWindowPlacement,
 	roundPoint,
+	slopeDormers,
 	slopeRun,
+	slopeSpan,
 	wallElementFootprint,
 	wallElements,
 	walls
@@ -39,9 +43,11 @@ import {
 	KITCHEN_GRIDS,
 	KITCHEN_MODULE_KINDS,
 	isFreeElement,
+	isRoofWindow,
 	type FreeElement,
 	type Project,
 	type Room,
+	type RoofWindow,
 	type WallElement
 } from './schema.ts';
 
@@ -61,7 +67,8 @@ export const FORMAT_GUIDE = [
 	'"keepClear" lists where nothing may stand: "fixtures" are the bodies of all fixed built-ins (never overlap them), "zones" are clear areas in front of them, kind "fire" (in front of a fireplace, stove or tiled stove: mandatory, an item there is an error) or "airflow" (in front of an air conditioner: keep free, an item there is a warning). Each has a "polygon" in room coordinates and a height range "bottom" to "top".',
 	'A room "kitchen" setting tells whether the kitchen is "open" (part of a living or dining room) and its "mode": "builtin" means the kitchen is fixed and must not be planned, "catalog" means kitchen furniture (category kitchen) may be planned.',
 	'Element status is "existing" (built), "planned" (decided by the user) or "suggested" (proposal, not yet accepted).',
-	'Rooms under a roof may list "slopes": the ceiling starts on that wall at "kneeHeight" and rises into the room at "angleDeg" until it meets the flat ceiling at "fullHeightAt" mm from the wall; "standingHeightAt" is the distance from the wall where 2000 mm clear height is reached. Furniture must fit under the slope.',
+	'Rooms under a roof may list "slopes": the ceiling starts on that wall at "kneeHeight" and rises into the room at "angleDeg" until it meets the flat ceiling at "fullHeightAt" mm from the wall; "standingHeightAt" is the distance from the wall where 2000 mm clear height is reached. A slope with "from"/"to" covers only that stretch of the wall (measured from the wall start corner); beyond it the ceiling is flat. A wall may carry several slopes. "dormers" are stretches "from"-"to" along the wall where the ceiling is at least "height" high (a dormer as high as the room cuts the slope completely); with "openingCut": true the cut was derived from a door or window taller than the knee wall. Clear height at a point = the lowest value over all slopes, raised by the dormers. Furniture must fit under the slope; where the ceiling is higher inside a dormer, taller furniture may stand there.',
+	'"roofWindows" lists windows in a sloped ceiling: "wall", "offsetFromStart" and "width" along the wall, "length" up the slope, "elevation" (lower edge above the floor), "top" (upper edge) and "floorPolygon", the projection of the window onto the floor. A roof window is a window: it is a light source, so keep the area below it as free as possible and mind the height there. It is fixed like a wall window and "windowZones" lists wall windows only.',
 	'A furnishing plan is returned in the "roomx-plan" format and refers to rooms by "id"; items with "locked": true must not be moved or removed.'
 ].join(' ');
 
@@ -203,11 +210,41 @@ export const ExportRoomSchema = z.object({
 	slopes: z
 		.array(
 			z.object({
+				id: z.string().optional(),
 				wall: z.number().int(),
+				from: Mm.optional(),
+				to: Mm.optional(),
 				kneeHeight: Mm,
 				angleDeg: z.number(),
 				fullHeightAt: Mm,
-				standingHeightAt: Mm.optional()
+				standingHeightAt: Mm.optional(),
+				dormers: z
+					.array(
+						z.object({
+							id: z.string(),
+							from: Mm,
+							to: Mm,
+							height: Mm,
+							openingCut: z.boolean().optional()
+						})
+					)
+					.optional()
+			})
+		)
+		.optional(),
+	roofWindows: z
+		.array(
+			z.object({
+				id: z.string(),
+				status: ElementStatusSchema,
+				wall: z.number().int(),
+				offsetFromStart: Mm,
+				width: Mm,
+				length: Mm,
+				elevation: Mm,
+				top: Mm,
+				floorPolygon: z.array(PointSchema),
+				note: z.string().optional()
 			})
 		)
 		.optional(),
@@ -301,6 +338,25 @@ function exportFreeElement(
 	};
 }
 
+function exportRoofWindow(
+	room: Room,
+	element: RoofWindow
+): NonNullable<ExportRoom['roofWindows']>[number] {
+	const placement = roofWindowPlacement(room, element);
+	return {
+		id: element.id,
+		status: element.status,
+		wall: element.wall,
+		offsetFromStart: element.offset,
+		width: element.width,
+		length: element.length,
+		elevation: element.elevation,
+		top: round(placement?.top ?? element.elevation),
+		floorPolygon: placement ? placement.corners.map(roundPoint) : [],
+		...(element.note ? { note: element.note } : {})
+	};
+}
+
 function exportKeepClear(room: Room): z.infer<typeof ExportKeepClearSchema> | undefined {
 	const fixtures = room.elements.flatMap((element) =>
 		elementVolumes(room, element).map((volume) => ({
@@ -336,6 +392,7 @@ export function exportRoom(
 	const roomWalls = walls(room.polygon);
 	const freeElements = room.elements.filter(isFreeElement).map((e) => exportFreeElement(room, e));
 	const keepClear = exportKeepClear(room);
+	const roofWindows = room.elements.filter(isRoofWindow).map((e) => exportRoofWindow(room, e));
 	return {
 		id: room.id,
 		name: room.name,
@@ -417,18 +474,34 @@ export function exportRoom(
 					slopes: room.slopes.map((slope) => {
 						const standing = STANDING_HEIGHT - slope.kneeHeight;
 						const tangent = Math.tan((slope.angle * Math.PI) / 180);
+						const span = slopeSpan(room, slope);
+						const dormers = slopeDormers(room, slope);
 						return {
+							id: slope.id,
 							wall: slope.wall,
+							...(span ? { from: span.from, to: span.to } : {}),
 							kneeHeight: slope.kneeHeight,
 							angleDeg: slope.angle,
 							fullHeightAt: Math.round(slopeRun(room, slope)),
 							...(standing > 0 && STANDING_HEIGHT <= room.height
 								? { standingHeightAt: Math.round(standing / tangent) }
+								: {}),
+							...(dormers.length > 0
+								? {
+										dormers: dormers.map((dormer) => ({
+											id: dormer.id,
+											from: dormer.from,
+											to: dormer.to,
+											height: Math.min(room.height, dormer.height),
+											...(isOpeningCut(dormer) ? { openingCut: true } : {})
+										}))
+									}
 								: {})
 						};
 					})
 				}
 			: {}),
+		...(roofWindows.length > 0 ? { roofWindows } : {}),
 		...(freeElements.length > 0 ? { freeElements } : {}),
 		...(keepClear ? { keepClear } : {}),
 		...(room.kitchen && hasKitchen(room) ? { kitchen: room.kitchen } : {}),

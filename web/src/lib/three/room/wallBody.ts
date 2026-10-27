@@ -103,7 +103,9 @@ export function buildWallGeometry(
 	const baseThickness = frame.thickness * MM;
 	const strips = points.slice(0, -1).map((from, index) => ({ from, to: points[index + 1] }));
 	const point = (u: number, h: number, z: number): V3 => [u * MM, h * MM, z];
-	const topAt = (u: number) => profileTop(profile, u);
+	const topAt = (u: number, from: 'left' | 'right') => profileTop(profile, u, from);
+	const topFrom = (strip: { from: number; to: number }) => topAt(strip.from, 'right');
+	const topTo = (strip: { from: number; to: number }) => topAt(strip.to, 'left');
 	const thicknessOf = (strip: { from: number; to: number }) =>
 		thicknessAt(frame, (strip.from + strip.to) / 2) * MM;
 
@@ -129,11 +131,11 @@ export function buildWallGeometry(
 		(strip) => strip.from >= frame.outerFrom - 0.01 && strip.to <= frame.outerTo + 0.01
 	);
 	const spansFor = (strip: { from: number; to: number }) =>
-		spansOf(openings, strip.from, strip.to, (topAt(strip.from) + topAt(strip.to)) / 2);
+		spansOf(openings, strip.from, strip.to, (topFrom(strip) + topTo(strip)) / 2);
 
 	for (const strip of inner) {
-		const t0 = topAt(strip.from);
-		const t1 = topAt(strip.to);
+		const t0 = topFrom(strip);
+		const t1 = topTo(strip);
 		for (const span of spansFor(strip)) {
 			builder.quad(
 				BUCKET_INNER,
@@ -147,8 +149,8 @@ export function buildWallGeometry(
 	}
 	for (const strip of outer) {
 		const thickness = thicknessOf(strip);
-		const t0 = topAt(strip.from);
-		const t1 = topAt(strip.to);
+		const t0 = topFrom(strip);
+		const t1 = topTo(strip);
 		const spans = spansFor(strip);
 		for (const span of spans) {
 			builder.quad(
@@ -187,9 +189,8 @@ export function buildWallGeometry(
 
 	for (let index = 0; index < outer.length - 1; index++) {
 		const u = outer[index].to;
-		const top = topAt(u);
-		const left = resolve(spansFor(outer[index]), top);
-		const right = resolve(spansFor(outer[index + 1]), top);
+		const left = resolve(spansFor(outer[index]), topAt(u, 'left'));
+		const right = resolve(spansFor(outer[index + 1]), topAt(u, 'right'));
 		const leftThickness = thicknessOf(outer[index]);
 		const rightThickness = thicknessOf(outer[index + 1]);
 		for (const [y0, y1] of subtract(left, right)) {
@@ -242,27 +243,27 @@ export function buildWallGeometry(
 		const endsAtEnd = Math.abs(end - frame.length) < 0.01;
 		builder.quad(
 			BUCKET_CAP,
-			point(run.start, topAt(run.start), 0),
-			point(end, topAt(end), 0),
-			point(matches ? mapEnd(end) : end, topAt(end), thickness),
-			point(matches ? mapStart(run.start) : run.start, topAt(run.start), thickness),
+			point(run.start, topAt(run.start, 'right'), 0),
+			point(end, topAt(end, 'left'), 0),
+			point(matches ? mapEnd(end) : end, topAt(end, 'left'), thickness),
+			point(matches ? mapStart(run.start) : run.start, topAt(run.start, 'right'), thickness),
 			[0, 1, 0]
 		);
 		if (!matches && startsAtEnd && frame.outerFrom < -0.01) {
 			builder.triangle(
 				BUCKET_CAP,
-				point(0, topAt(0), 0),
-				point(0, topAt(0), baseThickness),
-				point(frame.outerFrom, topAt(0), baseThickness),
+				point(0, topAt(0, 'right'), 0),
+				point(0, topAt(0, 'right'), baseThickness),
+				point(frame.outerFrom, topAt(0, 'right'), baseThickness),
 				[0, 1, 0]
 			);
 		}
 		if (!matches && endsAtEnd && frame.outerTo > frame.length + 0.01) {
 			builder.triangle(
 				BUCKET_CAP,
-				point(frame.length, topAt(end), 0),
-				point(frame.outerTo, topAt(end), baseThickness),
-				point(frame.length, topAt(end), baseThickness),
+				point(frame.length, topAt(end, 'left'), 0),
+				point(frame.outerTo, topAt(end, 'left'), baseThickness),
+				point(frame.length, topAt(end, 'left'), baseThickness),
 				[0, 1, 0]
 			);
 		}
@@ -270,12 +271,14 @@ export function buildWallGeometry(
 	};
 	for (const strip of inner) {
 		const reachesTop = spansFor(strip).some((span) => span.hi === TOP);
-		const gradient = (topAt(strip.to) - topAt(strip.from)) / (strip.to - strip.from);
+		const gradient = (topTo(strip) - topFrom(strip)) / (strip.to - strip.from);
 		const thickness = thicknessOf(strip);
 		if (reachesTop) {
 			if (
 				run &&
-				(Math.abs(run.gradient - gradient) > 1e-6 || Math.abs(run.thickness - thickness) > 1e-6)
+				(Math.abs(run.gradient - gradient) > 1e-6 ||
+					Math.abs(run.thickness - thickness) > 1e-6 ||
+					Math.abs(topAt(strip.from, 'left') - topAt(strip.from, 'right')) > 0.01)
 			) {
 				closeRun(strip.from);
 			}
@@ -287,7 +290,7 @@ export function buildWallGeometry(
 	const first = inner[0];
 	const last = inner.at(-1);
 	if (first) {
-		for (const [y0, y1] of resolve(spansFor(first), topAt(first.from))) {
+		for (const [y0, y1] of resolve(spansFor(first), topAt(first.from, 'right'))) {
 			builder.quad(
 				BUCKET_OUTER,
 				point(0, y0, 0),
@@ -299,7 +302,7 @@ export function buildWallGeometry(
 		}
 	}
 	if (last) {
-		for (const [y0, y1] of resolve(spansFor(last), topAt(last.to))) {
+		for (const [y0, y1] of resolve(spansFor(last), topAt(last.to, 'left'))) {
 			builder.quad(
 				BUCKET_OUTER,
 				point(frame.length, y0, 0),

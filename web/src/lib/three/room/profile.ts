@@ -1,6 +1,7 @@
-import { dot, slopeRun, wall, wallHeightAt, type Vec } from '#lib/core/geometry.ts';
-import type { Room, Slope } from '#lib/core/schema.ts';
+import { ceilingHeightAt, wall } from '#lib/core/geometry.ts';
+import type { Room } from '#lib/core/schema.ts';
 import type { WallFrame } from './frames.ts';
+import { wallLineKnots } from './roof.ts';
 
 export interface ProfilePoint {
 	u: number;
@@ -17,14 +18,22 @@ export function flatProfile(length: number, height: number): ProfilePoint[] {
 	];
 }
 
-export function profileTop(profile: readonly ProfilePoint[], u: number): number {
+// At a step the profile has two points with the same u: "left" gives the height before it,
+// "right" the height after it.
+export function profileTop(
+	profile: readonly ProfilePoint[],
+	u: number,
+	from: 'left' | 'right' = 'left'
+): number {
 	const first = profile[0];
 	const last = profile[profile.length - 1];
-	if (u <= first.u) return first.h;
-	if (u >= last.u) return last.h;
+	if (u <= first.u)
+		return from === 'right' ? (profile.findLast((p) => p.u <= first.u)?.h ?? first.h) : first.h;
+	if (u >= last.u)
+		return from === 'left' ? (profile.find((p) => p.u >= last.u)?.h ?? last.h) : last.h;
 	for (let i = 1; i < profile.length; i++) {
 		const b = profile[i];
-		if (u <= b.u) {
+		if (u < b.u || (u === b.u && from === 'left')) {
 			const a = profile[i - 1];
 			const span = b.u - a.u;
 			return span < EPS ? b.h : a.h + ((b.h - a.h) * (u - a.u)) / span;
@@ -37,68 +46,40 @@ export function profileMax(profile: readonly ProfilePoint[]): number {
 	return Math.max(...profile.map((point) => point.h));
 }
 
-interface Ramp {
-	slope: Slope;
-	tangent: number;
-	run: number;
-	d0: number;
-	d1: number;
-}
+const INSIDE = 1e-4;
 
-function ramps(room: Room, frame: WallFrame): Ramp[] {
-	const result: Ramp[] = [];
-	for (const slope of room.slopes ?? []) {
-		const target = wall(room.polygon, slope.wall);
-		if (!target) continue;
-		const origin: Vec = frame.start;
-		result.push({
-			slope,
-			tangent: Math.tan((slope.angle * Math.PI) / 180),
-			run: slopeRun(room, slope),
-			d0: dot({ x: origin.x - target.start.x, y: origin.y - target.start.y }, target.inward),
-			d1: dot(frame.direction, target.inward)
-		});
-	}
-	return result;
-}
-
-function knots(items: readonly Ramp[], length: number): number[] {
-	const found: number[] = [];
-	const add = (u: number) => {
-		if (Number.isFinite(u) && u > 0.01 && u < length - 0.01) found.push(u);
-	};
-	for (const ramp of items) {
-		if (Math.abs(ramp.d1) < EPS) continue;
-		add(-ramp.d0 / ramp.d1);
-		add((ramp.run - ramp.d0) / ramp.d1);
-	}
-	for (let i = 0; i < items.length; i++) {
-		for (let j = i + 1; j < items.length; j++) {
-			const a = items[i];
-			const b = items[j];
-			const slopeDelta = a.tangent * a.d1 - b.tangent * b.d1;
-			if (Math.abs(slopeDelta) < EPS) continue;
-			const rhs = b.slope.kneeHeight - a.slope.kneeHeight - a.tangent * a.d0 + b.tangent * b.d0;
-			add(rhs / slopeDelta);
-		}
-	}
-	return found;
-}
-
-// Wall top in mm along the wall: straight between the wall ends and every point where a slope reaches
-// the full room height or two slopes meet, so each piece of the profile is a single straight line.
+// Wall top in mm along the wall, sampled just inside the room. It is straight between the points
+// where the ceiling bends and jumps at a step (two points with the same u), so dormers and cuts
+// above openings are never interpolated across.
 export function wallProfile(room: Room, frame: WallFrame): ProfilePoint[] {
 	if (!room.slopes || room.slopes.length === 0) return flatProfile(frame.length, room.height);
-	const items = ramps(room, frame);
-	const us = [0, ...knots(items, frame.length).sort((a, b) => a - b), frame.length];
-	const points = us
-		.filter((u, index) => index === 0 || u - us[index - 1] > 0.01)
-		.map((u) => ({ u, h: wallHeightAt(room, frame.number, u) }));
+	const us = [0, ...wallLineKnots(room, frame.number).sort((a, b) => a - b), frame.length];
+	const unique = us.filter((u, index) => index === 0 || u - us[index - 1] > 0.01);
+	const heightAt = (u: number) =>
+		ceilingHeightAt(room, {
+			x: frame.start.x + frame.direction.x * u + frame.inward.x * INSIDE,
+			y: frame.start.y + frame.direction.y * u + frame.inward.y * INSIDE
+		});
+	const points: ProfilePoint[] = [];
+	for (let i = 1; i < unique.length; i++) {
+		const from = unique[i - 1];
+		const to = unique[i];
+		const reach = Math.min(1e-4, (to - from) / 4);
+		points.push({ u: from, h: heightAt(from + reach) }, { u: to, h: heightAt(to - reach) });
+	}
 	const result: ProfilePoint[] = [];
 	for (const point of points) {
+		const last = result[result.length - 1];
+		if (
+			last &&
+			Math.abs(last.u - point.u) < EPS &&
+			Math.abs(last.h - point.h) < COLLINEAR_TOLERANCE
+		)
+			continue;
 		while (result.length >= 2) {
 			const a = result[result.length - 2];
 			const b = result[result.length - 1];
+			if (b.u - a.u < EPS || point.u - b.u < EPS) break;
 			const expected = a.h + ((point.h - a.h) * (b.u - a.u)) / (point.u - a.u);
 			if (Math.abs(expected - b.h) > COLLINEAR_TOLERANCE) break;
 			result.pop();

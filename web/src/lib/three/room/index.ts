@@ -40,7 +40,14 @@ import { fullThicknessAt, wallFrames, wallOpenings, type WallFrame } from './fra
 import { MaterialSet, PALETTE } from './materials.ts';
 import { Parts } from './parts.ts';
 import { profileMax, roomHasSlopes, wallProfile } from './profile.ts';
-import { roofEdges, roofSurface, type RoofEdge, type RoofTriangle } from './roof.ts';
+import {
+	roofModel,
+	type RoofCheek,
+	type RoofModel,
+	type RoofEdge,
+	type RoofTriangle
+} from './roof.ts';
+import { buildDaylight, buildRoofWindows } from './roofWindow.ts';
 import { buildWallGeometry } from './wallBody.ts';
 
 export interface WallInfo {
@@ -295,8 +302,11 @@ function buildDoorMarks(
 	return group;
 }
 
-function roofGeometry(triangles: readonly RoofTriangle[]): BufferGeometry | undefined {
-	if (triangles.length === 0) return undefined;
+function roofGeometry(
+	triangles: readonly RoofTriangle[],
+	cheeks: readonly RoofCheek[] = []
+): BufferGeometry | undefined {
+	if (triangles.length === 0 && cheeks.length === 0) return undefined;
 	const builder = new GeometryBuilder(1);
 	for (const [a, b, c] of triangles) {
 		const at = (p: RoofTriangle[number]): [number, number, number] => [
@@ -305,6 +315,21 @@ function roofGeometry(triangles: readonly RoofTriangle[]): BufferGeometry | unde
 			-p.y * MM
 		];
 		builder.triangle(0, at(a), at(b), at(c), [0, 1, 0]);
+	}
+	for (const cheek of cheeks) {
+		const at = (p: { x: number; y: number }, h: number): [number, number, number] => [
+			p.x * MM,
+			h * MM,
+			-p.y * MM
+		];
+		builder.quad(
+			0,
+			at(cheek.from, cheek.fromLow),
+			at(cheek.to, cheek.toLow),
+			at(cheek.to, cheek.toHigh),
+			at(cheek.from, cheek.fromHigh),
+			[cheek.toward.x, 0, -cheek.toward.y]
+		);
 	}
 	return builder.build();
 }
@@ -320,8 +345,14 @@ function edgeGeometry(edges: readonly RoofEdge[]): BufferGeometry | undefined {
 	return geometry;
 }
 
-function addRoof(overhead: Group, room: Room, materials: MaterialSet, ceilingShown: boolean): void {
-	const surface = roofSurface(room);
+function addRoof(
+	overhead: Group,
+	room: Room,
+	model: RoofModel,
+	materials: MaterialSet,
+	ceilingShown: boolean
+): void {
+	const { surface, cheeks, edges: roofLines, windows } = model;
 	const flat = roofGeometry(surface.flat);
 	if (flat) {
 		const ceiling = new Mesh(
@@ -332,7 +363,9 @@ function addRoof(overhead: Group, room: Room, materials: MaterialSet, ceilingSho
 		ceiling.visible = ceilingShown;
 		overhead.add(ceiling);
 	}
-	const sloped = roofGeometry(surface.sloped);
+	const glazing = buildRoofWindows(windows, materials);
+	if (glazing) overhead.add(glazing);
+	const sloped = roofGeometry(surface.sloped, cheeks);
 	if (!sloped) return;
 	const color = room.wallColor ?? PALETTE.wall;
 	const solid = new Mesh(sloped, materials.get({ color, roughness: 0.95, side: 'back' }));
@@ -347,7 +380,7 @@ function addRoof(overhead: Group, room: Room, materials: MaterialSet, ceilingSho
 	ghost.renderOrder = 1;
 	ghost.visible = !ceilingShown;
 	overhead.add(ghost);
-	const lines = edgeGeometry(roofEdges(room));
+	const lines = edgeGeometry(roofLines);
 	if (lines) {
 		const edges = new LineSegments(lines, new LineBasicMaterial({ color: EDGE_COLOR }));
 		edges.userData.part = 'slopeEdges';
@@ -406,8 +439,9 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	const overhead = new Group();
 	overhead.name = 'overhead';
 	const roofMaterial = { color: PALETTE.wallTop, roughness: 0.95, side: 'back' } as const;
-	if (roomHasSlopes(room)) {
-		addRoof(overhead, room, materials, options.ceiling);
+	const roof = roomHasSlopes(room) ? roofModel(room) : undefined;
+	if (roof) {
+		addRoof(overhead, room, roof, materials, options.ceiling);
 	} else {
 		const ceiling = new Mesh(floorGeometry, materials.get(roofMaterial));
 		ceiling.position.y = height;
@@ -428,6 +462,8 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	}
 	overhead.visible = options.wallHeightFactor >= 0.95;
 	root.add(overhead);
+	const daylight = buildDaylight(roof?.windows ?? []);
+	if (daylight) root.add(daylight);
 
 	const info: RoomInfo = { roomId: room.id, height, lamps };
 	Object.assign(root.userData, info);

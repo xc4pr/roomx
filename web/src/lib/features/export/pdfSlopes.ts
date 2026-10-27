@@ -1,20 +1,41 @@
 import type { PDFPage } from 'pdf-lib';
-import { slopeRun, wall, wallPoint, walls, type Vec, type Wall } from '#lib/core/geometry.ts';
+import {
+	isOpeningCut,
+	slopeContours,
+	slopeDormers,
+	slopeRun,
+	slopeSpan,
+	wall,
+	wallPoint,
+	walls,
+	type Vec,
+	type Wall
+} from '#lib/core/geometry.ts';
 import { STANDING_HEIGHT } from '#lib/core/export.ts';
 import type { Room, Slope } from '#lib/core/schema.ts';
-import {
-	clipSegmentToPolygon,
-	longestSegment,
-	slopeShapes,
-	type Segment
-} from '#lib/features/board/slopes.ts';
+import { clipSegmentToPolygon, longestSegment, type Segment } from '#lib/features/board/slopes.ts';
 import { profileSegments, wallProfile } from '#lib/features/elements/profile.ts';
 import type { Fit } from './layout.ts';
 import { applyFit } from './layout.ts';
 import { drawText, strokeLine, textWidth, type PdfContext, type Point2 } from './pdfKit.ts';
+import { symbolTranslator } from './pdfText.ts';
 
-export function hasSlopes(room: Pick<Room, 'slopes'>): boolean {
-	return (room.slopes?.length ?? 0) > 0;
+export interface SlopeLegend {
+	dormers: boolean;
+}
+
+export function hasSlopes(
+	room: Pick<Room, 'slopes' | 'polygon' | 'height' | 'elements'>
+): false | SlopeLegend {
+	if ((room.slopes?.length ?? 0) === 0) return false;
+	return {
+		dormers: (room.slopes ?? []).some((slope) => slopeDormers(room, slope).length > 0)
+	};
+}
+
+export function slopeLegend(rooms: readonly Room[]): false | SlopeLegend {
+	const found = rooms.map((room) => hasSlopes(room)).filter((legend) => legend !== false);
+	return found.length === 0 ? false : { dormers: found.some((legend) => legend.dormers) };
 }
 
 export function zoneHatch(zone: readonly Vec[], spacing: number): Segment[] {
@@ -27,7 +48,7 @@ export function zoneHatch(zone: readonly Vec[], spacing: number): Segment[] {
 	const to = Math.max(...ys) - minX;
 	const step = spacing * Math.SQRT2;
 	const lines: Segment[] = [];
-	for (let c = from + step / 2; c < to; c += step) {
+	for (let c = Math.ceil(from / step) * step; c < to; c += step) {
 		lines.push(
 			...clipSegmentToPolygon(
 				{ x: minX - 1, y: minX - 1 + c },
@@ -37,6 +58,101 @@ export function zoneHatch(zone: readonly Vec[], spacing: number): Segment[] {
 		);
 	}
 	return lines;
+}
+
+export interface PlanSlope {
+	slope: Slope;
+	target: Wall;
+	span: { from: number; to: number };
+	run: number;
+	pieces: Vec[][];
+	dormers: { outline: Vec[]; cut: boolean }[];
+	cheeks: Segment[];
+	standing: Segment[];
+	full: Segment[];
+}
+
+type PlanRoom = Pick<Room, 'polygon' | 'height' | 'slopes' | 'elements'>;
+
+function inRoom(room: PlanRoom, from: Vec, to: Vec): Segment[] {
+	return clipSegmentToPolygon(from, to, room.polygon);
+}
+
+export function planSlopes(room: PlanRoom): PlanSlope[] {
+	return (room.slopes ?? []).flatMap((slope) => {
+		const target = wall(room.polygon, slope.wall);
+		const run = slopeRun(room, slope);
+		if (!target || run < 1) return [];
+		const tangent = Math.tan((slope.angle * Math.PI) / 180);
+		const section = slopeSpan(room, slope);
+		const span = section ?? { from: 0, to: target.length };
+		const xs = room.polygon.map((p) => p.x);
+		const ys = room.polygon.map((p) => p.y);
+		const reach = Math.hypot(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+		const wide = section ? span : { from: -reach, to: target.length + reach };
+		const rect = (a: number, b: number, d0: number, d1: number): Vec[] => [
+			wallPoint(target, a, d0),
+			wallPoint(target, b, d0),
+			wallPoint(target, b, d1),
+			wallPoint(target, a, d1)
+		];
+		const dormers = slopeDormers(room, slope).flatMap((dormer) => {
+			const from = Math.max(span.from, dormer.from);
+			const to = Math.min(span.to, dormer.to);
+			if (to - from < 1 || dormer.height <= slope.kneeHeight) return [];
+			const depth =
+				dormer.height >= room.height
+					? run
+					: Math.min(run, (dormer.height - slope.kneeHeight) / tangent);
+			return [{ from, to, depth, cut: isOpeningCut(dormer) }];
+		});
+		const marks = [
+			...new Set([
+				wide.from,
+				wide.to,
+				...dormers.flatMap((d) => [d.from, d.to].filter((v) => v > wide.from && v < wide.to))
+			])
+		].sort((a, b) => a - b);
+		const pieces: Vec[][] = [];
+		for (let i = 0; i + 1 < marks.length; i++) {
+			const a = marks[i]!;
+			const b = marks[i + 1]!;
+			const cleared = Math.max(
+				0,
+				...dormers.filter((d) => d.from <= a + 0.5 && d.to >= b - 0.5).map((d) => d.depth)
+			);
+			if (cleared < run - 0.5) pieces.push(rect(a, b, cleared, run));
+		}
+		const cheeks: Segment[] = [];
+		for (const along of [span.from, span.to]) {
+			if (along > 0.5 && along < target.length - 0.5) {
+				cheeks.push(...inRoom(room, wallPoint(target, along, 0), wallPoint(target, along, run)));
+			}
+		}
+		const contour = (clear: number) =>
+			slopeContours(room, slope, clear).flatMap((piece) => inRoom(room, piece.from, piece.to));
+		return [
+			{
+				slope,
+				target,
+				span,
+				run,
+				pieces,
+				dormers: dormers.map((d) => ({
+					outline: [
+						wallPoint(target, d.from, 0),
+						wallPoint(target, d.from, d.depth),
+						wallPoint(target, d.to, d.depth),
+						wallPoint(target, d.to, 0)
+					],
+					cut: d.cut
+				})),
+				cheeks,
+				standing: contour(STANDING_HEIGHT),
+				full: contour(room.height)
+			}
+		];
+	});
 }
 
 export function slopeCaption(ctx: PdfContext, slope: Slope): string {
@@ -49,19 +165,39 @@ export function slopeCaption(ctx: PdfContext, slope: Slope): string {
 
 export function slopeSummary(ctx: PdfContext, room: Room): string | undefined {
 	if (!room.slopes || room.slopes.length === 0) return undefined;
+	const tr = symbolTranslator(ctx.language);
 	const parts = room.slopes.map((slope) => {
 		const full = Math.round(slopeRun(room, slope));
 		const standing = STANDING_HEIGHT - slope.kneeHeight;
 		const tangent = Math.tan((slope.angle * Math.PI) / 180);
-		const base = ctx.tr('slopeEntry', {
+		const section = slopeSpan(room, slope);
+		let text = ctx.tr('slopeEntry', {
 			n: slope.wall,
 			knee: Math.round(slope.kneeHeight),
 			angle: Math.round(slope.angle * 10) / 10,
 			full
 		});
-		if (STANDING_HEIGHT > room.height) return base;
-		if (standing <= 0) return `${base}, ${ctx.tr('slopeStandingAtWall')}`;
-		return `${base}, ${ctx.tr('slopeStanding', { standing: Math.round(standing / tangent) })}`;
+		if (section) {
+			text += `, ${tr('slopeSection', { from: Math.round(section.from), to: Math.round(section.to) })}`;
+		}
+		if (STANDING_HEIGHT <= room.height) {
+			text +=
+				standing <= 0
+					? `, ${ctx.tr('slopeStandingAtWall')}`
+					: `, ${ctx.tr('slopeStanding', { standing: Math.round(standing / tangent) })}`;
+		}
+		const dormers = slopeDormers(room, slope);
+		if (dormers.length > 0) {
+			const list = dormers.map((dormer) =>
+				tr(isOpeningCut(dormer) ? 'slopeCutEntry' : 'slopeDormerEntry', {
+					from: Math.round(dormer.from),
+					to: Math.round(dormer.to),
+					h: Math.round(Math.min(room.height, dormer.height))
+				})
+			);
+			text += `, ${tr('slopeDormers', { list: list.join('; ') })}`;
+		}
+		return text;
 	});
 	return ctx.tr('slopeRoomLine', { list: parts.join(' · ') });
 }
@@ -72,13 +208,17 @@ function toPage(fit: Fit, p: Vec): Point2 {
 
 export function drawPlanSlopes(page: PDFPage, ctx: PdfContext, room: Room, fit: Fit): void {
 	const p = ctx.palette;
-	for (const shape of slopeShapes(room)) {
-		for (const [a, b] of zoneHatch(shape.zone, 4.5 / fit.scale)) {
-			strokeLine(page, toPage(fit, a), toPage(fit, b), {
-				width: 0.3,
-				color: p.muted,
-				opacity: 0.6
-			});
+	for (const shape of planSlopes(room)) {
+		for (const piece of shape.pieces) {
+			for (const [a, b] of zoneHatch(piece, 4.5 / fit.scale)) {
+				for (const [from, to] of inRoom(room, a, b)) {
+					strokeLine(page, toPage(fit, from), toPage(fit, to), {
+						width: 0.3,
+						color: p.muted,
+						opacity: 0.6
+					});
+				}
+			}
 		}
 		for (const [a, b] of shape.full) {
 			strokeLine(page, toPage(fit, a), toPage(fit, b), { width: 0.5, color: p.muted });
@@ -90,13 +230,24 @@ export function drawPlanSlopes(page: PDFPage, ctx: PdfContext, room: Room, fit: 
 				dash: [3, 2]
 			});
 		}
-		const target = wall(room.polygon, shape.slope.wall);
-		if (!target) continue;
+		for (const [a, b] of shape.cheeks) {
+			strokeLine(page, toPage(fit, a), toPage(fit, b), { width: 0.9, color: p.muted });
+		}
+		for (const dormer of shape.dormers) {
+			const points = dormer.outline.map((point) => toPage(fit, point));
+			for (let i = 0; i + 1 < points.length; i++) {
+				strokeLine(page, points[i]!, points[i + 1]!, {
+					width: 0.8,
+					color: p.muted,
+					dash: [2.4, 1.6]
+				});
+			}
+		}
 		const inset = 2 / fit.scale;
 		strokeLine(
 			page,
-			toPage(fit, wallPoint(target, 0, inset)),
-			toPage(fit, wallPoint(target, target.length, inset)),
+			toPage(fit, wallPoint(shape.target, shape.span.from, inset)),
+			toPage(fit, wallPoint(shape.target, shape.span.to, inset)),
 			{ width: 1.6, color: p.muted }
 		);
 	}
@@ -134,11 +285,11 @@ function alongText(
 export function drawSlopeLabels(page: PDFPage, ctx: PdfContext, room: Room, fit: Fit): void {
 	const p = ctx.palette;
 	const sides = walls(room.polygon);
-	for (const shape of slopeShapes(room)) {
+	for (const shape of planSlopes(room)) {
 		const target = sides[shape.slope.wall - 1];
 		if (!target) continue;
-		const start = toPage(fit, wallPoint(target, 0));
-		const end = toPage(fit, wallPoint(target, target.length));
+		const start = toPage(fit, wallPoint(target, shape.span.from));
+		const end = toPage(fit, wallPoint(target, shape.span.to));
 		const lengthPt = Math.hypot(end.x - start.x, end.y - start.y);
 		if (lengthPt > 20) {
 			const text = slopeCaption(ctx, shape.slope);
