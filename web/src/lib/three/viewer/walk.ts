@@ -53,7 +53,12 @@ export function walkStep(
 	};
 }
 
-export function bestStandPoint(polygon: readonly Point[], radius: number): Vec | undefined {
+// The grid point with the most room around it, away from walls and from stairwells in the floor.
+export function bestStandPoint(
+	polygon: readonly Point[],
+	radius: number,
+	holes: readonly (readonly Vec[])[] = []
+): Vec | undefined {
 	const xs = polygon.map((p) => p.x);
 	const ys = polygon.map((p) => p.y);
 	const minX = Math.min(...xs);
@@ -66,12 +71,15 @@ export function bestStandPoint(polygon: readonly Point[], radius: number): Vec |
 		for (let j = 1; j < 32; j++) {
 			const point = { x: minX + stepX * i, y: minY + stepY * j };
 			if (!pointInPolygon(point, polygon)) continue;
+			if (holes.some((hole) => pointInPolygon(point, hole))) continue;
 			let clearance = Infinity;
-			for (let k = 0; k < polygon.length; k++) {
-				clearance = Math.min(
-					clearance,
-					pointOnSegmentDistance(point, polygon[k], polygon[(k + 1) % polygon.length])
-				);
+			for (const outline of [polygon, ...holes]) {
+				for (let k = 0; k < outline.length; k++) {
+					clearance = Math.min(
+						clearance,
+						pointOnSegmentDistance(point, outline[k], outline[(k + 1) % outline.length])
+					);
+				}
 			}
 			if (clearance > bestClearance) {
 				bestClearance = clearance;
@@ -294,6 +302,11 @@ export function moveOnMap(map: WalkMap, from: Vec, to: Vec, radius: number): Vec
 	return from;
 }
 
+// The stairwells in the floor of a room, in room coordinates.
+export function floorHoles(project: Project | undefined, frame: RoomFrame): Vec[][] {
+	return project && frame.floorId !== undefined ? roomHoles(project, frame.room).floor : [];
+}
+
 export function walkInputs(frames: readonly RoomFrame[], project?: Project): WalkRoomInput[] {
 	return frames.map((frame) => {
 		const toWorldPoint = (point: Vec): Vec => {
@@ -315,10 +328,7 @@ export function walkInputs(frames: readonly RoomFrame[], project?: Project): Wal
 				roomId: frame.room.id
 			});
 		}
-		const holes =
-			project && frame.floorId !== undefined
-				? roomHoles(project, frame.room).floor.map((hole) => hole.map(toWorldPoint))
-				: [];
+		const holes = floorHoles(project, frame).map((hole) => hole.map(toWorldPoint));
 		return { polygon, doors, holes };
 	});
 }

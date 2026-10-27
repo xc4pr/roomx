@@ -431,3 +431,73 @@ export function wallLineKnots(room: Room, wallNumber: number): number[] {
 	}
 	return knots;
 }
+
+const MIN_PIECE_AREA = 1;
+
+function signedArea(polygon: readonly Vec[]): number {
+	return (
+		polygon.reduce((sum, p, i) => {
+			const q = polygon[(i + 1) % polygon.length];
+			return sum + (p.x * q.y - q.x * p.y);
+		}, 0) / 2
+	);
+}
+
+// The part of a convex piece on one side of the line a→b; the height follows the plane of the piece.
+function halfPlane(piece: readonly RoofPoint[], a: Vec, b: Vec, sign: number): RoofPoint[] {
+	const side = (p: Vec) => sign * ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x));
+	const result: RoofPoint[] = [];
+	piece.forEach((current, index) => {
+		const previous = piece[(index + piece.length - 1) % piece.length];
+		const sc = side(current);
+		const sp = side(previous);
+		if (sc >= 0 !== sp >= 0) {
+			const t = sp / (sp - sc);
+			result.push({
+				x: previous.x + (current.x - previous.x) * t,
+				y: previous.y + (current.y - previous.y) * t,
+				h: previous.h + (current.h - previous.h) * t
+			});
+		}
+		if (sc >= 0) result.push(current);
+	});
+	return result;
+}
+
+// A convex piece minus a convex hole, as convex pieces.
+function subtract(piece: RoofPoint[], hole: readonly Vec[]): RoofPoint[][] {
+	const xs = hole.map((p) => p.x);
+	const ys = hole.map((p) => p.y);
+	if (
+		piece.every((p) => p.x <= Math.min(...xs)) ||
+		piece.every((p) => p.x >= Math.max(...xs)) ||
+		piece.every((p) => p.y <= Math.min(...ys)) ||
+		piece.every((p) => p.y >= Math.max(...ys))
+	)
+		return [piece];
+	const inside = signedArea(hole) >= 0 ? 1 : -1;
+	const result: RoofPoint[][] = [];
+	let rest = piece;
+	for (let i = 0; i < hole.length && rest.length >= 3; i++) {
+		const a = hole[i];
+		const b = hole[(i + 1) % hole.length];
+		const outside = halfPlane(rest, a, b, -inside);
+		if (outside.length >= 3 && Math.abs(signedArea(outside)) > MIN_PIECE_AREA) result.push(outside);
+		rest = halfPlane(rest, a, b, inside);
+	}
+	return result;
+}
+
+// Cuts openings (convex pieces in room coordinates, e.g. a stairwell) out of the roof surface.
+export function cutSurface(surface: RoofSurface, holes: readonly (readonly Vec[])[]): RoofSurface {
+	if (holes.length === 0) return surface;
+	const cut = (triangles: readonly RoofTriangle[]): RoofTriangle[] =>
+		triangles.flatMap((triangle) => {
+			let pieces: RoofPoint[][] = [[...triangle]];
+			for (const hole of holes) pieces = pieces.flatMap((piece) => subtract(piece, hole));
+			return pieces.flatMap((piece) =>
+				piece.slice(1, -1).map((p, i): RoofTriangle => [piece[0], p, piece[i + 2]])
+			);
+		});
+	return { flat: cut(surface.flat), sloped: cut(surface.sloped) };
+}

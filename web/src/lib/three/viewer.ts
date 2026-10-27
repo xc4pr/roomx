@@ -104,6 +104,7 @@ import {
 	approach,
 	bestStandPoint,
 	buildWalkMap,
+	floorHoles,
 	moveOnMap,
 	stickCurve,
 	walkInputs,
@@ -1098,7 +1099,9 @@ export function createViewer(
 		if (floorAt(target, walk.x, walk.z)) return { x: walk.x, z: walk.z };
 		const frame = target[0];
 		if (!frame) return undefined;
-		const spot = bestStandPoint(frame.room.polygon, WALK_RADIUS / MM) ?? frame.room.polygon[0];
+		const spot =
+			bestStandPoint(frame.room.polygon, WALK_RADIUS / MM, floorHoles(content?.project, frame)) ??
+			frame.room.polygon[0];
 		const world = roomToWorld(frame, spot);
 		return { x: world.x, z: world.z };
 	}
@@ -1108,7 +1111,9 @@ export function createViewer(
 		if (!frame) return;
 		walkLevel = frame.level;
 		walkMap = null;
-		const spot = bestStandPoint(frame.room.polygon, WALK_RADIUS / MM) ?? frame.room.polygon[0];
+		const spot =
+			bestStandPoint(frame.room.polygon, WALK_RADIUS / MM, floorHoles(content?.project, frame)) ??
+			frame.room.polygon[0];
 		const world = roomToWorld(frame, spot);
 		walkMap ??= buildWalkMap(walkInputs(walkFrames(), content?.project), WALK_RADIUS);
 		walk.saved = { pose: currentPose(), fov: camera.fov };

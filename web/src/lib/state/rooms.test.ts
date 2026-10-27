@@ -131,4 +131,22 @@ describe('floors and stairs', () => {
 			height: 2300
 		});
 	});
+
+	it('adds a floor above a stair that leads nowhere yet', async () => {
+		const { store } = await openStore();
+		store.enableFloors();
+		const og = store.project!.floors!.at(-1)!.id;
+		store.addStair({
+			fromFloorId: og,
+			shape: 'straight',
+			x: 0,
+			y: 0,
+			rotation: 0,
+			width: 900,
+			turn: 'left'
+		});
+		const dg = store.addFloor('DG');
+		expect(dg).toBeDefined();
+		expect(store.moveFloor(dg!, 0)).toBe(false);
+	});
 });

@@ -66,7 +66,7 @@
 		snapToCentimetre
 	} from './rooms.ts';
 	import { connections } from './connections.svelte.ts';
-	import { floorOfSelection, planRooms, underlayRooms } from './floorView.ts';
+	import { floorOfSelection, planRooms, selectionKey, underlayRooms } from './floorView.ts';
 	import DockMarks from './DockMarks.svelte';
 	import LinkMarks from './LinkMarks.svelte';
 	import StairControls from '#lib/features/stairs/StairControls.svelte';
@@ -109,17 +109,17 @@
 	let floorsOpen = $state(false);
 	let toolColumnHeight = $state(0);
 	const floorId = $derived(activeFloorId(store.project));
-	// A newly selected room on another floor (build check, list) brings its floor into view. Only a
-	// change of the selection counts, so picking another floor chip is never undone.
-	let followedSelection: string | null | undefined;
+	// A selected room on another floor (build check, list, undo of a move) brings its floor into view,
+	// also when the plan opens. Only the selection and its floor count, so picking another floor chip
+	// is never undone.
+	let followedSelection: string | undefined;
 	$effect(() => {
+		const project = store.project;
 		const selected = ui.selectedRoomId;
-		if (selected === followedSelection) return;
-		const first = followedSelection === undefined;
-		followedSelection = selected;
-		if (first) return;
+		const key = project ? selectionKey(project, selected) : undefined;
+		if (key === followedSelection) return;
+		followedSelection = key;
 		untrack(() => {
-			const project = store.project;
 			const target = project
 				? floorOfSelection(project, selected, activeFloorId(project))
 				: undefined;

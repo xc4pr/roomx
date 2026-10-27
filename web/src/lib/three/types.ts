@@ -127,7 +127,11 @@ export interface RoomBuildOptions extends SceneOptions {
 	// Balcony railing along the free edges (railingRuns).
 	railing?: readonly RailingRun[];
 	// Stairwell openings (room coordinates) in this room's floor and ceiling.
-	stairwell?: { floor: readonly Vec[][]; ceiling: readonly Vec[][] };
+	stairwell?: {
+		floor: readonly Vec[][];
+		ceiling: readonly Vec[][];
+		ceilingParts?: readonly Vec[][];
+	};
 }
 
 export type RoomBuilder = (room: Room, options: RoomBuildOptions) => Object3D;

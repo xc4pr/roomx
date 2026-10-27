@@ -11,6 +11,7 @@ import {
 import { describe, expect, it } from 'vitest';
 import { createRoom } from '#lib/core/defaults.ts';
 import { floorLevels, stairContext } from '#lib/core/floors.ts';
+import { pointInPolygon } from '#lib/core/geometry.ts';
 import type { Project, Room, Stair, StairShape } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
 import { buildScene } from '../scene.ts';
@@ -293,6 +294,70 @@ describe('stairwell in the room meshes', () => {
 			);
 		expect(area(holes[0])).toBeCloseTo(area(whole) - (nx - x0) * (ny - y0), -1);
 		expect(holes[0].every((q) => q.x >= nx - 1 || q.y >= ny - 1)).toBe(true);
+	});
+
+	it('cuts L, U and spiral openings to an L-shaped room', () => {
+		const l: Room = {
+			...big('b', 'og'),
+			polygon: [
+				{ x: 2450, y: 0 },
+				{ x: 7000, y: 0 },
+				{ x: 7000, y: 5000 },
+				{ x: 0, y: 5000 },
+				{ x: 0, y: 2360 },
+				{ x: 2450, y: 2360 }
+			]
+		};
+		const area = (poly: readonly { x: number; y: number }[]) =>
+			Math.abs(
+				poly.reduce((sum, q, i) => {
+					const r = poly[(i + 1) % poly.length];
+					return sum + q.x * r.y - r.x * q.y;
+				}, 0) / 2
+			);
+		let checked = 0;
+		for (const shape of ['l', 'u', 'spiral'] as const) {
+			const p: Project = {
+				...project([stair(shape, { x: 3000, y: 500 })]),
+				rooms: [big('a', 'eg'), l]
+			};
+			const opening = stairContext(p, p.stairs![0])!.opening.map((tread) => tread.polygon);
+			const inside = opening
+				.flatMap((polygon) => polygon)
+				.filter((point) => pointInPolygon(point, l.polygon, 1));
+			const holes = roomHoles(p, l).floor;
+			const cut = holes.reduce((sum, hole) => sum + area(hole), 0);
+			const whole = opening.reduce((sum, polygon) => sum + area(polygon), 0);
+			if (inside.length === 0) continue;
+			checked++;
+			expect(holes.length, shape).toBeGreaterThan(0);
+			expect(cut, shape).toBeLessThanOrEqual(whole + 1);
+			for (const hole of holes) {
+				expect(
+					hole.every((point) => pointInPolygon(point, l.polygon, 1)),
+					shape
+				).toBe(true);
+			}
+		}
+		expect(checked).toBeGreaterThanOrEqual(2);
+	});
+
+	it('opens a sloped ceiling of the lower room', () => {
+		const base = project();
+		const slopedRoom: Room = {
+			...big('a', 'eg'),
+			slopes: [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 30 }]
+		};
+		const p: Project = { ...base, rooms: [slopedRoom, base.rooms[1]] };
+		const c = openingCentre(p);
+		const overhead = [...parts(build(p).root, 'ceiling'), ...parts(build(p).root, 'slope')].filter(
+			(mesh) => mesh.parent?.parent?.name === 'room-a'
+		);
+		expect(overhead.length).toBeGreaterThan(0);
+		expect(roomHoles(p, slopedRoom).ceilingParts.length).toBeGreaterThan(0);
+		expect(dropHits(overhead, c.x * MM, 9, -c.y * MM)).toHaveLength(0);
+		expect(dropHits(overhead, 6.5, 9, -4.5)).toHaveLength(1);
+		expect(dropHits(overhead, 6.5, 9, -0.3)).toHaveLength(1);
 	});
 
 	it('blocks the walk map over the stairwell', () => {

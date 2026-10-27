@@ -51,6 +51,7 @@ import { MaterialSet, PALETTE } from './materials.ts';
 import { Parts } from './parts.ts';
 import { profileMax, roomHasSlopes, wallProfile } from './profile.ts';
 import {
+	cutSurface,
 	roofModel,
 	type RoofCheek,
 	type RoofModel,
@@ -543,7 +544,8 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	} else if (glass) {
 		addGlassRoof(overhead, room, roof, floorGeometry, materials);
 	} else if (roof) {
-		addRoof(overhead, room, roof, materials, options.ceiling);
+		const surface = cutSurface(roof.surface, stairwell?.ceilingParts ?? []);
+		addRoof(overhead, room, { ...roof, surface }, materials, options.ceiling);
 	} else {
 		const ceiling = new Mesh(
 			stairwell?.ceiling.length ? flatGeometry(room.polygon, stairwell.ceiling) : floorGeometry,

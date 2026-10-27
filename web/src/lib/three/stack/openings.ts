@@ -1,5 +1,5 @@
 import { roomFloorId, stairContext } from '#lib/core/floors.ts';
-import { boardToRoom, pointInPolygon, roomToBoard, type Vec } from '#lib/core/geometry.ts';
+import { boardToRoom, roomToBoard, type Vec } from '#lib/core/geometry.ts';
 import type { Project, Room } from '#lib/core/schema.ts';
 import { outlineLoops } from './slab.ts';
 
@@ -8,6 +8,8 @@ export interface RoomHoles {
 	floor: Vec[][];
 	// Room coordinates: the stairwell in the ceiling of a room on the lower storey.
 	ceiling: Vec[][];
+	// The same ceiling opening as convex pieces, for cutting it out of a sloped ceiling.
+	ceilingParts: Vec[][];
 }
 
 const MIN_AREA = 1000;
@@ -62,42 +64,43 @@ function clip(subject: readonly Vec[], clipper: readonly Vec[]): Vec[] {
 	return output;
 }
 
-// The part of each opening loop (board coordinates) that lies in the room, in room coordinates.
-// Several rooms can share one opening, so every room takes its own piece. An L-shaped room is
-// clipped by the opening instead, as long as the opening is convex.
-function pieces(room: Room, loops: readonly (readonly Vec[])[]): Vec[][] {
+function withoutDuplicates(polygon: readonly Vec[]): Vec[] {
+	return polygon.filter((p, i) => {
+		const next = polygon[(i + 1) % polygon.length];
+		return Math.abs(p.x - next.x) > 0.01 || Math.abs(p.y - next.y) > 0.01;
+	});
+}
+
+// The part of each tread of the opening (board coordinates, convex) that lies in the room, in room
+// coordinates. Several rooms can share one opening, so every room takes its own pieces. A concave
+// room is clipped by the convex tread instead.
+function parts(room: Room, treads: readonly (readonly Vec[])[]): Vec[][] {
 	const convex = isConvex(room.polygon);
 	const result: Vec[][] = [];
-	for (const loop of loops) {
-		const local = loop.map((p) => boardToRoom(room, p));
-		if (convex || isConvex(local)) {
-			const piece = convex ? clip(local, room.polygon) : clip(room.polygon, local);
-			if (piece.length >= 3 && Math.abs(area(piece)) > MIN_AREA) result.push(piece);
-		} else {
-			const centre = {
-				x: local.reduce((sum, p) => sum + p.x, 0) / local.length,
-				y: local.reduce((sum, p) => sum + p.y, 0) / local.length
-			};
-			if (pointInPolygon(centre, room.polygon, 1)) result.push(local);
-		}
+	for (const tread of treads) {
+		const local = tread.map((p) => boardToRoom(room, p));
+		const piece = withoutDuplicates(convex ? clip(local, room.polygon) : clip(room.polygon, local));
+		if (piece.length >= 3 && Math.abs(area(piece)) > MIN_AREA) result.push(piece);
 	}
 	return result;
 }
 
-function stairwellLoops(project: Project, floorId: string, side: 'to' | 'from'): Vec[][] {
+function stairwellTreads(project: Project, floorId: string, side: 'to' | 'from'): Vec[][] {
 	return (project.stairs ?? []).flatMap((stair) => {
 		const context = stairContext(project, stair);
-		if (!context || context[side].id !== floorId || context.opening.length === 0) return [];
-		return outlineLoops(context.opening.map((tread) => tread.polygon));
+		if (!context || context[side].id !== floorId) return [];
+		return context.opening.map((tread) => tread.polygon);
 	});
 }
 
 export function roomHoles(project: Project, room: Room): RoomHoles {
 	const floorId = roomFloorId(project, room);
-	if (floorId === undefined) return { floor: [], ceiling: [] };
+	if (floorId === undefined) return { floor: [], ceiling: [], ceilingParts: [] };
+	const ceilingParts = parts(room, stairwellTreads(project, floorId, 'from'));
 	return {
-		floor: pieces(room, stairwellLoops(project, floorId, 'to')),
-		ceiling: pieces(room, stairwellLoops(project, floorId, 'from'))
+		floor: outlineLoops(parts(room, stairwellTreads(project, floorId, 'to'))),
+		ceiling: outlineLoops(ceilingParts),
+		ceilingParts
 	};
 }
 

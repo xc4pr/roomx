@@ -27,3 +27,9 @@ export function floorOfSelection(
 	const floorId = room ? roomFloorId(project, room) : undefined;
 	return floorId && floorId !== shownFloorId ? floorId : undefined;
 }
+
+// Changes when another room is selected or the selected room moves to another floor (also by undo).
+export function selectionKey(project: Floored, selectedRoomId: string | null): string {
+	const room = project.rooms.find((candidate) => candidate.id === selectedRoomId);
+	return `${selectedRoomId ?? ''}|${room ? (roomFloorId(project, room) ?? '') : ''}`;
+}

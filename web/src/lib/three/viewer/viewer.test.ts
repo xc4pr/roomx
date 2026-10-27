@@ -90,6 +90,26 @@ describe('walking', () => {
 		expect(canStandAt(polygon, point ?? { x: 0, y: 0 }, 220)).toBe(true);
 	});
 
+	it('starts beside a stairwell, not above it', () => {
+		const square = [
+			{ x: 0, y: 0 },
+			{ x: 5000, y: 0 },
+			{ x: 5000, y: 5000 },
+			{ x: 0, y: 5000 }
+		];
+		const well = [
+			{ x: 2050, y: 400 },
+			{ x: 2950, y: 400 },
+			{ x: 2950, y: 4600 },
+			{ x: 2050, y: 4600 }
+		];
+		const point = bestStandPoint(square, 220, [well])!;
+		expect(point).toBeDefined();
+		const clear = Math.min(Math.abs(point.x - 2050), Math.abs(point.x - 2950));
+		expect(point.x < 2050 || point.x > 2950).toBe(true);
+		expect(clear).toBeGreaterThanOrEqual(220);
+	});
+
 	it('converts joystick input into a step along the view direction', () => {
 		const forward = walkStep(0, { forward: 1, strafe: 0 }, 2, 0.5);
 		expect(forward.x).toBeCloseTo(0);

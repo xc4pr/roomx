@@ -59,10 +59,13 @@ export type RoomPatch = Partial<
 		| 'floorId'
 	>
 >;
+// No stair may lead to another floor than before. A stair without a floor above may gain one.
 function keepsStairs(project: Project, floors: Floor[]): boolean {
 	const before = stairTargets(project);
 	const after = stairTargets({ ...project, floors });
-	return [...before].every(([stairId, target]) => after.get(stairId) === target);
+	return [...before].every(
+		([stairId, target]) => target === undefined || after.get(stairId) === target
+	);
 }
 
 export type FloorPatch = Partial<Omit<Floor, 'id'>>;
