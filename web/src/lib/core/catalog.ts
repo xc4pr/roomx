@@ -112,6 +112,8 @@ export const CatalogEntrySchema = z.object({
 	verified: z.boolean(),
 	// true: the retailer no longer sells it online; the entry stays so that old projects and plans still load.
 	discontinued: z.boolean().optional(),
+	// Garden and balcony furniture (from the shop category); shown first for outdoor areas.
+	outdoor: z.boolean().optional(),
 	look: LookSchema.optional()
 });
 
