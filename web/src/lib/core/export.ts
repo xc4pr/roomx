@@ -479,7 +479,7 @@ export function exportRoom(
 						return {
 							id: slope.id,
 							wall: slope.wall,
-							...(span ? { from: span.from, to: span.to } : {}),
+							...(span ? { from: Math.round(span.from), to: Math.round(span.to) } : {}),
 							kneeHeight: slope.kneeHeight,
 							angleDeg: slope.angle,
 							fullHeightAt: Math.round(slopeRun(room, slope)),
@@ -490,8 +490,8 @@ export function exportRoom(
 								? {
 										dormers: dormers.map((dormer) => ({
 											id: dormer.id,
-											from: dormer.from,
-											to: dormer.to,
+											from: Math.round(dormer.from),
+											to: Math.round(dormer.to),
 											height: Math.min(room.height, dormer.height),
 											...(isOpeningCut(dormer) ? { openingCut: true } : {})
 										}))

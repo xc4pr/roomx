@@ -14,6 +14,8 @@ import {
 import {
 	ceilingHeightAt,
 	freeWallSpans,
+	itemFootprint,
+	lowestCeiling,
 	roofWindowPlacement,
 	slopeAngleFromDepth,
 	slopeContours,
@@ -354,6 +356,37 @@ describe('roof slopes', () => {
 		expect(wallHeightAt(attic, 1, 1000)).toBe(1000);
 		expect(validateRoom(attic)).toEqual([]);
 		expect(ceilingHeightAt({ ...attic, elements: undefined }, { x: 2000, y: 0 })).toBe(1000);
+	});
+
+	it('finds the low ceiling between the corners of a piece of furniture or a wall element', () => {
+		const attic = room({
+			slopes: [{ id: 's', wall: 1, kneeHeight: 800, angle: 40, from: 1500, to: 2500 }]
+		});
+		const wardrobe = item({ x: 2000, y: 300, dims: { w: 2000, d: 600, h: 2200 } });
+		expect(checkRoomItems(attic, [wardrobe]).map((issue) => issue.code)).toEqual(['underSlope']);
+		expect(lowestCeiling(attic, itemFootprint(wardrobe))).toBeCloseTo(800, 6);
+		const builtin = { ...createElement('builtin', attic, 1, 2000, newId), id: 'b' };
+		if (builtin.kind !== 'builtin') throw new Error('builtin');
+		attic.elements = [{ ...builtin, offset: 1000, width: 2000, height: 2300 }];
+		expect(validateRoom(attic).map((issue) => issue.code)).toEqual(['elementTooHigh']);
+		const between = room({
+			slopes: [
+				{
+					id: 's',
+					wall: 1,
+					kneeHeight: 800,
+					angle: 40,
+					dormers: [
+						{ id: 'a', from: 0, to: 1800, height: 2500 },
+						{ id: 'b', from: 2200, to: 4000, height: 2500 }
+					]
+				}
+			]
+		});
+		expect(checkRoomItems(between, [wardrobe]).map((issue) => issue.code)).toEqual(['underSlope']);
+		expect(
+			checkRoomItems(between, [{ ...wardrobe, x: 900, dims: { w: 1600, d: 600, h: 2200 } }])
+		).toEqual([]);
 	});
 
 	it('places a roof window in its slope and flags one without slope', () => {

@@ -605,6 +605,67 @@ export function slopeAt(
 	return wallSlopes(room, wallNumber).find((slope) => slopeCovers(room, slope, along));
 }
 
+// Lowest ceiling over a convex shape (a footprint, or two points for a stretch of wall). The
+// ceiling is piecewise: slope stretches and dormers start and end on lines across their wall. The
+// lowest point of each piece lies on a corner of it, so the corners of the shape, its crossings
+// with those lines and the crossings of the lines inside it are enough, each a hair to both sides.
+export function lowestCeiling(room: Sloped, shape: readonly Vec[]): number {
+	const lines: { origin: Vec; along: Vec }[] = [];
+	for (const slope of room.slopes ?? []) {
+		const target = wall(room.polygon, slope.wall);
+		if (!target) continue;
+		const span = slopeSpan(room, slope);
+		const bounds = [
+			...(span ? [span.from, span.to] : []),
+			...slopeDormers(room, slope).flatMap((dormer) => [dormer.from, dormer.to])
+		];
+		for (const bound of bounds) {
+			lines.push({ origin: wallPoint(target, bound), along: target.direction });
+		}
+	}
+	const points: Vec[] = [...shape];
+	// Only points on the shape count: a hair outside may already lie in the next piece.
+	const onShape = (p: Vec) => {
+		if (shape.length > 2) return pointInPolygon(p, shape);
+		const length2 = dot(sub(shape[1], shape[0]), sub(shape[1], shape[0]));
+		const t = length2 > 0 ? dot(sub(p, shape[0]), sub(shape[1], shape[0])) / length2 : 0;
+		return t >= 0 && t <= 1;
+	};
+	const nudge = (p: Vec, along: Vec) =>
+		[add(p, scale(along, -0.5)), add(p, scale(along, 0.5))].filter(onShape);
+	const edges =
+		shape.length === 2
+			? [[shape[0], shape[1]]]
+			: shape.map((a, i) => [a, shape[(i + 1) % shape.length]]);
+	for (const line of lines) {
+		for (const [a, b] of edges) {
+			const da = dot(sub(a, line.origin), line.along);
+			const db = dot(sub(b, line.origin), line.along);
+			if ((da > 0 && db > 0) || (da < 0 && db < 0) || da === db) continue;
+			points.push(...nudge(add(a, scale(sub(b, a), da / (da - db))), line.along));
+		}
+	}
+	if (shape.length > 2) {
+		for (let i = 0; i < lines.length; i++) {
+			for (let j = i + 1; j < lines.length; j++) {
+				const a = lines[i];
+				const b = lines[j];
+				const direction = { x: -a.along.y, y: a.along.x };
+				const denominator = dot(direction, b.along);
+				if (Math.abs(denominator) < EPS) continue;
+				const q = add(
+					a.origin,
+					scale(direction, dot(sub(b.origin, a.origin), b.along) / denominator)
+				);
+				if (pointInPolygon(q, shape, 1)) {
+					for (const p of nudge(q, a.along)) points.push(...nudge(p, b.along));
+				}
+			}
+		}
+	}
+	return Math.min(...points.map((p) => ceilingHeightAt(room, p)));
+}
+
 // Height of the wall surface at a position along the wall: knee height on a sloped wall,
 // and the profile cut by neighbouring slopes on gable walls.
 export function wallHeightAt(room: Sloped, wallNumber: number, along: number): number {

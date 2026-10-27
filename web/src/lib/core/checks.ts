@@ -9,7 +9,6 @@ import {
 import type { StairZone } from './floors.ts';
 import { coverHeightAt } from './outdoor.ts';
 import {
-	ceilingHeightAt,
 	convexInsidePolygon,
 	convexOverlap,
 	doorSwing,
@@ -18,12 +17,13 @@ import {
 	isSimplePolygon,
 	itemFootprint,
 	pointInPolygon,
+	lowestCeiling,
 	pointOnSegmentDistance,
 	roofWindowPlacement,
 	wall,
 	wallElementFootprint,
 	wallElements,
-	wallHeightAt,
+	wallPoint,
 	walls,
 	type Vec
 } from './geometry.ts';
@@ -155,16 +155,14 @@ export function validateRoom(room: Room): RoomIssue[] {
 			});
 		}
 		const span = elementSpan(element);
-		const clear = Math.min(
-			wallHeightAt(room, element.wall, span.from),
-			wallHeightAt(room, element.wall, span.to)
-		);
+		const clear = target
+			? lowestCeiling(room, [wallPoint(target, span.from), wallPoint(target, span.to)])
+			: room.height;
 		// A kitchen run is checked part by part, at the depth its tall and upper cabinets reach.
 		const tooHigh =
 			element.kind === 'kitchenRun'
 				? elementVolumes(room, element).some(
-						(volume) =>
-							volume.top > Math.min(...volume.shape.map((p) => ceilingHeightAt(room, p))) + 1
+						(volume) => volume.top > lowestCeiling(room, volume.shape) + 1
 					)
 				: element.elevation + element.height > clear + 1;
 		if (tooHigh) {
@@ -256,7 +254,7 @@ export function checkRoomItems(
 			}
 		} else if (top(item) > room.height) {
 			issues.push({ code: 'tooTall', severity: 'error', roomId: room.id, itemIds: [item.id] });
-		} else if (top(item) > Math.min(...shape.map((corner) => ceilingHeightAt(room, corner))) + 1) {
+		} else if (top(item) > lowestCeiling(room, shape) + 1) {
 			issues.push({ code: 'underSlope', severity: 'error', roomId: room.id, itemIds: [item.id] });
 		}
 		const stairZone = stairZones.find((candidate) => convexOverlap(shape, candidate.shape, 2));
