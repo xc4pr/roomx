@@ -165,7 +165,7 @@ Im Reiter **Plan** zeichnest du den Grundriss. Alles wird in Zentimetern eingege
 
 **Raum hinzufügen.** Tippe auf das Plus. Es erscheint ein Raum mit 4 × 3 m, den du an seinen Platz ziehst. Tippen wählt einen Raum aus und öffnet das Panel mit den drei Bereichen **Masse**, **Elemente** und **Fotos**. Doppelt tippen fokussiert den Raum, mit zwei Fingern oder dem Mausrad zoomst du, «Alles zeigen» passt den Ausschnitt an.
 
-**Raumtyp und Name.** Wähle einen Typ (Wohnzimmer, Schlafzimmer, Büro, Küche, Bad, Kinderzimmer, Flur, Esszimmer, Abstellraum oder Andere) und gib dem Raum einen Namen. Die Typen brechen auf mehrere Zeilen um, sodass du alle auf einen Blick siehst, auch auf einem schmalen Bildschirm.
+**Raumtyp und Name.** Wähle einen Typ (Wohnzimmer, Schlafzimmer, Büro, Küche, Bad, Kinderzimmer, Flur, Esszimmer, Abstellraum, Balkon, Terrasse, Garten, Wintergarten oder Andere) und gib dem Raum einen Namen. Die Typen brechen auf mehrere Zeilen um, sodass du alle auf einen Blick siehst, auch auf einem schmalen Bildschirm.
 
 Unter **Masse** gibt es drei Arten, die Form festzulegen:
 
@@ -211,6 +211,24 @@ Eine Wohnung besteht aus mehreren Räumen. Damit RoomX weiss, wie sie zusammenh�
 
 > [!IMPORTANT]
 > **Unverbundene Räume werden gemeldet.** Wenn in einem Projekt mit mehreren Räumen ein Raum keinen Nachbarn hat, weist dich RoomX beim Erstellen der 3D-Ansicht und beim Exportieren des KI-Pakets darauf hin. Du kannst trotzdem weitermachen. Bei Räumen, die bewusst getrennt liegen, etwa Keller, Garage, Estrich oder Aussenbereich, schaltest du unten im Bereich «Nachbarn» des Raum-Panels **«Bewusst separat»** ein: RoomX meldet diesen Raum dann nicht mehr.
+
+#### Aussenbereiche
+
+Balkon, Terrasse und Garten haben keine Wände und keine Decke. Sie bestehen nur aus dem Boden, der mit einem gestrichelten Umriss gezeichnet wird. Sie docken an wie Räume: Die Tür sitzt in der Wand des Innenraums, und die gemeinsame Wand gehört zum Haus.
+
+**Geländer.** Ein Balkon bekommt entlang der freien Kanten ein Geländer. Die Höhe stellst du unter **Geländerhöhe** ein, Standard 1,0 m.
+
+**Überdachung.** Optional bekommt ein Aussenbereich eine **Überdachung**: die **ganze Fläche** oder einen **Streifen** entlang einer Wand. Gib die Höhe an, zum Beispiel für einen Balkon darüber oder eine Pergola. Unter der Überdachung gilt deren Höhe für die Möbel. Sonst gibt es keine Höhengrenze.
+
+**Wintergarten.** Wände und Dach sind aus Glas. Dachschrägen gelten wie sonst, etwa bei einem Pultdach.
+
+**Fläche.** Aussenbereiche zählen nicht zur Wohnfläche. RoomX zeigt Wohnfläche und Aussenfläche getrennt, im Panel, im PDF und im KI-Paket.
+
+**Raumtyp wechseln.** Einen bestehenden Raum stellst du über den Raumtyp um. Türen und Fenster in der gemeinsamen Wand wandern dann in den Innenraum. Alles andere bleibt und ist markiert.
+
+**Foto-Tour.** Bei Balkon, Terrasse und Garten entfallen die Wand- und Eckfotos.
+
+**Einrichten.** Stützen und Hindernisse gibt es auch draussen, zum Beispiel zwei Pfeiler unter einem Balkon darüber. Im Einrichten stehen Gartenmöbel oben, sobald der Katalog sie kennzeichnet.
 
 ### Türen, Fenster und Elektro
 

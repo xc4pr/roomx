@@ -165,7 +165,7 @@ In the **Plan** tab you draw the floor plan. Everything is entered in centimetre
 
 **Add a room.** Tap the plus. A 4 × 3 m room appears, and you drag it into place. Tapping selects a room and opens the panel with its three sections **Dimensions**, **Elements** and **Photos**. Double-tapping focuses the room, you zoom with two fingers or the mouse wheel, and “Show everything” fits the view to your plan.
 
-**Room type and name.** Pick a type (Living room, Bedroom, Office, Kitchen, Bathroom, Children’s room, Hallway, Dining room, Storage room or Other) and give the room a name. The types wrap onto several lines, so you see all of them at once, even on a narrow screen.
+**Room type and name.** Pick a type (Living room, Bedroom, Office, Kitchen, Bathroom, Children’s room, Hallway, Dining room, Storage room, Balcony, Terrace, Garden, Conservatory or Other) and give the room a name. The types wrap onto several lines, so you see all of them at once, even on a narrow screen.
 
 Under **Dimensions** there are three ways to set the shape:
 
@@ -211,6 +211,24 @@ An apartment is made of several rooms. So that RoomX knows how they fit together
 
 > [!IMPORTANT]
 > **Unconnected rooms are reported.** If a room in a project with several rooms has no neighbour, RoomX points it out when you build the 3D view and when you export the AI package. You can carry on anyway. For rooms that are deliberately separate, such as a cellar, garage, loft or an outdoor area, switch on **“Deliberately separate”** at the bottom of the “Neighbours” section in the room panel: RoomX then no longer reports that room.
+
+#### Outdoor areas
+
+A balcony, terrace or garden has no walls and no ceiling. It is only a floor, drawn with a dashed outline. It connects like a room: the door sits in the wall of the inside room, and the shared wall belongs to the house.
+
+**Railing.** A balcony gets a railing along its free edges. Set its height under **Railing height**, default 1.0 m.
+
+**Cover.** Optionally an outdoor area gets a **Cover**: the **Whole area** or a **Strip** along a wall. Enter its height, for example for a balcony above or a pergola. Under the cover, its height applies to furniture. Otherwise there is no height limit.
+
+**Conservatory.** Walls and roof are glass. Sloped ceilings apply as usual, for example for a lean-to roof.
+
+**Area.** Outdoor areas do not count towards the living area. RoomX shows the living area and the outdoor area separately, in the panel, in the PDF and in the AI package.
+
+**Changing the room type.** To turn an existing room into an outdoor area, change its room type. Doors and windows in the shared wall then move into the inside room. Everything else stays and is marked.
+
+**Photo tour.** For balcony, terrace and garden, the wall and corner photos are skipped.
+
+**Furnish.** Columns and obstacles also work outdoors, for example two pillars under a balcony above. In Furnish, garden furniture appears at the top once the catalogue marks it.
 
 ### Doors, windows and electrical
 
