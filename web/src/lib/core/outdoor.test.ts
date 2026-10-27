@@ -41,6 +41,7 @@ describe('outdoor areas', () => {
 		expect(railingRuns([living, { ...balcony, railing: undefined }], balcony)).toHaveLength(3);
 		expect(railingRuns([living, balcony], { ...balcony, railing: undefined })).toEqual([]);
 		expect(railingRuns([living], living)).toEqual([]);
+		expect(railingRuns([living, balcony], { ...balcony, type: 'terrace' })).toEqual([]);
 	});
 
 	it('limits the height only under the cover', () => {
@@ -58,6 +59,16 @@ describe('outdoor areas', () => {
 		const terrace = { ...balcony, type: 'terrace' as const };
 		terrace.elements = [createElement('window', terrace, 1, 2000, sequentialIds('w'))];
 		expect(validateRoom(terrace).map((issue) => issue.code)).toEqual(['elementNotForRoomType']);
+		const lamp = {
+			id: 'l',
+			kind: 'ceilingLamp' as const,
+			status: 'existing' as const,
+			x: 2000,
+			y: 1200
+		};
+		const covered = { ...balcony, cover: stripCover(balcony, 1, 800, 2400), elements: [lamp] };
+		expect(validateRoom(covered).map((issue) => issue.code)).toEqual(['elementOutsideWall']);
+		expect(validateRoom({ ...covered, elements: [{ ...lamp, y: 400 }] })).toEqual([]);
 	});
 
 	it('sums living and outdoor area separately, per floor if asked', () => {

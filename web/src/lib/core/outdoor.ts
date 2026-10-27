@@ -9,10 +9,10 @@ export interface RailingRun {
 	to: number;
 }
 
-// A balcony railing runs along every edge except where the area docks onto an indoor room (that
-// wall belongs to the house). Open-air areas without railing get none.
+// A balcony railing runs along every edge except where the balcony docks onto an indoor room (that
+// wall belongs to the house). A railing kept from an earlier room type is not built.
 export function railingRuns(rooms: readonly Room[], room: Room): RailingRun[] {
-	if (!isOpenAir(room) || !room.railing) return [];
+	if (room.type !== 'balcony' || !room.railing) return [];
 	const indoor = new Set(rooms.filter((other) => !isOpenAir(other)).map((other) => other.id));
 	const docked = wallLinks(rooms).filter(
 		(link) => link.roomId === room.id && indoor.has(link.otherRoomId)

@@ -122,7 +122,8 @@ export function validateRoom(room: Room): RoomIssue[] {
 			issues.push({ code: 'elementNotForRoomType', roomId: room.id, elementIds: [element.id] });
 		}
 		if (element.kind === 'ceilingLamp') {
-			if (!pointInPolygon(element, room.polygon, 1)) {
+			const hangs = !isOpenAir(room) || coverHeightAt(room, element) !== undefined;
+			if (!pointInPolygon(element, room.polygon, 1) || !hangs) {
 				issues.push({ code: 'elementOutsideWall', roomId: room.id, elementIds: [element.id] });
 			}
 			continue;
