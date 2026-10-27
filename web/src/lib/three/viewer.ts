@@ -27,7 +27,8 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { EYE_HEIGHT } from '#lib/core/defaults.ts';
-import { ceilingHeightAt, pointInPolygon, rotate } from '#lib/core/geometry.ts';
+import { stairContext } from '#lib/core/floors.ts';
+import { ceilingHeightAt, pointInPolygon, rotate, type Vec } from '#lib/core/geometry.ts';
 import type { Item } from '#lib/core/schema.ts';
 import { lookup } from '#lib/catalog/index.ts';
 import { degToRad, MM, toWorld } from './coords.ts';
@@ -82,6 +83,7 @@ import {
 	clampedFloorAt,
 	floorAt,
 	footprintPoints,
+	framesOnLevel,
 	layoutBounds,
 	roomToWorld,
 	sceneVariant,
@@ -125,7 +127,16 @@ export interface ViewerHooks {
 	onQuality?(tier: QualityTier): void;
 }
 
-export interface RoomxViewer extends SceneViewer {
+// Walking on a storey of a project with floors. Without floors these do nothing.
+export interface FloorWalking {
+	// Storey to start walking on (null: the lowest shown one).
+	setWalkFloor(floorId: string | null): void;
+	walkFloorId(): string | undefined;
+	// Moves the walker one storey up (1) or down (-1); returns the new floor id, undefined if none.
+	stepWalkFloor(direction: 1 | -1): string | undefined;
+}
+
+export interface RoomxViewer extends SceneViewer, FloorWalking {
 	stats(): ViewerStats;
 }
 
@@ -274,6 +285,8 @@ export function createViewer(
 	let samples: SightPoint[] = [];
 	let floors: FloorShape[][] = [];
 	let walkMap: WalkMap | null = null;
+	let walkLevel = 0;
+	let walkPreferred: string | null = null;
 	let mode: CameraMode = 'orbit';
 	let controlsEnabled = true;
 	let disposed = false;
@@ -592,7 +605,7 @@ export function createViewer(
 		const target = controls.target;
 		const x = Math.min(layoutBox.max.x + margin, Math.max(layoutBox.min.x - margin, target.x));
 		const z = Math.min(layoutBox.max.z + margin, Math.max(layoutBox.min.z - margin, target.z));
-		const y = Math.min(3, Math.max(0, target.y));
+		const y = Math.min(Math.max(3, layoutBox.max.y), Math.max(0, target.y));
 		const dx = x - target.x;
 		const dy = y - target.y;
 		const dz = z - target.z;
@@ -621,13 +634,17 @@ export function createViewer(
 	}
 
 	function eyeY(): number {
-		for (const frame of frames) {
+		for (const frame of walkFrames()) {
 			const local = worldToRoom(frame, walk.x, walk.z);
 			if (!pointInPolygon(local, frame.room.polygon)) continue;
 			const clear = ceilingHeightAt(frame.room, local) - EYE_CLEARANCE;
-			return Math.max(EYE_MIN, Math.min(EYE_HEIGHT, clear)) * MM;
+			return (frame.level + Math.max(EYE_MIN, Math.min(EYE_HEIGHT, clear))) * MM;
 		}
-		return EYE_HEIGHT * MM;
+		return (walkLevel + EYE_HEIGHT) * MM;
+	}
+
+	function walkFrames(): RoomFrame[] {
+		return framesOnLevel(frames, walkLevel);
 	}
 
 	function placeLamps(): void {
@@ -737,12 +754,12 @@ export function createViewer(
 			floorSamples(frame.room.polygon, (point) => {
 				const world = roomToWorld(frame, point);
 				return { x: world.x, z: world.z };
-			})
+			}).map((sample) => ({ ...sample, y: (sample.y ?? 0) + frame.origin.y }))
 		);
 		floors = frames.map((frame) =>
 			frame.room.polygon.map((point) => {
 				const world = roomToWorld(frame, point);
-				return { x: world.x, z: world.z };
+				return { x: world.x, y: frame.origin.y, z: world.z };
 			})
 		);
 		walkMap = null;
@@ -812,6 +829,7 @@ export function createViewer(
 					outward: { x: outward.x, z: outward.z },
 					half: info.half,
 					height: info.height,
+					base: frame.origin.y,
 					low: lowFactor(frame.room.height * MM),
 					current: previous.get(key) ?? 1,
 					target: 1,
@@ -1033,19 +1051,66 @@ export function createViewer(
 	}
 
 	function standFrame(): RoomFrame | undefined {
+		const lowest = Math.min(...frames.map((frame) => frame.level));
+		const preferred = frames.filter((frame) => frame.floorId === walkPreferred);
+		const pool = preferred.length > 0 ? preferred : framesOnLevel(frames, lowest);
 		return (
-			frames.find(
+			pool.find(
 				(candidate) => floorAt([candidate], controls.target.x, controls.target.z) !== null
-			) ?? frames[0]
+			) ?? pool[0]
 		);
+	}
+
+	// Where the walker lands on the new storey (walkLevel is already the new one).
+	function walkFloorSpot(
+		fromId: string | undefined,
+		toId: string | undefined,
+		up: boolean
+	): { x: number; z: number } | undefined {
+		const candidates: Vec[] = [];
+		for (const stair of content?.project.stairs ?? []) {
+			const context = content ? stairContext(content.project, stair) : undefined;
+			if (!context) continue;
+			if (up && context.from.id === fromId && context.to.id === toId) {
+				const { from, to } = context.layout.arrival;
+				const middle = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
+				const last = context.layout.treads[context.layout.treads.length - 1].polygon;
+				const back = {
+					x: last.reduce((sum, p) => sum + p.x, 0) / last.length,
+					y: last.reduce((sum, p) => sum + p.y, 0) / last.length
+				};
+				const length = Math.hypot(middle.x - back.x, middle.y - back.y) || 1;
+				candidates.push({
+					x: middle.x + ((middle.x - back.x) / length) * 500,
+					y: middle.y + ((middle.y - back.y) / length) * 500
+				});
+			}
+			if (!up && context.to.id === fromId && context.from.id === toId) {
+				const behind = rotate({ x: 0, y: -500 }, stair.rotation);
+				candidates.push({ x: stair.x + behind.x, y: stair.y + behind.y });
+			}
+		}
+		const target = framesOnLevel(frames, walkLevel);
+		for (const board of candidates) {
+			const world = toWorld(board);
+			if (floorAt(target, world.x, world.z)) return { x: world.x, z: world.z };
+		}
+		if (floorAt(target, walk.x, walk.z)) return { x: walk.x, z: walk.z };
+		const frame = target[0];
+		if (!frame) return undefined;
+		const spot = bestStandPoint(frame.room.polygon, WALK_RADIUS / MM) ?? frame.room.polygon[0];
+		const world = roomToWorld(frame, spot);
+		return { x: world.x, z: world.z };
 	}
 
 	function enterWalk(): void {
 		const frame = standFrame();
 		if (!frame) return;
+		walkLevel = frame.level;
+		walkMap = null;
 		const spot = bestStandPoint(frame.room.polygon, WALK_RADIUS / MM) ?? frame.room.polygon[0];
 		const world = roomToWorld(frame, spot);
-		walkMap ??= buildWalkMap(walkInputs(frames), WALK_RADIUS);
+		walkMap ??= buildWalkMap(walkInputs(walkFrames()), WALK_RADIUS);
 		walk.saved = { pose: currentPose(), fov: camera.fov };
 		walk.x = world.x;
 		walk.z = world.z;
@@ -1155,7 +1220,7 @@ export function createViewer(
 
 	function stepWalk(dt: number): boolean {
 		if (mode !== 'walk' || flight) return false;
-		walkMap ??= buildWalkMap(walkInputs(frames), WALK_RADIUS);
+		walkMap ??= buildWalkMap(walkInputs(walkFrames()), WALK_RADIUS);
 		const input = walkInput();
 		let busy = false;
 		if (input.turn !== 0) {
@@ -1416,6 +1481,33 @@ export function createViewer(
 			};
 			schedule();
 		},
+		setWalkFloor(floorId) {
+			walkPreferred = floorId;
+		},
+		walkFloorId() {
+			return frames.find((frame) => frame.level === walkLevel)?.floorId;
+		},
+		stepWalkFloor(direction) {
+			if (disposed || mode !== 'walk' || flight) return undefined;
+			const levels = [...new Set(frames.map((frame) => frame.level))].sort((a, b) => a - b);
+			const next = levels[levels.indexOf(walkLevel) + direction];
+			if (next === undefined) return undefined;
+			const fromId = viewer.walkFloorId();
+			walkLevel = next;
+			const toId = viewer.walkFloorId();
+			const spot = walkFloorSpot(fromId, toId, direction > 0);
+			if (!spot) {
+				walkLevel = levels[levels.indexOf(next) - direction];
+				return undefined;
+			}
+			walkMap = null;
+			walk.x = spot.x;
+			walk.z = spot.z;
+			placeWalker();
+			placeLamps();
+			requestRender();
+			return toId;
+		},
 		setSelectedItem,
 		setControlsEnabled(enabled) {
 			controlsEnabled = enabled;
@@ -1441,16 +1533,26 @@ export function createViewer(
 		},
 		pickFloor(clientX, clientY, pick: FloorPickOptions = {}): FloorHit | null {
 			const elevation = pick.elevation ?? 0;
-			let point = pickPoint(clientX, clientY, elevation);
-			if (!point && pick.clamp) {
+			const levels = [...new Set(frames.map((frame) => frame.level))].sort((a, b) => a - b);
+			if (levels.length === 0) levels.push(0);
+			let best: { hit: FloorHit; distance: number } | null = null;
+			for (const level of levels) {
+				const point = pickPoint(clientX, clientY, elevation + level);
+				const hit = point ? floorAt(framesOnLevel(frames, level), point.x, point.z) : null;
+				if (!point || !hit) continue;
+				const distance = point.distanceTo(raycaster.ray.origin);
+				if (!best || distance < best.distance) best = { hit, distance };
+			}
+			if (best) return best.hit;
+			if (!pick.clamp) return null;
+			const level = frames.find((frame) => frame.room.id === pick.roomId)?.level ?? levels[0] ?? 0;
+			let point = pickPoint(clientX, clientY, elevation + level);
+			if (!point) {
 				const direction = raycaster.ray.direction;
 				const reach = new Vector3(direction.x, 0, direction.z).normalize().multiplyScalar(200);
 				point = raycaster.ray.origin.clone().add(reach);
 			}
-			if (!point) return null;
-			return pick.clamp
-				? clampedFloorAt(frames, point.x, point.z, pick.roomId)
-				: floorAt(frames, point.x, point.z);
+			return clampedFloorAt(framesOnLevel(frames, level), point.x, point.z, pick.roomId);
 		},
 		moveItem,
 		addItem,

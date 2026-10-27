@@ -152,9 +152,10 @@ export const ITEM_ROWS_PER_PAGE = 40;
 export function estimatePackage(
 	rooms: readonly RoomEstimateInput[],
 	withViews = true,
-	withPhotos = true
+	withPhotos = true,
+	floors = 0
 ): PackageEstimate {
-	let pages = 1 + Math.floor(rooms.length / 16);
+	let pages = 1 + Math.floor(rooms.length / 16) + floors;
 	let bytes = 0;
 	for (const room of rooms) {
 		pages += 1 + Math.ceil(room.walls / 2);

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Copy from '@lucide/svelte/icons/copy';
+	import Layers from '@lucide/svelte/icons/layers';
 	import Focus from '@lucide/svelte/icons/focus';
 	import Maximize from '@lucide/svelte/icons/maximize';
 	import Minimize2 from '@lucide/svelte/icons/minimize-2';
@@ -22,8 +23,11 @@
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
-	import { selectRoom, ui } from '#lib/state/ui.svelte.ts';
+	import { activeFloorId, selectRoom, ui } from '#lib/state/ui.svelte.ts';
+	import FloorsDialog from '#lib/features/projects/FloorsDialog.svelte';
+	import { floorsEnabled } from '#lib/core/floors.ts';
 	import Button from '#lib/ui/Button.svelte';
+	import Chip from '#lib/ui/Chip.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
 	import Dialog from '#lib/ui/Dialog.svelte';
 	import EmptyState from '#lib/ui/EmptyState.svelte';
@@ -62,8 +66,11 @@
 		snapToCentimetre
 	} from './rooms.ts';
 	import { connections } from './connections.svelte.ts';
+	import { planRooms, underlayRooms } from './floorView.ts';
 	import DockMarks from './DockMarks.svelte';
 	import LinkMarks from './LinkMarks.svelte';
+	import StairControls from '#lib/features/stairs/StairControls.svelte';
+	import StairLayer from '#lib/features/stairs/StairLayer.svelte';
 	import {
 		keptThicknesses,
 		magnetRange,
@@ -99,7 +106,12 @@
 	let confirmOpen = $state(false);
 	let confirmRoomId = $state<string | null>(null);
 
-	const rooms = $derived(store.project?.rooms ?? []);
+	let floorsOpen = $state(false);
+	const floorId = $derived(activeFloorId(store.project));
+	const floored = $derived(store.project ? floorsEnabled(store.project) : false);
+	const rooms = $derived(store.project ? planRooms(store.project, floorId) : []);
+	const underlay = $derived(store.project ? underlayRooms(store.project, floorId) : []);
+	const floorsTopDown = $derived([...(store.project?.floors ?? [])].reverse());
 	const ordered = $derived(
 		ui.selectedRoomId
 			? [
@@ -214,10 +226,35 @@
 		if (fittedFor === project.id) return;
 		fittedFor = project.id;
 		untrack(() => {
-			const box = roomsBox(project.rooms) ?? { minX: 0, minY: 0, maxX: 4000, maxY: 3000 };
+			const box = roomsBox(planRooms(project, activeFloorId(project))) ?? {
+				minX: 0,
+				minY: 0,
+				maxX: 4000,
+				maxY: 3000
+			};
 			cam = fitBox(box, size, insets, { margin: 56, maxK: 0.16 });
 		});
 	});
+
+	let lastFloor: string | undefined;
+	$effect(() => {
+		const id = floorId;
+		if (id === lastFloor) return;
+		const first = lastFloor === undefined;
+		lastFloor = id;
+		if (first) return;
+		untrack(() => {
+			if (ui.selectedRoomId && !rooms.some((room) => room.id === ui.selectedRoomId)) {
+				selectRoom(null);
+			}
+			ui.focusRoomId = null;
+			fitAll(0);
+		});
+	});
+
+	function chooseFloor(id: string): void {
+		ui.floorId = id;
+	}
 
 	let lastSelected: string | null = null;
 	let revealTimer: ReturnType<typeof setTimeout> | undefined;
@@ -804,6 +841,19 @@
 			<rect width="100%" height="100%" fill="url(#major-{uid})" pointer-events="none" />
 
 			<g transform="matrix({cam.k} 0 0 {-cam.k} {-cam.x * cam.k} {cam.y * cam.k})">
+				{#each underlay as room (room.id)}
+					<polygon
+						points={boardPolygon(room)
+							.map((corner) => `${corner.x},${corner.y}`)
+							.join(' ')}
+						class="fill-muted/10 stroke-muted"
+						stroke-width={2 / cam.k}
+						stroke-dasharray="{8 / cam.k} {6 / cam.k}"
+						opacity="0.55"
+						pointer-events="none"
+						data-testid="floor-underlay"
+					/>
+				{/each}
 				{#each ordered as room (room.id)}
 					{@const isSelected = selectedId === room.id}
 					{@const isFocused = ui.focusRoomId === room.id}
@@ -821,6 +871,7 @@
 						handles={build && isSelected && !placing && draggingRoomId === null}
 					/>
 				{/each}
+				<StairLayer k={cam.k} interactive={build && !placing} />
 				<LinkMarks {rooms} k={cam.k} dimmed={ui.focusRoomId !== null || draggingRoomId !== null} />
 				{#if contacts.length > 0}
 					<DockMarks {contacts} k={cam.k} {pulse} />
@@ -866,8 +917,37 @@
 					data-testid="focus-room"
 				/>
 			{/if}
+			{#if build && floored}
+				<IconButton
+					icon={Layers}
+					label={t(messages, 'floorsSettings')}
+					onclick={() => (floorsOpen = true)}
+					data-testid="open-floors"
+				/>
+			{/if}
 		</div>
+		{#if floored}
+			<div
+				class="pointer-events-auto flex flex-col gap-1.5"
+				role="group"
+				aria-label={t(messages, 'floorSwitcher')}
+				data-testid="floor-switcher"
+			>
+				{#each floorsTopDown as floor (floor.id)}
+					<Chip
+						selected={floor.id === floorId}
+						onclick={() => chooseFloor(floor.id)}
+						class="shadow-soft"
+						data-testid="floor-{floor.id}"
+					>
+						{floor.name}
+					</Chip>
+				{/each}
+			</div>
+		{/if}
 	</div>
+
+	<StairControls {build} />
 
 	{#if ui.focusRoomId}
 		<div
@@ -921,6 +1001,8 @@
 		/>
 	{/if}
 </div>
+
+<FloorsDialog bind:open={floorsOpen} />
 
 <Menu bind:open={menuOpen} x={menuX} y={menuY} items={menuItems} label={t(messages, 'menuLabel')} />
 

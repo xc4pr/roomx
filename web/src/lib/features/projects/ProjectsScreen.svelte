@@ -24,7 +24,6 @@
 		saveProject,
 		type ProjectSummary
 	} from '#lib/state/persistence.ts';
-	import { createProject } from '#lib/state/project.svelte.ts';
 	import { settings, updateSettings } from '#lib/state/settings.svelte.ts';
 	import { reportStorageError } from '#lib/state/storageErrors.ts';
 	import { syncState, type SyncStatus } from '#lib/state/sync.svelte.ts';
@@ -48,6 +47,11 @@
 	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
+	import { FLOOR_NAMES } from '#lib/core/defaults.ts';
+	import Chip from '#lib/ui/Chip.svelte';
+	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
+	import { createProjectWithFloors } from './create.ts';
+	import { DEFAULT_MULTI, toggleFloorName } from './floors.ts';
 	import { messages } from './i18n.ts';
 	import { installState, promptInstall } from './install.svelte.ts';
 	import { needsInstallGate, readEnvironment, shouldShowInstallHint } from './install.ts';
@@ -57,6 +61,8 @@
 	let projects = $state<ProjectSummary[] | null>(null);
 	let creating = $state(false);
 	let newName = $state('');
+	let floorMode = $state<'one' | 'many'>('one');
+	let pickedFloors = $state<string[]>([...DEFAULT_MULTI]);
 	let busy = $state(false);
 	let renaming = $state<ProjectSummary | null>(null);
 	let renameValue = $state('');
@@ -175,6 +181,8 @@
 			return;
 		}
 		newName = '';
+		floorMode = 'one';
+		pickedFloors = [...DEFAULT_MULTI];
 		creating = true;
 	}
 
@@ -183,6 +191,8 @@
 		showInstallHint = false;
 		gateOpen = false;
 		newName = '';
+		floorMode = 'one';
+		pickedFloors = [...DEFAULT_MULTI];
 		creating = true;
 	}
 
@@ -195,7 +205,10 @@
 		busy = true;
 		try {
 			const first = (projects?.length ?? 0) === 0;
-			const id = await createProject(newName.trim() || t(messages, 'defaultName'));
+			const id = await createProjectWithFloors(
+				newName.trim() || t(messages, 'defaultName'),
+				floorMode === 'many' && pickedFloors.length >= 2 ? pickedFloors : undefined
+			);
 			creating = false;
 			if (first) void requestPersistence();
 			await goto(resolve('/p/[id]', { id }));
@@ -439,11 +452,36 @@
 		onenter={() => void submitCreate()}
 		data-testid="project-name"
 	/>
+	<div class="mt-4 grid gap-2">
+		<SegmentedControl
+			label={t(messages, 'floorsQuestion')}
+			items={[
+				{ value: 'one', label: t(messages, 'floorsOne') },
+				{ value: 'many', label: t(messages, 'floorsMany') }
+			]}
+			bind:value={floorMode}
+			full
+		/>
+		{#if floorMode === 'many'}
+			<div class="flex flex-wrap gap-2" role="group" aria-label={t(messages, 'floorsPick')}>
+				{#each FLOOR_NAMES as name (name)}
+					<Chip
+						selected={pickedFloors.includes(name)}
+						onclick={() => (pickedFloors = toggleFloorName(pickedFloors, name))}
+						data-testid="new-floor-{name}"
+					>
+						{name}
+					</Chip>
+				{/each}
+			</div>
+		{/if}
+	</div>
 	{#snippet actions()}
 		<Button variant="ghost" onclick={() => (creating = false)}>{t(common, 'cancel')}</Button>
 		<Button
 			variant="primary"
 			loading={busy}
+			disabled={floorMode === 'many' && pickedFloors.length < 2}
 			onclick={() => void submitCreate()}
 			data-testid="create-project"
 		>

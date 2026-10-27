@@ -2,6 +2,8 @@
 	import Box from '@lucide/svelte/icons/box';
 	import BrickWall from '@lucide/svelte/icons/brick-wall';
 	import Camera from '@lucide/svelte/icons/camera';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import Focus from '@lucide/svelte/icons/focus';
 	import Footprints from '@lucide/svelte/icons/footprints';
@@ -17,10 +19,11 @@
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { roomFloorId } from '#lib/core/floors.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
-	import { ui } from '#lib/state/ui.svelte.ts';
-	import { createViewer } from '#lib/three/viewer.ts';
+	import { activeFloorId, ui } from '#lib/state/ui.svelte.ts';
+	import { createViewer, type RoomxViewer } from '#lib/three/viewer.ts';
 	import type { ContextPhase } from '#lib/three/viewer/context.ts';
 	import type { QualityTier } from '#lib/three/viewer/quality.ts';
 	import type {
@@ -69,7 +72,9 @@
 	const HINT_MS = 7000;
 
 	let canvas: HTMLCanvasElement | undefined = $state();
-	let viewer = $state.raw<SceneViewer | null>(null);
+	let viewer = $state.raw<RoomxViewer | null>(null);
+	let hiddenFloors = $state<string[]>([]);
+	let walkFloor = $state<string | undefined>();
 	let failed = $state(false);
 	let contextPhase = $state<ContextPhase>('ok');
 	let quality = $state<QualityTier>(0);
@@ -89,11 +94,28 @@
 	const selection = $derived(
 		picked ?? (roomId && rooms.some((room) => room.id === roomId) ? roomId : 'all')
 	);
+	const floors = $derived(store.project?.floors ?? []);
+	const roomShown = (room: (typeof rooms)[number]) => {
+		const id = store.project ? roomFloorId(store.project, room) : undefined;
+		return id === undefined || !hiddenFloors.includes(id);
+	};
 	const roomIds = $derived(
 		selection !== 'all' && rooms.some((room) => room.id === selection)
 			? [selection]
-			: rooms.map((room) => room.id)
+			: rooms.filter(roomShown).map((room) => room.id)
 	);
+	const floorsInView = $derived(
+		floors.filter((floor) =>
+			rooms.some(
+				(room) =>
+					roomIds.includes(room.id) &&
+					store.project &&
+					roomFloorId(store.project, room) === floor.id
+			)
+		)
+	);
+	const walkIndex = $derived(floorsInView.findIndex((floor) => floor.id === walkFloor));
+	const walkName = $derived(floors.find((floor) => floor.id === walkFloor)?.name ?? '');
 	const roomOptions = $derived([
 		...(rooms.length > 1 ? [{ value: 'all', label: t(messages, 'wholeApartment') }] : []),
 		...rooms.map((room, index) => ({
@@ -132,6 +154,11 @@
 	});
 
 	$effect(() => {
+		void projectId;
+		hiddenFloors = [];
+	});
+
+	$effect(() => {
 		const query = matchMedia('(pointer: coarse)');
 		coarse = query.matches;
 		const listener = (event: MediaQueryListEvent) => (coarse = event.matches);
@@ -156,7 +183,7 @@
 	$effect(() => {
 		const element = canvas;
 		if (!element) return;
-		let created: SceneViewer | null = null;
+		let created: RoomxViewer | null = null;
 		try {
 			created = untrack(() =>
 				createViewer(
@@ -195,7 +222,7 @@
 
 	$effect(() => {
 		if (!viewer) return;
-		const current: SceneViewer = viewer;
+		const current: RoomxViewer = viewer;
 		let applied: SceneSignature | null = null;
 		let lastApply = 0;
 		let lastRebuild = 0;
@@ -299,6 +326,25 @@
 	function setCameraMode(mode: CameraMode): void {
 		cameraMode = mode;
 		viewer?.setCameraMode(mode);
+		walkFloor = mode === 'walk' ? viewer?.walkFloorId() : undefined;
+	}
+
+	function startWalk(): void {
+		const wanted = activeFloorId(store.project);
+		viewer?.setWalkFloor(wanted && !hiddenFloors.includes(wanted) ? wanted : null);
+		setCameraMode('walk');
+	}
+
+	function stepFloor(direction: 1 | -1): void {
+		const id = viewer?.stepWalkFloor(direction);
+		if (!id) return;
+		walkFloor = id;
+		ui.floorId = id;
+	}
+
+	function toggleFloor(id: string): void {
+		if (hiddenFloors.includes(id)) hiddenFloors = hiddenFloors.filter((other) => other !== id);
+		else if (floors.length - hiddenFloors.length > 1) hiddenFloors = [...hiddenFloors, id];
 	}
 
 	async function capture(): Promise<void> {
@@ -428,10 +474,57 @@
 							/>
 						</div>
 					{/if}
+					{#if !walking && floors.length > 1 && selection === 'all'}
+						<div
+							class="pointer-events-auto flex items-center gap-1 rounded-full p-1 shadow-soft surface-glass"
+							role="group"
+							aria-label={t(messages, 'floors')}
+							data-testid="viewer-floors"
+						>
+							{#each floors as floor (floor.id)}
+								{@const shown = !hiddenFloors.includes(floor.id)}
+								<button
+									type="button"
+									class="inline-flex h-11 max-w-28 min-w-11 items-center justify-center rounded-full px-3 text-sm font-medium transition duration-(--duration-fast) ease-soft select-none active:scale-95 {shown
+										? 'bg-accent-soft text-accent'
+										: 'bg-transparent text-muted hover:bg-surface-2'}"
+									aria-pressed={shown}
+									title={t(messages, shown ? 'floorHide' : 'floorShow', { name: floor.name })}
+									aria-label={t(messages, shown ? 'floorHide' : 'floorShow', { name: floor.name })}
+									onclick={() => toggleFloor(floor.id)}
+									data-testid="floor-toggle"
+								>
+									<span class="truncate">{floor.name}</span>
+								</button>
+							{/each}
+						</div>
+					{/if}
 					<div
 						class="pointer-events-auto ms-auto flex items-center gap-1 rounded-full p-1 shadow-soft surface-glass"
 						data-testid="viewer-tools"
 					>
+						{#if walking && floorsInView.length > 1}
+							<IconButton
+								icon={ChevronDown}
+								label={t(messages, 'floorDown')}
+								disabled={walkIndex <= 0}
+								onclick={() => stepFloor(-1)}
+								data-testid="walk-floor-down"
+							/>
+							<span
+								class="max-w-24 truncate px-1 text-sm font-medium"
+								data-testid="walk-floor-name"
+							>
+								{walkName}
+							</span>
+							<IconButton
+								icon={ChevronUp}
+								label={t(messages, 'floorUp')}
+								disabled={walkIndex < 0 || walkIndex >= floorsInView.length - 1}
+								onclick={() => stepFloor(1)}
+								data-testid="walk-floor-up"
+							/>
+						{/if}
 						{#if !walking}
 							<IconButton
 								icon={PanelTop}
@@ -456,7 +549,7 @@
 							<IconButton
 								icon={Footprints}
 								label={t(messages, 'walk')}
-								onclick={() => setCameraMode('walk')}
+								onclick={startWalk}
 								data-testid="walk-enter"
 							/>
 							<IconButton

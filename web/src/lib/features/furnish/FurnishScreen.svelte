@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { planRooms } from '#lib/features/board/floorView.ts';
 	import Box from '@lucide/svelte/icons/box';
 	import ClipboardList from '@lucide/svelte/icons/clipboard-list';
 	import Map from '@lucide/svelte/icons/map';
@@ -13,7 +14,7 @@
 	import { common } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
-	import { selectRoom, ui } from '#lib/state/ui.svelte.ts';
+	import { activeFloorId, selectRoom, ui } from '#lib/state/ui.svelte.ts';
 	import type { SceneViewer, ViewInsets } from '#lib/three/types.ts';
 	import EmptyState from '#lib/ui/EmptyState.svelte';
 	import Fab from '#lib/ui/Fab.svelte';
@@ -56,7 +57,9 @@
 	let areaHeight = $state(0);
 	let areaWidth = $state(0);
 
-	const rooms = $derived(store.project?.rooms ?? []);
+	const rooms = $derived(
+		store.project ? planRooms(store.project, activeFloorId(store.project)) : []
+	);
 	const itemCount = $derived(store.activeVariant?.items.length ?? 0);
 	const selectedItem = $derived(ui.selectedItemId ? store.item(ui.selectedItemId) : undefined);
 

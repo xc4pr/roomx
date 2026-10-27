@@ -5,6 +5,7 @@ import { degToRad, MM, toWorld } from './coords.ts';
 import { buildFurniture } from './furniture/index.ts';
 import { railingRuns } from '#lib/core/outdoor.ts';
 import { buildRoom } from './room/index.ts';
+import { buildStack } from './stack/index.ts';
 import type { RoomInfo } from './room/index.ts';
 import {
 	furnitureSpec,
@@ -120,6 +121,8 @@ export function buildScene(
 		}
 	}
 
+	const stack = buildStack(content);
+	if (stack.children.length > 0) root.add(stack);
 	root.userData.lamps = lamps;
 	const roomObjects = [...roomGroups.values()].map((group) => group.children[0]);
 	return {
@@ -128,6 +131,7 @@ export function buildScene(
 		roomGroups,
 		dispose() {
 			for (const roomObject of roomObjects) disposeObject(roomObject);
+			disposeObject(stack);
 			root.removeFromParent();
 		}
 	};

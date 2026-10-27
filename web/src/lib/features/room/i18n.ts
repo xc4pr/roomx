@@ -3,6 +3,7 @@ import { defineMessages } from '#lib/i18n/index.svelte.ts';
 export const messages = defineMessages({
 	de: {
 		newRoomName: 'Raum {n}',
+		roomFloor: 'Stockwerk',
 		neighbours: 'Nachbarn',
 		neighbourLine: 'Wand {n} grenzt an {room} (Wand {m}), {length} gemeinsam',
 		neighbourJump: 'Zu {room} wechseln',
@@ -157,6 +158,7 @@ export const messages = defineMessages({
 	},
 	en: {
 		newRoomName: 'Room {n}',
+		roomFloor: 'Floor',
 		neighbours: 'Neighbours',
 		neighbourLine: 'Wall {n} borders {room} (wall {m}), {length} shared',
 		neighbourJump: 'Go to {room}',

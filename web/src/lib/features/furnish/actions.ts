@@ -1,3 +1,5 @@
+import { planRooms } from '#lib/features/board/floorView.ts';
+import { roomStairZones } from '#lib/features/stairs/logic.ts';
 import { lookup } from '#lib/catalog/index.ts';
 import type { CatalogEntry } from '#lib/core/catalog.ts';
 import {
@@ -11,7 +13,7 @@ import {
 import type { Brief, Item, Room } from '#lib/core/schema.ts';
 import { pick, t } from '#lib/i18n/index.svelte.ts';
 import { store } from '#lib/state/project.svelte.ts';
-import { selectRoom, ui } from '#lib/state/ui.svelte.ts';
+import { activeFloorId, selectRoom, ui } from '#lib/state/ui.svelte.ts';
 import { toasts } from '#lib/ui/toast.svelte.ts';
 import { messages } from './i18n.ts';
 import { itemFromCatalog, itemMount, type NewItem } from './place.ts';
@@ -54,7 +56,7 @@ export function thresholdFor(pxPerMm: number): number {
 }
 
 export function currentRoom(): Room | undefined {
-	const rooms = store.project?.rooms ?? [];
+	const rooms = store.project ? planRooms(store.project, activeFloorId(store.project)) : [];
 	return (
 		rooms.find((room) => room.id === ui.focusRoomId) ??
 		rooms.find((room) => room.id === ui.selectedRoomId) ??
@@ -113,14 +115,10 @@ function smartPlacement(subject: PlaceSubject, room: Room, others: Item[]): Plac
 			if (placed.onItemId) return placed;
 		}
 	}
-	const spot = findFreeSpot(
-		room,
-		others,
-		subject.dims,
-		subject.rotation,
-		undefined,
-		fixtureAreas(room)
-	);
+	const spot = findFreeSpot(room, others, subject.dims, subject.rotation, undefined, [
+		...fixtureAreas(room),
+		...roomStairZones(store.project, room).map((zone) => zone.shape)
+	]);
 	return computePlacement(subject, spot ?? interiorPoint(room.polygon), {
 		...context,
 		wallSnap: false,

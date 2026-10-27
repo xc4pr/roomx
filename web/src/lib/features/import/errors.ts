@@ -2,7 +2,8 @@ import type { ZodError } from 'zod';
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import type { Plan } from '#lib/core/plan.ts';
 import { itemRef, type PlanIssue } from '#lib/core/planResolve.ts';
-import type { Project } from '#lib/core/schema.ts';
+import { roomFloorId } from '#lib/core/floors.ts';
+import type { Project, Room } from '#lib/core/schema.ts';
 import type { Language } from '#lib/core/units.ts';
 import { elementKindNames } from '#lib/i18n/common.ts';
 import { LIMITS } from '#lib/security/limits.ts';
@@ -12,7 +13,7 @@ import { messages } from './i18n.ts';
 export type ImportKey = keyof (typeof messages)['de'];
 
 export interface DescribeContext {
-	project: Pick<Project, 'rooms'>;
+	project: Pick<Project, 'rooms' | 'floors'>;
 	lookup: CatalogLookup;
 	language: Language;
 }
@@ -38,13 +39,20 @@ function text(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() !== '' ? value : undefined;
 }
 
+export function floorNameOf(project: Pick<Project, 'floors'>, room: Room): string | undefined {
+	const floorId = roomFloorId(project, room);
+	return floorId ? project.floors?.find((floor) => floor.id === floorId)?.name : undefined;
+}
+
 export function roomLabel(
 	context: DescribeContext,
 	roomId: string | undefined,
 	fallback: string
 ): string {
 	const room = context.project.rooms.find((candidate) => candidate.id === roomId);
-	return room?.name || roomId || fallback;
+	const floor = room ? floorNameOf(context.project, room) : undefined;
+	const name = room?.name || roomId || fallback;
+	return floor ? `${name} (${floor})` : name;
 }
 
 export function itemLabel(

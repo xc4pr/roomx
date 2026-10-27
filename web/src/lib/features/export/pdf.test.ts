@@ -172,4 +172,43 @@ describe('buildPdf', () => {
 		});
 		expect(withBalcony.pageCount).toBeLessThan(without.pageCount);
 	}, 20_000);
+
+	it('adds one floor plan page per storey with stairs and groups the rooms', async () => {
+		const project = furnishedProject();
+		const flat = await buildPdf({ project, language: 'de', fonts });
+		project.floors = [
+			{ id: 'fl-eg', name: 'Erdgeschoss', slabThickness: 300 },
+			{ id: 'fl-og', name: 'Obergeschoss', slabThickness: 250 }
+		];
+		project.rooms[0]!.floorId = 'fl-eg';
+		project.rooms[1]!.floorId = 'fl-og';
+		project.rooms[1]!.boardPos = { x: 0, y: 0, rot: 0 };
+		project.stairs = [
+			{
+				id: 'st-1',
+				fromFloorId: 'fl-eg',
+				shape: 'u',
+				x: 1500,
+				y: 300,
+				rotation: 0,
+				width: 800,
+				turn: 'left'
+			}
+		];
+		for (const language of ['de', 'en'] as const) {
+			const result = await buildPdf({ project, language, fonts });
+			const doc = await PDFDocument.load(result.bytes);
+			expect(doc.getPageCount()).toBe(result.pageCount);
+			expect(result.pageCount).toBeGreaterThanOrEqual(flat.pageCount + 2);
+			expect(result.pageCount).toBeLessThanOrEqual(flat.pageCount + 3);
+		}
+		const single = await buildPdf({ project, roomIds: ['room-l'], language: 'de', fonts });
+		const none = await buildPdf({
+			project: { ...project, floors: undefined, stairs: undefined },
+			roomIds: ['room-l'],
+			language: 'de',
+			fonts
+		});
+		expect(single.pageCount).toBeGreaterThanOrEqual(none.pageCount + 1);
+	}, 20_000);
 });

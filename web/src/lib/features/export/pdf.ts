@@ -4,6 +4,7 @@ import { CATALOG_PRICES_AS_OF, lookup as catalogLookupDefault } from '#lib/catal
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import { mirroredOpenings, wallLinks, withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { areaM2 } from '#lib/core/defaults.ts';
+import { floorsEnabled, stairZonesForRoom, type StairZone } from '#lib/core/floors.ts';
 import { areaSummary, railingRuns } from '#lib/core/outdoor.ts';
 import {
 	cornerLabel,
@@ -36,6 +37,7 @@ import {
 	outdoorLegend,
 	planLegend
 } from './pdfPlan.ts';
+import { drawFloorPage, floorGroups, stairLegend } from './pdfFloors.ts';
 import { findingLines } from './pdfFindings.ts';
 import { roomOnlyLines, symbolLegend } from './pdfSymbols.ts';
 import { symbolTranslator } from './pdfText.ts';
@@ -139,7 +141,8 @@ function roomStats(ctx: PdfContext, room: Room): string {
 }
 
 function roomSubtitle(ctx: PdfContext, room: Room): string {
-	return `${roomTypeNames[ctx.language][room.type]} · ${ctx.tr('idLabel')} ${room.id}`;
+	const floor = ctx.floorNames?.get(room.id);
+	return `${floor ? `${floor} · ` : ''}${roomTypeNames[ctx.language][room.type]} · ${ctx.tr('idLabel')} ${room.id}`;
 }
 
 function drawTitlePage(ctx: PdfContext, project: Project, rooms: Room[], date: Date): void {
@@ -151,7 +154,16 @@ function drawTitlePage(ctx: PdfContext, project: Project, rooms: Room[], date: D
 	);
 	flow.paragraph(`${tr('idLabel')} ${project.id}`, { size: 8, color: ctx.palette.muted });
 	flow.heading(tr('sectionRooms'));
-	rooms.forEach((room, index) => {
+	const groups = floorsEnabled(project) ? floorGroups(project, rooms) : [];
+	const listed = groups.length > 0 ? groups.flatMap((group) => group.rooms) : rooms;
+	let floorOfList: string | undefined;
+	listed.forEach((room, index) => {
+		const group = groups.find((candidate) => candidate.rooms.includes(room));
+		if (group && group.floor.id !== floorOfList) {
+			floorOfList = group.floor.id;
+			flow.ensure(40);
+			flow.paragraph(group.floor.name, { size: 10.5, bold: true, color: ctx.palette.accent });
+		}
 		flow.paragraph(`${index + 1}. ${room.name}`, { size: 10, bold: true });
 		flow.paragraph(`${roomSubtitle(ctx, room)}`, { size: 8, color: ctx.palette.muted, indent: 12 });
 		flow.paragraph(roomStats(ctx, room), { size: 8.5, indent: 12 });
@@ -221,7 +233,7 @@ function wallText(ctx: PdfContext, room: Room): string {
 		.join(' · ');
 }
 
-function drawPlanPage(ctx: PdfContext, room: Room): void {
+function drawPlanPage(ctx: PdfContext, room: Room, stairZones: readonly StairZone[]): void {
 	const tr = ctx.tr;
 	const flow = new Flow(ctx, room.name, roomSubtitle(ctx, room));
 	flow.paragraph(roomStats(ctx, room), { size: 9.5, bold: true });
@@ -243,7 +255,8 @@ function drawPlanPage(ctx: PdfContext, room: Room): void {
 	flow.gap(4);
 	const legend = planLegend(ctx, false, hasSlopes(room), [
 		...symbolLegend(ctx, room.elements),
-		...outdoorLegend(ctx, [room])
+		...outdoorLegend(ctx, [room]),
+		...stairLegend(ctx, stairZones)
 	]);
 	const legendHeight = 20 + legendRows(ctx, CONTENT_WIDTH, legend) * 15;
 	const box = {
@@ -252,7 +265,7 @@ function drawPlanPage(ctx: PdfContext, room: Room): void {
 		w: CONTENT_WIDTH,
 		h: flow.y - (CONTENT_BOTTOM + legendHeight)
 	};
-	const result = drawRoomPlan(flow.page, ctx, room, { box, align: 'top' });
+	const result = drawRoomPlan(flow.page, ctx, room, { box, align: 'top', stairZones });
 	const legendTop = CONTENT_BOTTOM + legendHeight - 8;
 	drawLegend(flow.page, ctx, MARGIN, legendTop, CONTENT_WIDTH, legend);
 	drawText(
@@ -376,7 +389,13 @@ function drawFurnishPages(ctx: PdfContext, project: Project, room: Room): void {
 	const legendHeight = 4;
 	const planHeight = Math.min(430, flow.remaining - 120);
 	const box = { x: MARGIN, y: flow.y - planHeight, w: CONTENT_WIDTH, h: planHeight };
-	const result = drawRoomPlan(flow.page, ctx, room, { box, items, extraElements: suggestions });
+	const zones = floorsEnabled(project) ? stairZonesForRoom(project, room) : [];
+	const result = drawRoomPlan(flow.page, ctx, room, {
+		box,
+		items,
+		extraElements: suggestions,
+		stairZones: zones
+	});
 	flow.y = box.y - 10;
 	const legendEnd = drawLegend(
 		flow.page,
@@ -386,7 +405,8 @@ function drawFurnishPages(ctx: PdfContext, project: Project, room: Room): void {
 		CONTENT_WIDTH,
 		planLegend(ctx, true, hasSlopes(room), [
 			...symbolLegend(ctx, [...room.elements, ...suggestions]),
-			...outdoorLegend(ctx, [room])
+			...outdoorLegend(ctx, [room]),
+			...stairLegend(ctx, zones)
 		])
 	);
 	drawText(
@@ -409,7 +429,7 @@ function drawFurnishPages(ctx: PdfContext, project: Project, room: Room): void {
 		flow.gap(4);
 	}
 	if (items.length > 0) drawItemTable(ctx, flow, items);
-	const findings = findingLines(ctx, room, items, suggestions);
+	const findings = findingLines(ctx, room, items, suggestions, zones);
 	if (findings.length > 0) {
 		flow.heading(symbolTranslator(ctx.language)('findingsTitle'));
 		for (const line of findings) flow.paragraph(`- ${line}`, { size: 8.5, indent: 6 });
@@ -605,7 +625,9 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 	const rooms = project.rooms.filter((room) => !input.roomIds || input.roomIds.includes(room.id));
 	const photoCount =
 		input.includePhotos === false ? 0 : rooms.reduce((sum, room) => sum + room.photos.length, 0);
-	const total = 1 + rooms.length * 4 + photoCount;
+	const floored = floorsEnabled(project);
+	const groups = floored ? floorGroups(project, rooms) : [];
+	const total = 1 + groups.length + rooms.length * 4 + photoCount;
 	let done = 0;
 	const tick = () => input.onProgress?.({ done: Math.min(++done, total), total });
 	input.onProgress?.({ done: 0, total });
@@ -660,13 +682,26 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 		project.rooms.filter(isOutdoor).map((room) => [room.id, railingRuns(project.rooms, room)])
 	);
 
+	if (floored) {
+		ctx.floorNames = new Map(
+			groups.flatMap((group) => group.rooms.map((room) => [room.id, group.floor.name] as const))
+		);
+	}
 	drawTitlePage(ctx, project, rooms, date);
 	tick();
 
-	for (const source of rooms) {
+	const ordered = floored ? groups.flatMap((group) => group.rooms) : rooms;
+	let currentFloor: string | undefined;
+	for (const source of ordered) {
 		const room = connected.get(source.id) ?? source;
 		input.signal?.throwIfAborted();
-		drawPlanPage(ctx, room);
+		const group = groups.find((candidate) => candidate.rooms.includes(source));
+		if (group && group.floor.id !== currentFloor) {
+			currentFloor = group.floor.id;
+			drawFloorPage(ctx, project, group);
+			tick();
+		}
+		drawPlanPage(ctx, room, floored ? stairZonesForRoom(project, room) : []);
 		if (!isOpenAir(room) || room.elements.some(isWallElement)) drawWallPages(ctx, room);
 		tick();
 		input.signal?.throwIfAborted();

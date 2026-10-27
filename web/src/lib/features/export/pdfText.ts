@@ -30,7 +30,9 @@ export const symbolMessages = defineMessages({
 		findingsTitle: 'Hinweise zu Sperrzonen und Einbauten',
 		findFire: 'Möbel {item} steht in der Sperrzone vor {element}.',
 		findAir: 'Möbel {item} steht vor dem Luftauslass von {element}.',
-		findCollision: 'Möbel {item} kollidiert mit {element}.'
+		findCollision: 'Möbel {item} kollidiert mit {element}.',
+		findStair: 'Möbel {item} steht auf der Treppe.',
+		findStairwell: 'Möbel {item} steht im Treppenauge.'
 	},
 	en: {
 		legendDormer: 'Dormer or cut in the slope (dashed)',
@@ -59,7 +61,9 @@ export const symbolMessages = defineMessages({
 		findingsTitle: 'Notes on clearance zones and fixtures',
 		findFire: 'Item {item} stands in the clearance zone in front of {element}.',
 		findAir: 'Item {item} stands in front of the air outlet of {element}.',
-		findCollision: 'Item {item} collides with {element}.'
+		findCollision: 'Item {item} collides with {element}.',
+		findStair: 'Item {item} stands on the stair.',
+		findStairwell: 'Item {item} stands in the stairwell.'
 	}
 });
 

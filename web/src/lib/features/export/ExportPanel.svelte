@@ -4,6 +4,7 @@
 	import Box from '@lucide/svelte/icons/box';
 	import Check from '@lucide/svelte/icons/check';
 	import Copy from '@lucide/svelte/icons/copy';
+	import { roomFloorId } from '#lib/core/floors.ts';
 	import FileArchive from '@lucide/svelte/icons/file-archive';
 	import Download from '@lucide/svelte/icons/download';
 	import Package from '@lucide/svelte/icons/package';
@@ -117,7 +118,13 @@
 					items: items.filter((item) => item.roomId === room.id).length
 				})),
 			true,
-			!withoutPhotos
+			!withoutPhotos,
+			new Set(
+				rooms
+					.filter((room) => roomIds.includes(room.id))
+					.map((room) => (project ? roomFloorId(project, room) : undefined))
+					.filter((id) => id !== undefined)
+			).size
 		);
 	});
 	const busy = $derived(job !== null);

@@ -36,6 +36,7 @@
 	import { messages } from './i18n.ts';
 	import { clearances, narrowPassages } from './passage.ts';
 	import { session } from './session.svelte.ts';
+	import { roomStairZones } from '#lib/features/stairs/logic.ts';
 	import { computePlacement, snapRotation, type Guide } from './snap.ts';
 	import { planLabel, type LabelPlan } from './labels.ts';
 	import { isRound, symbolShapes } from './symbols.ts';
@@ -66,7 +67,8 @@
 			.map((suggestion) => suggestion.element)
 	);
 	const connected = $derived(connections.withNeighbourOpenings(room));
-	const issues = $derived(checkRoomItems(connected, items, suggestionElements));
+	const stairZones = $derived(roomStairZones(store.project, room));
+	const issues = $derived(checkRoomItems(connected, items, suggestionElements, stairZones));
 	const issueMap = $derived.by(() => {
 		const map = new Map<string, ItemIssue[]>();
 		for (const issue of issues) {
@@ -291,9 +293,12 @@
 			elevation: placement.elevation,
 			...(placement.onItemId ? { onItemId: placement.onItemId } : {})
 		};
-		const blocked = checkRoomItems(connected, [...items, probe], suggestionElements).some(
-			(issue) => issue.itemIds.includes('__ghost') && issue.severity === 'error'
-		);
+		const blocked = checkRoomItems(
+			connected,
+			[...items, probe],
+			suggestionElements,
+			stairZones
+		).some((issue) => issue.itemIds.includes('__ghost') && issue.severity === 'error');
 		return { placement, probe, valid: placement.inside && !blocked };
 	});
 

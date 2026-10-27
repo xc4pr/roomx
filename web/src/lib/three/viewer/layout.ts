@@ -10,6 +10,7 @@ import {
 	dot,
 	type Vec
 } from '#lib/core/geometry.ts';
+import { floorLevels, floorsEnabled, roomFloorId } from '#lib/core/floors.ts';
 import { isOutdoor, type Room, type Variant } from '#lib/core/schema.ts';
 import { MM, roomOrigin, toWorld } from '../coords.ts';
 import type { FloorHit, SceneContent, SharedOpenings, WallSection } from '../types.ts';
@@ -18,6 +19,14 @@ export interface RoomFrame {
 	room: Room;
 	origin: Vector3;
 	rotationY: number;
+	// Height of the room's floor above the lowest floor (mm); 0 without floors.
+	level: number;
+	floorId?: string;
+}
+
+// Floors stack only when rooms are arranged by board position; a single room keeps its own coordinates.
+export function stackedFloors(content: SceneContent): boolean {
+	return content.roomIds.length > 1 && floorsEnabled(content.project);
 }
 
 export function sceneVariant(content: SceneContent): Variant | undefined {
@@ -109,9 +118,14 @@ export function sharedSections(content: SceneContent): Map<string, WallSection[]
 export function roomFrames(content: SceneContent): RoomFrame[] {
 	const rooms = sceneRooms(content);
 	const arranged = content.roomIds.length > 1;
+	const stacked = stackedFloors(content);
+	const levels = stacked ? floorLevels(content.project) : undefined;
 	return rooms.map((room) => {
 		const origin = roomOrigin(room, arranged);
-		return { room, origin: origin.position, rotationY: origin.rotationY };
+		const floorId = stacked ? roomFloorId(content.project, room) : undefined;
+		const level = (floorId !== undefined ? levels?.get(floorId) : undefined) ?? 0;
+		origin.position.y = level * MM;
+		return { room, origin: origin.position, rotationY: origin.rotationY, level, floorId };
 	});
 }
 
@@ -147,6 +161,10 @@ export function layoutBounds(frames: readonly RoomFrame[]): Box3 {
 		}
 	}
 	return box;
+}
+
+export function framesOnLevel(frames: readonly RoomFrame[], level: number): RoomFrame[] {
+	return frames.filter((frame) => frame.level === level);
 }
 
 export function floorAt(frames: readonly RoomFrame[], x: number, z: number): FloorHit | null {
@@ -206,7 +224,9 @@ export function clampedFloorAt(
 	};
 }
 
-export function footprintPoints(frames: readonly RoomFrame[]): { x: number; z: number }[][] {
+export function footprintPoints(
+	frames: readonly RoomFrame[]
+): { x: number; y: number; z: number }[][] {
 	return frames.map((frame) => {
 		const margin = WALL_THICKNESS * 1.1;
 		const center = frame.room.polygon.reduce(
@@ -224,7 +244,7 @@ export function footprintPoints(frames: readonly RoomFrame[]): { x: number; z: n
 				{ x: point.x + (away.x / length) * margin, y: point.y + (away.y / length) * margin },
 				0
 			);
-			return { x: world.x, z: world.z };
+			return { x: world.x, y: world.y, z: world.z };
 		});
 	});
 }

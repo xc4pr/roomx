@@ -5,6 +5,7 @@ import { sequentialIds } from './ids.ts';
 import { rectangleRoom, sampleProject } from './fixtures.ts';
 import { wholeCover } from './outdoor.ts';
 import type { Project, RoomElement } from './schema.ts';
+import { stairZonesForRoom } from './floors.ts';
 
 function withElements(...kinds: [RoomElement['kind'], number, number][]): Project {
 	const project = sampleProject();
@@ -225,5 +226,89 @@ describe('buildExport with outdoor areas', () => {
 		const document = buildExport(sampleProject(), { exportedAt: NOW });
 		expect(document.areas).toBeUndefined();
 		expect(document.rooms.every((room) => room.outdoor === undefined)).toBe(true);
+	});
+});
+
+describe('buildExport with storeys', () => {
+	function twoStoreys(): Project {
+		const project = sampleProject();
+		project.floors = [
+			{ id: 'fl-eg', name: 'EG', slabThickness: 300 },
+			{ id: 'fl-og', name: '1. OG', slabThickness: 250 }
+		];
+		project.rooms[0]!.floorId = 'fl-eg';
+		project.rooms[1]!.floorId = 'fl-og';
+		project.rooms[1]!.boardPos = { x: 0, y: 0, rot: 0 };
+		project.stairs = [
+			{
+				id: 'st-1',
+				fromFloorId: 'fl-eg',
+				shape: 'straight',
+				x: 3000,
+				y: 200,
+				rotation: 0,
+				width: 900,
+				turn: 'left'
+			}
+		];
+		return project;
+	}
+
+	it('exports a project without storeys exactly as before', () => {
+		const document = buildExport(sampleProject(), { exportedAt: NOW });
+		expect(document.floors).toBeUndefined();
+		expect(document.stairs).toBeUndefined();
+		for (const room of document.rooms) {
+			expect(room.floorId).toBeUndefined();
+			expect(room.floorName).toBeUndefined();
+			expect(room.stairZones).toBeUndefined();
+		}
+	});
+
+	it('lists floors with level, clear height and slab, and names the storey of every room', () => {
+		const document = buildExport(twoStoreys(), { exportedAt: NOW });
+		expect(document.floors).toEqual([
+			{ id: 'fl-eg', name: 'EG', order: 1, level: 0, clearHeight: 2500, slabThickness: 300 },
+			{ id: 'fl-og', name: '1. OG', order: 2, level: 2800, clearHeight: 2500, slabThickness: 250 }
+		]);
+		expect(document.rooms.map((room) => [room.floorId, room.floorName])).toEqual([
+			['fl-eg', 'EG'],
+			['fl-og', '1. OG']
+		]);
+		expect(ExportSchema.parse(JSON.parse(JSON.stringify(document)))).toEqual(document);
+	});
+
+	it('lists stairs with steps, riser and tread and the stair zones per room', () => {
+		const project = twoStoreys();
+		const document = buildExport(project, { exportedAt: NOW });
+		const stair = document.stairs![0]!;
+		expect(stair).toMatchObject({
+			id: 'st-1',
+			shape: 'straight',
+			fromFloorId: 'fl-eg',
+			toFloorId: 'fl-og'
+		});
+		expect(stair.height).toBe(2800);
+		expect(stair.steps).toBe(16);
+		expect(stair.riser).toBe(175);
+		expect(stair.tread).toBe(280);
+		const lower = document.rooms[0]!;
+		const upper = document.rooms[1]!;
+		expect(lower.stairZones!.length).toBeGreaterThan(0);
+		expect(
+			lower.stairZones!.every((zone) => zone.kind === 'stair' && zone.stairId === 'st-1')
+		).toBe(true);
+		expect(upper.stairZones!.length).toBeGreaterThan(0);
+		expect(upper.stairZones!.every((zone) => zone.kind === 'stairwell')).toBe(true);
+		const expected = stairZonesForRoom(project, project.rooms[0]!);
+		expect(lower.stairZones).toHaveLength(expected.length);
+		expect(ExportSchema.parse(JSON.parse(JSON.stringify(document)))).toEqual(document);
+	});
+
+	it('keeps floors and stairs when only some rooms are exported', () => {
+		const document = buildExport(twoStoreys(), { exportedAt: NOW, roomIds: ['room-l'] });
+		expect(document.rooms).toHaveLength(1);
+		expect(document.floors).toHaveLength(2);
+		expect(document.stairs).toHaveLength(1);
 	});
 });

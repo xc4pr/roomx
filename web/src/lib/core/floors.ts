@@ -151,8 +151,12 @@ function localTreads(stair: Stair, risers: Risers): { treads: LocalTread[]; arri
 	const treadCount = Math.max(1, risers.count - 1);
 	const side = stair.turn === 'left' ? -1 : 1;
 	const treads: LocalTread[] = [];
-	const push = (polygon: Vec[], landing = false) =>
-		treads.push({ polygon, riser: treads.length + 1, landing });
+	let riser = 0;
+	// sameStep: another part of the same landing (U stairs), at the same height.
+	const push = (polygon: Vec[], landing = false, sameStep = false) => {
+		if (!sameStep) riser++;
+		treads.push({ polygon, riser, landing });
+	};
 
 	if (stair.shape === 'straight') {
 		for (let i = 0; i < treadCount; i++) push(rect(-w / 2, w / 2, i * t, (i + 1) * t));
@@ -195,8 +199,8 @@ function localTreads(stair: Stair, risers: Risers): { treads: LocalTread[]; arri
 		// The landing in three parts (above each flight and above the eye) so that its edges meet
 		// the flights edge to edge.
 		push(rect(-w / 2, w / 2, y0, y0 + w), true);
-		push(rect(side * (w / 2), side * (w / 2 + U_EYE), y0, y0 + w), true);
-		push(rect(back - w / 2, back + w / 2, y0, y0 + w), true);
+		push(rect(side * (w / 2), side * (w / 2 + U_EYE), y0, y0 + w), true, true);
+		push(rect(back - w / 2, back + w / 2, y0, y0 + w), true, true);
 		for (let j = 0; j < second; j++)
 			push(rect(back - w / 2, back + w / 2, y0 - (j + 1) * t, y0 - j * t));
 		const y = y0 - second * t;

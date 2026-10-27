@@ -8,6 +8,7 @@
 	import Chip from '#lib/ui/Chip.svelte';
 	import Tabs from '#lib/ui/Tabs.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
+	import FloorSection from './FloorSection.svelte';
 	import DimsTab from './DimsTab.svelte';
 	import { fresh } from './fresh.svelte.ts';
 	import { messages } from './i18n.ts';
@@ -88,6 +89,8 @@
 					</Chip>
 				{/each}
 			</div>
+
+			<FloorSection {room} />
 
 			<KitchenSection {room} />
 		{/if}

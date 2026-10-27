@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { roomStairZones } from '#lib/features/stairs/logic.ts';
 	import Copy from '@lucide/svelte/icons/copy';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import RotateCw from '@lucide/svelte/icons/rotate-cw';
@@ -48,7 +49,8 @@
 		const issues = checkRoomItems(
 			connections.withNeighbourOpenings(room),
 			items,
-			suggestions
+			suggestions,
+			roomStairZones(store.project, room)
 		).filter((issue) => issue.itemIds.includes(item.id));
 		const lines = issues.map((issue) => ({
 			text: describe(issue, item),

@@ -369,3 +369,60 @@ describe('fixed built-ins in the preview', () => {
 		);
 	});
 });
+
+describe('analyzePlanText with storeys', () => {
+	function storeyOptions(): AnalyzeOptions {
+		const base = options();
+		const project = base.project;
+		project.floors = [
+			{ id: 'fl-eg', name: 'EG', slabThickness: 300 },
+			{ id: 'fl-og', name: '1. OG', slabThickness: 250 }
+		];
+		project.rooms[0]!.floorId = 'fl-eg';
+		project.rooms[1]!.floorId = 'fl-og';
+		project.stairs = [
+			{
+				id: 'st-1',
+				fromFloorId: 'fl-eg',
+				shape: 'straight',
+				x: 2000,
+				y: 0,
+				rotation: 0,
+				width: 3500,
+				turn: 'left'
+			}
+		];
+		return base;
+	}
+
+	it('reports furniture on a stair as a conflict and names the storey', () => {
+		const result = analyzePlanText(planJson(), storeyOptions());
+		if (result.status !== 'ready') throw new Error(result.status);
+		const room = result.preview[0].rooms[0];
+		expect(room.floorName).toBe('EG');
+		const onStair = room.errors.filter((conflict) => conflict.code === 'onStair');
+		expect(onStair.length).toBeGreaterThan(0);
+		expect(onStair[0]!.text).toContain('Treppe');
+	});
+
+	it('reports furniture in the stairwell of the upper storey', () => {
+		const opts = storeyOptions();
+		opts.project.rooms[1]!.boardPos = { x: 0, y: 0, rot: 0 };
+		opts.project.rooms[0]!.floorId = 'fl-og';
+		opts.project.rooms[1]!.floorId = 'fl-eg';
+		opts.project.stairs![0]!.fromFloorId = 'fl-eg';
+		const result = analyzePlanText(planJson(), opts);
+		if (result.status !== 'ready') throw new Error(result.status);
+		const codes = result.preview[0].rooms[0].errors.map((conflict) => conflict.code);
+		expect(codes).toContain('inStairwell');
+	});
+
+	it('does not mention storeys in a project without them', () => {
+		const result = analyzePlanText(planJson(), options());
+		if (result.status !== 'ready') throw new Error(result.status);
+		expect(result.preview[0].rooms[0].floorName).toBeUndefined();
+		expect(result.preview[0].rooms[0].errors.map((conflict) => conflict.code)).not.toContain(
+			'onStair'
+		);
+	});
+});

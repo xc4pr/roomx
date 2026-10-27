@@ -8,12 +8,14 @@
 	import Sofa from '@lucide/svelte/icons/sofa';
 	import Undo2 from '@lucide/svelte/icons/undo-2';
 	import Box from '@lucide/svelte/icons/box';
+	import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { ensureFullCatalog, fullCatalog } from '#lib/catalog/full.svelte.ts';
 	import BuildCheck from '#lib/features/board/BuildCheck.svelte';
+	import FloorsDialog from '#lib/features/projects/FloorsDialog.svelte';
 	import { messages as projectMessages } from '#lib/features/projects/i18n.ts';
 	import { openShortcuts } from '#lib/features/settings/shortcuts.svelte.ts';
 	import { messages as settingsMessages } from '#lib/features/settings/i18n.ts';
@@ -39,6 +41,7 @@
 
 	let status = $state<'loading' | 'ready' | 'missing' | 'failed'>('loading');
 	let checking = $state(false);
+	let projectSettingsOpen = $state(false);
 	const phone = media(PHONE_PORTRAIT_QUERY);
 	const keyboard = keyboardLikely();
 
@@ -172,6 +175,12 @@
 			>
 				{store.project.name}
 			</h1>
+			<IconButton
+				icon={SlidersHorizontal}
+				label={t(common, 'projectSettings')}
+				onclick={() => (projectSettingsOpen = true)}
+				data-testid="project-settings"
+			/>
 			{#if !phone.matches}
 				<nav
 					aria-label={t(common, 'mainNavigation')}
@@ -235,6 +244,7 @@
 		{/if}
 	</div>
 	<BuildCheck bind:open={checking} onproceed={openBuilt} />
+	<FloorsDialog bind:open={projectSettingsOpen} />
 {:else}
 	<div class="flex h-full items-center justify-center text-accent">
 		<ProgressRing size={44} stroke={4} />

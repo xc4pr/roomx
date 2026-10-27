@@ -39,6 +39,7 @@ export interface PdfContext {
 	known: ReadonlySet<number>;
 	knownBold: ReadonlySet<number>;
 	links?: PdfLinks;
+	floorNames?: ReadonlyMap<string, string>;
 	railings?: ReadonlyMap<string, readonly { wall: number; from: number; to: number }[]>;
 }
 

@@ -1,4 +1,5 @@
 import { withMirroredOpenings } from '#lib/core/adjacency.ts';
+import { stairZonesForRoom } from '#lib/core/floors.ts';
 import { checkRoomItems, type ItemIssue } from '#lib/core/checks.ts';
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import type { Plan } from '#lib/core/plan.ts';
@@ -13,7 +14,7 @@ import {
 import { formatLength, type Language, type LengthUnit } from '#lib/core/units.ts';
 import { translator, type Translate } from '#lib/features/export/text.ts';
 import { elementKindNames } from '#lib/i18n/common.ts';
-import { describePlanIssue, type ImportKey, type ReadableIssue } from './errors.ts';
+import { describePlanIssue, floorNameOf, type ImportKey, type ReadableIssue } from './errors.ts';
 import { messages } from './i18n.ts';
 
 const FURNITURE: readonly ItemCategory[] = [
@@ -48,6 +49,7 @@ export interface PreviewConflict {
 export interface PreviewRoom {
 	roomId: string;
 	name: string;
+	floorName?: string;
 	furniture: number;
 	decor: number;
 	devices: number;
@@ -162,17 +164,23 @@ export function buildPreview(
 			for (const item of roomItems) counts[itemGroup(item.category)]++;
 			const sockets = suggestions.filter((element) => element.kind === 'socket').length;
 			const electrical = suggestions.length - sockets;
-			const conflicts = checkRoomItems(room, variant.items, suggestions).map(
-				(issue): PreviewConflict => ({
-					code: issue.code,
-					severity: issue.severity,
-					text: conflictText(issue, room, items, options, tr)
-				})
-			);
+			const conflicts = checkRoomItems(
+				room,
+				variant.items,
+				suggestions,
+				stairZonesForRoom(options.project, room)
+			).map((issue): PreviewConflict => ({
+				code: issue.code,
+				severity: issue.severity,
+				text: conflictText(issue, room, items, options, tr)
+			}));
 			const base = { ...counts, sockets, electrical };
 			return {
 				roomId,
 				name: room.name,
+				...(floorNameOf(options.project, room)
+					? { floorName: floorNameOf(options.project, room) }
+					: {}),
 				...base,
 				errors: conflicts.filter((conflict) => conflict.severity === 'error'),
 				warnings: conflicts.filter((conflict) => conflict.severity === 'warning'),

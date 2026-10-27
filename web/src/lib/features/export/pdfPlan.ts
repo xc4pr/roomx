@@ -24,6 +24,7 @@ import {
 	type RoomElement,
 	type WallElement
 } from '#lib/core/schema.ts';
+import type { StairZone } from '#lib/core/floors.ts';
 import { elementKindNames } from '#lib/i18n/common.ts';
 import {
 	applyFit,
@@ -66,6 +67,7 @@ export interface PlanOptions {
 	align?: 'center' | 'top';
 	items?: readonly Item[];
 	extraElements?: readonly RoomElement[];
+	stairZones?: readonly StairZone[];
 }
 
 export interface PlanResult {
@@ -471,6 +473,21 @@ export function outdoorLegend(ctx: PdfContext, rooms: readonly Room[]): LegendEn
 	return entries;
 }
 
+export function drawStairZone(page: PDFPage, ctx: PdfContext, zone: StairZone, fit: Fit): void {
+	const stair = zone.kind === 'stair';
+	polygon(
+		page,
+		zone.shape.map((p) => toPage(fit, p)),
+		{
+			fill: stair ? ctx.palette.accent : ctx.palette.fire,
+			fillOpacity: stair ? 0.16 : 0.1,
+			color: stair ? ctx.palette.accent : ctx.palette.fire,
+			width: 0.6,
+			...(stair ? {} : { dash: [3, 2] })
+		}
+	);
+}
+
 export function drawRoomPlan(
 	page: PDFPage,
 	ctx: PdfContext,
@@ -488,6 +505,7 @@ export function drawRoomPlan(
 
 	const elements = [...room.elements, ...(options.extraElements ?? [])];
 	drawZones(page, ctx, room, elements, fit);
+	for (const zone of options.stairZones ?? []) drawStairZone(page, ctx, zone, fit);
 	for (const element of elements) {
 		if (element.kind === 'builtin' || element.kind === 'obstacle' || element.kind === 'radiator') {
 			drawFixture(page, ctx, room, element, fit);

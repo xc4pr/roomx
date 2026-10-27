@@ -64,20 +64,23 @@ export function shapeOfBox(box: Box3): FitShape {
 
 // Footprint points (floor and fitting height) of rooms in world space; empty input falls back to a default box.
 export function shapeOfFootprints(
-	footprints: readonly (readonly { x: number; z: number }[])[],
+	footprints: readonly (readonly { x: number; y?: number; z: number }[])[],
 	roomHeight: number
 ): FitShape {
-	const height = Math.min(roomHeight, FIT_HEIGHT);
+	const rise = Math.min(roomHeight, FIT_HEIGHT);
 	const points: Vector3[] = [];
 	const box = new Box3();
+	let top = rise;
 	for (const footprint of footprints) {
 		for (const point of footprint) {
-			points.push(new Vector3(point.x, 0, point.z), new Vector3(point.x, height, point.z));
-			box.expandByPoint(new Vector3(point.x, 0, point.z));
+			const base = point.y ?? 0;
+			points.push(new Vector3(point.x, base, point.z), new Vector3(point.x, base + rise, point.z));
+			box.expandByPoint(new Vector3(point.x, base, point.z));
+			top = Math.max(top, base + rise);
 		}
 	}
 	if (points.length === 0) return shapeOfBox(new Box3());
-	return { points, center: box.getCenter(new Vector3()), height };
+	return { points, center: box.getCenter(new Vector3()), height: top };
 }
 
 // Smallest distance along the viewing direction at which the shape is fully visible.

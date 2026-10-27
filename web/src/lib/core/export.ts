@@ -11,6 +11,14 @@ import {
 	kitchenModuleSpans
 } from './elements.ts';
 import {
+	floorClearHeight,
+	floorLevels,
+	floorsEnabled,
+	roomFloorId,
+	stairContext,
+	stairZonesForRoom
+} from './floors.ts';
+import {
 	cornerLabel,
 	doorSwing,
 	freeWallSpans,
@@ -43,6 +51,7 @@ import {
 	KITCHEN_APPLIANCES,
 	KITCHEN_GRIDS,
 	KITCHEN_MODULE_KINDS,
+	STAIR_SHAPES,
 	isFreeElement,
 	isOpenAir,
 	isOutdoor,
@@ -73,6 +82,7 @@ export const FORMAT_GUIDE = [
 	'Rooms under a roof may list "slopes": the ceiling starts on that wall at "kneeHeight" and rises into the room at "angleDeg" until it meets the flat ceiling at "fullHeightAt" mm from the wall; "standingHeightAt" is the distance from the wall where 2000 mm clear height is reached. A slope with "from"/"to" covers only that stretch of the wall (measured from the wall start corner); beyond it the ceiling is flat. A wall may carry several slopes. "dormers" are stretches "from"-"to" along the wall where the ceiling is at least "height" high (a dormer as high as the room cuts the slope completely); with "openingCut": true the cut was derived from a door or window taller than the knee wall. Clear height at a point = the lowest value over all slopes, raised by the dormers. Furniture must fit under the slope; where the ceiling is higher inside a dormer, taller furniture may stand there.',
 	'"roofWindows" lists windows in a sloped ceiling: "wall", "offsetFromStart" and "width" along the wall, "length" up the slope, "elevation" (lower edge above the floor), "top" (upper edge) and "floorPolygon", the projection of the window onto the floor. A roof window is a window: it is a light source, so keep the area below it as free as possible and mind the height there. It is fixed like a wall window and "windowZones" lists wall windows only.',
 	'Rooms of type balcony, terrace, garden and winterGarden have "outdoor": true: they do not count towards the living area and take garden furniture. Balcony, terrace and garden also have "openAir": true: no walls and no ceiling, the "walls" are only the edges of the outline (a neighbour on an edge is the house). Without a ceiling "height" is not a limit; a height limit applies only under the "cover" (polygon in room coordinates and its "height"), the roof over a part of the area. A "railing" has its "height" and "runs" (stretches "from"-"to" along a wall); keep it free: place nothing against it and nothing a child could climb on. "areas" gives the living area and the outdoor area of the project separately in m2.',
+	'A project with several storeys lists "floors" from the lowest up: "level" is the height of its floor above the lowest floor, "clearHeight" the room height and "slabThickness" the ceiling slab. Every room names its storey ("floorId", "floorName"); rooms on different storeys are not connected and each has its own coordinate system. "stairs" lists the stairs: "fromFloorId" to "toFloorId", "shape", "steps" (risers), "riser" and "tread" in mm and "height" (floor to floor). "stairZones" of a room are floor areas, "kind" stair (the treads of a stair that starts on this storey) or stairwell (the opening in the floor where a stair arrives from below), as "polygon" in room coordinates: nothing may stand there, furniture in them is an error. Mind the head height above every stair.',
 	'A furnishing plan is returned in the "roomx-plan" format and refers to rooms by "id"; items with "locked": true must not be moved or removed.'
 ].join(' ');
 
@@ -140,6 +150,37 @@ export const ExportWallSchema = z.object({
 		.optional()
 });
 
+export const ExportFloorSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	order: z.number().int(),
+	level: Mm,
+	clearHeight: Mm,
+	slabThickness: Mm
+});
+
+export const ExportStairSchema = z.object({
+	id: z.string(),
+	shape: z.enum(STAIR_SHAPES),
+	fromFloorId: z.string(),
+	toFloorId: z.string().optional(),
+	x: Mm,
+	y: Mm,
+	rotation: z.number(),
+	width: Mm,
+	turn: z.enum(['left', 'right']),
+	height: Mm.optional(),
+	steps: z.number().int().optional(),
+	riser: z.number().optional(),
+	tread: Mm.optional()
+});
+
+export const ExportStairZoneSchema = z.object({
+	kind: z.enum(['stair', 'stairwell']),
+	stairId: z.string(),
+	polygon: z.array(PointSchema)
+});
+
 const VolumeSchema = z.object({ polygon: z.array(PointSchema), bottom: Mm, top: Mm });
 
 export const ExportFreeElementSchema = z.object({
@@ -179,6 +220,8 @@ export const ExportRoomSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	type: RoomTypeSchema,
+	floorId: z.string().optional(),
+	floorName: z.string().optional(),
 	height: Mm,
 	areaM2: z.number(),
 	perimeter: Mm,
@@ -254,6 +297,7 @@ export const ExportRoomSchema = z.object({
 		.optional(),
 	freeElements: z.array(ExportFreeElementSchema).optional(),
 	keepClear: ExportKeepClearSchema.optional(),
+	stairZones: z.array(ExportStairZoneSchema).optional(),
 	kitchen: z
 		.object({ open: z.boolean().optional(), mode: z.enum(['builtin', 'catalog']).optional() })
 		.optional(),
@@ -298,6 +342,8 @@ export const ExportSchema = z.object({
 	project: z.object({ id: z.string(), name: z.string() }),
 	brief: BriefSchema.optional(),
 	areas: z.object({ livingM2: z.number(), outdoorM2: z.number() }).optional(),
+	floors: z.array(ExportFloorSchema).optional(),
+	stairs: z.array(ExportStairSchema).optional(),
 	rooms: z.array(ExportRoomSchema),
 	variants: z.array(ExportVariantSchema)
 });
@@ -402,8 +448,14 @@ export function exportRoom(
 	photoPages: Readonly<Record<string, number>> = {},
 	links: readonly WallLink[] = [],
 	names: ReadonlyMap<string, string> = new Map(),
-	allRooms: readonly Room[] = [room]
+	allRooms: readonly Room[] = [room],
+	storeys?: Pick<Project, 'rooms' | 'floors' | 'stairs'>
 ): ExportRoom {
+	const floorId = storeys && floorsEnabled(storeys) ? roomFloorId(storeys, room) : undefined;
+	const floorName = floorId
+		? storeys?.floors?.find((floor) => floor.id === floorId)?.name
+		: undefined;
+	const zones = floorId && storeys ? stairZonesForRoom(storeys, room) : [];
 	const runs = railingRuns(allRooms, room);
 	const railing =
 		room.railing && runs.length > 0 ? { height: room.railing.height, runs } : undefined;
@@ -418,6 +470,7 @@ export function exportRoom(
 		id: room.id,
 		name: room.name,
 		type: room.type,
+		...(floorId && floorName !== undefined ? { floorId, floorName } : {}),
 		height: room.height,
 		areaM2: areaM2(room.polygon),
 		perimeter: Math.round(perimeter(room.polygon)),
@@ -525,6 +578,15 @@ export function exportRoom(
 		...(roofWindows.length > 0 ? { roofWindows } : {}),
 		...(freeElements.length > 0 ? { freeElements } : {}),
 		...(keepClear ? { keepClear } : {}),
+		...(zones.length > 0
+			? {
+					stairZones: zones.map((zone) => ({
+						kind: zone.kind,
+						stairId: zone.stairId,
+						polygon: zone.shape.map(roundPoint)
+					}))
+				}
+			: {}),
 		...(room.kitchen && hasKitchen(room) ? { kitchen: room.kitchen } : {}),
 		...(isOutdoor(room) ? { outdoor: true } : {}),
 		...(isOpenAir(room) ? { openAir: true } : {}),
@@ -577,6 +639,48 @@ export interface ExportOptions {
 	exportedAt?: string;
 }
 
+function exportFloors(project: Project): Pick<ExportDocument, 'floors' | 'stairs'> {
+	if (!floorsEnabled(project)) return {};
+	const levels = floorLevels(project);
+	const floors = project.floors ?? [];
+	return {
+		floors: floors.map((floor, index) => ({
+			id: floor.id,
+			name: floor.name,
+			order: index + 1,
+			level: round(levels.get(floor.id) ?? 0),
+			clearHeight: round(floorClearHeight(project, floor)),
+			slabThickness: floor.slabThickness
+		})),
+		...((project.stairs?.length ?? 0) > 0
+			? {
+					stairs: (project.stairs ?? []).map((stair) => {
+						const context = stairContext(project, stair);
+						return {
+							id: stair.id,
+							shape: stair.shape,
+							fromFloorId: stair.fromFloorId,
+							...(context
+								? {
+										toFloorId: context.to.id,
+										height: round(context.height),
+										steps: context.layout.risers.count,
+										riser: Math.round(context.layout.risers.riser * 10) / 10,
+										tread: context.layout.risers.tread
+									}
+								: {}),
+							x: round(stair.x),
+							y: round(stair.y),
+							rotation: stair.rotation,
+							width: stair.width,
+							turn: stair.turn
+						};
+					})
+				}
+			: {})
+	};
+}
+
 export function buildExport(project: Project, options: ExportOptions = {}): ExportDocument {
 	const rooms = project.rooms.filter(
 		(room) => !options.roomIds || options.roomIds.includes(room.id)
@@ -596,9 +700,10 @@ export function buildExport(project: Project, options: ExportOptions = {}): Expo
 		...(project.rooms.some(isOutdoor)
 			? { areas: { livingM2: areas.living, outdoorM2: areas.outdoor } }
 			: {}),
+		...exportFloors(project),
 		rooms: withMirroredOpenings(project.rooms)
 			.filter((room) => included.has(room.id))
-			.map((room) => exportRoom(room, options.photoPages, links, names, project.rooms)),
+			.map((room) => exportRoom(room, options.photoPages, links, names, project.rooms, project)),
 		variants: project.variants.map((variant) => {
 			const items = variant.items.filter((item) => included.has(item.roomId));
 			const roomNotes = Object.fromEntries(

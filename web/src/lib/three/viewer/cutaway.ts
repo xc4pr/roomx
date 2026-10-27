@@ -6,6 +6,8 @@ export interface CutawayWall {
 	outward: { x: number; z: number };
 	half?: number;
 	height?: number;
+	// Height of the wall's foot above the ground (storeys above the first one).
+	base?: number;
 }
 
 export interface SightPoint {
@@ -31,12 +33,15 @@ function blocksSight(wall: CutawayWall, from: SightPoint, to: SightPoint): boole
 	const u = ((a.x - from.x) * dz - (a.z - from.z) * dx) / denominator;
 	if (s < 0 || s > 1 || u < 0 || u > 1) return false;
 	const height = (from.y ?? 0) + ((to.y ?? 0) - (from.y ?? 0)) * s;
-	return height <= (wall.height ?? Infinity);
+	const base = wall.base ?? 0;
+	return height >= base - 0.01 && height <= base + (wall.height ?? Infinity);
 }
 
 export interface FloorShape {
 	x: number;
 	z: number;
+	// Height of the floor (set on every point of an outline); 0 if missing.
+	y?: number;
 }
 
 const WALL_PROBES = [0.1, 0.3, 0.5, 0.7, 0.9];
@@ -50,12 +55,15 @@ function hidesFloor(
 	floors: readonly (readonly FloorShape[])[]
 ): boolean {
 	if (wall.half === undefined) return true;
-	const cameraHeight = camera.y ?? 0;
+	const base = wall.base ?? 0;
+	const cameraHeight = (camera.y ?? 0) - base;
 	const top = wall.height ?? 2.5;
 	if (cameraHeight <= top + 0.01) return true;
 	const tangent = { x: -wall.outward.z, z: wall.outward.x };
 	const scale = cameraHeight / (cameraHeight - top);
-	const polygons = floors.map((floor) => floor.map((point) => ({ x: point.x, y: point.z })));
+	const polygons = floors
+		.filter((floor) => Math.abs((floor[0]?.y ?? 0) - base) < 0.01)
+		.map((floor) => floor.map((point) => ({ x: point.x, y: point.z })));
 	let hiding = 0;
 	for (const probe of WALL_PROBES) {
 		const along = (probe * 2 - 1) * wall.half;

@@ -1,22 +1,34 @@
 import { unconnectedRooms } from '#lib/core/adjacency.ts';
 import { validateRoom, type RoomIssue } from '#lib/core/checks.ts';
+import type { StairIssue } from '#lib/core/floors.ts';
 import type { Room } from '#lib/core/schema.ts';
 
 export type CheckWarning =
 	| { kind: 'noRooms' }
 	| { kind: 'unconnected'; roomId: string }
 	| { kind: 'issue'; roomId: string; issue: RoomIssue }
-	| { kind: 'photos'; roomId: string; done: number; total: number };
+	| { kind: 'photos'; roomId: string; done: number; total: number }
+	| { kind: 'stair'; issue: StairIssue };
+
+function unconnectedPerFloor(rooms: readonly Room[]): Room[] {
+	const floors = new Map<string, Room[]>();
+	for (const room of rooms) {
+		const key = room.floorId ?? '';
+		floors.set(key, [...(floors.get(key) ?? []), room]);
+	}
+	return [...floors.values()].flatMap((group) => unconnectedRooms(group));
+}
 
 export function collectWarnings(
 	rooms: readonly Room[],
 	progress: (room: Room) => { done: number; total: number },
-	roomIds?: readonly string[]
+	roomIds?: readonly string[],
+	stairIssues: readonly StairIssue[] = []
 ): CheckWarning[] {
 	const chosen = roomIds ? new Set(roomIds) : undefined;
 	const scoped = chosen ? rooms.filter((room) => chosen.has(room.id)) : rooms;
 	if (scoped.length === 0) return [{ kind: 'noRooms' }];
-	const warnings: CheckWarning[] = unconnectedRooms(rooms)
+	const warnings: CheckWarning[] = unconnectedPerFloor(rooms)
 		.filter((room) => !chosen || chosen.has(room.id))
 		.map((room) => ({
 			kind: 'unconnected',
@@ -29,6 +41,8 @@ export function collectWarnings(
 		const { done, total } = progress(room);
 		if (total > 0 && done < total) warnings.push({ kind: 'photos', roomId: room.id, done, total });
 	}
+	if (!chosen)
+		warnings.push(...stairIssues.map((issue): CheckWarning => ({ kind: 'stair', issue })));
 	return warnings;
 }
 

@@ -344,7 +344,9 @@
 					{#each variant.rooms as room (room.roomId)}
 						<div class="flex flex-col gap-2" data-testid="import-room">
 							<p class="font-semibold">
-								{room.name}<span class="font-normal text-muted">: {room.summary}</span>
+								{room.name}{#if room.floorName}<span class="font-normal text-muted">
+										({room.floorName})</span
+									>{/if}<span class="font-normal text-muted">: {room.summary}</span>
 							</p>
 							{#if room.errors.length > 0}
 								<div class="flex flex-col gap-1.5" data-testid="import-conflicts">

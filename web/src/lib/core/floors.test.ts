@@ -114,6 +114,10 @@ describe('stairs', () => {
 		expect(l.arrival.from.x).toBeGreaterThan(1450);
 		const u = stairLayout(stair({ shape: 'u', turn: 'left' }), 2800);
 		expect(u.treads.filter((tread) => tread.landing)).toHaveLength(3);
+		expect(
+			new Set(u.treads.filter((tread) => tread.landing).map((tread) => tread.height)).size
+		).toBe(1);
+		expect(u.treads.at(-1)!.height).toBe(2625);
 		const arrival = centroid([u.arrival.from, u.arrival.to]);
 		expect(arrival.x).toBeCloseTo(1000 - 1000, 6);
 		expect(arrival.y).toBeLessThan(300 + 7 * 280);

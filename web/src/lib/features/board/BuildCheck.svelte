@@ -6,6 +6,8 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { Room, RoomElement } from '#lib/core/schema.ts';
+	import { checkStairs } from '#lib/core/floors.ts';
+	import { describeStairIssue } from '#lib/features/stairs/describe.ts';
 	import { tourProgress } from '#lib/features/photos/tour.ts';
 	import { common, elementKindNames } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -27,7 +29,14 @@
 	let { open = $bindable(false), onproceed, title, proceedLabel, roomIds }: Props = $props();
 
 	const warnings = $derived(
-		open ? collectWarnings(store.project?.rooms ?? [], tourProgress, roomIds) : []
+		open
+			? collectWarnings(
+					store.project?.rooms ?? [],
+					tourProgress,
+					roomIds,
+					store.project ? checkStairs(store.project) : []
+				)
+			: []
 	);
 
 	$effect(() => {
@@ -48,6 +57,9 @@
 
 	function describe(warning: CheckWarning): string {
 		if (warning.kind === 'noRooms') return t(messages, 'warnNoRooms');
+		if (warning.kind === 'stair') {
+			return store.project ? describeStairIssue(store.project, warning.issue) : '';
+		}
 		const room = store.room(warning.roomId);
 		if (!room) return '';
 		if (warning.kind === 'unconnected') return t(messages, 'warnUnconnected', { room: room.name });
@@ -101,10 +113,21 @@
 			return;
 		}
 		open = false;
+		if (warning.kind === 'stair') {
+			const stair = store.project?.stairs?.find(
+				(candidate) => candidate.id === warning.issue.stairId
+			);
+			if (stair) {
+				selectRoom(null);
+				ui.floorId = stair.fromFloorId;
+				ui.selectedStairId = stair.id;
+			}
+		}
 		const id = store.project?.id;
 		if (id && page.url.pathname !== resolve('/p/[id]', { id })) {
 			void goto(resolve('/p/[id]', { id }));
 		}
+		if (warning.kind === 'stair') return;
 		ui.panelTab =
 			warning.kind === 'photos' ? 'photos' : warning.kind === 'unconnected' ? 'dims' : 'elements';
 		selectRoom(warning.roomId);
