@@ -182,12 +182,19 @@ export async function roomBox(page: Page, roomId: string) {
 }
 
 export async function selectRoomById(page: Page, roomId: string): Promise<void> {
-	await page.getByTestId('fit-all').click();
-	await page.waitForTimeout(700);
-	const box = await roomBox(page, roomId);
-	await tapAt(page, box.x + box.width / 2, box.y + box.height / 2);
-	await page.getByTestId('tab-dims').click();
-	await expect(page.getByTestId('room-name')).toBeVisible();
+	const project = await readProject(page, projectIdOf(page));
+	const name = project?.rooms.find((room) => room.id === roomId)?.name;
+	// On a narrow screen a tap right after fit-all can still land on the neighbour: tap until the panel shows this room.
+	await expect(async () => {
+		await page.getByTestId('fit-all').click();
+		await page.waitForTimeout(700);
+		const box = await roomBox(page, roomId);
+		await tapAt(page, box.x + box.width / 2, box.y + box.height / 2);
+		await page.getByTestId('tab-dims').click();
+		await expect(page.getByTestId('room-name')).toBeVisible({ timeout: 2000 });
+		if (name !== undefined)
+			await expect(page.getByTestId('room-name')).toHaveValue(name, { timeout: 2000 });
+	}).toPass({ timeout: 20_000 });
 }
 
 export async function addNamedRoom(
