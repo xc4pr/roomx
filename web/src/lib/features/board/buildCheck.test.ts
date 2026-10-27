@@ -186,3 +186,43 @@ describe('unconnected rooms with floors', () => {
 		]);
 	});
 });
+
+describe('stair findings with a choice of rooms', () => {
+	const floors = [
+		{ id: 'eg', name: 'EG', slabThickness: 300 },
+		{ id: 'og', name: 'OG', slabThickness: 300 },
+		{ id: 'dg', name: 'DG', slabThickness: 300 }
+	];
+	const stairs = [
+		{
+			id: 's',
+			fromFloorId: 'eg',
+			shape: 'straight',
+			x: 0,
+			y: 0,
+			rotation: 0,
+			width: 900,
+			turn: 'left'
+		}
+	] as const;
+	const rooms = [
+		{ ...createRoom('a', 'Wohnen'), floorId: 'eg' },
+		{ ...createRoom('b', 'Zimmer'), floorId: 'og', boardPos: { x: 0, y: 9000, rot: 0 } },
+		{ ...createRoom('c', 'Estrich'), floorId: 'dg', boardPos: { x: 0, y: 18000, rot: 0 } }
+	];
+	const issue = { code: 'stairHeadroom', stairId: 's', tread: 3, headroom: 1800 } as const;
+	const stairWarnings = (roomIds?: string[]) =>
+		collectWarnings(rooms, none, roomIds, [issue], floors, [...stairs]).filter(
+			(w) => w.kind === 'stair'
+		);
+
+	it('keeps them for rooms on the floor where the stair starts or arrives', () => {
+		expect(stairWarnings(['a'])).toHaveLength(1);
+		expect(stairWarnings(['b'])).toHaveLength(1);
+		expect(stairWarnings()).toHaveLength(1);
+	});
+
+	it('leaves them out for rooms on other floors', () => {
+		expect(stairWarnings(['c'])).toEqual([]);
+	});
+});

@@ -35,7 +35,8 @@
 					tourProgress,
 					roomIds,
 					store.project ? checkStairs(store.project) : [],
-					store.project?.floors
+					store.project?.floors,
+					store.project?.stairs
 				)
 			: []
 	);
