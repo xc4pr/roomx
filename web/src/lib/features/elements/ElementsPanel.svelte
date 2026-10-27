@@ -3,7 +3,13 @@
 	import PanelTopClose from '@lucide/svelte/icons/panel-top-close';
 	import { walls } from '#lib/core/geometry.ts';
 	import { connections, originalId } from '#lib/features/board/connections.svelte.ts';
-	import { isWallElement, type RoomElement, type WallElement } from '#lib/core/schema.ts';
+	import { elementFitsRoom } from '#lib/core/elements.ts';
+	import {
+		isFreeElement,
+		isWallElement,
+		type RoomElement,
+		type WallElement
+	} from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
 	import { elementKindNames } from '#lib/i18n/common.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -35,8 +41,10 @@
 		if (!room) return [];
 		const byWall = new Map<number, WallElement[]>();
 		const ceiling: RoomElement[] = [];
+		const free: RoomElement[] = [];
 		for (const element of [...room.elements, ...mirrored.map((entry) => entry.element)]) {
-			if (!isWallElement(element)) ceiling.push(element);
+			if (isFreeElement(element)) free.push(element);
+			else if (!isWallElement(element)) ceiling.push(element);
 			else byWall.set(element.wall, [...(byWall.get(element.wall) ?? []), element]);
 		}
 		const result = [...byWall.entries()]
@@ -50,6 +58,9 @@
 				}),
 				elements: elements.sort((a, b) => a.offset - b.offset) as RoomElement[]
 			}));
+		if (free.length > 0) {
+			result.push({ key: 'free', wall: 0, title: t(messages, 'freeGroup'), elements: free });
+		}
 		if (ceiling.length > 0) {
 			result.push({ key: 'ceiling', wall: 0, title: t(messages, 'ceiling'), elements: ceiling });
 		}
@@ -74,6 +85,11 @@
 	function describe(element: RoomElement): string {
 		if (element.kind === 'ceilingLamp') {
 			return t(messages, 'ceilingLampAt', { x: format(element.x), y: format(element.y) });
+		}
+		if (isFreeElement(element)) {
+			return t(messages, 'freeInfo', {
+				size: `${format(element.width)} × ${format(element.depth)} × ${format(element.height)}`
+			});
 		}
 		if (!isWallElement(element)) return '';
 		const start = room ? wallCorners(room.polygon, element.wall).split('–')[0] : '';
@@ -211,6 +227,13 @@
 											data-testid="mirrored-badge"
 										>
 											{t(messages, 'fromRoom', { room: sources.get(element.id)?.name ?? '' })}
+										</span>
+									{:else if room && !elementFitsRoom(room, element)}
+										<span
+											class="shrink-0 rounded-full bg-warning-soft px-2 py-0.5 text-[11px] font-semibold text-warning pointer-coarse:text-sm"
+											data-testid="unfit-badge"
+										>
+											{t(messages, 'notForRoom')}
 										</span>
 									{:else if element.status === 'planned'}
 										<span

@@ -1,5 +1,5 @@
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
-import type { RoomElement, WallElement } from '#lib/core/schema.ts';
+import type { FreeElement, RoomElement, WallElement } from '#lib/core/schema.ts';
 
 export interface Bounds {
 	x0: number;
@@ -46,6 +46,12 @@ export function localBounds(
 			};
 		case 'builtin':
 		case 'obstacle':
+		case 'washbasin':
+		case 'toilet':
+		case 'shower':
+		case 'bathtub':
+		case 'kitchenRun':
+		case 'acWall':
 			return { x0: element.offset, x1: element.offset + element.width, y0: 0, y1: element.depth };
 		case 'radiator':
 			return {
@@ -88,4 +94,14 @@ export function lateralMeasure(
 	}
 	const bounds = localBounds(element, pxPerMm, thickness);
 	return Math.max(bounds.y1, px(24)) + px(20);
+}
+
+// Free elements are drawn around their centre, turned by their rotation.
+export function freeBounds(element: Pick<FreeElement, 'width' | 'depth'>): Bounds {
+	return {
+		x0: -element.width / 2,
+		x1: element.width / 2,
+		y0: -element.depth / 2,
+		y1: element.depth / 2
+	};
 }

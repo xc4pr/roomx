@@ -406,15 +406,17 @@ export class ProjectStore {
 		return applied ? id : undefined;
 	}
 
-	// Changes the room type and keeps every element. A room that becomes an open-air area has no
-	// walls any more: its doors and windows in walls shared with indoor rooms move into those walls.
-	changeRoomType(roomId: string, type: RoomType): void {
+	// Changes the room type (and, in the same undo step, the name if given) and keeps every element.
+	// A room that becomes an open-air area has no walls any more: its doors and windows in walls
+	// shared with indoor rooms move into those walls.
+	changeRoomType(roomId: string, type: RoomType, name?: string): void {
 		this.mutate((project) => {
 			const room = project.rooms.find((candidate) => candidate.id === roomId);
 			if (!room || room.type === type) return;
 			const becomesOpen = isOpenAir({ type }) && !isOpenAir(room);
 			const moves = becomesOpen ? openingsForNeighbours(project.rooms, roomId) : [];
 			room.type = type;
+			if (name !== undefined) room.name = name;
 			const moved = new Set(moves.map((move) => move.element.id));
 			room.elements = room.elements.filter((element) => !moved.has(element.id));
 			for (const move of moves) {

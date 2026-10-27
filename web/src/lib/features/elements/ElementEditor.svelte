@@ -9,13 +9,17 @@
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import { validateRoom } from '#lib/core/checks.ts';
 	import { socketWidth } from '#lib/core/defaults.ts';
+	import { elementFitsRoom } from '#lib/core/elements.ts';
 	import { walls } from '#lib/core/geometry.ts';
 	import { newId } from '#lib/core/ids.ts';
 	import {
+		isFreeElement,
 		isWallElement,
+		type AcWall,
 		type CeilingLamp,
 		type DataPort,
 		type Door,
+		type Shower,
 		type RoomElement,
 		type Socket,
 		type Window as WindowElement,
@@ -33,7 +37,10 @@
 	import Switch from '#lib/ui/Switch.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
+	import FreeFields from './FreeFields.svelte';
+	import { cornerOffset, hasDepth, isCornerKind } from './free.ts';
 	import { messages } from './i18n.ts';
+	import KitchenFields from './KitchenFields.svelte';
 	import { KIND_ICONS, kindColor } from './kinds.ts';
 	import {
 		MIN_WIDTH,
@@ -71,6 +78,8 @@
 	const issues = $derived.by(() => {
 		if (!room || !element) return [];
 		const found: string[] = [];
+		if (!elementFitsRoom(room, element))
+			found.push(`${t(messages, 'notForRoom')}. ${t(messages, 'notForRoomHint')}`);
 		for (const issue of validateRoom(room)) {
 			if (!issue.elementIds.includes(element.id)) continue;
 			if (issue.code === 'elementOutsideWall') found.push(t(messages, 'issueOutside'));
@@ -151,8 +160,14 @@
 	function duplicate(): void {
 		if (!element) return;
 		const copy = { ...($state.snapshot(element) as RoomElement), id: newId() } as RoomElement;
+		if (copy.kind === 'kitchenRun') {
+			copy.modules = copy.modules.map((module) => ({ ...module, id: newId() }));
+		}
 		if (isWallElement(copy)) copy.offset = duplicateOffset(copy, wallLength);
-		else if (copy.kind === 'ceilingLamp') {
+		else if (isFreeElement(copy)) {
+			copy.x += 400;
+			copy.y += 400;
+		} else if (copy.kind === 'ceilingLamp') {
 			copy.x += 400;
 			copy.y += 400;
 		}
@@ -291,7 +306,7 @@
 						onchange={seal}
 					/>
 				{/if}
-				{#if element.kind === 'builtin' || element.kind === 'obstacle' || element.kind === 'radiator'}
+				{#if hasDepth(element)}
 					{@const depthKind = element}
 					<NumberField
 						stepper={false}
@@ -305,6 +320,8 @@
 					/>
 				{/if}
 			</div>
+		{:else if isFreeElement(element)}
+			<FreeFields {roomId} {element} polygon={room.polygon} />
 		{:else if element.kind === 'ceilingLamp'}
 			{@const lamp = element}
 			<div class="flex flex-col gap-3">
@@ -434,6 +451,48 @@
 						portType: value as DataPort['portType']
 					})}
 			/>
+		{/if}
+
+		{#if isCornerKind(element.kind) && isWallElement(element)}
+			<div class="grid grid-cols-2 gap-2">
+				<Button
+					variant="secondary"
+					onclick={() => setWall({ offset: cornerOffset('start', element.width, wallLength) })}
+					data-testid="corner-start"
+				>
+					{t(messages, 'inCorner', { corner: startLabel })}
+				</Button>
+				<Button
+					variant="secondary"
+					onclick={() => setWall({ offset: cornerOffset('end', element.width, wallLength) })}
+					data-testid="corner-end"
+				>
+					{t(messages, 'inCorner', { corner: endLabel })}
+				</Button>
+			</div>
+		{/if}
+		{#if element.kind === 'shower'}
+			{@const shower = element}
+			<Switch
+				checked={shower.screen === true}
+				label={t(messages, 'screen')}
+				onchange={(checked) =>
+					store.updateElement<Shower>(roomId, elementId, { screen: checked || undefined })}
+			/>
+		{:else if element.kind === 'acWall'}
+			{@const unit = element}
+			<NumberField
+				stepper={false}
+				label={t(messages, 'clearanceAir')}
+				value={unit.clearance}
+				min={0}
+				step={50}
+				oninput={(mm) =>
+					store.updateElement<AcWall>(roomId, elementId, { clearance: mm }, key('clearance'))}
+				onchange={seal}
+			/>
+		{:else if element.kind === 'kitchenRun'}
+			<KitchenFields {roomId} run={element} />
 		{/if}
 
 		{#if element.kind === 'radiator'}

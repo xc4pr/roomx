@@ -15,6 +15,7 @@ import {
 	type Wall
 } from '#lib/core/geometry.ts';
 import {
+	isFreeElement,
 	isWallElement,
 	type Point,
 	type Room,
@@ -272,6 +273,10 @@ export function placementAt(
 	const hit = pickWall(room.polygon, point);
 	if (!hit) return undefined;
 	const created = createElement(kind, room, hit.wall.number, hit.along, newId);
+	if (isFreeElement(created)) {
+		const inside = hit.distance > created.depth && pointInPolygon(point, room.polygon, 1);
+		return inside ? { ...created, x: roundStep(point.x), y: roundStep(point.y) } : created;
+	}
 	if (!isWallElement(created)) return created;
 	const snapped = snapOffset({
 		offset: hit.along - created.width / 2,

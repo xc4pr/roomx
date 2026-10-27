@@ -1,11 +1,18 @@
 <script lang="ts">
 	import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 	import type { Wall } from '#lib/core/geometry.ts';
-	import { isWallElement, type RoomElement, type WallElement } from '#lib/core/schema.ts';
+	import type { ClearanceZone } from '#lib/core/elements.ts';
+	import {
+		isFreeElement,
+		isWallElement,
+		type RoomElement,
+		type WallElement
+	} from '#lib/core/schema.ts';
 	import { elementKindNames } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
+	import FixtureSymbol from './FixtureSymbol.svelte';
 	import { kindColor } from './kinds.ts';
-	import { localBounds, symbolMetrics, type Bounds } from './shape.ts';
+	import { freeBounds, localBounds, symbolMetrics, type Bounds } from './shape.ts';
 
 	type Look = 'existing' | 'planned' | 'suggested';
 
@@ -19,6 +26,8 @@
 		warn?: boolean;
 		shared?: boolean;
 		thickness?: number;
+		zone?: ClearanceZone;
+		unfit?: boolean;
 	}
 
 	let {
@@ -30,7 +39,9 @@
 		selected = false,
 		warn = false,
 		shared = false,
-		thickness = WALL_THICKNESS
+		thickness = WALL_THICKNESS,
+		zone,
+		unfit = false
 	}: Props = $props();
 
 	const T = $derived(thickness);
@@ -50,7 +61,14 @@
 	const gang = $derived(metrics.gang);
 	const total = $derived(metrics.total);
 
-	const bounds = $derived(isWallElement(element) ? localBounds(element, pxPerMm, T) : undefined);
+	const bounds = $derived(
+		isWallElement(element)
+			? localBounds(element, pxPerMm, T)
+			: isFreeElement(element)
+				? freeBounds(element)
+				: undefined
+	);
+	const zoneColor = $derived(zone?.kind === 'fire' ? 'var(--color-danger)' : 'var(--color-item)');
 	const labelVisible = $derived(
 		isWallElement(element) && element.width * pxPerMm > 78 && hasLabel(element.kind)
 	);
@@ -103,6 +121,18 @@
 	/>
 {/snippet}
 
+{#snippet unfitOutline(b: Bounds)}
+	<rect
+		x={b.x0 - px(3)}
+		y={b.y0 - px(3)}
+		width={b.x1 - b.x0 + px(6)}
+		height={b.y1 - b.y0 + px(6)}
+		fill="none"
+		style="stroke: var(--color-warning); stroke-width: 2; stroke-dasharray: 5 3"
+		data-unfit
+	/>
+{/snippet}
+
 <g
 	class="shape"
 	data-element={element.id}
@@ -110,6 +140,13 @@
 	style="stroke: {color}; stroke-width: {strokeWidth}; stroke-dasharray: {dash}; fill: none"
 	opacity={look === 'planned' ? 0.9 : 1}
 >
+	{#if zone}
+		<polygon
+			points={zone.shape.map((p) => `${p.x},${p.y}`).join(' ')}
+			style="fill: {zoneColor}; fill-opacity: 0.1; stroke: {zoneColor}; stroke-width: 1.5; stroke-dasharray: 7 4"
+			data-zone={zone.kind}
+		/>
+	{/if}
 	{#if element.kind === 'ceilingLamp'}
 		<g transform="translate({element.x} {element.y})">
 			{#if selected}
@@ -126,12 +163,38 @@
 			<line x1={-radius * 0.72} y1={-radius * 0.72} x2={radius * 0.72} y2={radius * 0.72} />
 			<line x1={-radius * 0.72} y1={radius * 0.72} x2={radius * 0.72} y2={-radius * 0.72} />
 		</g>
+	{:else if isFreeElement(element)}
+		<g transform="translate({element.x} {element.y}) rotate({element.rotation})">
+			{#if selected && bounds}
+				{@render halo(bounds)}
+			{:else if warn && bounds}
+				{@render warnOutline(bounds)}
+			{/if}
+			{#if unfit && bounds}
+				{@render unfitOutline(bounds)}
+			{/if}
+			<g transform="translate({-element.width / 2} {-element.depth / 2})">
+				<FixtureSymbol
+					{element}
+					w={element.width}
+					d={element.depth}
+					{px}
+					{hatchId}
+					suggested={look === 'suggested'}
+					{color}
+				/>
+			</g>
+		</g>
 	{:else}
 		<g transform={frame}>
 			{#if selected && bounds}
 				{@render halo(bounds)}
 			{:else if warn && bounds}
 				{@render warnOutline(bounds)}
+			{/if}
+
+			{#if unfit && bounds}
+				{@render unfitOutline(bounds)}
 			{/if}
 
 			{#if element.kind === 'window'}
@@ -312,6 +375,18 @@
 						rx={radius * 0.1}
 					/>
 				{/if}
+			{:else if element.kind === 'washbasin' || element.kind === 'toilet' || element.kind === 'shower' || element.kind === 'bathtub' || element.kind === 'kitchenRun' || element.kind === 'acWall'}
+				<g transform="translate({element.offset} 0)">
+					<FixtureSymbol
+						{element}
+						w={element.width}
+						d={element.depth}
+						{px}
+						{hatchId}
+						suggested={look === 'suggested'}
+						{color}
+					/>
+				</g>
 			{/if}
 
 			{#if labelVisible && bounds}

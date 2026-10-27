@@ -13,10 +13,13 @@
 		type Wall
 	} from '#lib/core/geometry.ts';
 	import { newId } from '#lib/core/ids.ts';
+	import { clearanceZone, elementFitsRoom } from '#lib/core/elements.ts';
 	import {
 		isElectrical,
+		isFreeElement,
 		isWallElement,
 		type CeilingLamp,
+		type FreeElement,
 		type RoomElement,
 		type WallElement
 	} from '#lib/core/schema.ts';
@@ -44,11 +47,12 @@
 		snapOffset,
 		thresholdMm
 	} from './logic.ts';
+	import { dragFree } from './free.ts';
 	import PlanShape from './PlanShape.svelte';
 	import { clampToProfile } from './profile.ts';
 	import { session } from './session.svelte.ts';
 	import { thicknessAt } from '#lib/features/board/wallBands.ts';
-	import { hitBounds, lateralMeasure, localBounds, symbolMetrics } from './shape.ts';
+	import { freeBounds, hitBounds, lateralMeasure, localBounds, symbolMetrics } from './shape.ts';
 
 	type Look = 'existing' | 'planned' | 'suggested';
 	type DragMode = 'move' | 'start' | 'end';
@@ -106,6 +110,7 @@
 	}
 
 	function areaOf(element: RoomElement): number {
+		if (isFreeElement(element)) return element.width * element.depth;
 		if (!isWallElement(element)) return 1;
 		const b = localBounds(element, pxPerMm, thicknessOf(element));
 		return (b.x1 - b.x0) * (b.y1 - b.y0);
@@ -163,6 +168,11 @@
 	let drag: Drag | null = null;
 	let nudgeTimer: ReturnType<typeof setTimeout> | undefined;
 
+	function ghostIds(): () => string {
+		let count = 0;
+		return () => (count++ === 0 ? 'ghost' : `ghost-${count}`);
+	}
+
 	const ghostKind = $derived(
 		placingKind ?? (session.dragRoomId === room.id ? session.dragKind : null)
 	);
@@ -176,7 +186,7 @@
 	});
 	const ghost = $derived(
 		ghostKind && ghostPoint
-			? placementAt(ghostKind, room, ghostPoint, () => 'ghost', thresholdMm(pxPerMm))
+			? placementAt(ghostKind, room, ghostPoint, ghostIds(), thresholdMm(pxPerMm))
 			: undefined
 	);
 
@@ -270,8 +280,8 @@
 			startAlong: along,
 			grab,
 			lastWall: startWall,
-			grabX: element.kind === 'ceilingLamp' ? point.x - element.x : 0,
-			grabY: element.kind === 'ceilingLamp' ? point.y - element.y : 0
+			grabX: element.kind === 'ceilingLamp' || isFreeElement(element) ? point.x - element.x : 0,
+			grabY: element.kind === 'ceilingLamp' || isFreeElement(element) ? point.y - element.y : 0
 		};
 	}
 
@@ -299,6 +309,19 @@
 			if (!pointInPolygon(next, room.polygon, 1)) return;
 			if (next.x !== element.x || next.y !== element.y) {
 				store.updateElement<CeilingLamp>(room.id, element.id, { x: next.x, y: next.y }, options);
+			}
+			return;
+		}
+		if (isFreeElement(element)) {
+			const next = dragFree(
+				room.polygon,
+				element,
+				point,
+				{ x: current.grabX, y: current.grabY },
+				threshold
+			);
+			if (next && (next.x !== element.x || next.y !== element.y)) {
+				store.updateElement<FreeElement>(room.id, element.id, next, options);
 			}
 			return;
 		}
@@ -483,13 +506,13 @@
 		if (!delta) return;
 		event.preventDefault();
 		const options = { coalesce: `nudge-${element.id}` };
-		if (element.kind === 'ceilingLamp') {
+		if (element.kind === 'ceilingLamp' || isFreeElement(element)) {
 			const step = event.shiftKey ? 100 : 10;
 			const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0;
 			const dy = event.key === 'ArrowUp' ? step : event.key === 'ArrowDown' ? -step : 0;
 			const next = { x: element.x + dx, y: element.y + dy };
 			if (pointInPolygon(next, room.polygon, 1))
-				store.updateElement<CeilingLamp>(room.id, element.id, next, options);
+				store.updateElement<CeilingLamp | FreeElement>(room.id, element.id, next, options);
 		} else if (isWallElement(element)) {
 			const target = wallList[element.wall - 1];
 			if (!target) return;
@@ -516,7 +539,21 @@
 
 	function handlePositions(element: RoomElement) {
 		if (!isWallElement(element)) return undefined;
-		if (!['door', 'window', 'builtin', 'obstacle', 'radiator'].includes(element.kind))
+		if (
+			![
+				'door',
+				'window',
+				'builtin',
+				'obstacle',
+				'radiator',
+				'washbasin',
+				'toilet',
+				'shower',
+				'bathtub',
+				'kitchenRun',
+				'acWall'
+			].includes(element.kind)
+		)
 			return undefined;
 		if (element.width * pxPerMm < 70) return undefined;
 		const b = localBounds(element, pxPerMm, thicknessOf(element));
@@ -558,6 +595,8 @@
 				warn={issueIds.has(entry.element.id)}
 				shared={connections.sharedIds.has(entry.element.id)}
 				thickness={thicknessOf(entry.element)}
+				zone={clearanceZone(room, entry.element)}
+				unfit={!entry.suggestion && !entry.source && !elementFitsRoom(room, entry.element)}
 			/>
 		</g>
 	{/each}
@@ -629,6 +668,21 @@
 									onclick: swallow
 								}
 							: handlers(element, 'move', editable)}
+					/>
+				</g>
+			{:else if isFreeElement(element)}
+				{@const fb = freeBounds(element)}
+				{@const reach = Math.max(0, px(22) - Math.min(element.width, element.depth) / 2)}
+				<g transform="translate({element.x} {element.y}) rotate({element.rotation})">
+					<rect
+						x={fb.x0 - reach}
+						y={fb.y0 - reach}
+						width={fb.x1 - fb.x0 + reach * 2}
+						height={fb.y1 - fb.y0 + reach * 2}
+						fill="transparent"
+						style="cursor: {dragging ? 'grabbing' : 'grab'}; touch-action: none"
+						data-hit={element.id}
+						{...handlers(element, 'move', editable)}
 					/>
 				</g>
 			{:else if element.kind === 'ceilingLamp'}

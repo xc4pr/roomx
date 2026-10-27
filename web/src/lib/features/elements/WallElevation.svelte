@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { validateRoom } from '#lib/core/checks.ts';
+	import { kitchenModuleSpans, kitchenUpperSpans } from '#lib/core/elements.ts';
 	import { cornerLabel, walls, wallSlope } from '#lib/core/geometry.ts';
-	import { isElectrical, isWallElement, type WallElement } from '#lib/core/schema.ts';
+	import {
+		isElectrical,
+		isWallElement,
+		type KitchenRun,
+		type WallElement
+	} from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
 	import { connections } from '#lib/features/board/connections.svelte.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
@@ -257,9 +263,28 @@
 		return formatLength(mm, settings.unit, locale.language);
 	}
 
+	function restSpans(
+		run: KitchenRun,
+		spans: ReturnType<typeof kitchenModuleSpans>
+	): ReturnType<typeof kitchenModuleSpans> {
+		const from = spans.length > 0 ? spans[spans.length - 1].to : 0;
+		if (from >= run.width) return [];
+		return [{ module: { id: 'rest', kind: 'base', width: run.width - from }, from, to: run.width }];
+	}
+
+	function extentHeight(element: WallElement): number {
+		if (element.kind !== 'kitchenRun') return element.height;
+		const hasTall = element.modules.some((module) => module.kind === 'tall');
+		const top = Math.max(
+			hasTall ? element.tallHeight : element.height,
+			element.upper ? element.upper.elevation + element.upper.height - element.elevation : 0
+		);
+		return top;
+	}
+
 	function symbolBox(element: WallElement) {
 		const width = element.width * scale;
-		const tall = element.height * scale;
+		const tall = extentHeight(element) * scale;
 		const w = Math.max(width, 22);
 		const h = Math.max(tall, 22);
 		const cx = X(element.offset + element.width / 2);
@@ -410,7 +435,167 @@
 	</g>
 {/snippet}
 
+{#snippet kitchen(run: KitchenRun)}
+	{@const worktop = run.elevation + run.height}
+	{@const line = 'stroke: var(--color-fixture); stroke-width: 1.5'}
+	{@const thin = 'stroke: var(--color-fixture); stroke-width: 1'}
+	{@const spans = kitchenModuleSpans(run)}
+	{@const x = (mm: number) => X(run.offset + mm)}
+	{@render kitchenBase(run, spans, x, worktop, line)}
+	{#each spans as span (span.module.id)}
+		{@const x0 = Math.min(x(span.from), x(span.to))}
+		{@const x1 = Math.max(x(span.from), x(span.to))}
+		{@const mw = x1 - x0}
+		{#if span.module.kind === 'tall'}
+			{@const top = Y(run.elevation + run.tallHeight)}
+			<rect
+				x={x0}
+				y={top}
+				width={mw}
+				height={Y(run.elevation) - top}
+				style="fill: var(--color-surface); {line}"
+			/>
+			{#each span.module.appliances ?? [] as appliance, i (appliance)}
+				{@const fridge = appliance === 'fridge'}
+				{@const h = (fridge ? 1450 : appliance === 'oven' ? 600 : 450) * scale}
+				{@const y0 = fridge ? Y(run.elevation) - h : Y(run.elevation + 800 + i * 600) - h}
+				<rect
+					x={x0 + 3}
+					y={y0 + 3}
+					width={Math.max(0, mw - 6)}
+					height={Math.max(0, h - 6)}
+					rx={2}
+					fill="none"
+					style={thin}
+				/>
+				{#if fridge}
+					<line
+						x1={x1 - 8}
+						y1={y0 + h * 0.25}
+						x2={x1 - 8}
+						y2={y0 + h * 0.55}
+						style="stroke: var(--color-fixture); stroke-width: 2"
+					/>
+				{:else}
+					<rect
+						x={x0 + mw * 0.2}
+						y={y0 + h * 0.3}
+						width={mw * 0.6}
+						height={h * 0.4}
+						fill="none"
+						style={thin}
+					/>
+				{/if}
+			{/each}
+		{/if}
+	{/each}
+	{#if run.upper}
+		{@const upper = run.upper}
+		{#each kitchenUpperSpans(run) as span (span.from)}
+			{@const x0 = Math.min(x(span.from), x(span.to))}
+			{@const x1 = Math.max(x(span.from), x(span.to))}
+			{@const top = Y(upper.elevation + upper.height)}
+			{@const count = Math.max(1, Math.round((span.to - span.from) / 600))}
+			<rect
+				x={x0}
+				y={top}
+				width={x1 - x0}
+				height={upper.height * scale}
+				style="fill: var(--color-surface); {line}"
+			/>
+			{#each Array.from({ length: count - 1 }, (_, i) => i + 1) as i (i)}
+				<line
+					x1={x0 + ((x1 - x0) * i) / count}
+					y1={top}
+					x2={x0 + ((x1 - x0) * i) / count}
+					y2={top + upper.height * scale}
+					style={thin}
+				/>
+			{/each}
+		{/each}
+	{/if}
+{/snippet}
+
+{#snippet kitchenBase(
+	run: KitchenRun,
+	spans: ReturnType<typeof kitchenModuleSpans>,
+	x: (mm: number) => number,
+	worktop: number,
+	line: string
+)}
+	{@const thin = 'stroke: var(--color-fixture); stroke-width: 1'}
+	{@const baseSpans = [
+		...spans.filter((span) => span.module.kind !== 'tall'),
+		...restSpans(run, spans)
+	]}
+	{#each baseSpans as span, index (index)}
+		{@const x0 = Math.min(x(span.from), x(span.to))}
+		{@const x1 = Math.max(x(span.from), x(span.to))}
+		{@const mw = x1 - x0}
+		{@const top = Y(worktop)}
+		{@const bottom = Y(run.elevation)}
+		{#if span.module.kind === 'table'}
+			<rect
+				x={x0}
+				y={top}
+				width={mw}
+				height={40 * scale}
+				style="fill: var(--color-fixture); fill-opacity: 0.35; {line}"
+			/>
+			<line x1={x0 + 3} y1={top + 40 * scale} x2={x0 + 3} y2={bottom} style={line} />
+			<line x1={x1 - 3} y1={top + 40 * scale} x2={x1 - 3} y2={bottom} style={line} />
+		{:else}
+			<rect
+				x={x0}
+				y={top}
+				width={mw}
+				height={bottom - top}
+				style="fill: var(--color-surface); {line}"
+			/>
+			<rect
+				x={x0}
+				y={top}
+				width={mw}
+				height={Math.max(2, 40 * scale)}
+				style="fill: var(--color-fixture); fill-opacity: 0.5; {thin}"
+			/>
+			{#if span.module.kind === 'dishwasher'}
+				<line
+					x1={x0 + mw * 0.2}
+					y1={top + (bottom - top) * 0.2}
+					x2={x0 + mw * 0.8}
+					y2={top + (bottom - top) * 0.2}
+					style="stroke: var(--color-fixture); stroke-width: 2"
+				/>
+			{:else if span.module.kind === 'hob' || span.module.kind === 'base'}
+				{#each span.module.appliances ?? [] as appliance (appliance)}
+					<rect
+						x={x0 + mw * 0.12}
+						y={top + (bottom - top) * 0.22}
+						width={mw * 0.76}
+						height={(bottom - top) * 0.5}
+						rx={2}
+						fill="none"
+						style={thin}
+					/>
+					<title>{appliance}</title>
+				{/each}
+				<line
+					x1={x0 + mw * 0.3}
+					y1={top + 5 + 40 * scale}
+					x2={x0 + mw * 0.7}
+					y2={top + 5 + 40 * scale}
+					style="stroke: var(--color-fixture); stroke-width: 1.5"
+				/>
+			{:else if span.module.kind === 'sink'}
+				<line x1={x0 + mw / 2} y1={top + 40 * scale} x2={x0 + mw / 2} y2={bottom} style={thin} />
+			{/if}
+		{/if}
+	{/each}
+{/snippet}
+
 {#snippet glyph(element: WallElement, color: string)}
+	{@const outline = `fill: var(--color-surface); stroke: ${color}; stroke-width: 2`}
 	{@const b = symbolBox(element)}
 	{#if element.kind === 'window'}
 		<rect
@@ -544,6 +729,88 @@
 				/>
 			{/each}
 		{/if}
+	{:else if element.kind === 'kitchenRun'}
+		{@render kitchen(element)}
+	{:else if element.kind === 'washbasin'}
+		<rect x={b.x} y={b.y} width={b.w} height={b.h} rx={4} style={outline} />
+		<path
+			d="M {b.x + b.w * 0.12} {b.y + b.h * 0.18} Q {b.cx} {b.y + b.h * 0.46} {b.x +
+				b.w * 0.88} {b.y + b.h * 0.18}"
+			fill="none"
+			style="stroke: {color}; stroke-width: 1.5"
+		/>
+		<line
+			x1={b.cx}
+			y1={b.y + b.h * 0.46}
+			x2={b.cx}
+			y2={b.y + b.h * 0.7}
+			style="stroke: {color}; stroke-width: 1.25"
+		/>
+	{:else if element.kind === 'toilet'}
+		<rect
+			x={b.x + b.w * 0.05}
+			y={b.y}
+			width={b.w * 0.9}
+			height={b.h * 0.5}
+			rx={3}
+			style={outline}
+		/>
+		<path
+			d="M {b.x + b.w * 0.1} {b.y + b.h * 0.58} h {b.w * 0.8} v {b.h * 0.12} q 0 {b.h * 0.3} {-b.w *
+				0.4} {b.h * 0.3} q {-b.w * 0.4} 0 {-b.w * 0.4} {-b.h * 0.3} Z"
+			fill="none"
+			style="stroke: {color}; stroke-width: 1.5"
+		/>
+	{:else if element.kind === 'shower'}
+		<rect x={b.x} y={b.y} width={b.w} height={b.h} style={outline} />
+		<line
+			x1={b.x + 4}
+			y1={b.y + 4}
+			x2={b.x + b.w - 4}
+			y2={b.y + b.h - 4}
+			style="stroke: {color}; stroke-width: 1"
+		/>
+		<line
+			x1={b.x + 4}
+			y1={b.y + b.h - 4}
+			x2={b.x + b.w - 4}
+			y2={b.y + 4}
+			style="stroke: {color}; stroke-width: 1"
+		/>
+		<circle
+			cx={b.x + b.w * 0.5}
+			cy={b.y + 7}
+			r={4}
+			fill="none"
+			style="stroke: {color}; stroke-width: 1.5"
+		/>
+	{:else if element.kind === 'bathtub'}
+		<rect x={b.x} y={b.y} width={b.w} height={b.h} rx={4} style={outline} />
+		<line
+			x1={b.x + 3}
+			y1={b.y + b.h * 0.3}
+			x2={b.x + b.w - 3}
+			y2={b.y + b.h * 0.3}
+			style="stroke: {color}; stroke-width: 1; stroke-dasharray: 4 3"
+		/>
+	{:else if element.kind === 'acWall'}
+		<rect
+			x={b.x}
+			y={b.y}
+			width={b.w}
+			height={b.h}
+			rx={5}
+			style="fill: var(--color-surface); stroke: {color}; stroke-width: 2"
+		/>
+		{#each [0.55, 0.72, 0.89] as at (at)}
+			<line
+				x1={b.x + b.w * 0.08}
+				y1={b.y + b.h * at}
+				x2={b.x + b.w * 0.92}
+				y2={b.y + b.h * at}
+				style="stroke: {color}; stroke-width: 1.25"
+			/>
+		{/each}
 	{:else if element.kind === 'socket'}
 		<rect
 			x={b.x}

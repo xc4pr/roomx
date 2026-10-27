@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { ROOM_TYPES } from '#lib/core/schema.ts';
 	import ElementsPanel from '#lib/features/elements/ElementsPanel.svelte';
 	import PhotosPanel from '#lib/features/photos/PhotosPanel.svelte';
 	import { roomTypeNames } from '#lib/i18n/common.ts';
@@ -9,10 +8,11 @@
 	import Chip from '#lib/ui/Chip.svelte';
 	import Tabs from '#lib/ui/Tabs.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
-	import { setRoomType } from './actions.ts';
 	import DimsTab from './DimsTab.svelte';
 	import { fresh } from './fresh.svelte.ts';
 	import { messages } from './i18n.ts';
+	import KitchenSection from './KitchenSection.svelte';
+	import { changeType, selectableTypes } from './roomType.ts';
 
 	let { roomId }: { roomId: string } = $props();
 
@@ -78,16 +78,18 @@
 				role="group"
 				aria-label={t(messages, 'roomType')}
 			>
-				{#each ROOM_TYPES as type (type)}
+				{#each selectableTypes(room.type) as type (type)}
 					<Chip
 						selected={room.type === type}
-						onclick={() => setRoomType(roomId, type)}
+						onclick={() => changeType(roomId, type)}
 						data-testid="room-type-{type}"
 					>
 						{t(roomTypeNames, type)}
 					</Chip>
 				{/each}
 			</div>
+
+			<KitchenSection {room} />
 		{/if}
 
 		{#if ui.panelTab === 'elements'}
