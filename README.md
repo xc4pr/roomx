@@ -58,7 +58,7 @@ The app runs in the browser on a computer, laptop, tablet or smartphone, and you
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/wall-view.webp" alt="Wall view with windows, sockets and the palette of elements" width="100%"><br>
       <b>Doors, windows, electrical</b><br>
-      Place elements from the palette on a wall, line them up to the centimetre in the wall view, show sockets and switches.
+      Place elements from the palette on a wall, line them up to the centimetre in the wall view, show sockets and switches. Also bathroom, kitchen and fireplaces.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/3d-cutaway.webp" alt="Cutaway 3D view of an apartment with three rooms" width="100%"><br>
@@ -213,8 +213,14 @@ In the room panel, section **Elements**, you find the palette:
 
 | Group | Elements |
 |---|---|
-| Wall | Door, Window, Built-in, Obstacle, Radiator |
-| Electrical | Socket, Switch, Lamp (on the wall), LAN / TV, Ceiling (ceiling lamp) |
+| Openings | Door, Window |
+| Electrical | Socket, Switch, Wall lamp, LAN / TV, Ceiling lamp |
+| Heating and climate | Radiator, Wall air conditioner, Floor air conditioner, Fireplace, Wood stove, Tiled stove |
+| Sanitary | Toilet, Washbasin, Shower, Bathtub |
+| Kitchen | Kitchen run |
+| Obstacles | Built-in, Obstacle, Column, Free obstacle |
+
+The palette shows only what fits the room type: sanitary items only in a bathroom, the kitchen run only in a kitchen or in a living or dining room with **Open kitchen**. The names of the controls are listed below.
 
 <p align="center">
   <img src=".github/assets/screenshots/en/wall-view.webp" alt="Plan with a selected room, the palette on the right and the wall view of wall 1 with two windows and a radiator" width="860">
@@ -240,6 +246,30 @@ In the room panel, section **Elements**, you find the palette:
 
 > [!NOTE]
 > RoomX does not replace electrical planning. Have sockets and wiring planned and installed by qualified professionals.
+
+#### Bathroom
+
+A toilet (standard 37 × 55 cm, wall-hung), a washbasin (60 × 45 cm), a shower (90 × 90 cm; the switch **Partition** draws glass on the open sides) and a bathtub (170 × 75 cm). All of them stand against a wall. The shower and the bathtub can go **Into corner …** to stand in a corner.
+
+#### Kitchen
+
+A **kitchen run** stands along one wall. Choose the grid **SMS 55** (Switzerland) or **EURO 60**, then set its **Length**, depth (standard 60 cm), **Worktop height** (90 cm) and **Tall unit height**. Switch the **Wall cabinets** on or off and set their depth, height and bottom edge. You place **modules** side by side: base cabinet, sink, hob, dishwasher, tall unit, built-in table. The appliances are oven, steamer, microwave and fridge. Anything without a module remains a base unit. The plan, the wall view, 3D and the PDF show the run.
+
+#### Built in or from the catalogue
+
+In the room panel, choose **Built-in** (fixed elements that the AI assistant does not move) or **From the catalogue** (kitchen furniture that you plan freely) for a kitchen. In Furnish, the Kitchen category then appears at the top. Living and dining rooms have the switch **Open kitchen**.
+
+#### Heating, air conditioning and fireplaces
+
+A wall-mounted and a floor-standing air conditioner each need a **free zone in front of the outlet**. Furniture there gives a warning. Fireplace, wood stove and tiled stove stand freely or against a wall (buttons **To the wall** and, for the fireplace, **Into the corner (45°)**). They have a **keep-clear zone in front of the firebox**, default 80 cm; otherwise it can be set according to the manufacturer's data. Furniture in it turns **red**.
+
+#### Columns and free obstacles
+
+A column is round or square; a free obstacle is a box. Both stand freely in the room. You set their position, rotation (in 15° steps, or 90°), dimensions and height. **Up to the ceiling** makes them follow the ceiling, also under sloped ceilings. For furniture and the AI assistant they are blocked areas.
+
+#### Changing the room type
+
+Elements always stay. If they no longer fit the room type (for example a toilet when a bathroom becomes an office), they are marked **Does not fit the room type**. You can edit or delete them.
 
 ### Photo tour
 
@@ -372,6 +402,8 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
   </tr>
 </table>
 
+Furniture in a built-in or in the keep-clear zone in front of a fireplace turns **red**; furniture in front of an air conditioner's outlet turns **yellow**. In the catalogue, the Kitchen category holds base, wall, tall and sink units, hob, oven and fridge.
+
 **Socket distance.** Furniture that needs power (TV, monitor, lamps, appliances) shows the way to the nearest socket on the plan. If it is more than 1.5 m away, or if no socket has been recorded in the room at all, you get a hint.
 
 **Variants.** At the top you find the variants of your furnishing, for example “A” and “B”. The plus creates a new variant, either empty or as a copy of an existing one. The menu lets you rename or delete variants. This way you can try two furnishings without losing anything. A plan from the AI assistant also arrives as a variant. A project holds up to 100 variants, 200 rooms and 5000 pieces of furniture per variant; RoomX tells you when a limit is reached.
@@ -389,6 +421,8 @@ In the **Furnish** tab you place furniture in your rooms. At the top left you sw
 ### Furnish with an AI assistant
 
 You can have an AI assistant furnish your rooms. For this, RoomX prepares an **AI package** and reads the assistant’s answer back in. It works with any AI assistant that accepts files. You do not need to install anything extra: the package already contains the instructions, the plan schema, the catalogue and a ready-made start prompt.
+
+Fixed built-ins (bathroom, kitchen run, air conditioners, fireplaces, columns and obstacles) are blocked for the AI assistant, like doors and windows. It plans around them, and the plan import reports furniture that sticks into them.
 
 > [!NOTE]
 > “Build 3D” is independent of this: it only shows your rooms in 3D for yourself. You only need the AI package if you want an assistant to make a plan for you.

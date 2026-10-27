@@ -58,7 +58,7 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/wall-view.webp" alt="Wandansicht mit Fenstern, Steckdosen und der Palette für Elemente" width="100%"><br>
       <b>Türen, Fenster, Elektro</b><br>
-      Elemente aus der Palette auf die Wand setzen, in der Wandansicht auf den Zentimeter genau ausrichten, Steckdosen und Schalter einblenden.
+      Elemente aus der Palette auf die Wand setzen, in der Wandansicht auf den Zentimeter genau ausrichten, Steckdosen und Schalter einblenden. Auch Bad, Küche und Feuerstellen.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/3d-cutaway.webp" alt="Aufgeschnittene 3D-Ansicht einer Wohnung mit drei Räumen" width="100%"><br>
@@ -213,8 +213,14 @@ Im Panel des Raums, Bereich **Elemente**, findest du die Palette:
 
 | Gruppe | Elemente |
 |---|---|
-| Wand | Tür, Fenster, Einbau, Hindernis, Heizkörper |
-| Elektro | Steckdose, Schalter, Lampe (an der Wand), LAN / TV, Decke (Deckenlampe) |
+| Öffnungen | Tür, Fenster |
+| Elektro | Steckdose, Schalter, Wandlampe, LAN / TV, Deckenlampe |
+| Heizung und Klima | Heizkörper, Klima-Wandgerät, Klima-Standgerät, Cheminée, Kaminofen, Kachelofen |
+| Sanitär | WC, Waschtisch, Dusche, Badewanne |
+| Küche | Küchenzeile |
+| Hindernisse | Einbau, Hindernis, Stütze, Freies Hindernis |
+
+Die Palette zeigt nur, was zum Raumtyp passt: Sanitär nur im Bad, Küche nur in der Küche oder in einem Wohn- oder Essraum mit **Offene Küche**. Die Namen der Bedienelemente stehen unten.
 
 <p align="center">
   <img src=".github/assets/screenshots/de/wall-view.webp" alt="Plan mit gewähltem Raum, rechts die Palette und die Wandansicht der Wand 1 mit zwei Fenstern und einem Heizkörper" width="860">
@@ -240,6 +246,30 @@ Praktisch sind «Unter Fenster zentrieren» (zum Beispiel für den Heizkörper) 
 
 > [!NOTE]
 > RoomX ersetzt keine Elektroplanung. Lass Steckdosen und Leitungen von Fachleuten planen und ausführen.
+
+#### Bad
+
+Ein WC (Standard 37 × 55 cm, wandhängend), ein Waschtisch (60 × 45 cm), eine Dusche (90 × 90 cm; der Schalter **Trennwand** zeichnet Glas auf die offenen Seiten) und eine Badewanne (170 × 75 cm). Alle stehen an einer Wand. Dusche und Wanne stellst du mit **In die Ecke …** in eine Ecke.
+
+#### Küche
+
+Eine **Küchenzeile** steht entlang einer Wand. Du wählst das Raster **SMS 55** (Schweiz) oder **EURO 60** und stellst Länge, Tiefe (Standard 60 cm), Arbeitshöhe (90 cm) und Hochschrank-Höhe ein. **Oberschränke** schaltest du ein oder aus und legst Tiefe, Höhe und Unterkante fest. Die **Module** setzt du nebeneinander: Unterschrank, Spüle, Kochfeld, Geschirrspüler, Hochschrank, Einbautisch. Dazu kommen die Geräte Backofen, Steamer, Mikrowelle und Kühlschrank. Was ohne Modul bleibt, ist ein Unterschrank. Plan, Wandansicht, 3D und PDF zeigen die Zeile.
+
+#### Eingebaut oder aus dem Katalog
+
+Im Raum-Panel wählst du bei einer Küche **Eingebaut** (feste Elemente, die der KI-Assistent nicht verschiebt) oder **Aus dem Katalog** (Küchenmöbel frei planbar). Im Einrichten steht die Kategorie Küche dann oben. Wohn- und Essräume haben den Schalter **Offene Küche**.
+
+#### Heizung, Klima und Feuerstellen
+
+Klima-Wandgerät und Klima-Standgerät brauchen eine **freie Zone vor dem Auslass**. Möbel dort ergeben eine Warnung. Cheminée, Kaminofen und Kachelofen stehen frei oder an der Wand (Knöpfe **An die Wand**, beim Cheminée **In die Ecke (45°)**). Sie haben eine **Sperrzone vor dem Feuerraum**, Standard 80 cm, sonst nach Herstellerangabe einstellbar. Möbel darin werden **rot**.
+
+#### Stützen und freie Hindernisse
+
+Eine Stütze ist rund oder eckig, ein freies Hindernis ist ein Quader. Beide stehen frei im Raum. Du stellst Position, Drehung (in 15°-Schritten oder 90°), Masse und Höhe ein. **Bis zur Decke** folgt dem Verlauf der Decke, auch unter Schrägen. Für Möbel und den KI-Assistenten sind sie gesperrte Flächen.
+
+#### Raumtyp wechseln
+
+Elemente bleiben immer erhalten. Passen sie nicht mehr zum Raumtyp (zum Beispiel ein WC, wenn aus dem Bad ein Büro wird), steht bei ihnen «**Passt nicht zum Raumtyp**». Du kannst sie bearbeiten oder löschen.
 
 ### Foto-Tour
 
@@ -372,6 +402,8 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
   </tr>
 </table>
 
+Möbel in Einbauten und in der Sperrzone vor einer Feuerstelle werden **rot**, Möbel vor dem Auslass eines Klimageräts **gelb**. Im Katalog enthält die Kategorie Küche Unter-, Ober-, Hoch- und Spülenschränke, Kochfeld, Backofen und Kühlschrank.
+
 **Steckdosen-Distanz.** Möbel, die Strom brauchen (Fernseher, Monitor, Lampen, Geräte), zeigen im Plan den Weg zur nächsten Steckdose. Ist sie mehr als 1,5 m entfernt oder gibt es im Raum gar keine erfasste Steckdose, erscheint ein Hinweis.
 
 **Varianten.** Oben stehen die Varianten deiner Einrichtung, zum Beispiel «A» und «B». Mit dem Plus legst du eine neue Variante an, leer oder als Kopie einer bestehenden. Über das Menü benennst du Varianten um oder löschst sie. So probierst du zwei Einrichtungen aus, ohne etwas zu verlieren. Ein Plan vom KI-Assistenten kommt ebenfalls als Variante. Ein Projekt fasst bis zu 100 Varianten, 200 Räume und 5000 Möbel je Variante; RoomX sagt dir, wenn eine Grenze erreicht ist.
@@ -389,6 +421,8 @@ Im Reiter **Einrichten** stellst du Möbel in deine Räume. Oben links wechselst
 ### Mit dem KI-Assistenten einrichten
 
 Du kannst deine Räume von einem KI-Assistenten einrichten lassen. RoomX bereitet dafür ein **KI-Paket** vor und liest die Antwort des Assistenten wieder ein. Das funktioniert mit jedem KI-Assistenten, der Dateien annimmt. Du musst nichts zusätzlich installieren: Das Paket enthält bereits die Anleitung, das Plan-Schema, den Katalog und einen fertigen Startprompt.
+
+Feste Einbauten (Bad, Küchenzeile, Klimageräte, Feuerstellen, Stützen, Hindernisse) sind für den KI-Assistenten gesperrt wie Türen und Fenster. Er plant darum herum, und der Plan-Import meldet Möbel, die hineinragen.
 
 > [!NOTE]
 > «3D erstellen» ist davon unabhängig: Damit siehst du deine Räume nur selbst in 3D. Das KI-Paket brauchst du nur, wenn ein Assistent dir einen Plan machen soll.
