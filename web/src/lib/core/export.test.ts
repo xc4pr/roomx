@@ -3,6 +3,7 @@ import { buildExport, ExportSchema } from './export.ts';
 import { createElement } from './defaults.ts';
 import { sequentialIds } from './ids.ts';
 import { rectangleRoom, sampleProject } from './fixtures.ts';
+import { wholeCover } from './outdoor.ts';
 import type { Project, RoomElement } from './schema.ts';
 
 function withElements(...kinds: [RoomElement['kind'], number, number][]): Project {
@@ -156,5 +157,52 @@ describe('buildExport with roof slopes', () => {
 		expect(room.slopes![0]!.from).toBeUndefined();
 		expect(room.slopes![0]!.dormers).toBeUndefined();
 		expect(room.roofWindows).toBeUndefined();
+	});
+});
+
+describe('buildExport with outdoor areas', () => {
+	function withBalcony(): Project {
+		const project = sampleProject();
+		const balcony = rectangleRoom('room-balcony', 3000, 1200);
+		balcony.type = 'balcony';
+		balcony.name = 'Balkon';
+		balcony.boardPos = { x: 0, y: 9000, rot: 0 };
+		balcony.railing = { height: 1000 };
+		balcony.cover = wholeCover(balcony, 2300);
+		project.rooms.push(balcony);
+		return project;
+	}
+
+	it('marks outdoor and open-air rooms and lists railing, cover and areas', () => {
+		const document = buildExport(withBalcony(), { exportedAt: NOW });
+		const balcony = document.rooms.find((room) => room.id === 'room-balcony')!;
+		expect(balcony.outdoor).toBe(true);
+		expect(balcony.openAir).toBe(true);
+		expect(balcony.walls).toHaveLength(4);
+		expect(balcony.railing!.height).toBe(1000);
+		expect(balcony.railing!.runs).toHaveLength(4);
+		expect(balcony.cover!.height).toBe(2300);
+		expect(balcony.cover!.polygon).toHaveLength(4);
+		expect(document.areas).toEqual({ livingM2: 27, outdoorM2: 3.6 });
+		const indoor = document.rooms.find((room) => room.id !== 'room-balcony')!;
+		expect(indoor.outdoor).toBeUndefined();
+		expect(indoor.openAir).toBeUndefined();
+		expect(indoor.railing).toBeUndefined();
+		expect(ExportSchema.parse(JSON.parse(JSON.stringify(document)))).toEqual(document);
+	});
+
+	it('marks a conservatory as outdoor but not as open air', () => {
+		const project = withBalcony();
+		project.rooms[1]!.type = 'winterGarden';
+		const room = buildExport(project, { exportedAt: NOW }).rooms[1]!;
+		expect(room.outdoor).toBe(true);
+		expect(room.openAir).toBeUndefined();
+		expect(room.railing).toBeUndefined();
+	});
+
+	it('exports a project without outdoor areas as before', () => {
+		const document = buildExport(sampleProject(), { exportedAt: NOW });
+		expect(document.areas).toBeUndefined();
+		expect(document.rooms.every((room) => room.outdoor === undefined)).toBe(true);
 	});
 });

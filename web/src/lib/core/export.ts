@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { wallLinks, withMirroredOpenings, type WallLink } from './adjacency.ts';
 import { areaM2 } from './defaults.ts';
+import { areaSummary, railingRuns } from './outdoor.ts';
 import {
 	clearanceZone,
 	elementVolumes,
@@ -43,6 +44,8 @@ import {
 	KITCHEN_GRIDS,
 	KITCHEN_MODULE_KINDS,
 	isFreeElement,
+	isOpenAir,
+	isOutdoor,
 	isRoofWindow,
 	type FreeElement,
 	type Project,
@@ -69,6 +72,7 @@ export const FORMAT_GUIDE = [
 	'Element status is "existing" (built), "planned" (decided by the user) or "suggested" (proposal, not yet accepted).',
 	'Rooms under a roof may list "slopes": the ceiling starts on that wall at "kneeHeight" and rises into the room at "angleDeg" until it meets the flat ceiling at "fullHeightAt" mm from the wall; "standingHeightAt" is the distance from the wall where 2000 mm clear height is reached. A slope with "from"/"to" covers only that stretch of the wall (measured from the wall start corner); beyond it the ceiling is flat. A wall may carry several slopes. "dormers" are stretches "from"-"to" along the wall where the ceiling is at least "height" high (a dormer as high as the room cuts the slope completely); with "openingCut": true the cut was derived from a door or window taller than the knee wall. Clear height at a point = the lowest value over all slopes, raised by the dormers. Furniture must fit under the slope; where the ceiling is higher inside a dormer, taller furniture may stand there.',
 	'"roofWindows" lists windows in a sloped ceiling: "wall", "offsetFromStart" and "width" along the wall, "length" up the slope, "elevation" (lower edge above the floor), "top" (upper edge) and "floorPolygon", the projection of the window onto the floor. A roof window is a window: it is a light source, so keep the area below it as free as possible and mind the height there. It is fixed like a wall window and "windowZones" lists wall windows only.',
+	'Rooms of type balcony, terrace, garden and winterGarden have "outdoor": true: they do not count towards the living area and take garden furniture. Balcony, terrace and garden also have "openAir": true: no walls and no ceiling, the "walls" are only the edges of the outline (a neighbour on an edge is the house). Without a ceiling "height" is not a limit; a height limit applies only under the "cover" (polygon in room coordinates and its "height"), the roof over a part of the area. A "railing" has its "height" and "runs" (stretches "from"-"to" along a wall); keep it free: place nothing against it and nothing a child could climb on. "areas" gives the living area and the outdoor area of the project separately in m2.',
 	'A furnishing plan is returned in the "roomx-plan" format and refers to rooms by "id"; items with "locked": true must not be moved or removed.'
 ].join(' ');
 
@@ -253,6 +257,15 @@ export const ExportRoomSchema = z.object({
 	kitchen: z
 		.object({ open: z.boolean().optional(), mode: z.enum(['builtin', 'catalog']).optional() })
 		.optional(),
+	outdoor: z.boolean().optional(),
+	openAir: z.boolean().optional(),
+	railing: z
+		.object({
+			height: Mm,
+			runs: z.array(z.object({ wall: z.number().int(), from: Mm, to: Mm }))
+		})
+		.optional(),
+	cover: z.object({ polygon: z.array(PointSchema), height: Mm }).optional(),
 	separate: z.boolean().optional(),
 	floorColor: z.string().optional(),
 	wallColor: z.string().optional(),
@@ -284,6 +297,7 @@ export const ExportSchema = z.object({
 	formatGuide: z.string(),
 	project: z.object({ id: z.string(), name: z.string() }),
 	brief: BriefSchema.optional(),
+	areas: z.object({ livingM2: z.number(), outdoorM2: z.number() }).optional(),
 	rooms: z.array(ExportRoomSchema),
 	variants: z.array(ExportVariantSchema)
 });
@@ -387,8 +401,12 @@ export function exportRoom(
 	room: Room,
 	photoPages: Readonly<Record<string, number>> = {},
 	links: readonly WallLink[] = [],
-	names: ReadonlyMap<string, string> = new Map()
+	names: ReadonlyMap<string, string> = new Map(),
+	allRooms: readonly Room[] = [room]
 ): ExportRoom {
+	const runs = railingRuns(allRooms, room);
+	const railing =
+		room.railing && runs.length > 0 ? { height: room.railing.height, runs } : undefined;
 	const roomWalls = walls(room.polygon);
 	const freeElements = room.elements.filter(isFreeElement).map((e) => exportFreeElement(room, e));
 	const keepClear = exportKeepClear(room);
@@ -505,6 +523,17 @@ export function exportRoom(
 		...(freeElements.length > 0 ? { freeElements } : {}),
 		...(keepClear ? { keepClear } : {}),
 		...(room.kitchen && hasKitchen(room) ? { kitchen: room.kitchen } : {}),
+		...(isOutdoor(room) ? { outdoor: true } : {}),
+		...(isOpenAir(room) ? { openAir: true } : {}),
+		...(railing ? { railing } : {}),
+		...(room.cover && isOutdoor(room)
+			? {
+					cover: {
+						polygon: room.cover.polygon.map(roundPoint),
+						height: room.cover.height
+					}
+				}
+			: {}),
 		...(room.separate ? { separate: true } : {}),
 		...(room.floorColor ? { floorColor: room.floorColor } : {}),
 		...(room.wallColor ? { wallColor: room.wallColor } : {}),
@@ -552,6 +581,7 @@ export function buildExport(project: Project, options: ExportOptions = {}): Expo
 	const included = new Set(rooms.map((room) => room.id));
 	const links = wallLinks(project.rooms);
 	const names = new Map(project.rooms.map((room) => [room.id, room.name]));
+	const areas = areaSummary(project);
 	return {
 		format: EXPORT_FORMAT,
 		schemaVersion: EXPORT_SCHEMA_VERSION,
@@ -560,9 +590,12 @@ export function buildExport(project: Project, options: ExportOptions = {}): Expo
 		formatGuide: FORMAT_GUIDE,
 		project: { id: project.id, name: project.name },
 		...(project.brief ? { brief: project.brief } : {}),
+		...(project.rooms.some(isOutdoor)
+			? { areas: { livingM2: areas.living, outdoorM2: areas.outdoor } }
+			: {}),
 		rooms: withMirroredOpenings(project.rooms)
 			.filter((room) => included.has(room.id))
-			.map((room) => exportRoom(room, options.photoPages, links, names)),
+			.map((room) => exportRoom(room, options.photoPages, links, names, project.rooms)),
 		variants: project.variants.map((variant) => {
 			const items = variant.items.filter((item) => included.has(item.roomId));
 			const roomNotes = Object.fromEntries(

@@ -282,6 +282,17 @@ export const instructionTexts = defineMessages({
 		exampleReason: 'Schreibtisch',
 		exampleNote:
 			'Der Schreibtisch steht auf dem längsten freien Wandstück. Der Teppich liegt in der Raummitte. Die Steckdose sitzt über dem Schreibtisch, neben dem Monitor.',
+		outdoor: lines(
+			'## Aussenbereiche',
+			'',
+			'Dieses Projekt hat Aussenbereiche (Balkon `balcony`, Terrasse `terrace`, Garten `garden`, Wintergarten `winterGarden`; in der JSON-Datei `outdoor: true`). `areas` nennt Wohnfläche (`livingM2`) und Aussenfläche (`outdoorM2`) getrennt: Aussenbereiche zählen nicht zur Wohnfläche.',
+			'',
+			'- Plane dort **Gartenmöbel** (Katalogartikel mit `outdoor: true`, falls vorhanden), keine Wohnzimmer- oder Schlafzimmermöbel.',
+			'- Balkon, Terrasse und Garten sind offen (`openAir: true`): keine Wände, keine Decke. Die `walls` sind nur die Kanten des Umrisses; ein Nachbar (`neighbours`) an einer Kante ist das Haus. Türen und Fenster dort gehören zum Haus.',
+			'- Ohne Decke gibt es keine Höhengrenze. Eine Höhengrenze gilt nur unter der Überdachung (`cover` mit `polygon` in Raumkoordinaten und `height`): Möbel unter `cover.polygon` dürfen `cover.height` nicht überragen.',
+			'- Das Geländer (`railing` mit `height` und `runs`, Strecken `from` bis `to` entlang einer Wand) bleibt frei: Stelle nichts dagegen und nichts darauf, das Kinder zum Klettern nutzen könnten (Stühle, Kisten, Pflanzkübel, niedrige Tische).',
+			'- Der Wintergarten hat Glaswände und ein Glasdach; dort gilt die Raumhöhe wie in einem Innenraum.'
+		),
 		mistakes: lines(
 			'## 8. Typische Fehler',
 			'',
@@ -578,6 +589,17 @@ export const instructionTexts = defineMessages({
 		exampleReason: 'Desk',
 		exampleNote:
 			'The desk stands on the longest free wall span. The rug lies in the middle of the room. The socket is above the desk, next to the monitor.',
+		outdoor: lines(
+			'## Outdoor areas',
+			'',
+			'This project has outdoor areas (balcony `balcony`, terrace `terrace`, garden `garden`, conservatory `winterGarden`; `outdoor: true` in the JSON file). `areas` gives the living area (`livingM2`) and the outdoor area (`outdoorM2`) separately: outdoor areas do not count towards the living area.',
+			'',
+			'- Plan **garden furniture** there (catalog articles with `outdoor: true`, if any), not living room or bedroom furniture.',
+			'- Balcony, terrace and garden are open (`openAir: true`): no walls, no ceiling. The `walls` are only the edges of the outline; a neighbour (`neighbours`) on an edge is the house. Doors and windows there belong to the house.',
+			'- Without a ceiling there is no height limit. A height limit applies only under the cover (`cover` with `polygon` in room coordinates and `height`): furniture under `cover.polygon` must not be taller than `cover.height`.',
+			'- Keep the railing (`railing` with `height` and `runs`, stretches `from` to `to` along a wall) free: place nothing against it and nothing on it that children could use to climb (chairs, crates, planters, low tables).',
+			'- The conservatory has glass walls and a glass roof; the room height applies there as in an indoor room.'
+		),
 		mistakes: lines(
 			'## 8. Typical mistakes',
 			'',

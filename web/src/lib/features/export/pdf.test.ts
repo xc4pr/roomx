@@ -1,6 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
-import { sampleLookup } from '#lib/core/fixtures.ts';
+import { rectangleRoom, sampleLookup } from '#lib/core/fixtures.ts';
+import { wholeCover } from '#lib/core/outdoor.ts';
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import { buildPdf } from './pdf.ts';
 import { furnishedProject, loadTestFonts, testPng } from './testing.ts';
@@ -141,5 +142,34 @@ describe('buildPdf', () => {
 		await expect(
 			buildPdf({ project, language: 'de', fonts, signal: controller.signal })
 		).rejects.toThrow();
+	});
+
+	it('draws outdoor areas with railing and cover and lists the areas', async () => {
+		const project = furnishedProject();
+		const base = await buildPdf({ project, language: 'de', fonts });
+		const balcony = rectangleRoom('room-balcony', 3000, 1200);
+		balcony.type = 'balcony';
+		balcony.boardPos = { x: 0, y: 9000, rot: 0 };
+		balcony.railing = { height: 1000 };
+		balcony.cover = wholeCover(balcony, 2300);
+		project.rooms.push(balcony);
+		for (const language of ['de', 'en'] as const) {
+			const result = await buildPdf({ project, language, fonts });
+			const doc = await PDFDocument.load(result.bytes);
+			expect(doc.getPageCount()).toBe(result.pageCount);
+			expect(result.pageCount).toBeGreaterThan(base.pageCount);
+		}
+		const withBalcony = await buildPdf({
+			project,
+			roomIds: ['room-balcony'],
+			language: 'de',
+			fonts
+		});
+		const without = await buildPdf({
+			project: { ...project, rooms: project.rooms.filter((room) => room.id !== 'room-balcony') },
+			language: 'de',
+			fonts
+		});
+		expect(withBalcony.pageCount).toBeLessThan(without.pageCount);
 	});
 });

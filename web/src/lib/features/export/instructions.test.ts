@@ -319,3 +319,21 @@ describe('fixed built-ins in the instructions', () => {
 		for (const word of FORBIDDEN) expect(lower).not.toContain(word);
 	});
 });
+
+describe('outdoor areas in the instructions', () => {
+	it('adds the outdoor section only when the project has outdoor areas', () => {
+		for (const language of LANGUAGES) {
+			const plain = instructionsFor(language).text;
+			expect(plain).not.toContain(instructionTexts[language].outdoor.split('\n')[0]!);
+			const project = furnishedProject();
+			const balcony = rectangleRoom('room-balcony', 3000, 1200);
+			balcony.type = 'balcony';
+			balcony.railing = { height: 1000 };
+			project.rooms.push(balcony);
+			const { text } = instructionsFor(language, false, project);
+			expect(text).toContain(instructionTexts[language].outdoor);
+			expect(text).toContain('railing');
+			expect(text).toContain('cover');
+		}
+	});
+});

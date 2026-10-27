@@ -4,6 +4,7 @@ import { CATALOG_PRICES_AS_OF, lookup as catalogLookupDefault } from '#lib/catal
 import type { CatalogLookup } from '#lib/core/catalog.ts';
 import { mirroredOpenings, wallLinks, withMirroredOpenings } from '#lib/core/adjacency.ts';
 import { areaM2 } from '#lib/core/defaults.ts';
+import { areaSummary, railingRuns } from '#lib/core/outdoor.ts';
 import {
 	cornerLabel,
 	interiorAngle,
@@ -12,7 +13,7 @@ import {
 	walls
 } from '#lib/core/geometry.ts';
 import type { Item, Project, Room, RoomElement } from '#lib/core/schema.ts';
-import { isWallElement } from '#lib/core/schema.ts';
+import { isOpenAir, isOutdoor, isWallElement } from '#lib/core/schema.ts';
 import { formatArea, formatChf, formatDate, lengthValue, type Language } from '#lib/core/units.ts';
 import { elementKindNames, roomTypeNames } from '#lib/i18n/common.ts';
 import { formatMonthYear } from '#lib/features/furnish/format.ts';
@@ -27,7 +28,14 @@ import {
 	planPhotoPages
 } from './layout.ts';
 import { PAPER_PALETTE, type Palette } from './palette.ts';
-import { buildWallBlock, drawLegend, drawRoomPlan, legendRows, planLegend } from './pdfPlan.ts';
+import {
+	buildWallBlock,
+	drawLegend,
+	drawRoomPlan,
+	legendRows,
+	outdoorLegend,
+	planLegend
+} from './pdfPlan.ts';
 import { findingLines } from './pdfFindings.ts';
 import { roomOnlyLines, symbolLegend } from './pdfSymbols.ts';
 import { symbolTranslator } from './pdfText.ts';
@@ -115,6 +123,13 @@ function truncate(ctx: PdfContext, text: string, size: number, maxWidth: number)
 }
 
 function roomStats(ctx: PdfContext, room: Room): string {
+	if (isOpenAir(room)) {
+		return ctx.tr('roomStatsOpen', {
+			area: formatArea(areaM2(room.polygon) * 1_000_000, ctx.language),
+			perimeter: lengthValue(Math.round(perimeter(room.polygon)), 'm', ctx.language),
+			walls: room.polygon.length
+		});
+	}
 	return ctx.tr('roomStats', {
 		area: formatArea(areaM2(room.polygon) * 1_000_000, ctx.language),
 		perimeter: lengthValue(Math.round(perimeter(room.polygon)), 'm', ctx.language),
@@ -142,6 +157,17 @@ function drawTitlePage(ctx: PdfContext, project: Project, rooms: Room[], date: D
 		flow.paragraph(roomStats(ctx, room), { size: 8.5, indent: 12 });
 	});
 	if (rooms.length === 0) flow.paragraph(tr('none'));
+	if (rooms.some(isOutdoor)) {
+		const areas = areaSummary({ rooms, floors: project.floors });
+		flow.paragraph(tr('areasLabel'), { size: 10, bold: true });
+		flow.paragraph(
+			tr('areasLine', {
+				living: formatArea(areas.living * 1_000_000, ctx.language),
+				outdoor: formatArea(areas.outdoor * 1_000_000, ctx.language)
+			}),
+			{ size: 8.5, indent: 12 }
+		);
+	}
 	flow.heading(tr('sectionBrief'));
 	const lines = briefLines(project.brief, tr, ctx.language);
 	if (lines.length === 0) flow.paragraph(tr('briefNone'));
@@ -166,15 +192,13 @@ function drawTitlePage(ctx: PdfContext, project: Project, rooms: Room[], date: D
 		MARGIN,
 		flow.y - 6,
 		CONTENT_WIDTH,
-		planLegend(
-			ctx,
-			true,
-			slopeLegend(rooms),
-			symbolLegend(
+		planLegend(ctx, true, slopeLegend(rooms), [
+			...symbolLegend(
 				ctx,
 				rooms.flatMap((room) => room.elements)
-			)
-		)
+			),
+			...outdoorLegend(ctx, rooms)
+		])
 	);
 	flow.y = bottom - 12;
 }
@@ -217,7 +241,10 @@ function drawPlanPage(ctx: PdfContext, room: Room): void {
 		for (const line of freeLines) flow.paragraph(`- ${line}`, { size: 8, indent: 6 });
 	}
 	flow.gap(4);
-	const legend = planLegend(ctx, false, hasSlopes(room), symbolLegend(ctx, room.elements));
+	const legend = planLegend(ctx, false, hasSlopes(room), [
+		...symbolLegend(ctx, room.elements),
+		...outdoorLegend(ctx, [room])
+	]);
 	const legendHeight = 20 + legendRows(ctx, CONTENT_WIDTH, legend) * 15;
 	const box = {
 		x: MARGIN,
@@ -357,7 +384,10 @@ function drawFurnishPages(ctx: PdfContext, project: Project, room: Room): void {
 		MARGIN,
 		flow.y,
 		CONTENT_WIDTH,
-		planLegend(ctx, true, hasSlopes(room), symbolLegend(ctx, [...room.elements, ...suggestions]))
+		planLegend(ctx, true, hasSlopes(room), [
+			...symbolLegend(ctx, [...room.elements, ...suggestions]),
+			...outdoorLegend(ctx, [room])
+		])
 	);
 	drawText(
 		flow.page,
@@ -626,6 +656,10 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 		neighbours
 	};
 
+	ctx.railings = new Map(
+		project.rooms.filter(isOutdoor).map((room) => [room.id, railingRuns(project.rooms, room)])
+	);
+
 	drawTitlePage(ctx, project, rooms, date);
 	tick();
 
@@ -633,7 +667,7 @@ export async function buildPdf(input: PdfInput): Promise<PdfResult> {
 		const room = connected.get(source.id) ?? source;
 		input.signal?.throwIfAborted();
 		drawPlanPage(ctx, room);
-		drawWallPages(ctx, room);
+		if (!isOpenAir(room) || room.elements.some(isWallElement)) drawWallPages(ctx, room);
 		tick();
 		input.signal?.throwIfAborted();
 		const images = await input.renderViews?.(source, project.activeVariantId);

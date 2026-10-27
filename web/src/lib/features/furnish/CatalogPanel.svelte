@@ -23,6 +23,7 @@
 		filterCatalog,
 		kitchenFromCatalog,
 		orderCategories,
+		outdoorFromRoom,
 		WIDTH_CLASSES,
 		type WidthClass
 	} from './filter.ts';
@@ -62,6 +63,7 @@
 	});
 	const counts = $derived(categoriesOf(entries));
 	const room = $derived(ui.selectedRoomId ? store.room(ui.selectedRoomId) : undefined);
+	const outdoorFirst = $derived(outdoorFromRoom(room));
 	const kitchenFirst = $derived(kitchenFromCatalog(room));
 	const categories = $derived(
 		orderCategories(
@@ -99,7 +101,7 @@
 	const results = $derived(
 		filterCatalog(
 			entries,
-			{ query: applied, category, brand, width: width as WidthClass | 'all' },
+			{ query: applied, category, brand, width: width as WidthClass | 'all', outdoorFirst },
 			locale.language
 		)
 	);

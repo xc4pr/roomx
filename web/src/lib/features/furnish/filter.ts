@@ -1,6 +1,6 @@
 import type { CatalogEntry } from '#lib/core/catalog.ts';
 import { hasKitchen } from '#lib/core/elements.ts';
-import type { ItemCategory, Room } from '#lib/core/schema.ts';
+import { isOutdoor, type ItemCategory, type Room } from '#lib/core/schema.ts';
 
 export const WIDTH_CLASSES = ['narrow', 'medium', 'wide', 'extraWide'] as const;
 export type WidthClass = (typeof WIDTH_CLASSES)[number];
@@ -21,6 +21,7 @@ export interface CatalogFilter {
 	category: ItemCategory | 'all';
 	brand: string | 'all';
 	width?: WidthClass | 'all';
+	outdoorFirst?: boolean;
 }
 
 export function normalizeText(text: string): string {
@@ -105,7 +106,9 @@ export function filterCatalog(
 		}
 		scored.push({ entry, score });
 	}
-	if (tokens.length > 0) scored.sort((a, b) => b.score - a.score);
+	const rank = (entry: CatalogEntry) => (filter.outdoorFirst && entry.outdoor ? 1 : 0);
+	if (tokens.length > 0) scored.sort((a, b) => b.score - a.score || rank(b.entry) - rank(a.entry));
+	else if (filter.outdoorFirst) scored.sort((a, b) => rank(b.entry) - rank(a.entry));
 	return scored.map((row) => row.entry);
 }
 
@@ -131,6 +134,11 @@ export const COMMON_CATEGORIES: readonly ItemCategory[] = [
 ];
 
 export const COLLAPSED_CATEGORY_COUNT = 3;
+
+// An outdoor area lists the garden and balcony furniture first.
+export function outdoorFromRoom(room: Pick<Room, 'type'> | undefined): boolean {
+	return room !== undefined && isOutdoor(room);
+}
 
 // A kitchen planned from the catalogue: then the category "kitchen" leads the list.
 export function kitchenFromCatalog(room: Pick<Room, 'type' | 'kitchen'> | undefined): boolean {

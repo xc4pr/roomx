@@ -16,6 +16,8 @@ import {
 	type Wall
 } from '#lib/core/geometry.ts';
 import {
+	isOpenAir,
+	isOutdoor,
 	isWallElement,
 	type Item,
 	type Room,
@@ -398,6 +400,77 @@ function drawNeighbours(
 	}
 }
 
+function drawOutdoor(
+	page: PDFPage,
+	ctx: PdfContext,
+	room: Room,
+	fit: Fit,
+	roomWalls: ReturnType<typeof walls>
+): void {
+	if (room.cover) {
+		polygon(
+			page,
+			room.cover.polygon.map((p) => toPage(fit, p)),
+			{
+				fill: ctx.palette.muted,
+				fillOpacity: 0.12,
+				color: ctx.palette.muted,
+				width: 0.8,
+				dash: [2.4, 1.6]
+			}
+		);
+	}
+	for (const run of ctx.railings?.get(room.id) ?? []) {
+		const target = roomWalls.find((candidate) => candidate.number === run.wall);
+		if (!target) continue;
+		strokeLine(
+			page,
+			toPage(fit, wallPoint(target, run.from)),
+			toPage(fit, wallPoint(target, run.to)),
+			{
+				width: 3,
+				color: ctx.palette.ink
+			}
+		);
+	}
+}
+
+export function outdoorLegend(ctx: PdfContext, rooms: readonly Room[]): LegendEntry[] {
+	if (!rooms.some(isOutdoor)) return [];
+	const p = ctx.palette;
+	const entries: LegendEntry[] = [
+		{
+			label: ctx.tr('legendOutdoor'),
+			draw: (page, x, y) => {
+				strokeLine(page, { x, y }, { x: x + 16, y }, { width: 2, color: p.ink, dash: [6, 3] });
+			}
+		}
+	];
+	if (rooms.some((room) => room.railing)) {
+		entries.push({
+			label: ctx.tr('legendRailing'),
+			draw: (page, x, y) => strokeLine(page, { x, y }, { x: x + 16, y }, { width: 3, color: p.ink })
+		});
+	}
+	if (rooms.some((room) => room.cover)) {
+		entries.push({
+			label: ctx.tr('legendCover'),
+			draw: (page, x, y) =>
+				polygon(
+					page,
+					[
+						{ x, y: y - 4 },
+						{ x: x + 16, y: y - 4 },
+						{ x: x + 16, y: y + 4 },
+						{ x, y: y + 4 }
+					],
+					{ fill: p.muted, fillOpacity: 0.12, color: p.muted, width: 0.8, dash: [2.4, 1.6] }
+				)
+		});
+	}
+	return entries;
+}
+
 export function drawRoomPlan(
 	page: PDFPage,
 	ctx: PdfContext,
@@ -426,7 +499,12 @@ export function drawRoomPlan(
 		.sort((a, b) => a.item.elevation - b.item.elevation || a.number - b.number);
 	for (const { item, number } of sortedItems) drawItem(page, ctx, item, number, fit);
 
-	polygon(page, outline, { color: ctx.palette.ink, width: 2 });
+	polygon(page, outline, {
+		color: ctx.palette.ink,
+		width: 2,
+		...(isOpenAir(room) ? { dash: [6, 3] } : {})
+	});
+	drawOutdoor(page, ctx, room, fit, roomWalls);
 	drawSlopeLabels(page, ctx, room, fit);
 
 	for (const element of elements) {

@@ -147,7 +147,7 @@ export function examplePlan(
 	language: Language,
 	lookup: CatalogLookup
 ): Plan | undefined {
-	const room = document.rooms[0];
+	const room = document.rooms.find((candidate) => !candidate.outdoor) ?? document.rooms[0];
 	if (!room) return undefined;
 	const tr = translator(instructionTexts, language);
 	const span = longestClearSpan(room);
@@ -265,7 +265,9 @@ export function buildInstructions(input: InstructionsInput): string {
 		tr('rules')
 	);
 	const example = examplePlan(document, language, lookup);
-	const room = document.rooms[0];
+	const room = document.rooms.find(
+		(candidate) => candidate.id === example?.variants[0]?.rooms[0]?.roomId
+	);
 	if (example && room) {
 		const wall = example.variants[0]?.rooms[0]?.items.find((item) => item.anchor)?.anchor?.wall;
 		parts.push(
@@ -276,6 +278,7 @@ export function buildInstructions(input: InstructionsInput): string {
 			].join('\n\n')
 		);
 	}
+	if (document.rooms.some((candidate) => candidate.outdoor)) parts.push(tr('outdoor'));
 	parts.push(tr('mistakes'));
 	return `${parts.join('\n\n')}\n`;
 }

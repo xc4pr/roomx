@@ -11,7 +11,8 @@ import {
 	filterCatalog,
 	kitchenFromCatalog,
 	normalizeText,
-	orderCategories
+	orderCategories,
+	outdoorFromRoom
 } from './filter.ts';
 
 const all = { category: 'all', brand: 'all' } as const;
@@ -136,5 +137,34 @@ describe('kitchen category order', () => {
 	it('pins the kitchen in the collapsed list', () => {
 		expect(collapsedCategories(all, 'all', 3, 'kitchen')).toEqual(['kitchen', 'sofa', 'bed']);
 		expect(collapsedCategories(all, 'all')).not.toContain('kitchen');
+	});
+});
+
+describe('outdoor first', () => {
+	const garden: CatalogEntry = {
+		...sampleCatalog[0]!,
+		id: 'garden-chair',
+		name: { de: 'Gartenstuhl', en: 'Garden chair' },
+		outdoor: true
+	};
+	const entries = [...sampleCatalog, garden];
+
+	it('lists outdoor articles first for an outdoor area and leaves the order otherwise', () => {
+		const plain = filterCatalog(entries, { ...all, query: '' }, 'de').map((e) => e.id);
+		const first = filterCatalog(entries, { ...all, query: '', outdoorFirst: true }, 'de');
+		expect(first[0]!.id).toBe('garden-chair');
+		expect(first.map((e) => e.id).slice(1)).toEqual(plain.filter((id) => id !== 'garden-chair'));
+		expect(filterCatalog(entries, { ...all, query: '', outdoorFirst: false }, 'de')).toEqual(
+			filterCatalog(sampleCatalog.concat(garden), { ...all, query: '' }, 'de')
+		);
+	});
+
+	it('detects outdoor rooms and keeps the order without outdoor data', () => {
+		expect(outdoorFromRoom({ type: 'terrace' })).toBe(true);
+		expect(outdoorFromRoom({ type: 'living' })).toBe(false);
+		expect(outdoorFromRoom(undefined)).toBe(false);
+		expect(filterCatalog(sampleCatalog, { ...all, query: '', outdoorFirst: true }, 'de')).toEqual(
+			filterCatalog(sampleCatalog, { ...all, query: '' }, 'de')
+		);
 	});
 });
