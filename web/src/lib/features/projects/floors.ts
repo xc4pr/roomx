@@ -3,8 +3,6 @@ import { roomFloorId } from '#lib/core/floors.ts';
 import type { Language } from '#lib/core/units.ts';
 import type { Project } from '#lib/core/schema.ts';
 
-export const DEFAULT_MULTI: readonly string[] = ['EG', '1. OG'];
-
 export const FLOOR_NAMES_EN: readonly string[] = [
 	'Basement',
 	'Ground floor',
@@ -15,6 +13,11 @@ export const FLOOR_NAMES_EN: readonly string[] = [
 
 export function floorNamesFor(language: Language): readonly string[] {
 	return language === 'en' ? FLOOR_NAMES_EN : FLOOR_NAMES;
+}
+
+// Floors preselected for a project with several floors: ground floor and first floor.
+export function defaultFloors(language: Language): string[] {
+	return floorNamesFor(language).slice(1, 3);
 }
 
 function rank(name: string): number {

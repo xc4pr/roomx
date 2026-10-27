@@ -109,10 +109,22 @@
 	let floorsOpen = $state(false);
 	let toolColumnHeight = $state(0);
 	const floorId = $derived(activeFloorId(store.project));
+	// A newly selected room on another floor (build check, list) brings its floor into view. Only a
+	// change of the selection counts, so picking another floor chip is never undone.
+	let followedSelection: string | null | undefined;
 	$effect(() => {
-		const project = store.project;
-		const target = project ? floorOfSelection(project, ui.selectedRoomId, floorId) : undefined;
-		if (target) ui.floorId = target;
+		const selected = ui.selectedRoomId;
+		if (selected === followedSelection) return;
+		const first = followedSelection === undefined;
+		followedSelection = selected;
+		if (first) return;
+		untrack(() => {
+			const project = store.project;
+			const target = project
+				? floorOfSelection(project, selected, activeFloorId(project))
+				: undefined;
+			if (target) ui.floorId = target;
+		});
 	});
 	const floored = $derived(store.project ? floorsEnabled(store.project) : false);
 	const rooms = $derived(store.project ? planRooms(store.project, floorId) : []);

@@ -20,7 +20,7 @@
 	import Switch from '#lib/ui/Switch.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import {
-		DEFAULT_MULTI,
+		defaultFloors,
 		floorNamesFor,
 		floorRemovable,
 		insertIndex,
@@ -39,7 +39,7 @@
 	let refused = $state(false);
 
 	function toggle(on: boolean): void {
-		if (on) store.enableFloors([...DEFAULT_MULTI]);
+		if (on) store.enableFloors(defaultFloors(locale.language));
 		else store.disableFloors();
 	}
 

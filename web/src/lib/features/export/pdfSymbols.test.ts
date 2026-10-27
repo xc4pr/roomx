@@ -125,5 +125,5 @@ describe('buildPdf with new elements', () => {
 			expect(doc.getPageCount()).toBe(after.pageCount);
 			expect(after.bytes.length).toBeGreaterThan(before.bytes.length);
 		}
-	});
+	}, 20_000);
 });

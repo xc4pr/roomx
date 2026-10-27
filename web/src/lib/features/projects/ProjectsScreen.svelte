@@ -15,7 +15,7 @@
 	import OpenJobs from '#lib/features/camera/OpenJobs.svelte';
 	import { requestPersistence } from '#lib/features/settings/storage.ts';
 	import { common } from '#lib/i18n/common.ts';
-	import { t } from '#lib/i18n/index.svelte.ts';
+	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import {
 		listProjects,
 		loadProject,
@@ -47,11 +47,10 @@
 	import ProgressRing from '#lib/ui/ProgressRing.svelte';
 	import TextField from '#lib/ui/TextField.svelte';
 	import { toasts } from '#lib/ui/toast.svelte.ts';
-	import { FLOOR_NAMES } from '#lib/core/defaults.ts';
 	import Chip from '#lib/ui/Chip.svelte';
 	import SegmentedControl from '#lib/ui/SegmentedControl.svelte';
 	import { createProjectWithFloors } from './create.ts';
-	import { DEFAULT_MULTI, toggleFloorName } from './floors.ts';
+	import { defaultFloors, floorNamesFor, toggleFloorName } from './floors.ts';
 	import { messages } from './i18n.ts';
 	import { installState, promptInstall } from './install.svelte.ts';
 	import { needsInstallGate, readEnvironment, shouldShowInstallHint } from './install.ts';
@@ -62,7 +61,7 @@
 	let creating = $state(false);
 	let newName = $state('');
 	let floorMode = $state<'one' | 'many'>('one');
-	let pickedFloors = $state<string[]>([...DEFAULT_MULTI]);
+	let pickedFloors = $state<string[]>(defaultFloors(locale.language));
 	let busy = $state(false);
 	let renaming = $state<ProjectSummary | null>(null);
 	let renameValue = $state('');
@@ -182,7 +181,7 @@
 		}
 		newName = '';
 		floorMode = 'one';
-		pickedFloors = [...DEFAULT_MULTI];
+		pickedFloors = defaultFloors(locale.language);
 		creating = true;
 	}
 
@@ -192,7 +191,7 @@
 		gateOpen = false;
 		newName = '';
 		floorMode = 'one';
-		pickedFloors = [...DEFAULT_MULTI];
+		pickedFloors = defaultFloors(locale.language);
 		creating = true;
 	}
 
@@ -464,7 +463,7 @@
 		/>
 		{#if floorMode === 'many'}
 			<div class="flex flex-wrap gap-2" role="group" aria-label={t(messages, 'floorsPick')}>
-				{#each FLOOR_NAMES as name (name)}
+				{#each floorNamesFor(locale.language) as name (name)}
 					<Chip
 						selected={pickedFloors.includes(name)}
 						onclick={() => (pickedFloors = toggleFloorName(pickedFloors, name))}
