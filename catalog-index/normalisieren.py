@@ -33,6 +33,8 @@ MODEL_DEFAULTS = {
     'monitor': ('on-top', 40, 500, 0), 'tv': ('floor', 100, 1500, 0), 'pc': ('floor', 200, 300, 0),
     'printer': ('on-top', 30, 300, 0), 'smallDevice': ('on-top', 20, 0, 0), 'speaker': ('floor', 30, 0, 0),
     'monitorArm': ('on-top', 0, 0, 0), 'powerStrip': ('floor', 0, 0, 0),
+    'kitchenBase': ('floor', 0, 1000, 0), 'kitchenSink': ('floor', 0, 1000, 0),
+    'kitchenTall': ('floor', 0, 1000, 0), 'kitchenWall': ('wall', 0, 0, 0),
 }
 # Tchibo: Endungen der Namenswoerter, die als Stichwort fuer die Zuordnung gelten
 TCHIBO_STICH = [
@@ -284,6 +286,32 @@ def tchibo_art(name):
 
 # ---------- Eingabe ----------
 
+DRAUSSEN = re.compile(r'outdoor|garten|aussen|balkon|terrass|draussen', re.I)
+NICHT_DRAUSSEN = re.compile(r'zimmerpflanzen|indoor', re.I)
+
+
+def ist_draussen(schluessel):
+    """Gartenmoebel und Balkonmoebel nach der Kategorie des Shops (fuer Aussenbereiche zuerst gezeigt)."""
+    return bool(DRAUSSEN.search(schluessel)) and not NICHT_DRAUSSEN.search(schluessel)
+
+
+KUECHE_NACH_NAME = [
+    (re.compile(r'wandschrank|h\u00e4ngeschrank|oberschrank', re.I), 'kitchenWall', 'wall'),
+    (re.compile(r'hochschrank', re.I), 'kitchenTall', None),
+    (re.compile(r'sp\u00fcl(en)?schrank', re.I), 'kitchenSink', None),
+]
+
+
+def kuechen_modell(model, name):
+    """Kuechenschraenke aus gemischten Kategorien (ENHET, KNOXHULT) nach dem Namen: (Modell, Montage oder None)."""
+    if model != 'kitchenBase':
+        return model, None
+    for muster, neu, mount in KUECHE_NACH_NAME:
+        if muster.search(name or ''):
+            return neu, mount
+    return model, None
+
+
 def kategorie_schluessel(shop, r):
     if shop == 'tchibo':
         return 'tchibo|' + tchibo_art(r.get('name'))
@@ -510,7 +538,7 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
         pool = lebend or g
         sieger = waehle_variante([x[1] for x in pool])
         _, r, z, basis, serie, _h = next(x for x in pool if x[1] is sieger)
-        model = z['model']
+        model, mount_name = kuechen_modell(z['model'], r.get('name'))
         dims = berechne_masse(model, r.get('masse'), r.get('name'))
         hexe = []
         for x in pool:
@@ -543,7 +571,7 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
             ids_tab[skey] = eid
             benutzt.add(eid)
         mount0, power, front, side = MODEL_DEFAULTS.get(model, ('floor', 0, 0, 0))
-        mount = z.get('mount') or mount0
+        mount = mount_name or z.get('mount') or mount0
         p = preis(sieger)
         de = basis
         e = {'id': eid, 'brand': BRAND[shop]}
@@ -557,6 +585,8 @@ def normalisiere(rows_by_shop, zuordnung, farben, ids_tab, kur_ids, kur_nrn, art
             st['eigennamen' if not hat else 'gleich'] += 1
         en_unbekannt.update(unb)
         e['category'] = z['category']
+        if ist_draussen(kategorie_schluessel(shop, r)):
+            e['outdoor'] = True
         e['model'] = model
         e['dims'] = dims
         e['colors'] = hexe[:8]
