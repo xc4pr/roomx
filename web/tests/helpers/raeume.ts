@@ -2,6 +2,8 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import {
 	addRoom,
 	createProject,
+	openProjects,
+	projectIdOf,
 	fillChecked,
 	fillNumber,
 	placeElement,
@@ -276,7 +278,7 @@ export async function placeFreeAt(
 }
 
 export async function open3d(page: Page): Promise<void> {
-	await page.getByTestId('seg-3d').click();
+	await page.getByTestId('seg-3d').first().click();
 	await expect(page.getByTestId('canvas3d')).toBeVisible();
 	await expect(page.getByTestId('viewer3d')).toHaveAttribute('data-context', 'ok');
 	await page.waitForTimeout(1500);
@@ -344,4 +346,98 @@ export async function dockNextTo(
 	await reloadProject(page);
 	await selectRoomById(page, targetId);
 	await expect(page.locator('[data-neighbour]')).toHaveCount(1);
+}
+
+export interface FloorFields {
+	id: string;
+	name: string;
+	slabThickness: number;
+	height?: number;
+}
+
+export interface StairFields {
+	id: string;
+	fromFloorId: string;
+	shape: string;
+	x: number;
+	y: number;
+	rotation: number;
+	width: number;
+}
+
+export const floorsOf = (project: StoredProject): FloorFields[] =>
+	(project as unknown as { floors?: FloorFields[] }).floors ?? [];
+
+export const stairsOf = (project: StoredProject): StairFields[] =>
+	(project as unknown as { stairs?: StairFields[] }).stairs ?? [];
+
+export const roomFloor = (room: BoardRoomFields): string | undefined =>
+	(room as unknown as { floorId?: string }).floorId;
+
+// New project with several floors, chosen in the create dialog like a person would.
+export async function createFloorProject(page: Page, name: string): Promise<string> {
+	await openProjects(page);
+	const empty = page.getByTestId('empty-create');
+	const fab = page.getByTestId('new-project');
+	await expect(empty.or(fab)).toBeVisible();
+	await empty.or(fab).first().click();
+	await page.getByTestId('project-name').fill(name);
+	await page.getByRole('radio', { name: 'Mehrere' }).click();
+	await page.getByTestId('create-project').click();
+	await expect(page).toHaveURL(/\/p\/[^/]+$/);
+	await expect(page.getByTestId('board')).toBeVisible();
+	const id = projectIdOf(page);
+	await waitForProject(page, id, (p) => floorsOf(p).length === 2, 'Stockwerke');
+	return id;
+}
+
+export async function showFloor(page: Page, name: string): Promise<void> {
+	await page.getByTestId('floor-switcher').getByRole('button', { name, exact: true }).click();
+	await page.waitForTimeout(500);
+}
+
+export interface House {
+	id: string;
+	lowerId: string;
+	upperId: string;
+	lowerFloorId: string;
+	upperFloorId: string;
+}
+
+// Two floors with one room each; the upper room is left selected.
+export async function buildHouse(
+	page: Page,
+	name: string,
+	length: number,
+	width: number,
+	upperType = 'bedroom'
+): Promise<House> {
+	const id = await createFloorProject(page, name);
+	const [lowerFloor, upperFloor] = floorsOf((await readProject(page, id))!);
+	await showFloor(page, lowerFloor.name);
+	await addNamedRoom(page, id, 'Wohnen unten', 'living', length, width);
+	await showFloor(page, upperFloor.name);
+	await addNamedRoom(page, id, 'Zimmer oben', upperType, length, width);
+	const [lower, upper] = roomsOf((await readProject(page, id))!);
+	return {
+		id,
+		lowerId: lower.id,
+		upperId: upper.id,
+		lowerFloorId: lowerFloor.id,
+		upperFloorId: upperFloor.id
+	};
+}
+
+export async function addStairOnFloor(
+	page: Page,
+	id: string,
+	floorName: string
+): Promise<StairFields> {
+	await showFloor(page, floorName);
+	await page.mouse.click(5, 5);
+	await page.getByTestId('stair-add').click();
+	await expect(page.getByTestId('stair-editor')).toBeVisible();
+	const project = await waitForProject(page, id, (p) => stairsOf(p).length > 0, 'Treppe');
+	await page.getByTestId('stair-close').click();
+	return stairsOf(project)[0];
 }
