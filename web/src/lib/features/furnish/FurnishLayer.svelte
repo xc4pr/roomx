@@ -12,7 +12,8 @@
 		walls,
 		type Vec
 	} from '#lib/core/geometry.ts';
-	import { isWallElement, type Item } from '#lib/core/schema.ts';
+	import { clearanceZone, freeElementShape } from '#lib/core/elements.ts';
+	import { isFreeElement, isWallElement, type Item } from '#lib/core/schema.ts';
 	import { formatLength } from '#lib/core/units.ts';
 	import { connections } from '#lib/features/board/connections.svelte.ts';
 	import { getViewport, type RoomLayerProps } from '#lib/features/board/viewport.ts';
@@ -194,7 +195,12 @@
 	function zoneFor(issue: ItemIssue): Vec[] | null {
 		if (!issue.elementId) return null;
 		const element = connected.elements.find((candidate) => candidate.id === issue.elementId);
-		if (!element || !isWallElement(element)) return null;
+		if (!element) return null;
+		if (issue.code === 'fireZone' || issue.code === 'airflowBlocked') {
+			return clearanceZone(connected, element)?.shape ?? null;
+		}
+		if (isFreeElement(element)) return freeElementShape(element);
+		if (!isWallElement(element)) return null;
 		if (element.kind === 'door' && element.swing === 'in') {
 			return doorSwing(room.polygon, element)?.polygon ?? null;
 		}

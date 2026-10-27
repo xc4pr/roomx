@@ -2,13 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { catalog } from '#lib/catalog/index.ts';
 import { catalogLookup, type CatalogEntry } from '#lib/core/catalog.ts';
 import { sampleCatalog } from '#lib/core/fixtures.ts';
+import type { ItemCategory } from '#lib/core/schema.ts';
 import { groupShopping } from './shopping.ts';
 import {
 	brandsOf,
 	categoriesOf,
 	collapsedCategories,
 	filterCatalog,
-	normalizeText
+	kitchenFromCatalog,
+	normalizeText,
+	orderCategories
 } from './filter.ts';
 
 const all = { category: 'all', brand: 'all' } as const;
@@ -107,5 +110,31 @@ describe('collapsedCategories', () => {
 
 	it('ignores categories that are not available', () => {
 		expect(collapsedCategories(['lamp'], 'desk')).toEqual(['lamp']);
+	});
+});
+
+describe('kitchen category order', () => {
+	const all: ItemCategory[] = ['bed', 'kitchen', 'sofa', 'table'];
+
+	it('puts the kitchen first for a catalogue kitchen and last otherwise', () => {
+		expect(orderCategories(all, true)).toEqual(['kitchen', 'bed', 'sofa', 'table']);
+		expect(orderCategories(all, false)).toEqual(['bed', 'sofa', 'table', 'kitchen']);
+		expect(orderCategories(['bed', 'sofa'], true)).toEqual(['bed', 'sofa']);
+	});
+
+	it('detects a catalogue kitchen only where a kitchen exists', () => {
+		expect(kitchenFromCatalog({ type: 'kitchen', kitchen: { mode: 'catalog' } })).toBe(true);
+		expect(kitchenFromCatalog({ type: 'kitchen', kitchen: { mode: 'builtin' } })).toBe(false);
+		expect(kitchenFromCatalog({ type: 'kitchen' })).toBe(false);
+		expect(kitchenFromCatalog({ type: 'living', kitchen: { mode: 'catalog' } })).toBe(false);
+		expect(kitchenFromCatalog({ type: 'living', kitchen: { open: true, mode: 'catalog' } })).toBe(
+			true
+		);
+		expect(kitchenFromCatalog(undefined)).toBe(false);
+	});
+
+	it('pins the kitchen in the collapsed list', () => {
+		expect(collapsedCategories(all, 'all', 3, 'kitchen')).toEqual(['kitchen', 'sofa', 'bed']);
+		expect(collapsedCategories(all, 'all')).not.toContain('kitchen');
 	});
 });

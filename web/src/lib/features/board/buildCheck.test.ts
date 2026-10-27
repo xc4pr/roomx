@@ -30,6 +30,45 @@ describe('collectWarnings', () => {
 	});
 });
 
+describe('new element findings', () => {
+	it('flags an element that does not fit the room type as a hint, not an error', () => {
+		const room = createRoom('r', 'Wohnen', 'living');
+		room.elements.push(createElement('toilet', room, 1, 1000, sequentialIds()));
+		const warnings = collectWarnings([room], none);
+		expect(warnings).toHaveLength(1);
+		expect(warnings[0]).toMatchObject({ kind: 'issue', issue: { code: 'elementNotForRoomType' } });
+		expect(isError(warnings[0])).toBe(false);
+	});
+
+	it('reports a roof window outside any slope', () => {
+		const room = createRoom('r', 'Dach', 'other');
+		room.elements.push(createElement('roofWindow', room, 1, 1000, sequentialIds()));
+		const codes = collectWarnings([room], none).map((w) =>
+			w.kind === 'issue' ? w.issue.code : ''
+		);
+		expect(codes).toContain('roofWindowOffSlope');
+	});
+
+	it('reports overlapping fixtures on one wall', () => {
+		const room = createRoom('r', 'Bad', 'bath');
+		const ids = sequentialIds();
+		room.elements.push(
+			createElement('washbasin', room, 1, 1000, ids),
+			createElement('shower', room, 1, 1200, ids)
+		);
+		const codes = collectWarnings([room], none).map((w) =>
+			w.kind === 'issue' ? w.issue.code : ''
+		);
+		expect(codes).toContain('elementOverlap');
+	});
+
+	it('does not block on a clean bath', () => {
+		const room = createRoom('r', 'Bad', 'bath');
+		room.elements.push(createElement('toilet', room, 1, 1000, sequentialIds()));
+		expect(collectWarnings([room], none)).toEqual([]);
+	});
+});
+
 describe('unconnected rooms', () => {
 	const apart = (gap: number) => [
 		createRoom('a', 'Wohnzimmer'),

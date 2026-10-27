@@ -1,5 +1,6 @@
 import type { CatalogEntry } from '#lib/core/catalog.ts';
-import type { ItemCategory } from '#lib/core/schema.ts';
+import { hasKitchen } from '#lib/core/elements.ts';
+import type { ItemCategory, Room } from '#lib/core/schema.ts';
 
 export const WIDTH_CLASSES = ['narrow', 'medium', 'wide', 'extraWide'] as const;
 export type WidthClass = (typeof WIDTH_CLASSES)[number];
@@ -131,13 +132,30 @@ export const COMMON_CATEGORIES: readonly ItemCategory[] = [
 
 export const COLLAPSED_CATEGORY_COUNT = 3;
 
+// A kitchen planned from the catalogue: then the category "kitchen" leads the list.
+export function kitchenFromCatalog(room: Pick<Room, 'type' | 'kitchen'> | undefined): boolean {
+	return room !== undefined && hasKitchen(room) && room.kitchen?.mode === 'catalog';
+}
+
+// Categories in display order; "kitchen" comes first for a catalogue kitchen and last otherwise.
+export function orderCategories(
+	sorted: readonly ItemCategory[],
+	kitchenFirst: boolean
+): ItemCategory[] {
+	const rest = sorted.filter((name) => name !== 'kitchen');
+	if (!sorted.includes('kitchen')) return rest;
+	return kitchenFirst ? ['kitchen', ...rest] : [...rest, 'kitchen'];
+}
+
 export function collapsedCategories(
 	available: readonly ItemCategory[],
 	selected: ItemCategory | 'all',
-	limit: number = COLLAPSED_CATEGORY_COUNT
+	limit: number = COLLAPSED_CATEGORY_COUNT,
+	pinned?: ItemCategory
 ): ItemCategory[] {
 	const has = new Set(available);
-	const result: ItemCategory[] = selected !== 'all' && has.has(selected) ? [selected] : [];
+	const result: ItemCategory[] = pinned && has.has(pinned) ? [pinned] : [];
+	if (selected !== 'all' && has.has(selected) && !result.includes(selected)) result.push(selected);
 	for (const category of COMMON_CATEGORIES) {
 		if (result.length >= limit) break;
 		if (has.has(category) && !result.includes(category)) result.push(category);

@@ -44,6 +44,8 @@ import {
 	type PdfContext,
 	type Point2
 } from './pdfKit.ts';
+import { symbolTranslator } from './pdfText.ts';
+import { drawSymbols, drawZones, isSymbolKind, symbolColor, kitchenSketch } from './pdfSymbols.ts';
 import {
 	drawPlanSlopes,
 	drawProfileLabels,
@@ -74,6 +76,7 @@ function toPage(fit: Fit, p: Vec): Point2 {
 
 function elementColor(ctx: PdfContext, element: RoomElement): string {
 	if (element.status === 'suggested') return ctx.palette.suggested;
+	if (isSymbolKind(element.kind)) return symbolColor(ctx, element);
 	switch (element.kind) {
 		case 'window':
 			return ctx.palette.window;
@@ -410,11 +413,13 @@ export function drawRoomPlan(
 	drawPlanSlopes(page, ctx, room, fit);
 
 	const elements = [...room.elements, ...(options.extraElements ?? [])];
+	drawZones(page, ctx, room, elements, fit);
 	for (const element of elements) {
 		if (element.kind === 'builtin' || element.kind === 'obstacle' || element.kind === 'radiator') {
 			drawFixture(page, ctx, room, element, fit);
 		}
 	}
+	drawSymbols(page, ctx, room, elements, fit);
 	const sortedItems = [...(options.items ?? [])]
 		.map((item, index) => ({ item, number: index + 1 }))
 		.sort((a, b) => a.item.elevation - b.item.elevation || a.number - b.number);
@@ -487,7 +492,30 @@ export function drawLegend(
 	return cursorY;
 }
 
-export function planLegend(ctx: PdfContext, withItems: boolean, withSlopes = false): LegendEntry[] {
+export function legendRows(
+	ctx: PdfContext,
+	maxWidth: number,
+	entries: readonly LegendEntry[]
+): number {
+	let rows = 1;
+	let cursor = 0;
+	for (const entry of entries) {
+		const width = 22 + textWidth(ctx, entry.label, 8) + 12;
+		if (cursor > 0 && cursor + width > maxWidth) {
+			rows++;
+			cursor = 0;
+		}
+		cursor += width;
+	}
+	return rows;
+}
+
+export function planLegend(
+	ctx: PdfContext,
+	withItems: boolean,
+	withSlopes = false,
+	symbols: readonly LegendEntry[] = []
+): LegendEntry[] {
 	const p = ctx.palette;
 	const tr = ctx.tr;
 	const entries: LegendEntry[] = [
@@ -611,6 +639,7 @@ export function planLegend(ctx: PdfContext, withItems: boolean, withSlopes = fal
 			}
 		);
 	}
+	entries.push(...symbols);
 	entries.push({
 		label: tr('legendWallNumber'),
 		draw: (page, x, y) => badge(page, ctx, '1', { x: x + 8, y }, 5.2, true)
@@ -643,6 +672,29 @@ function elementDescription(
 		tr('elementHeights', { sill: element.elevation, top: element.elevation + element.height })
 	];
 	if ('depth' in element) parts.push(tr('elementDepth', { d: element.depth }));
+	const extra = symbolTranslator(ctx.language);
+	if (element.kind === 'shower' && element.screen) parts.push(extra('elementScreen'));
+	if (element.kind === 'acWall' && element.clearance > 0) {
+		parts.push(extra('elementClearance', { n: element.clearance }));
+	}
+	if (element.kind === 'kitchenRun') {
+		parts.push(
+			extra('elementKitchen', {
+				grid: extra(element.grid === 'sms' ? 'gridSms' : 'gridEuro'),
+				n: kitchenSketch(element).modules.length,
+				tall: element.tallHeight
+			})
+		);
+		if (element.upper) {
+			parts.push(
+				extra('elementKitchenUpper', {
+					h: element.upper.height,
+					d: element.upper.depth,
+					e: element.upper.elevation
+				})
+			);
+		}
+	}
 	if (element.kind === 'door') {
 		parts.push(tr(`hinge_${element.hinge}`), tr(`swing_${element.swing}`));
 	}

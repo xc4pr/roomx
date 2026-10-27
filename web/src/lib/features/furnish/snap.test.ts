@@ -242,3 +242,43 @@ describe('defaults', () => {
 		expect(findFreeSpot(room, [blocker], { w: 3900, d: 2900 })).toBeUndefined();
 	});
 });
+
+describe('kitchen placement', () => {
+	const hob: PlaceSubject = {
+		dims: { w: 600, d: 520, h: 50 },
+		mount: 'on-top',
+		category: 'kitchen',
+		model: 'hob',
+		rotation: 0,
+		elevation: 0
+	};
+	const base = item({
+		id: 'base',
+		category: 'kitchen',
+		model: 'kitchenBase',
+		dims: { w: 600, d: 600, h: 900 }
+	});
+
+	it('hangs wall cabinets at the upper cabinet height', () => {
+		expect(defaultWallElevation(700, 2500, 'kitchenWall')).toBe(1450);
+		expect(defaultWallElevation(700, 2000, 'kitchenWall')).toBe(1300);
+		expect(defaultWallElevation(700, 2500)).toBe(1150);
+	});
+
+	it('puts a hob on a base cabinet and never on other furniture', () => {
+		expect(findCarrier({ x: 2000, y: 1500 }, hob, [base], 2500)?.id).toBe('base');
+		const table = item({ id: 'table' });
+		expect(findCarrier({ x: 2000, y: 1500 }, hob, [table], 2500)).toBeUndefined();
+		const placed = computePlacement(
+			hob,
+			{ x: 2000, y: 1500 },
+			{
+				room,
+				others: [base],
+				threshold: 60
+			}
+		);
+		expect(placed.onItemId).toBe('base');
+		expect(placed.elevation).toBe(900);
+	});
+});

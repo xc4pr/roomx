@@ -3,6 +3,8 @@ export interface Palette {
 	door: string;
 	electric: string;
 	fixture: string;
+	fire: string;
+	air: string;
 	item: string;
 	suggested: string;
 	ink: string;
@@ -18,6 +20,8 @@ export const PAPER_PALETTE: Palette = {
 	door: '#d9741a',
 	electric: '#d9a800',
 	fixture: '#858c95',
+	fire: '#c8372d',
+	air: '#2f8f9d',
 	item: '#c9cdca',
 	suggested: '#7b5bd4',
 	ink: '#1c1f23',

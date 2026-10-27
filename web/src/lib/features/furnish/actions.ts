@@ -18,6 +18,7 @@ import { itemFromCatalog, itemMount, type NewItem } from './place.ts';
 import { markPlaced, markVanishing } from './session.svelte.ts';
 import {
 	canCarry,
+	carriesHob,
 	computePlacement,
 	defaultWallElevation,
 	descendantsOf,
@@ -40,6 +41,7 @@ export function subjectOf(item: Item): PlaceSubject {
 		dims: item.dims,
 		mount: itemMount(item),
 		category: item.category,
+		...(item.model ? { model: item.model } : {}),
 		rotation: item.rotation,
 		elevation: item.elevation,
 		...(item.onItemId ? { onItemId: item.onItemId } : {})
@@ -98,7 +100,11 @@ function smartPlacement(subject: PlaceSubject, room: Room, others: Item[]): Plac
 			? others.find((item) => item.id === ui.selectedItemId)
 			: null;
 		const carriers = others
-			.filter((item) => canCarry(item) && SURFACE_ORDER.includes(item.category))
+			.filter((item) =>
+				subject.model === 'hob'
+					? canCarry(item) && carriesHob(item)
+					: canCarry(item) && SURFACE_ORDER.includes(item.category)
+			)
 			.sort((a, b) => SURFACE_ORDER.indexOf(a.category) - SURFACE_ORDER.indexOf(b.category));
 		const carrier = selected && canCarry(selected) ? selected : carriers[0];
 		if (carrier) {
@@ -142,8 +148,10 @@ export function insertItem(
 		dims: template.dims,
 		mount,
 		category: template.category,
+		...(template.model ? { model: template.model } : {}),
 		rotation: 0,
-		elevation: mount === 'wall' ? defaultWallElevation(template.dims.h, room.height) : 0
+		elevation:
+			mount === 'wall' ? defaultWallElevation(template.dims.h, room.height, template.model) : 0
 	};
 	const others = roomItems(room.id);
 	const placement = options.raw
@@ -165,7 +173,7 @@ export function addCatalogEntry(
 }
 
 export function previewPlacement(
-	entry: Pick<CatalogEntry, 'dims' | 'mount' | 'category'>,
+	entry: Pick<CatalogEntry, 'dims' | 'mount' | 'category' | 'model'>,
 	room: Room,
 	raw: Vec,
 	threshold: number
@@ -174,8 +182,10 @@ export function previewPlacement(
 		dims: entry.dims,
 		mount: entry.mount,
 		category: entry.category,
+		...(entry.model ? { model: entry.model } : {}),
 		rotation: 0,
-		elevation: entry.mount === 'wall' ? defaultWallElevation(entry.dims.h, room.height) : 0
+		elevation:
+			entry.mount === 'wall' ? defaultWallElevation(entry.dims.h, room.height, entry.model) : 0
 	};
 	return computePlacement(subject, raw, { room, others: roomItems(room.id), threshold });
 }

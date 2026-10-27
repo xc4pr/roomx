@@ -4,6 +4,8 @@
 	import Search from '@lucide/svelte/icons/search';
 	import { fullCatalog } from '#lib/catalog/full.svelte.ts';
 	import { allEntries } from '#lib/catalog/index.ts';
+	import { store } from '#lib/state/project.svelte.ts';
+	import { ui } from '#lib/state/ui.svelte.ts';
 	import type { CatalogEntry } from '#lib/core/catalog.ts';
 	import type { ItemCategory } from '#lib/core/schema.ts';
 	import { categoryNames } from '#lib/i18n/common.ts';
@@ -19,6 +21,8 @@
 		categoriesOf,
 		collapsedCategories,
 		filterCatalog,
+		kitchenFromCatalog,
+		orderCategories,
 		WIDTH_CLASSES,
 		type WidthClass
 	} from './filter.ts';
@@ -57,20 +61,29 @@
 		return allEntries();
 	});
 	const counts = $derived(categoriesOf(entries));
+	const room = $derived(ui.selectedRoomId ? store.room(ui.selectedRoomId) : undefined);
+	const kitchenFirst = $derived(kitchenFromCatalog(room));
 	const categories = $derived(
-		[...counts.keys()].sort((a, b) =>
-			categoryNames[locale.language][a].localeCompare(
-				categoryNames[locale.language][b],
-				locale.language
-			)
+		orderCategories(
+			[...counts.keys()].sort((a, b) =>
+				categoryNames[locale.language][a].localeCompare(
+					categoryNames[locale.language][b],
+					locale.language
+				)
+			),
+			kitchenFirst
 		)
 	);
-	const shownCategories = $derived(
-		session.categoriesOpen ? categories : collapsedCategories(categories, category)
+	const collapsed = $derived(
+		collapsedCategories(categories, category, undefined, kitchenFirst ? 'kitchen' : undefined)
 	);
-	const hiddenCount = $derived(
-		categories.length - collapsedCategories(categories, category).length
-	);
+	const shownCategories = $derived(session.categoriesOpen ? categories : collapsed);
+	const hiddenCount = $derived(categories.length - collapsed.length);
+
+	$effect(() => {
+		void room?.id;
+		if (kitchenFirst) category = 'kitchen';
+	});
 	const brands = $derived(brandsOf(entries));
 	const brandOptions = $derived([
 		{ value: 'all', label: t(messages, 'allBrands') },

@@ -27,7 +27,10 @@ import {
 	planPhotoPages
 } from './layout.ts';
 import { PAPER_PALETTE, type Palette } from './palette.ts';
-import { buildWallBlock, drawLegend, drawRoomPlan, planLegend } from './pdfPlan.ts';
+import { buildWallBlock, drawLegend, drawRoomPlan, legendRows, planLegend } from './pdfPlan.ts';
+import { findingLines } from './pdfFindings.ts';
+import { roomOnlyLines, symbolLegend } from './pdfSymbols.ts';
+import { symbolTranslator } from './pdfText.ts';
 import { hasSlopes, slopeSummary } from './pdfSlopes.ts';
 import {
 	Flow,
@@ -166,7 +169,11 @@ function drawTitlePage(ctx: PdfContext, project: Project, rooms: Room[], date: D
 		planLegend(
 			ctx,
 			true,
-			rooms.some((room) => hasSlopes(room))
+			rooms.some((room) => hasSlopes(room)),
+			symbolLegend(
+				ctx,
+				rooms.flatMap((room) => room.elements)
+			)
 		)
 	);
 	flow.y = bottom - 12;
@@ -204,8 +211,14 @@ function drawPlanPage(ctx: PdfContext, room: Room): void {
 		size: 8,
 		color: ctx.palette.muted
 	});
+	const freeLines = roomOnlyLines(ctx, room.elements);
+	if (freeLines.length > 0) {
+		flow.paragraph(symbolTranslator(ctx.language)('freeTitle'), { size: 8.5, bold: true });
+		for (const line of freeLines) flow.paragraph(`- ${line}`, { size: 8, indent: 6 });
+	}
 	flow.gap(4);
-	const legendHeight = 50;
+	const legend = planLegend(ctx, false, hasSlopes(room), symbolLegend(ctx, room.elements));
+	const legendHeight = 20 + legendRows(ctx, CONTENT_WIDTH, legend) * 15;
 	const box = {
 		x: MARGIN,
 		y: CONTENT_BOTTOM + legendHeight,
@@ -214,14 +227,7 @@ function drawPlanPage(ctx: PdfContext, room: Room): void {
 	};
 	const result = drawRoomPlan(flow.page, ctx, room, { box, align: 'top' });
 	const legendTop = CONTENT_BOTTOM + legendHeight - 8;
-	drawLegend(
-		flow.page,
-		ctx,
-		MARGIN,
-		legendTop,
-		CONTENT_WIDTH,
-		planLegend(ctx, false, hasSlopes(room))
-	);
+	drawLegend(flow.page, ctx, MARGIN, legendTop, CONTENT_WIDTH, legend);
 	drawText(
 		flow.page,
 		ctx,
@@ -351,7 +357,7 @@ function drawFurnishPages(ctx: PdfContext, project: Project, room: Room): void {
 		MARGIN,
 		flow.y,
 		CONTENT_WIDTH,
-		planLegend(ctx, true, hasSlopes(room))
+		planLegend(ctx, true, hasSlopes(room), symbolLegend(ctx, [...room.elements, ...suggestions]))
 	);
 	drawText(
 		flow.page,
@@ -373,6 +379,11 @@ function drawFurnishPages(ctx: PdfContext, project: Project, room: Room): void {
 		flow.gap(4);
 	}
 	if (items.length > 0) drawItemTable(ctx, flow, items);
+	const findings = findingLines(ctx, room, items, suggestions);
+	if (findings.length > 0) {
+		flow.heading(symbolTranslator(ctx.language)('findingsTitle'));
+		for (const line of findings) flow.paragraph(`- ${line}`, { size: 8.5, indent: 6 });
+	}
 	if (suggestions.length > 0) {
 		flow.heading(tr('sectionSuggestions'));
 		for (const line of suggestionLines(ctx, room, suggestions)) {

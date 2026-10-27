@@ -18,7 +18,8 @@ import {
 	type Vec,
 	type Wall
 } from '#lib/core/geometry.ts';
-import type { Dims, Item, ItemCategory, Mount, Point, Room } from '#lib/core/schema.ts';
+import { KITCHEN_UPPER } from '#lib/core/defaults.ts';
+import type { Dims, Item, ItemCategory, ModelType, Mount, Point, Room } from '#lib/core/schema.ts';
 
 export interface Guide {
 	a: Vec;
@@ -29,6 +30,7 @@ export interface PlaceSubject {
 	dims: Dims;
 	mount: Mount;
 	category: ItemCategory;
+	model?: ModelType;
 	rotation: number;
 	elevation: number;
 	onItemId?: string;
@@ -80,7 +82,14 @@ export function angleDiff(target: number, from: number): number {
 	return diff - 180;
 }
 
-export function defaultWallElevation(height: number, roomHeight: number): number {
+export function defaultWallElevation(
+	height: number,
+	roomHeight: number,
+	model?: ModelType
+): number {
+	if (model === 'kitchenWall') {
+		return Math.max(0, Math.min(roomHeight - height, KITCHEN_UPPER.elevation));
+	}
 	if (height >= roomHeight * 0.7) return Math.max(0, roomHeight - height);
 	return Math.max(0, Math.min(roomHeight - height, Math.round(1500 - height / 2)));
 }
@@ -185,6 +194,12 @@ export function canCarry(item: Pick<Item, 'category' | 'mount' | 'dims'>): boole
 	);
 }
 
+const HOB_CARRIERS: readonly (ModelType | undefined)[] = ['kitchenBase', 'kitchenSink'];
+
+export function carriesHob(item: Pick<Item, 'model'>): boolean {
+	return HOB_CARRIERS.includes(item.model);
+}
+
 export function canBeStacked(subject: Pick<PlaceSubject, 'mount' | 'category'>): boolean {
 	if (subject.mount === 'on-top') return true;
 	return subject.mount === 'floor' && STACKABLE.includes(subject.category);
@@ -227,6 +242,7 @@ export function findCarrier(
 	let bestTop = -Infinity;
 	for (const other of others) {
 		if (!canCarry(other) || !insideRect(point, other) || !fitsOn(subject, other)) continue;
+		if (subject.model === 'hob' && !carriesHob(other)) continue;
 		const top = other.elevation + other.dims.h;
 		if (top + subject.dims.h > roomHeight) continue;
 		if (top > bestTop) {
