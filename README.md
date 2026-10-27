@@ -230,6 +230,19 @@ A balcony, terrace or garden has no walls and no ceiling. It is only a floor, dr
 
 **Furnish.** Columns and obstacles also work outdoors, for example two pillars under a balcony above. In Furnish, garden furniture appears at the top once the catalogue marks it.
 
+### Floors and stairs
+
+A house can have several floors. A new project starts with one floor. With one floor there is no floor selector.
+
+- **New project:** RoomX asks **How many floors?** Choose **One floor** or **Several**.
+- **Later:** open **Project settings** (button next to the project name) and switch on **Several floors**. All existing rooms go onto the first floor. You can only switch it off again while all rooms are on the same floor and there is no stair.
+- **Floors:** each floor has a **Name** (for example UG, EG, 1. OG, 2. OG or DG), an order (**Move up**, **Move down**), a **Slab thickness** (default 30 cm) and a **Clear height** (empty means **Highest room**). **Add floor** adds one, **Delete floor** removes an empty one. Every room belongs to exactly one floor. You change it in the room panel under **Floor**.
+- **Plan:** the **Choose floor** switcher shows one floor. The floor below is shown faintly as a guide. New rooms land on the floor you have selected, and the connection check works per floor.
+- **Stairs:** **Add stair** creates a stair from one floor to the next. The shape is **Straight**, **L**, **U** or **Spiral**. You set the **Width**, the **Direction** and the **Turning** (**Left** or **Right**). The number of steps follows from the floor height: risers of about 17 to 18 cm, and a stride (2 × riser + tread) of about 63 cm. On the upper floor the stairwell gets a railing.
+- **Checks:** no furniture on the stair or in the stairwell. Headroom must be at least 2 m, also under sloped ceilings.
+- **3D:** the 3D view stacks the floors. Show or hide each one with **Show floor** and **Hide floor**. You can walk through each floor with **Walk**, and change floor with **Up one floor** and **Down one floor**.
+- **AI package and PDF:** both cover each floor separately, and the plan import knows the floors.
+
 ### Doors, windows and electrical
 
 In the room panel, section **Elements**, you find the palette:

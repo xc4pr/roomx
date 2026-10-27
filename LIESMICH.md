@@ -230,6 +230,19 @@ Balkon, Terrasse und Garten haben keine Wände und keine Decke. Sie bestehen nur
 
 **Einrichten.** Stützen und Hindernisse gibt es auch draussen, zum Beispiel zwei Pfeiler unter einem Balkon darüber. Im Einrichten stehen Gartenmöbel oben, sobald der Katalog sie kennzeichnet.
 
+### Stockwerke und Treppen
+
+Ein Haus kann mehrere Stockwerke haben. Ein neues Projekt startet mit einem Stockwerk. Bei einem Stockwerk gibt es keine Stockwerk-Bedienung.
+
+- **Neues Projekt:** RoomX fragt **Wie viele Stockwerke?** Wähle **Ein Stockwerk** oder **Mehrere**.
+- **Später:** Öffne die **Projekteinstellungen** (Knopf neben dem Projektnamen) und schalte **Mehrere Stockwerke** ein. Alle bestehenden Räume landen im ersten Stockwerk. Ausschalten geht nur, solange alle Räume im selben Stockwerk liegen und es keine Treppe gibt.
+- **Stockwerke:** Jedes Stockwerk hat einen **Name** (zum Beispiel UG, EG, 1. OG, 2. OG oder DG), eine Reihenfolge (**Nach oben**, **Nach unten**), eine **Deckenstärke** (Standard 30 cm) und eine **Lichte Höhe** (leer heisst **Höchster Raum**). **Stockwerk hinzufügen** legt eines an, **Stockwerk löschen** entfernt ein leeres. Jeder Raum gehört zu genau einem Stockwerk. Du änderst es im Raum-Panel unter **Stockwerk**.
+- **Plan:** Der Umschalter **Stockwerk wählen** zeigt ein Stockwerk. Das Stockwerk darunter erscheint blass als Vorlage. Neue Räume landen im gewählten Stockwerk, und die Verbindungsprüfung gilt je Stockwerk.
+- **Treppen:** **Treppe hinzufügen** legt eine Treppe vom einen ins nächste Stockwerk an. Die Form ist **Gerade**, **L**, **U** oder **Wendel**. Du stellst die **Breite**, die **Laufrichtung** und den **Drehsinn** (**Links** oder **Rechts**) ein. Die Stufenzahl folgt aus der Geschosshöhe: Steigung etwa 17 bis 18 cm, Schrittmass (2 × Steigung + Auftritt) etwa 63 cm. Im oberen Stockwerk entsteht ein Treppenauge mit **Geländer am Treppenauge**.
+- **Prüfungen:** Keine Möbel auf der Treppe und im Treppenauge. Die Kopfhöhe muss mindestens 2 m betragen, auch unter Schrägen.
+- **3D:** Die 3D-Ansicht stapelt die Stockwerke. Blende jedes einzeln mit **Stockwerk einblenden** und **Stockwerk ausblenden** ein oder aus. Begehen geht je Stockwerk mit **Begehen**; mit **Ein Stockwerk höher** und **Ein Stockwerk tiefer** wechselst du das Stockwerk.
+- **KI-Paket und PDF:** Beide enthalten jedes Stockwerk separat, und der Plan-Import kennt die Stockwerke.
+
 ### Türen, Fenster und Elektro
 
 Im Panel des Raums, Bereich **Elemente**, findest du die Palette:
