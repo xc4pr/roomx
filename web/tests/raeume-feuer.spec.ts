@@ -37,15 +37,6 @@ test('Kaminofen und Stütze: andocken, drehen, Sperrzone im Einrichten', async (
 		'Stütze gedreht'
 	);
 
-	await selectRow(page, stove.id);
-	await setField(page, 'Sperrzone vor dem Feuerraum', 3000);
-	await waitForProject(
-		page,
-		id,
-		(p) => elementsOf(p).find((e) => e.id === stove.id)!.clearance === 3000,
-		'Sperrzone 3 m'
-	);
-
 	await page.getByTestId('seg-furnish').click();
 	const panel = page.getByTestId('catalog-panel');
 	const fab = page.getByTestId('catalog-fab');
@@ -60,6 +51,22 @@ test('Kaminofen und Stütze: andocken, drehen, Sperrzone im Einrichten', async (
 	);
 	const desk = withDesk.variants.find((v) => v.id === withDesk.activeVariantId)!.items[0];
 	await page.getByTestId('panel-close').click();
+
+	// New furniture is placed outside the zone; a wider stove with a deeper zone then covers it.
+	await page.getByTestId('seg-plan').click();
+	await selectRow(page, stove.id);
+	await setField(page, 'Breite', 4000);
+	await setField(page, 'Sperrzone vor dem Feuerraum', 3000);
+	await waitForProject(
+		page,
+		id,
+		(p) => {
+			const current = elementsOf(p).find((e) => e.id === stove.id)!;
+			return current.clearance === 3000 && current.width === 4000;
+		},
+		'Ofen 4 m breit, Sperrzone 3 m'
+	);
+	await page.getByTestId('seg-furnish').click();
 
 	await page.getByTestId('fit-all').click();
 	await page.waitForTimeout(600);

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { boardToRoom, cornerLabel, interiorAngle, type Vec } from '#lib/core/geometry.ts';
-	import type { BoardPos, Point, Room } from '#lib/core/schema.ts';
+	import type { BoardPos, Point, Room, RoomElement } from '#lib/core/schema.ts';
 	import {
 		reframeElements,
 		remapAfterInsert,
@@ -30,6 +30,7 @@
 		index: number;
 		polygon: Point[];
 		boardPos: BoardPos;
+		elements: RoomElement[];
 	}
 
 	let active = $state<Active | null>(null);
@@ -44,7 +45,8 @@
 			pointerId: event.pointerId,
 			index,
 			polygon,
-			boardPos: { ...$state.snapshot(room.boardPos) }
+			boardPos: { ...$state.snapshot(room.boardPos) },
+			elements: $state.snapshot(room.elements) as RoomElement[]
 		};
 	}
 
@@ -75,7 +77,7 @@
 	function move(event: PointerEvent): void {
 		if (!active || event.pointerId !== active.pointerId) return;
 		event.stopPropagation();
-		const { index, polygon, boardPos } = active;
+		const { index, polygon, boardPos, elements } = active;
 		const n = polygon.length;
 		const board = viewport.clientToBoard(event.clientX, event.clientY);
 		const local = boardToRoom({ boardPos }, board);
@@ -99,7 +101,7 @@
 			(project) => {
 				const target = project.rooms.find((candidate) => candidate.id === room.id);
 				if (!target) return;
-				target.elements = reframeElements(target.elements, target.boardPos, framed.boardPos);
+				target.elements = reframeElements(elements, boardPos, framed.boardPos);
 				target.polygon = framed.polygon;
 				target.boardPos = framed.boardPos;
 			},
