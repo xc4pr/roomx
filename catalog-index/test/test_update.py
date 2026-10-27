@@ -474,14 +474,36 @@ class NormalizeTest(unittest.TestCase):
         self.assertEqual(self.lauf(*a), 0)
         self.assertEqual([e["url"] for e in json.loads(a[4].read_text())], [u0])
 
+    def test_nummer_wechselt_zu_anderem_eintrag(self):
+        """Eine Farbseite zeigt neu die Nummer der anderen Farbe: der alte Eintrag bleibt ohne Nummer."""
+        ua, ub = "https://www.ikea.com/ch/de/p/a-kommode-000/", "https://www.ikea.com/ch/de/p/b-kommode-000/"
+        zeilen = self.viele(40)
+        zeilen[ua] = ("produkt", ikea_zeile("A Kommode - schwarz 70x48 cm", "100.700.01", 10, breite=70))
+        zeilen[ub] = ("produkt", ikea_zeile("B Kommode - schwarz 75x48 cm", "100.700.02", 10, breite=75))
+        a = self.aufbau(zeilen)
+        self.assertEqual(self.lauf(*a), 0)
+        alt = {e["articleNo"]: e["id"] for e in json.loads(a[4].read_text())}
+        z = zs.Zustand(a[1] / "ikea.jsonl", "https://www.ikea.com/ch/de/p/").laden()
+        z.uebernimm({"url": ub, "ergebnis": "produkt", **ikea_zeile("B Kommode - schwarz 75x48 cm", "100.700.01", 10, breite=75),
+                     "im_umfang": True}, "2026-10-26", True)
+        z.speichern()
+        self.assertEqual(self.lauf(*a), 0)
+        neu = {e["id"]: e for e in json.loads(a[4].read_text())}
+        self.assertEqual(neu[alt["100.700.02"]]["articleNo"], "100.700.01")
+        bleibt = neu[alt["100.700.01"]]
+        self.assertNotIn("articleNo", bleibt)
+        self.assertTrue(bleibt["discontinued"])
+        self.assertEqual(update.doppelte(list(neu.values())), [])
+
     def test_doppelte_artikelnummer_bricht_ab(self):
         a = self.aufbau({"https://www.ikea.com/ch/de/p/malm-000/": ("produkt", ikea_zeile("A Kommode - schwarz 80x48 cm", "5.5", 10))})
-        doppelt = [{"id": "ikea-x1", "brand": "IKEA", "articleNo": "5.5", "name": {"de": "X1", "en": "X1"}},
-                   {"id": "ikea-x2", "brand": "IKEA", "articleNo": "5.5", "name": {"de": "X2", "en": "X2"}}]
+        # Zwei alte Eintraege mit derselben Nummer, die kein Eintrag dieses Laufs traegt.
+        doppelt = [{"id": "ikea-x1", "brand": "IKEA", "articleNo": "6.6", "name": {"de": "X1", "en": "X1"}},
+                   {"id": "ikea-x2", "brand": "IKEA", "articleNo": "6.6", "name": {"de": "X2", "en": "X2"}}]
         a[4].write_text(json.dumps(doppelt))
         self.assertEqual(self.lauf(*a), 1)
         self.assertEqual(json.loads(a[4].read_text()), doppelt)
-        self.assertIn("IKEA 55", json.loads((a[2] / "report.json").read_text())["fehler"])
+        self.assertIn("IKEA 66", json.loads((a[2] / "report.json").read_text())["fehler"])
         self.assertEqual(update.doppelte([{"id": "a", "brand": "IKEA", "articleNo": "1.2"}, {"id": "a", "brand": "JYSK", "articleNo": "1.2"}]), ["a"])
 
     def test_kuratiert_vorrang_ueber_cache_artikelnummer(self):
