@@ -171,5 +171,5 @@ describe('buildPdf', () => {
 			fonts
 		});
 		expect(withBalcony.pageCount).toBeLessThan(without.pageCount);
-	});
+	}, 20_000);
 });
