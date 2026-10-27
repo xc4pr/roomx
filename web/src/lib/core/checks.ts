@@ -7,6 +7,7 @@ import {
 	wallBands
 } from './elements.ts';
 import type { StairZone } from './floors.ts';
+import { coverHeightAt } from './outdoor.ts';
 import {
 	ceilingHeightAt,
 	convexInsidePolygon,
@@ -28,6 +29,7 @@ import {
 } from './geometry.ts';
 import {
 	isFreeElement,
+	isOpenAir,
 	isWallElement,
 	type Item,
 	type Room,
@@ -246,7 +248,13 @@ export function checkRoomItems(
 		if (!convexInsidePolygon(shape, room.polygon, 2)) {
 			issues.push({ code: 'outsideRoom', severity: 'error', roomId: room.id, itemIds: [item.id] });
 		}
-		if (top(item) > room.height) {
+		if (isOpenAir(room)) {
+			// No ceiling outdoors; only a cover limits the height of what stands under it.
+			const limits = shape.flatMap((corner) => coverHeightAt(room, corner) ?? []);
+			if (limits.length > 0 && top(item) > Math.min(...limits) + 1) {
+				issues.push({ code: 'tooTall', severity: 'error', roomId: room.id, itemIds: [item.id] });
+			}
+		} else if (top(item) > room.height) {
 			issues.push({ code: 'tooTall', severity: 'error', roomId: room.id, itemIds: [item.id] });
 		} else if (top(item) > Math.min(...shape.map((corner) => ceilingHeightAt(room, corner))) + 1) {
 			issues.push({ code: 'underSlope', severity: 'error', roomId: room.id, itemIds: [item.id] });
