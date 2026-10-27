@@ -8,6 +8,8 @@ export interface FrameSection {
 	to: number;
 	full: number;
 	body: number;
+	// The room builds nothing here (a glass wall in front of the house wall).
+	skip?: boolean;
 }
 
 export interface WallFrame {
@@ -36,7 +38,11 @@ export interface WallOpening {
 
 const MIN_MITRE_DENOMINATOR = 0.15;
 
-function sectionsOf(wall: number, sections: readonly WallSection[]): FrameSection[] {
+function sectionsOf(
+	wall: number,
+	sections: readonly WallSection[],
+	thickness: number
+): FrameSection[] {
 	const result: FrameSection[] = [];
 	let reached = -Infinity;
 	for (const section of sections
@@ -44,7 +50,13 @@ function sectionsOf(wall: number, sections: readonly WallSection[]): FrameSectio
 		.sort((a, b) => a.from - b.from)) {
 		const from = Math.max(section.from, reached);
 		if (section.to - from < 1) continue;
-		result.push({ from, to: section.to, full: section.thickness, body: section.thickness / 2 });
+		if (section.owner === 'none') {
+			result.push({ from, to: section.to, full: thickness, body: thickness, skip: true });
+		} else if (section.owner === 'whole') {
+			result.push({ from, to: section.to, full: section.thickness, body: section.thickness });
+		} else {
+			result.push({ from, to: section.to, full: section.thickness, body: section.thickness / 2 });
+		}
 		reached = section.to;
 	}
 	return result;
@@ -92,7 +104,7 @@ export function wallFrames(
 			inward: wall.inward,
 			length: wall.length,
 			thickness,
-			sections: sectionsOf(wall.number, sections),
+			sections: sectionsOf(wall.number, sections, thickness),
 			outerStart,
 			outerEnd,
 			outerFrom: along(outerStart),
@@ -109,6 +121,16 @@ export function wallOpenings(
 	const lo = Math.max(0, frame.outerFrom);
 	const hi = Math.min(frame.length, frame.outerTo);
 	const result: WallOpening[] = [];
+	for (const section of frame.sections) {
+		if (!section.skip) continue;
+		result.push({
+			id: `house-${frame.number}-${section.from}`,
+			from: Math.max(lo, section.from),
+			to: Math.min(hi, section.to),
+			bottom: 0,
+			top: room.height
+		});
+	}
 	for (const element of room.elements) {
 		if (!isWallElement(element) || element.wall !== frame.number) continue;
 		if (element.kind !== 'door' && element.kind !== 'window') continue;

@@ -38,7 +38,17 @@ export const PALETTE = {
 	tile: '#e8e4da',
 	stoveBlack: '#26282c',
 	appliance: '#33363b',
-	steel: '#b4b8bc'
+	steel: '#b4b8bc',
+	slab: '#c9c6bf',
+	slabEdge: '#a9a59c',
+	paving: '#b9b4aa',
+	paveJoint: '#8f8a80',
+	lawn: '#8db36a',
+	soil: '#7a6850',
+	railing: '#4a4f55',
+	railingGlass: '#bfdcec',
+	cover: '#e9e6df',
+	alu: '#d2d5d8'
 } as const;
 
 export class MaterialSet {

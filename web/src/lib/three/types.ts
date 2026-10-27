@@ -1,3 +1,4 @@
+import type { RailingRun } from '#lib/core/outdoor.ts';
 import type { Object3D } from 'three';
 import type { CatalogEntry, Look } from '#lib/core/catalog.ts';
 import type { Dims, Item, ModelType, Project, Room } from '#lib/core/schema.ts';
@@ -108,17 +109,22 @@ export interface SharedOpenings {
 
 // Part of a wall (mm along the wall, from `from` to `to`) that a neighbour room shares. `thickness` is the whole
 // distance between the two interior faces; each of the two rooms builds half of it.
+// A shared stretch of wall. Without owner each room builds half of it; the indoor room next to an
+// outdoor area builds it whole, the outdoor area (or conservatory) none of it.
 export interface WallSection {
 	wall: number;
 	from: number;
 	to: number;
 	thickness: number;
+	owner?: 'whole' | 'none';
 }
 
 export interface RoomBuildOptions extends SceneOptions {
 	wallHeightFactor: number;
 	shared?: SharedOpenings;
 	sections?: readonly WallSection[];
+	// Balcony railing along the free edges (railingRuns).
+	railing?: readonly RailingRun[];
 }
 
 export type RoomBuilder = (room: Room, options: RoomBuildOptions) => Object3D;

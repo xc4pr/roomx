@@ -444,7 +444,9 @@ export function createViewer(
 		for (const group of built?.roomGroups.values() ?? []) {
 			const info = group.children[0]?.userData as RoomInfo | undefined;
 			if (!info) continue;
-			setOverheadVisible(group.children[0], growthDone && rooms.get(info.roomId) === true);
+			const walled = wallGroups(group.children[0]).length > 0;
+			const raised = walled ? rooms.get(info.roomId) === true : options.wallMode !== 'down';
+			setOverheadVisible(group.children[0], growthDone && raised);
 		}
 		shadowDirty = true;
 	}

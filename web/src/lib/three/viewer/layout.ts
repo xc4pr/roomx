@@ -10,7 +10,7 @@ import {
 	dot,
 	type Vec
 } from '#lib/core/geometry.ts';
-import type { Room, Variant } from '#lib/core/schema.ts';
+import { isOutdoor, type Room, type Variant } from '#lib/core/schema.ts';
 import { MM, roomOrigin, toWorld } from '../coords.ts';
 import type { FloorHit, SceneContent, SharedOpenings, WallSection } from '../types.ts';
 
@@ -64,6 +64,14 @@ export function sharedOpenings(content: SceneContent): Map<string, SharedOpening
 			.get(mirrored.sourceRoomId)
 			?.elements.find((element) => element.id === mirrored.element.id.split('@')[0]);
 		if (!original || (original.kind !== 'door' && original.kind !== 'window')) continue;
+		const source = byId.get(mirrored.sourceRoomId);
+		const target = byId.get(mirrored.roomId);
+		if (source && target && (isOutdoor(source) || isOutdoor(target))) {
+			// Next to an outdoor area the indoor room builds the wall, the leaf and the hole.
+			if (isOutdoor(target)) entry(mirrored.roomId).silent.add(mirrored.element.id);
+			else entry(mirrored.sourceRoomId).silent.add(original.id);
+			continue;
+		}
 		entry(mirrored.roomId).covered.add(mirrored.element.id);
 		const opensIntoNeighbour = original.kind === 'door' && original.swing === 'out';
 		if (opensIntoNeighbour) entry(mirrored.sourceRoomId).silent.add(original.id);
@@ -73,14 +81,26 @@ export function sharedOpenings(content: SceneContent): Map<string, SharedOpening
 }
 
 // Where two rooms of the scene share a wall, each builds half of the gap between the interior faces.
+// Next to a balcony, terrace, garden or conservatory the indoor room builds all of it.
 export function sharedSections(content: SceneContent): Map<string, WallSection[]> {
 	const present = new Set(content.roomIds);
 	const result = new Map<string, WallSection[]>();
 	if (present.size < 2) return result;
+	const byId = new Map(content.project.rooms.map((room) => [room.id, room]));
 	for (const link of wallLinks(content.project.rooms)) {
 		if (!present.has(link.roomId) || !present.has(link.otherRoomId)) continue;
 		const list = result.get(link.roomId) ?? [];
-		list.push({ wall: link.wall, from: link.from, to: link.to, thickness: link.thickness });
+		const own = byId.get(link.roomId);
+		const other = byId.get(link.otherRoomId);
+		const section: WallSection = {
+			wall: link.wall,
+			from: link.from,
+			to: link.to,
+			thickness: link.thickness
+		};
+		if (own && other && isOutdoor(other) && !isOutdoor(own)) section.owner = 'whole';
+		if (own && other && isOutdoor(own) && !isOutdoor(other)) section.owner = 'none';
+		list.push(section);
 		result.set(link.roomId, list);
 	}
 	return result;

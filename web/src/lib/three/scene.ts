@@ -3,9 +3,15 @@ import type { CatalogLookup } from '#lib/core/catalog.ts';
 import type { Item, ModelType } from '#lib/core/schema.ts';
 import { degToRad, MM, toWorld } from './coords.ts';
 import { buildFurniture } from './furniture/index.ts';
+import { railingRuns } from '#lib/core/outdoor.ts';
 import { buildRoom } from './room/index.ts';
 import type { RoomInfo } from './room/index.ts';
-import { furnitureSpec, type SceneContent, type SceneOptions } from './types.ts';
+import {
+	furnitureSpec,
+	type RoomBuildOptions,
+	type SceneContent,
+	type SceneOptions
+} from './types.ts';
 import { disposeObject } from './viewer/dispose.ts';
 import { roomFrames, sceneVariant, sharedOpenings, sharedSections } from './viewer/layout.ts';
 
@@ -80,12 +86,14 @@ export function buildScene(
 		group.name = `origin-${room.id}`;
 		group.position.copy(frame.origin);
 		group.rotation.y = frame.rotationY;
-		const roomObject = buildRoom(room, {
+		const roomOptions: RoomBuildOptions = {
 			...options,
 			wallHeightFactor,
 			shared: shared.get(room.id),
-			sections: sections.get(room.id)
-		});
+			sections: sections.get(room.id),
+			railing: railingRuns(content.project.rooms, room)
+		};
+		const roomObject = buildRoom(room, roomOptions);
 		group.add(roomObject);
 		root.add(group);
 		roomGroups.set(room.id, group);

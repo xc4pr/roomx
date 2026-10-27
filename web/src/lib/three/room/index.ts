@@ -12,7 +12,8 @@ import {
 	type Object3D
 } from 'three';
 import { ceilingHeightAt, doorSwing, wallElements, wallSlope } from '#lib/core/geometry.ts';
-import { isFreeElement, type Room } from '#lib/core/schema.ts';
+import { coverHeightAt } from '#lib/core/outdoor.ts';
+import { isFreeElement, isOpenAir, type Room } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
 import type { RoomBuilder, RoomBuildOptions } from '../types.ts';
 import { GeometryBuilder } from './builder.ts';
@@ -37,6 +38,14 @@ import { addFreeElement } from './fixturesFree.ts';
 import { addKitchenRun } from './fixturesKitchen.ts';
 import { addAcWall, addBathtub, addShower, addToilet, addWashbasin } from './fixturesSanitary.ts';
 import { fullThicknessAt, wallFrames, wallOpenings, type WallFrame } from './frames.ts';
+import { addGlassFrame, GLASS, GLASS_THICKNESS } from './glass.ts';
+import {
+	buildCover,
+	buildPavingJoints,
+	buildRailing,
+	buildSlab,
+	outdoorFloorColor
+} from './outdoor.ts';
 import { MaterialSet, PALETTE } from './materials.ts';
 import { Parts } from './parts.ts';
 import { profileMax, roomHasSlopes, wallProfile } from './profile.ts';
@@ -122,7 +131,8 @@ function buildWall(
 	frame: WallFrame,
 	options: RoomBuildOptions,
 	materials: MaterialSet,
-	lamps: RoomInfo['lamps']
+	lamps: RoomInfo['lamps'],
+	glass: boolean
 ): Group {
 	const group = new Group();
 	group.name = `wall-${frame.number}`;
@@ -133,16 +143,22 @@ function buildWall(
 	const profile = wallProfile(room, frame);
 	const wallTop = profileMax(profile);
 	const wallColor = room.wallColor ?? PALETTE.wall;
-	const body = new Mesh(buildWallGeometry(frame, openings, profile), [
-		materials.get({ color: wallColor, roughness: 0.95 }),
-		materials.get({ color: PALETTE.wallOuter, roughness: 0.95, push: true }),
-		materials.get({ color: PALETTE.wallTop, roughness: 0.9 }),
-		materials.get({ color: wallColor, roughness: 0.95 }),
-		materials.get({ color: wallColor, roughness: 0.95, push: true })
-	]);
+	const glassMaterial = materials.get(GLASS);
+	const body = new Mesh(
+		buildWallGeometry(frame, openings, profile),
+		glass
+			? [glassMaterial, glassMaterial, glassMaterial, glassMaterial, glassMaterial]
+			: [
+					materials.get({ color: wallColor, roughness: 0.95 }),
+					materials.get({ color: PALETTE.wallOuter, roughness: 0.95, push: true }),
+					materials.get({ color: PALETTE.wallTop, roughness: 0.9 }),
+					materials.get({ color: wallColor, roughness: 0.95 }),
+					materials.get({ color: wallColor, roughness: 0.95, push: true })
+				]
+	);
 	body.name = 'body';
 	body.userData.part = 'wallBody';
-	body.castShadow = true;
+	body.castShadow = !glass;
 	body.receiveShadow = true;
 	group.add(body);
 
@@ -243,6 +259,11 @@ function buildWall(
 	}
 	parts.attach(fixtures, 'fixture');
 	group.add(fixtures);
+	if (glass) {
+		const bars = new Parts(materials);
+		addGlassFrame(bars, frame, openings, profile);
+		bars.attach(group, 'glassFrame');
+	}
 
 	const info: WallInfo = {
 		wall: frame.number,
@@ -390,39 +411,93 @@ function addRoof(
 	}
 }
 
+function addGlassRoof(
+	overhead: Group,
+	room: Room,
+	model: RoofModel | undefined,
+	flat: BufferGeometry,
+	materials: MaterialSet
+): void {
+	const pane = materials.get({ ...GLASS, side: 'double' });
+	if (!model) {
+		const roofPane = new Mesh(flat, pane);
+		roofPane.position.y = room.height * MM;
+		roofPane.userData.part = 'glassRoof';
+		overhead.add(roofPane);
+		return;
+	}
+	const geometry = roofGeometry([...model.surface.flat, ...model.surface.sloped], model.cheeks);
+	if (geometry) {
+		const roofPane = new Mesh(geometry, pane);
+		roofPane.userData.part = 'glassRoof';
+		roofPane.renderOrder = 1;
+		overhead.add(roofPane);
+	}
+	const lines = edgeGeometry(model.edges);
+	if (lines) {
+		const edges = new LineSegments(lines, new LineBasicMaterial({ color: PALETTE.alu }));
+		edges.userData.part = 'glassRoofFrame';
+		overhead.add(edges);
+	}
+}
+
 export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) => {
 	const materials = new MaterialSet();
 	const root = new Group();
 	root.name = `room-${room.id}`;
 	const lamps: RoomInfo['lamps'] = [];
 	const height = room.height * MM;
+	const openAir = isOpenAir(room);
+	const glass = room.type === 'winterGarden';
+	const owned = options.sections ?? [];
 
 	const shape = polygonShape(room.polygon);
 	const floorGeometry = new ShapeGeometry(shape);
 	floorGeometry.rotateX(-Math.PI / 2);
 	const floor = new Mesh(
 		floorGeometry,
-		materials.get({ color: room.floorColor ?? PALETTE.floor, roughness: 0.85 })
+		materials.get({
+			color: openAir ? outdoorFloorColor(room) : (room.floorColor ?? PALETTE.floor),
+			roughness: 0.85
+		})
 	);
 	floor.name = 'floor';
 	floor.userData.part = 'floor';
 	floor.receiveShadow = true;
 	root.add(floor);
 
-	const frames = wallFrames(room.polygon, undefined, options.sections);
-	const outerShape = polygonShape(frames.map((frame) => frame.outerStart));
-	const baseGeometry = new ExtrudeGeometry(outerShape, { depth: BASE_DEPTH, bevelEnabled: false });
-	baseGeometry.rotateX(-Math.PI / 2);
-	baseGeometry.translate(0, -BASE_DEPTH - 0.002, 0);
-	const base = new Mesh(baseGeometry, materials.get({ color: PALETTE.base, roughness: 0.95 }));
-	base.name = 'base';
-	base.receiveShadow = true;
-	root.add(base);
-
-	root.add(buildDoorMarks(room, materials, options.shared?.silent));
+	const frames = openAir
+		? []
+		: wallFrames(
+				room.polygon,
+				glass ? GLASS_THICKNESS : undefined,
+				glass ? owned.filter((section) => section.owner === 'none') : owned
+			);
+	if (openAir) {
+		root.add(buildSlab(room, materials));
+		if (room.type === 'terrace') {
+			const joints = buildPavingJoints(room);
+			if (joints) root.add(joints);
+		}
+		const runs = options.railing ?? [];
+		if (room.railing && runs.length > 0) root.add(buildRailing(room, runs, materials));
+	} else {
+		const outerShape = polygonShape(frames.map((frame) => frame.outerStart));
+		const baseGeometry = new ExtrudeGeometry(outerShape, {
+			depth: BASE_DEPTH,
+			bevelEnabled: false
+		});
+		baseGeometry.rotateX(-Math.PI / 2);
+		baseGeometry.translate(0, -BASE_DEPTH - 0.002, 0);
+		const base = new Mesh(baseGeometry, materials.get({ color: PALETTE.base, roughness: 0.95 }));
+		base.name = 'base';
+		base.receiveShadow = true;
+		root.add(base);
+		root.add(buildDoorMarks(room, materials, options.shared?.silent));
+	}
 
 	for (const frame of frames) {
-		const wall = buildWall(room, frame, options, materials, lamps);
+		const wall = buildWall(room, frame, options, materials, lamps, glass);
 		applyWallHeight(wall, options.wallHeightFactor);
 		root.add(wall);
 	}
@@ -439,8 +514,17 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 	const overhead = new Group();
 	overhead.name = 'overhead';
 	const roofMaterial = { color: PALETTE.wallTop, roughness: 0.95, side: 'back' } as const;
-	const roof = roomHasSlopes(room) ? roofModel(room) : undefined;
-	if (roof) {
+	const roof = !openAir && roomHasSlopes(room) ? roofModel(room) : undefined;
+	if (openAir) {
+		const cover = buildCover(room, materials);
+		if (cover) {
+			cover.solid.visible = options.ceiling;
+			cover.ghost.visible = !options.ceiling;
+			overhead.add(cover.solid, cover.ghost);
+		}
+	} else if (glass) {
+		addGlassRoof(overhead, room, roof, floorGeometry, materials);
+	} else if (roof) {
 		addRoof(overhead, room, roof, materials, options.ceiling);
 	} else {
 		const ceiling = new Mesh(floorGeometry, materials.get(roofMaterial));
@@ -453,10 +537,11 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 		const parts = new Parts(materials);
 		const sink: LampSink = { push: (x, y, z) => lamps.push({ x, y, z }) };
 		for (const element of room.elements) {
-			if (element.kind === 'ceilingLamp') {
-				const lampHeight = ceilingHeightAt(room, { x: element.x, y: element.y }) * MM;
-				addCeilingLamp(parts, element, lampHeight, options.lightsOn, sink);
-			}
+			if (element.kind !== 'ceilingLamp') continue;
+			const point = { x: element.x, y: element.y };
+			const lampHeight = openAir ? coverHeightAt(room, point) : ceilingHeightAt(room, point);
+			if (lampHeight === undefined) continue;
+			addCeilingLamp(parts, element, lampHeight * MM, options.lightsOn, sink);
 		}
 		parts.attach(overhead, 'ceilingLamp');
 	}
