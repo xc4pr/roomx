@@ -184,5 +184,8 @@ describe('wall profile', () => {
 		expect(clampToProfile(withWindow, 1, 1010, 900, 600, 1300, window)).toBe(600);
 		expect(movingLimit(withWindow, 1, window, 1010, 900)).toBe(2500);
 		expect(clampToProfile(withWindow, 1, 1010, 900, 600, 1300)).toBe(0);
+		const light = { id: 's', kind: 'switch', elevation: 1010, height: 80 };
+		const withSwitch = { ...attic, elements: [{ ...window, ...light, kind: 'switch' as const }] };
+		expect(clampToProfile(withSwitch, 1, 3000, 80, 1010, 80, light)).toBe(720);
 	});
 });

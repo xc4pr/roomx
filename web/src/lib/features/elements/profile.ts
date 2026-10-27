@@ -176,7 +176,7 @@ export function spanLimit(
 export function movingLimit(
 	room: SlopedRoom,
 	wallNumber: number,
-	element: { id: string; elevation: number; height: number },
+	element: { id: string; kind: string; elevation: number; height: number },
 	offset: number,
 	width: number
 ): number {
@@ -185,8 +185,12 @@ export function movingLimit(
 		elements: (room.elements ?? []).filter((other) => other.id !== element.id)
 	};
 	const base = spanLimit(without, wallNumber, offset, width);
+	// Only doors and windows cut the slope, so only their limit moves along with them.
+	const opening = element.kind === 'door' || element.kind === 'window';
 	const hasSlope = (room.slopes ?? []).some((slope) => slope.wall === wallNumber);
-	return hasSlope && element.elevation + element.height > base + 0.5 ? room.height : base;
+	return opening && hasSlope && element.elevation + element.height > base + 0.5
+		? room.height
+		: base;
 }
 
 export function clampToProfile(
@@ -196,7 +200,7 @@ export function clampToProfile(
 	width: number,
 	elevation: number,
 	height: number,
-	moving?: { id: string; elevation: number; height: number }
+	moving?: { id: string; kind: string; elevation: number; height: number }
 ): number {
 	const limit = moving
 		? movingLimit(room, wallNumber, moving, offset, width)
