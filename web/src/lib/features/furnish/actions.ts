@@ -23,6 +23,7 @@ import {
 	defaultWallElevation,
 	descendantsOf,
 	findFreeSpot,
+	fixtureAreas,
 	interiorPoint,
 	type PlaceSubject,
 	type Placement
@@ -112,7 +113,14 @@ function smartPlacement(subject: PlaceSubject, room: Room, others: Item[]): Plac
 			if (placed.onItemId) return placed;
 		}
 	}
-	const spot = findFreeSpot(room, others, subject.dims, subject.rotation);
+	const spot = findFreeSpot(
+		room,
+		others,
+		subject.dims,
+		subject.rotation,
+		undefined,
+		fixtureAreas(room)
+	);
 	return computePlacement(subject, spot ?? interiorPoint(room.polygon), {
 		...context,
 		wallSnap: false,

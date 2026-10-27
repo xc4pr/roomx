@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { boardToRoom, cornerLabel, interiorAngle, type Vec } from '#lib/core/geometry.ts';
 	import type { BoardPos, Point, Room } from '#lib/core/schema.ts';
-	import { remapAfterInsert, reframePolygon } from '#lib/features/room/polygonEdit.ts';
+	import {
+		reframeElements,
+		remapAfterInsert,
+		reframePolygon
+	} from '#lib/features/room/polygonEdit.ts';
 	import { gridForZoom, snapCorner } from '#lib/features/room/cornerSnap.ts';
 	import { polygonProblem } from '#lib/features/room/walls.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
@@ -95,6 +99,7 @@
 			(project) => {
 				const target = project.rooms.find((candidate) => candidate.id === room.id);
 				if (!target) return;
+				target.elements = reframeElements(target.elements, target.boardPos, framed.boardPos);
 				target.polygon = framed.polygon;
 				target.boardPos = framed.boardPos;
 			},

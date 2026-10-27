@@ -213,28 +213,70 @@ function wallVolume(
 	};
 }
 
-function kitchenVolumes(room: Pick<Room, 'polygon'>, run: KitchenRun): Volume[] {
-	const volumes: (Volume | undefined)[] = [];
+// Parts of a kitchen run along its wall: offsets from the wall start, depth into the room and the
+// heights they take. Base cabinets run continuously; tall modules and the built-in table interrupt
+// them; upper cabinets hang above everything but tall modules.
+export interface WallBand {
+	from: number;
+	to: number;
+	depth: number;
+	bottom: number;
+	top: number;
+}
+
+export function kitchenBands(run: KitchenRun): WallBand[] {
+	const bands: WallBand[] = [];
 	const worktop = run.elevation + run.height;
+	const add = (from: number, to: number, depth: number, bottom: number, top: number) => {
+		if (to > from) bands.push({ from: run.offset + from, to: run.offset + to, depth, bottom, top });
+	};
 	let cursor = 0;
-	// Base cabinets run continuously; tall modules and the built-in table interrupt them.
 	for (const span of kitchenModuleSpans(run)) {
 		if (span.module.kind !== 'tall' && span.module.kind !== 'table') continue;
-		volumes.push(wallVolume(room, run, cursor, span.from, run.depth, run.elevation, worktop));
-		const bottom = span.module.kind === 'table' ? worktop - TABLE_TOP : run.elevation;
-		const top = span.module.kind === 'table' ? worktop : run.elevation + run.tallHeight;
-		volumes.push(wallVolume(room, run, span.from, span.to, run.depth, bottom, top));
+		add(cursor, span.from, run.depth, run.elevation, worktop);
+		if (span.module.kind === 'table')
+			add(span.from, span.to, run.depth, worktop - TABLE_TOP, worktop);
+		else add(span.from, span.to, run.depth, run.elevation, run.elevation + run.tallHeight);
 		cursor = span.to;
 	}
-	volumes.push(wallVolume(room, run, cursor, run.width, run.depth, run.elevation, worktop));
+	add(cursor, run.width, run.depth, run.elevation, worktop);
 	const upper = run.upper;
 	if (upper) {
 		for (const span of kitchenUpperSpans(run)) {
-			const top = upper.elevation + upper.height;
-			volumes.push(wallVolume(room, run, span.from, span.to, upper.depth, upper.elevation, top));
+			add(span.from, span.to, upper.depth, upper.elevation, upper.elevation + upper.height);
 		}
 	}
-	return volumes.filter((volume): volume is Volume => volume !== undefined);
+	return bands;
+}
+
+// The same for every wall element: one band, except for a kitchen run.
+export function wallBands(element: WallElement): WallBand[] {
+	if (element.kind === 'kitchenRun') return kitchenBands(element);
+	return [
+		{
+			from: element.offset,
+			to: element.offset + element.width,
+			depth: 'depth' in element ? element.depth : 0,
+			bottom: element.elevation,
+			top: element.elevation + element.height
+		}
+	];
+}
+
+function kitchenVolumes(room: Pick<Room, 'polygon'>, run: KitchenRun): Volume[] {
+	return kitchenBands(run)
+		.map((band) =>
+			wallVolume(
+				room,
+				run,
+				band.from - run.offset,
+				band.to - run.offset,
+				band.depth,
+				band.bottom,
+				band.top
+			)
+		)
+		.filter((volume): volume is Volume => volume !== undefined);
 }
 
 const SOLID_WALL_KINDS: readonly ElementKind[] = [

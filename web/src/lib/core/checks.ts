@@ -1,5 +1,11 @@
 import { SOCKET_WARN_DISTANCE } from './defaults.ts';
-import { clearanceZone, elementFitsRoom, elementVolumes, freeElementShape } from './elements.ts';
+import {
+	clearanceZone,
+	elementFitsRoom,
+	elementVolumes,
+	freeElementShape,
+	wallBands
+} from './elements.ts';
 import type { StairZone } from './floors.ts';
 import {
 	ceilingHeightAt,
@@ -151,7 +157,15 @@ export function validateRoom(room: Room): RoomIssue[] {
 			wallHeightAt(room, element.wall, span.from),
 			wallHeightAt(room, element.wall, span.to)
 		);
-		if (element.elevation + element.height > clear + 1) {
+		// A kitchen run is checked part by part, at the depth its tall and upper cabinets reach.
+		const tooHigh =
+			element.kind === 'kitchenRun'
+				? elementVolumes(room, element).some(
+						(volume) =>
+							volume.top > Math.min(...volume.shape.map((p) => ceilingHeightAt(room, p))) + 1
+					)
+				: element.elevation + element.height > clear + 1;
+		if (tooHigh) {
 			issues.push({
 				code: 'elementTooHigh',
 				roomId: room.id,
@@ -166,17 +180,15 @@ export function validateRoom(room: Room): RoomIssue[] {
 			for (let j = i + 1; j < onWall.length; j++) {
 				const a = onWall[i];
 				const b = onWall[j];
-				const spanA = elementSpan(a);
-				const spanB = elementSpan(b);
-				const horizontal = Math.min(spanA.to, spanB.to) - Math.max(spanA.from, spanB.from) > 1;
-				const vertical = verticalOverlap(
-					a.elevation,
-					a.elevation + a.height,
-					b.elevation,
-					b.elevation + b.height
-				);
 				const clash = usesOpening(a) || usesOpening(b) || a.kind === b.kind || fixturesClash(a, b);
-				if (horizontal && vertical && clash) {
+				const touches = wallBands(a).some((bandA) =>
+					wallBands(b).some(
+						(bandB) =>
+							Math.min(bandA.to, bandB.to) - Math.max(bandA.from, bandB.from) > 1 &&
+							verticalOverlap(bandA.bottom, bandA.top, bandB.bottom, bandB.top)
+					)
+				);
+				if (touches && clash) {
 					issues.push({
 						code: 'elementOverlap',
 						roomId: room.id,

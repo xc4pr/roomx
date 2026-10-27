@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { cornerLabel, dot, length, pointInPolygon, sub, walls } from '#lib/core/geometry.ts';
 import { lRoom, rectangleRoom } from '#lib/core/fixtures.ts';
+import { createElement } from '#lib/core/defaults.ts';
+import { sequentialIds } from '#lib/core/ids.ts';
 import type { Photo, Room } from '#lib/core/schema.ts';
 import { generateTour, tourProgress } from './tour.ts';
 
@@ -162,5 +164,25 @@ describe('tourProgress', () => {
 			photo(undefined)
 		];
 		expect(tourProgress(room)).toEqual({ done: 2, total: 10 });
+	});
+});
+
+describe('generateTour with fixtures', () => {
+	it('adds optional steps for bathroom fixtures and a stove that look at them from the front', () => {
+		const room = { ...rectangleRoom(), elements: [] as Room['elements'] };
+		const ids = sequentialIds('x');
+		room.elements = [
+			createElement('toilet', room, 1, 1000, ids),
+			createElement('stove', room, 3, 2000, ids),
+			createElement('socket', room, 2, 1500, ids)
+		];
+		const steps = generateTour(room);
+		const toilet = steps.find((step) => step.key === `element:${room.elements[0].id}`)!;
+		const stove = steps.find((step) => step.key === `element:${room.elements[1].id}`)!;
+		expect(toilet.optional).toBe(true);
+		expect(stove.perspective.caption.de).toBe('Kaminofen');
+		expect(stove.direction.y).toBeCloseTo(1, 6);
+		expect(pointInPolygon(stove.position, room.polygon)).toBe(true);
+		expect(steps.some((step) => step.key === `element:${room.elements[2].id}`)).toBe(false);
 	});
 });

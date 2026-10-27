@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { rectanglePolygon } from '#lib/core/defaults.ts';
 import { roomToBoard } from '#lib/core/geometry.ts';
 import type { RoomElement } from '#lib/core/schema.ts';
-import { reframePolygon, remapAfterInsert, remapAfterRemove } from './polygonEdit.ts';
+import {
+	reframeElements,
+	reframePolygon,
+	remapAfterInsert,
+	remapAfterRemove
+} from './polygonEdit.ts';
 
 const door = (wall: number, offset: number): RoomElement => ({
 	id: `d${wall}-${offset}`,
@@ -57,5 +62,44 @@ describe('element remapping', () => {
 			[1, 4100],
 			[2, 100]
 		]);
+	});
+});
+
+describe('reframeElements', () => {
+	it('keeps columns and ceiling lamps in place on the board and turns free elements with the room', () => {
+		const from = { x: 1000, y: 500, rot: 0 };
+		const to = { x: 1000, y: 900, rot: 90 };
+		const column = {
+			id: 'c',
+			kind: 'column' as const,
+			status: 'existing' as const,
+			x: 2000,
+			y: 1500,
+			rotation: 30,
+			width: 300,
+			depth: 300,
+			height: 2500,
+			elevation: 0,
+			shape: 'round' as const
+		};
+		const lamp = {
+			id: 'l',
+			kind: 'ceilingLamp' as const,
+			status: 'existing' as const,
+			x: 500,
+			y: 500
+		};
+		const [movedColumn, movedLamp] = reframeElements([column, lamp], from, to);
+		for (const [before, after] of [
+			[column, movedColumn],
+			[lamp, movedLamp]
+		] as const) {
+			if (after.kind !== 'column' && after.kind !== 'ceilingLamp') throw new Error('kind');
+			const a = roomToBoard({ boardPos: from }, before);
+			const b = roomToBoard({ boardPos: to }, after);
+			expect(Math.abs(a.x - b.x)).toBeLessThan(1);
+			expect(Math.abs(a.y - b.y)).toBeLessThan(1);
+		}
+		expect(movedColumn).toMatchObject({ rotation: 300 });
 	});
 });

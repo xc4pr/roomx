@@ -13,9 +13,11 @@ import {
 } from './elements.ts';
 import {
 	ceilingHeightAt,
+	freeWallSpans,
 	roofWindowPlacement,
 	slopeAngleFromDepth,
 	slopeContours,
+	openingCuts,
 	slopeDormers,
 	slopeRun,
 	wallHeightAt
@@ -148,6 +150,37 @@ describe('kitchen run', () => {
 			[2000, 3000, 0, 900],
 			[600, 3000, 1450, 2150]
 		]);
+	});
+});
+
+describe('kitchen run in the room checks', () => {
+	const kitchen = () => room({ type: 'kitchen' });
+
+	it('reports upper cabinets in front of a window and keeps the wall behind the run occupied', () => {
+		const k = kitchen();
+		const run = createElement('kitchenRun', k, 1, 2000, newId) as KitchenRun;
+		const window = createElement('window', k, 1, 2000, newId);
+		k.elements = [run, window];
+		expect(validateRoom(k)).toEqual([]);
+		run.upper = { depth: 350, height: 700, elevation: 1450 };
+		expect(validateRoom(k).map((issue) => issue.code)).toEqual(['elementOverlap']);
+		expect(freeWallSpans(k, 1)).toEqual([
+			{ from: 0, to: 900 },
+			{ from: 3100, to: 4000 }
+		]);
+	});
+
+	it('reports a tall module that does not fit under a slope', () => {
+		const k = room({
+			type: 'kitchen',
+			slopes: [{ id: 's', wall: 1, kneeHeight: 1200, angle: 45 }]
+		});
+		const run = createElement('kitchenRun', k, 1, 2000, newId) as KitchenRun;
+		k.elements = [run];
+		expect(validateRoom(k)).toEqual([]);
+		run.modules = [...run.modules, { id: 't', kind: 'tall', width: 550 }];
+		run.width += 550;
+		expect(validateRoom(k).map((issue) => issue.code)).toEqual(['elementTooHigh']);
 	});
 });
 
@@ -311,14 +344,14 @@ describe('roof slopes', () => {
 		}
 	});
 
-	it('cuts the slope above a door that is higher than the knee wall', () => {
+	it('finds the cut above a door higher than the knee wall, but keeps the old heights for now', () => {
 		const attic = room({ slopes: [{ id: 's', wall: 1, kneeHeight: 1000, angle: 45 }] });
 		attic.elements = [createElement('door', attic, 1, 2000, newId)];
-		const [cut] = slopeDormers(attic, attic.slopes![0]);
+		const [cut] = openingCuts(attic, attic.slopes![0]);
 		expect(cut).toMatchObject({ from: 1600, to: 2400, height: 2000 });
-		expect(wallHeightAt(attic, 1, 2000)).toBe(2000);
-		expect(validateRoom(attic)).toEqual([]);
-		expect(ceilingHeightAt({ ...attic, elements: undefined }, { x: 2000, y: 0 })).toBe(1000);
+		expect(slopeDormers(attic, attic.slopes![0])).toEqual([]);
+		expect(wallHeightAt(attic, 1, 2000)).toBe(1000);
+		expect(validateRoom(attic).map((issue) => issue.code)).toEqual(['elementTooHigh']);
 	});
 
 	it('places a roof window in its slope and flags one without slope', () => {

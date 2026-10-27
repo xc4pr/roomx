@@ -30,6 +30,7 @@ describe('buildExport with fixed built-ins', () => {
 	it('lists wall built-ins with depth and kitchen modules from the start of the run', () => {
 		const project = withElements(['kitchenRun', 3, 1500], ['shower', 4, 400]);
 		const room = project.rooms[0]!;
+		room.type = 'living';
 		room.kitchen = { open: true, mode: 'builtin' };
 		const document = buildExport(project, { exportedAt: NOW });
 		const exported = document.rooms[0]!;
@@ -49,6 +50,8 @@ describe('buildExport with fixed built-ins', () => {
 		expect(exported.kitchen).toEqual({ open: true, mode: 'builtin' });
 		expect(exported.keepClear!.fixtures.map((fixture) => fixture.elementId)).toContain(run.id);
 		expect(ExportSchema.parse(JSON.parse(JSON.stringify(document)))).toEqual(document);
+		room.type = 'bedroom';
+		expect(buildExport(project, { exportedAt: NOW }).rooms[0]!.kitchen).toBeUndefined();
 	});
 
 	it('lists free elements with top and footprint and the keep-clear zones', () => {

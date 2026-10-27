@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { walls } from '#lib/core/geometry.ts';
+import { createElement } from '#lib/core/defaults.ts';
+import { convexOverlap, footprint, walls } from '#lib/core/geometry.ts';
+import { sequentialIds } from '#lib/core/ids.ts';
 import { rectangleRoom } from '#lib/core/fixtures.ts';
 import type { Item } from '#lib/core/schema.ts';
 import {
@@ -9,6 +11,7 @@ import {
 	descendantsOf,
 	findCarrier,
 	findFreeSpot,
+	fixtureAreas,
 	snapRotation,
 	stackOn,
 	type PlaceSubject
@@ -240,6 +243,18 @@ describe('defaults', () => {
 		const spot = findFreeSpot(room, [blocker], { w: 600, d: 600 });
 		expect(spot).toBeDefined();
 		expect(findFreeSpot(room, [blocker], { w: 3900, d: 2900 })).toBeUndefined();
+	});
+
+	it('keeps a new piece off columns and out of the zone in front of a stove', () => {
+		const withFixtures = rectangleRoom();
+		const ids = sequentialIds('f');
+		const stove = createElement('stove', withFixtures, 1, 2000, ids);
+		withFixtures.elements = [stove];
+		const areas = fixtureAreas(withFixtures);
+		expect(areas).toHaveLength(2);
+		const spot = findFreeSpot(withFixtures, [], { w: 600, d: 600 }, 0, { x: 2000, y: 600 }, areas)!;
+		const shape = footprint({ ...spot, rotation: 0, dims: { w: 600, d: 600 } });
+		expect(areas.some((area) => convexOverlap(shape, area, 2))).toBe(false);
 	});
 });
 

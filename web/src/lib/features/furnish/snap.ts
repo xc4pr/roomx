@@ -19,7 +19,10 @@ import {
 	type Wall
 } from '#lib/core/geometry.ts';
 import { KITCHEN_UPPER } from '#lib/core/defaults.ts';
+import { clearanceZone, elementVolumes } from '#lib/core/elements.ts';
 import type { Dims, Item, ItemCategory, ModelType, Mount, Point, Room } from '#lib/core/schema.ts';
+
+const FLOOR_REACH = 1000;
 
 export interface Guide {
 	a: Vec;
@@ -523,18 +526,32 @@ function normalize(v: Vec): Vec {
 	return { x: v.x / len, y: v.y / len };
 }
 
+// Floor areas a new piece must not land on: the lower bodies of fixed elements (not the upper
+// kitchen cabinets) and the keep-clear zones in front of fireplaces.
+export function fixtureAreas(room: Room): Vec[][] {
+	return room.elements.flatMap((element) => [
+		...elementVolumes(room, element)
+			.filter((volume) => volume.bottom < FLOOR_REACH)
+			.map((volume) => volume.shape),
+		...[clearanceZone(room, element)]
+			.filter((zone) => zone?.kind === 'fire')
+			.map((zone) => zone!.shape)
+	]);
+}
+
 export function findFreeSpot(
 	room: Pick<Room, 'polygon' | 'height'>,
 	others: readonly Item[],
 	dims: Pick<Dims, 'w' | 'd'>,
 	rotation = 0,
-	prefer?: Vec
+	prefer?: Vec,
+	blocked: readonly Vec[][] = []
 ): Vec | undefined {
 	const target = prefer ?? interiorPoint(room.polygon);
 	const box = boundingBox(room.polygon);
 	const step = 100;
 	const solid = others.filter((item) => item.category !== 'rug' && item.mount !== 'ceiling');
-	const shapes = solid.map((item) => itemFootprint(item));
+	const shapes = [...solid.map((item) => itemFootprint(item)), ...blocked];
 	const candidates: { point: Vec; distance: number }[] = [];
 	for (let x = box.minX; x <= box.maxX; x += step) {
 		for (let y = box.minY; y <= box.maxY; y += step) {

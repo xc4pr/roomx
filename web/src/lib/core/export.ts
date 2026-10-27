@@ -6,6 +6,7 @@ import {
 	elementVolumes,
 	freeElementShape,
 	freeElementTop,
+	hasKitchen,
 	kitchenModuleSpans
 } from './elements.ts';
 import {
@@ -52,7 +53,7 @@ export const FORMAT_GUIDE = [
 	'A room is a polygon listed counter-clockwise with y pointing up: corner A is (0,0), wall 1 runs from A to B along +x, and the interior is always on the left of the walking direction.',
 	'Corners are labelled A, B, C ...; wall n runs from corner n to corner n+1, the last wall closes back to A.',
 	'Wall elements (doors, windows, built-ins, obstacles, sockets, switches, wall lamps, data ports, radiators) give "offsetFromStart": distance from the wall start corner to the nearer edge of the element, plus "offsetFromEnd", "width", "height" and "elevation" (lower edge above the floor).',
-	'"freeSpans" lists the stretches of each wall not occupied by doors, windows, built-ins, obstacles or radiators.',
+	'"freeSpans" lists the stretches of each wall not occupied by doors, windows, built-ins, obstacles, radiators, bathroom fixtures or kitchen runs.',
 	'"doorSwings" and "windowZones" are floor areas that must stay clear.',
 	'Furniture items give "x","y" (centre of the footprint), "rotation" (degrees counter-clockwise, 0 = front faces +y), "dims" (w = width of the front, d = depth, h = height), "elevation" and the four "footprint" corners.',
 	'Walls may list "neighbours": the room on the other side of that wall, the shared stretch "from"-"to" along this wall and the "thickness" of the shared wall. Rooms with "separate": true are deliberately not connected to others (cellar, garage). A door or window in a shared wall appears in both rooms; in the neighbour it carries "sharedFrom" with the id of the original element.',
@@ -430,7 +431,7 @@ export function exportRoom(
 			: {}),
 		...(freeElements.length > 0 ? { freeElements } : {}),
 		...(keepClear ? { keepClear } : {}),
-		...(room.kitchen ? { kitchen: room.kitchen } : {}),
+		...(room.kitchen && hasKitchen(room) ? { kitchen: room.kitchen } : {}),
 		...(room.separate ? { separate: true } : {}),
 		...(room.floorColor ? { floorColor: room.floorColor } : {}),
 		...(room.wallColor ? { wallColor: room.wallColor } : {}),

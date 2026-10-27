@@ -5,6 +5,7 @@ import {
 	cross,
 	distance,
 	dot,
+	frontDirection,
 	interiorAngle,
 	isConvexCorner,
 	length,
@@ -18,10 +19,13 @@ import {
 } from '#lib/core/geometry.ts';
 import {
 	isElectrical,
+	isFreeElement,
 	isWallElement,
+	type FreeElementKind,
 	type Perspective,
 	type Room,
-	type WallElement
+	type WallElement,
+	type WallElementKind
 } from '#lib/core/schema.ts';
 import { elementKindNames } from '#lib/i18n/common.ts';
 
@@ -39,6 +43,24 @@ const WALL_MARGIN = 300;
 const FLAT_CORNER_TOLERANCE = 1;
 const ELECTRIC_GROUP_GAP = 800;
 const DETAIL_DISTANCE = 1800;
+// Elements that get their own optional photo step.
+const DETAIL_KINDS: readonly WallElementKind[] = [
+	'door',
+	'window',
+	'builtin',
+	'washbasin',
+	'toilet',
+	'shower',
+	'bathtub',
+	'kitchenRun',
+	'acWall'
+];
+const FREE_DETAIL_KINDS: readonly FreeElementKind[] = [
+	'fireplace',
+	'stove',
+	'tiledStove',
+	'column'
+];
 const ELECTRIC_DISTANCE = 1200;
 
 function unit(v: Vec, fallback: Vec = { x: 0, y: 1 }): Vec {
@@ -276,9 +298,7 @@ function elementSteps(room: Room, wallList: Wall[]): TourStep[] {
 			.filter((element) => element.wall === target.number)
 			.sort((a, b) => a.offset - b.offset);
 		for (const element of onWall) {
-			if (element.kind !== 'door' && element.kind !== 'window' && element.kind !== 'builtin') {
-				continue;
-			}
+			if (!DETAIL_KINDS.includes(element.kind)) continue;
 			const names = elementKindNames;
 			steps.push(
 				detailStep(
@@ -323,6 +343,24 @@ function elementSteps(room: Room, wallList: Wall[]): TourStep[] {
 				)
 			);
 		}
+	}
+	for (const element of room.elements.filter(isFreeElement)) {
+		if (!FREE_DETAIL_KINDS.includes(element.kind)) continue;
+		const origin = { x: element.x, y: element.y };
+		const front = frontDirection(element.rotation);
+		const { position } = standBack(room.polygon, origin, front, DETAIL_DISTANCE);
+		steps.push({
+			key: `element:${element.id}`,
+			optional: true,
+			position,
+			direction: scale(front, -1),
+			perspective: {
+				kind: 'element',
+				ref: element.id,
+				stepKey: `element:${element.id}`,
+				caption: { de: elementKindNames.de[element.kind], en: elementKindNames.en[element.kind] }
+			}
+		});
 	}
 	return steps;
 }

@@ -373,7 +373,12 @@ const BLOCKING_KINDS: readonly RoomElement['kind'][] = [
 	'window',
 	'builtin',
 	'obstacle',
-	'radiator'
+	'radiator',
+	'washbasin',
+	'toilet',
+	'shower',
+	'bathtub',
+	'kitchenRun'
 ];
 
 export function blocksWall(element: RoomElement): element is WallElement {
@@ -532,10 +537,10 @@ function slopeCovers(room: Pick<Room, 'polygon'>, slope: Slope, along: number): 
 
 const CUT_SUFFIX = '#cut';
 
-// Dormers of a slope, including one per door or window on the slope wall that reaches above
-// the knee height: the slope is cut cleanly above such an opening instead of leaving a notch.
-export function slopeDormers(room: Sloped, slope: Slope): Dormer[] {
-	const dormers = [...(slope.dormers ?? [])];
+// One cut per door or window on the slope wall that reaches above the knee height: the slope is
+// cut cleanly above such an opening instead of leaving a notch (package A, not yet in slopeDormers).
+export function openingCuts(room: Sloped, slope: Slope, dormers: readonly Dormer[] = []): Dormer[] {
+	const cuts: Dormer[] = [];
 	for (const element of room.elements ?? []) {
 		if (element.kind !== 'door' && element.kind !== 'window') continue;
 		if (element.wall !== slope.wall) continue;
@@ -545,9 +550,13 @@ export function slopeDormers(room: Sloped, slope: Slope): Dormer[] {
 		const to = element.offset + element.width;
 		if (!slopeCovers(room, slope, from) && !slopeCovers(room, slope, to)) continue;
 		const covered = dormers.some((d) => d.from <= from && d.to >= to && d.height >= top);
-		if (!covered) dormers.push({ id: element.id + CUT_SUFFIX, from, to, height: top });
+		if (!covered) cuts.push({ id: element.id + CUT_SUFFIX, from, to, height: top });
 	}
-	return dormers;
+	return cuts;
+}
+
+export function slopeDormers(_room: Sloped, slope: Slope): Dormer[] {
+	return [...(slope.dormers ?? [])];
 }
 
 export function isOpeningCut(dormer: Pick<Dormer, 'id'>): boolean {

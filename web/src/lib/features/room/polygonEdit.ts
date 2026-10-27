@@ -1,5 +1,13 @@
-import { normalizePolygon, roomToBoard, signedArea, sub, type Vec } from '#lib/core/geometry.ts';
-import { isWallElement, type BoardPos, type Point, type RoomElement } from '#lib/core/schema.ts';
+import {
+	boardToRoom,
+	normalizeDegrees,
+	normalizePolygon,
+	roomToBoard,
+	signedArea,
+	sub,
+	type Vec
+} from '#lib/core/geometry.ts';
+import type { BoardPos, Point, RoomElement } from '#lib/core/schema.ts';
 
 export function reframePolygon(
 	boardPos: BoardPos,
@@ -23,7 +31,7 @@ export function remapAfterInsert(
 	along: number
 ): RoomElement[] {
 	return elements.map((element) => {
-		if (!isWallElement(element)) return element;
+		if (!('wall' in element)) return element;
 		if (element.wall > wallNumber) return { ...element, wall: element.wall + 1 };
 		if (element.wall === wallNumber && element.offset >= along) {
 			return { ...element, wall: wallNumber + 1, offset: element.offset - along };
@@ -38,11 +46,28 @@ export function remapAfterRemove(
 	firstWallLength: number
 ): RoomElement[] {
 	return elements.map((element) => {
-		if (!isWallElement(element)) return element;
+		if (!('wall' in element)) return element;
 		if (element.wall === cornerIndex + 1) {
 			return { ...element, wall: cornerIndex, offset: element.offset + firstWallLength };
 		}
 		if (element.wall > cornerIndex + 1) return { ...element, wall: element.wall - 1 };
 		return element;
+	});
+}
+
+// Elements placed by x/y (ceiling lamp, free elements) keep their place on the board when the
+// room gets a new origin or direction.
+export function reframeElements(
+	elements: readonly RoomElement[],
+	from: BoardPos,
+	to: BoardPos
+): RoomElement[] {
+	return elements.map((element) => {
+		if ('wall' in element) return element;
+		const p = boardToRoom({ boardPos: to }, roomToBoard({ boardPos: from }, element));
+		const x = Math.round(p.x);
+		const y = Math.round(p.y);
+		if (element.kind === 'ceilingLamp') return { ...element, x, y };
+		return { ...element, x, y, rotation: normalizeDegrees(element.rotation + from.rot - to.rot) };
 	});
 }

@@ -112,7 +112,7 @@ describe('roof slopes from version 1', () => {
 			{ x: 4900, y: 3400 },
 			{ x: -500, y: 300 }
 		]) {
-			expect(ceilingHeightAt({ ...attic, elements: [] }, p)).toBeCloseTo(old(p), 6);
+			expect(ceilingHeightAt(attic, p)).toBeCloseTo(old(p), 6);
 		}
 		expect(attic.elements).toEqual(original.elements);
 	});
