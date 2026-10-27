@@ -24,10 +24,12 @@ export async function afterPendingSaves(
 
 export function watchForUpdates(): void {
 	if (!('serviceWorker' in navigator)) return;
-	const hadController = navigator.serviceWorker.controller !== null;
+	const initial = navigator.serviceWorker.controller;
 	let reloading = false;
 	navigator.serviceWorker.addEventListener('controllerchange', () => {
-		if (!hadController || reloading) return;
+		// Only a new worker is an update. WebKit also reports the worker that already controls the page
+		// when it claims its clients right after the first install; reloading then would lose input.
+		if (!initial || navigator.serviceWorker.controller === initial || reloading) return;
 		reloading = true;
 		void afterPendingSaves(() => store.flush()).then(() => {
 			if (store.hasUnsaved()) reloading = false;
