@@ -96,6 +96,8 @@ describe('stairs', () => {
 		expect(low.riser).toBeGreaterThanOrEqual(170);
 		expect(low.riser).toBeLessThanOrEqual(180);
 		expect(2 * low.riser + low.tread).toBeCloseTo(630, 0);
+		expect(stairRisers(2e9).count).toBe(60);
+		expect(stairLayout(stair(), 2e9).treads).toHaveLength(59);
 	});
 
 	it('lays out a straight flight in board coordinates', () => {

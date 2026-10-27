@@ -17,6 +17,8 @@ export const STRIDE = 630;
 export const MIN_HEADROOM = 2000;
 export const SPIRAL_NEWEL = 100;
 export const U_EYE = 100;
+// No stair has more steps than this, whatever heights a stored project holds (keeps it drawable).
+export const MAX_RISERS = 60;
 const SPIRAL_ARC_POINTS = 4;
 const EDGE_TOLERANCE = 2;
 
@@ -83,9 +85,22 @@ export function canDisableFloors(project: Pick<Project, 'rooms' | 'floors' | 'st
 	return used.size <= 1;
 }
 
-export function suggestFloorName(project: Pick<Project, 'floors'>): string {
+export function suggestFloorName(
+	project: Pick<Project, 'floors'>,
+	names: readonly string[] = FLOOR_NAMES
+): string {
 	const used = new Set((project.floors ?? []).map((floor) => floor.name));
-	return FLOOR_NAMES.find((name) => !used.has(name)) ?? `${(project.floors?.length ?? 0) + 1}`;
+	return names.find((name) => !used.has(name)) ?? `${(project.floors?.length ?? 0) + 1}`;
+}
+
+// Which floor each stair leads to. A change of the floor order must keep these pairs, or the
+// stairs would silently lead somewhere else.
+export function stairTargets(
+	project: Pick<Project, 'floors' | 'stairs'>
+): Map<string, string | undefined> {
+	return new Map(
+		(project.stairs ?? []).map((stair) => [stair.id, nextFloor(project, stair.fromFloorId)?.id])
+	);
 }
 
 export interface Risers {
@@ -97,8 +112,10 @@ export interface Risers {
 // Number of risers for a floor-to-floor height: the riser closest to 175 mm within 170 to 180 mm
 // if possible, the tread from the step rule.
 export function stairRisers(height: number): Risers {
-	const guess = Math.max(1, Math.round(height / RISER.target));
-	const candidates = [guess - 1, guess, guess + 1].filter((count) => count > 0);
+	const guess = Math.min(MAX_RISERS, Math.max(1, Math.round(height / RISER.target)));
+	const candidates = [guess - 1, guess, guess + 1].filter(
+		(count) => count > 0 && count <= MAX_RISERS
+	);
 	const within = candidates.filter((count) => {
 		const riser = height / count;
 		return riser >= RISER.min && riser <= RISER.max;
@@ -337,7 +354,7 @@ export function checkStairs(project: Floored & Pick<Project, 'stairs'>): StairIs
 		const open = new Set(context.opening);
 		let outside = false;
 		let worst: StairIssue | undefined;
-		context.layout.treads.forEach((tread, index) => {
+		context.layout.treads.forEach((tread) => {
 			const centre = centroid(tread.polygon);
 			const below = roomAt(lower, centre);
 			if (!below) outside = true;
@@ -353,7 +370,8 @@ export function checkStairs(project: Floored & Pick<Project, 'stairs'>): StairIs
 			}
 			const headroom = Math.round(ceiling - tread.height);
 			if (headroom < MIN_HEADROOM && (!worst || headroom < (worst.headroom ?? Infinity))) {
-				worst = { code: 'stairHeadroom', stairId: stair.id, tread: index + 1, headroom };
+				const step = Math.round(tread.height / context.layout.risers.riser);
+				worst = { code: 'stairHeadroom', stairId: stair.id, tread: step, headroom };
 			}
 		});
 		if (worst) issues.push(worst);

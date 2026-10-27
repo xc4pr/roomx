@@ -1,6 +1,6 @@
 import { openingsForNeighbours } from '#lib/core/adjacency.ts';
 import { createRoom, SLAB_THICKNESS } from '#lib/core/defaults.ts';
-import { canDisableFloors, roomFloorId } from '#lib/core/floors.ts';
+import { canDisableFloors, roomFloorId, stairTargets } from '#lib/core/floors.ts';
 import { boundingBox, normalizeDegrees, rotate, roomToBoard } from '#lib/core/geometry.ts';
 import { newId } from '#lib/core/ids.ts';
 import { grownLimit, overflowOf } from '#lib/core/limits.ts';
@@ -59,6 +59,12 @@ export type RoomPatch = Partial<
 		| 'floorId'
 	>
 >;
+function keepsStairs(project: Project, floors: Floor[]): boolean {
+	const before = stairTargets(project);
+	const after = stairTargets({ ...project, floors });
+	return [...before].every(([stairId, target]) => after.get(stairId) === target);
+}
+
 export type FloorPatch = Partial<Omit<Floor, 'id'>>;
 export type StairPatch = Partial<Omit<Stair, 'id'>>;
 export type ItemPatch = Partial<Omit<Item, 'id'>>;
@@ -452,16 +458,21 @@ export class ProjectStore {
 		});
 	}
 
+	// Refused (undefined) when a new floor in between would change where a stair leads.
 	addFloor(name: string, index?: number): string | undefined {
 		const id = newId();
-		const applied = this.mutate((project) => {
-			if (!project.floors) return;
-			const floor = { id, name, slabThickness: SLAB_THICKNESS };
-			const at =
-				index === undefined
-					? project.floors.length
-					: Math.max(0, Math.min(index, project.floors.length));
-			project.floors.splice(at, 0, floor);
+		const project = this.project;
+		if (!project?.floors) return undefined;
+		const floor = { id, name, slabThickness: SLAB_THICKNESS };
+		const at =
+			index === undefined
+				? project.floors.length
+				: Math.max(0, Math.min(index, project.floors.length));
+		const floors = [...project.floors];
+		floors.splice(at, 0, floor);
+		if (!keepsStairs(project, floors)) return undefined;
+		const applied = this.mutate((draft) => {
+			draft.floors?.splice(at, 0, floor);
 		});
 		return applied && this.project?.floors?.some((floor) => floor.id === id) ? id : undefined;
 	}
@@ -473,13 +484,21 @@ export class ProjectStore {
 		}, options);
 	}
 
-	moveFloor(floorId: string, index: number): void {
-		this.mutate((project) => {
-			const floors = project.floors;
-			const from = floors?.findIndex((floor) => floor.id === floorId) ?? -1;
-			if (!floors || from < 0) return;
-			const [floor] = floors.splice(from, 1);
-			floors.splice(Math.max(0, Math.min(index, floors.length)), 0, floor);
+	// Refused (false) when the new order would change where a stair leads.
+	moveFloor(floorId: string, index: number): boolean {
+		const project = this.project;
+		const from = project?.floors?.findIndex((floor) => floor.id === floorId) ?? -1;
+		if (!project?.floors || from < 0) return false;
+		const floors = [...project.floors];
+		const [floor] = floors.splice(from, 1);
+		const to = Math.max(0, Math.min(index, floors.length));
+		floors.splice(to, 0, floor);
+		if (!keepsStairs(project, floors)) return false;
+		return this.mutate((draft) => {
+			const list = draft.floors;
+			if (!list) return;
+			const [moved] = list.splice(from, 1);
+			list.splice(to, 0, moved);
 		});
 	}
 

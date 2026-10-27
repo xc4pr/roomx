@@ -110,8 +110,22 @@ describe('floors and stairs', () => {
 		const ug = store.addFloor('UG', 0)!;
 		store.updateFloor(dg, { slabThickness: 200, height: 2300 });
 		expect(store.project!.floors!.map((floor) => floor.name)).toEqual(['UG', 'EG', 'DG']);
-		store.moveFloor(ug, 2);
+		expect(store.moveFloor(ug, 2)).toBe(true);
 		expect(store.project!.floors!.map((floor) => floor.name)).toEqual(['EG', 'DG', 'UG']);
+		const eg = store.project!.floors![0].id;
+		store.addStair({
+			fromFloorId: eg,
+			shape: 'straight',
+			x: 0,
+			y: 0,
+			rotation: 0,
+			width: 900,
+			turn: 'left'
+		});
+		expect(store.moveFloor(dg, 0)).toBe(false);
+		expect(store.addFloor('1. OG', 1)).toBeUndefined();
+		expect(store.addFloor('2. OG')).toBeDefined();
+		expect(store.project!.floors!.map((floor) => floor.name)).toEqual(['EG', 'DG', 'UG', '2. OG']);
 		expect(store.project!.floors!.find((floor) => floor.id === dg)).toMatchObject({
 			slabThickness: 200,
 			height: 2300
