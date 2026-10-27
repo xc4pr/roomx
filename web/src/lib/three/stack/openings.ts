@@ -63,14 +63,15 @@ function clip(subject: readonly Vec[], clipper: readonly Vec[]): Vec[] {
 }
 
 // The part of each opening loop (board coordinates) that lies in the room, in room coordinates.
-// Several rooms can share one opening, so every room takes its own piece.
+// Several rooms can share one opening, so every room takes its own piece. An L-shaped room is
+// clipped by the opening instead, as long as the opening is convex.
 function pieces(room: Room, loops: readonly (readonly Vec[])[]): Vec[][] {
 	const convex = isConvex(room.polygon);
 	const result: Vec[][] = [];
 	for (const loop of loops) {
 		const local = loop.map((p) => boardToRoom(room, p));
-		if (convex) {
-			const piece = clip(local, room.polygon);
+		if (convex || isConvex(local)) {
+			const piece = convex ? clip(local, room.polygon) : clip(room.polygon, local);
 			if (piece.length >= 3 && Math.abs(area(piece)) > MIN_AREA) result.push(piece);
 		} else {
 			const centre = {

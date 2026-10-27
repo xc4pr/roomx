@@ -19,6 +19,7 @@ import { loweredWalls } from '../viewer/cutaway.ts';
 import { shapeOfFootprints } from '../viewer/fit.ts';
 import { roomFrames } from '../viewer/layout.ts';
 import { buildWalkMap, standable, walkInputs } from '../viewer/walk.ts';
+import { roomHoles } from './openings.ts';
 import { outlineLoops } from './slab.ts';
 import { Soup } from './soup.ts';
 import { stairTriangles } from './stairs.ts';
@@ -260,6 +261,38 @@ describe('stairwell in the room meshes', () => {
 			['room-b', 'room-c'].includes(mesh.parent?.name ?? '')
 		);
 		expect(dropHits(floors, c.x * MM, 9, -c.y * MM)).toHaveLength(0);
+	});
+
+	it('cuts only the part of the opening that lies in an L-shaped room', () => {
+		const p = project();
+		const [whole] = roomHoles(p, p.rooms[1]).floor;
+		const xs = whole.map((q) => q.x);
+		const ys = whole.map((q) => q.y);
+		const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+		const nx = (x0 + x1) / 2 - (x1 - x0) / 4;
+		const ny = (y0 + y1) / 2 - (y1 - y0) / 4;
+		const l: Room = {
+			...big('b', 'og'),
+			polygon: [
+				{ x: nx, y: 0 },
+				{ x: 7000, y: 0 },
+				{ x: 7000, y: 5000 },
+				{ x: 0, y: 5000 },
+				{ x: 0, y: ny },
+				{ x: nx, y: ny }
+			]
+		};
+		const holes = roomHoles({ ...p, rooms: [p.rooms[0], l] }, l).floor;
+		expect(holes).toHaveLength(1);
+		const area = (poly: readonly { x: number; y: number }[]) =>
+			Math.abs(
+				poly.reduce((sum, q, i) => {
+					const r = poly[(i + 1) % poly.length];
+					return sum + q.x * r.y - r.x * q.y;
+				}, 0) / 2
+			);
+		expect(area(holes[0])).toBeCloseTo(area(whole) - (nx - x0) * (ny - y0), -1);
+		expect(holes[0].every((q) => q.x >= nx - 1 || q.y >= ny - 1)).toBe(true);
 	});
 
 	it('blocks the walk map over the stairwell', () => {

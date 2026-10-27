@@ -92,6 +92,30 @@ describe('diffScene', () => {
 		expect(diffScene(sig(base), sig(base, ['room-rect', 'room-l'])).kind).toBe('rebuild');
 	});
 
+	it('rebuilds when a floor or a stair changes', () => {
+		const floors = [
+			{ id: 'eg', name: 'EG', slabThickness: 300 },
+			{ id: 'og', name: 'OG', slabThickness: 300 }
+		];
+		const stair = {
+			id: 's',
+			fromFloorId: 'eg',
+			shape: 'straight' as const,
+			x: 500,
+			y: 500,
+			rotation: 0,
+			width: 900,
+			turn: 'left' as const
+		};
+		const storeys = { ...base, floors, stairs: [stair] };
+		const thicker = { ...storeys, floors: [{ ...floors[0], slabThickness: 350 }, floors[1]] };
+		const turned = { ...storeys, stairs: [{ ...stair, rotation: 90 }] };
+		expect(diffScene(sig(base), sig(storeys)).kind).toBe('rebuild');
+		expect(diffScene(sig(storeys), sig(thicker)).kind).toBe('rebuild');
+		expect(diffScene(sig(storeys), sig(turned)).kind).toBe('rebuild');
+		expect(diffScene(sig(storeys), sig(storeys)).kind).toBe('none');
+	});
+
 	it('rebuilds for a large batch of new items', () => {
 		const many = Array.from({ length: 12 }, (_, index) => item({ id: `n${index}` }));
 		const change = diffScene(sig(base), sig(projectWith(many)));

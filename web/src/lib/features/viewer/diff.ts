@@ -62,7 +62,9 @@ export function signatureOf(content: SceneContent): SceneSignature {
 			content.project.id,
 			content.variantId ?? content.project.activeVariantId ?? null,
 			content.roomIds,
-			sceneRooms(content)
+			sceneRooms(content),
+			content.project.floors ?? null,
+			content.project.stairs ?? null
 		]),
 		items
 	};
