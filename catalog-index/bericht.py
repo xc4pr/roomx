@@ -222,9 +222,12 @@ def kuratiert_tabelle(diffs: list[dict]) -> str:
 def uebernehmen(alt: list[dict], neu: list[dict], kur_ids: set, kur_nrn: set, rows: dict[str, dict[str, dict]]) -> tuple[list[dict], list[dict]]:
     """Alte Eintraege, die der Normalisierer nicht mehr erzeugt, bleiben (nie automatisch loeschen).
     Ausnahme: ein kuratierter Eintrag (gleiche id oder Artikelnummer in Ziffern) ersetzt sie.
+    Traegt ein neuer Eintrag ihre Artikelnummer, bleiben sie ohne Nummer und als discontinued.
     Sagt der Zustand fuer die URL 'verschwunden', wird der Eintrag mit discontinued: true uebernommen.
     Gibt (uebernommen, ersetzt) zurueck."""
     da = {e["id"] for e in neu}
+    # Artikelnummern, die ein Eintrag dieses Laufs traegt (die App verwirft doppelte Nummern).
+    neu_nrn = {(e.get("brand"), re.sub(r"\D", "", e.get("articleNo") or "")) for e in neu if e.get("articleNo")}
     weg = {}
     for shop_rows in rows.values():
         for url, r in shop_rows.items():
@@ -239,6 +242,11 @@ def uebernehmen(alt: list[dict], neu: list[dict], kur_ids: set, kur_nrn: set, ro
             continue
         e = dict(e)
         if weg.get(_url_schluessel(e.get("url")) or "") and not e.get("discontinued"):
+            e["discontinued"] = True
+        if nr and (e.get("brand"), nr) in neu_nrn:
+            # Der Artikel steht jetzt unter einer anderen ID (z. B. eine Farbe zeigt die Nummer der
+            # anderen): die alte ID bleibt fuer alte Projekte, aber ohne Nummer und nicht mehr im Sortiment.
+            e.pop("articleNo", None)
             e["discontinued"] = True
         uebernommen.append(e)
     return uebernommen, ersetzt

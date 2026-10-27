@@ -218,3 +218,36 @@ class Namen(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class KuecheUndDraussenTest(unittest.TestCase):
+    def test_kuechenschraenke_nach_name(self):
+        self.assertEqual(n.kuechen_modell('kitchenBase', 'ENHET Wandschrank mit 2 Böden'), ('kitchenWall', 'wall'))
+        self.assertEqual(n.kuechen_modell('kitchenBase', 'KNOXHULT Hochschrank'), ('kitchenTall', None))
+        self.assertEqual(n.kuechen_modell('kitchenBase', 'METOD Spülenschrank'), ('kitchenSink', None))
+        self.assertEqual(n.kuechen_modell('kitchenBase', 'METOD Unterschrank'), ('kitchenBase', None))
+        self.assertEqual(n.kuechen_modell('sideboard', 'Wandschrank'), ('sideboard', None))
+
+    def test_gartenmoebel_nach_kategorie(self):
+        self.assertTrue(n.ist_draussen('ikea|Garten & Balkon > Gartenmöbel & Balkonmöbel > Gartensofas'))
+        self.assertTrue(n.ist_draussen('jysk|Garten > Gartenmöbel > Loungemöbel > Lounge-Sofas'))
+        self.assertTrue(n.ist_draussen('tchibo|gartentisch'))
+        self.assertFalse(n.ist_draussen('ikea|Dekoration > Pflanzen & Blumen > Zimmerpflanzen & Gartenpflanzen > Topfpflanzen'))
+        self.assertFalse(n.ist_draussen('jysk|Wohnaccessoires > Teppiche > Indoor Teppiche und Outdoor Teppiche'))
+        self.assertFalse(n.ist_draussen('tchibo|lounge'))
+        self.assertFalse(n.ist_draussen('ikea|Sofas & Sessel > Sofas'))
+
+    def test_eintrag_bekommt_outdoor_und_kuechenmodell(self):
+        z = {'ikea|Garten & Balkon > Gartentische': {'category': 'table', 'model': 'table'},
+             'ikea|Küchen & Elektrogeräte > Küchenschränke > ENHET Küchenschränke':
+                 {'category': 'kitchen', 'model': 'kitchenBase', 'mount': 'floor'}}
+        rows = [zeile('https://www.ikea.com/ch/de/p/a-1/', 'ÄPPLARÖ Gartentisch', '1.1', 100, masse(140, 78, 72),
+                      kat=['Garten & Balkon', 'Gartentische']),
+                zeile('https://www.ikea.com/ch/de/p/b-2/', 'ENHET Wandschrank', '2.2', 50, masse(60, 30, 75),
+                      kat=['Küchen & Elektrogeräte', 'Küchenschränke', 'ENHET Küchenschränke'])]
+        eintraege = lauf(rows, z)[0]
+        tisch = next(e for e in eintraege if e['articleNo'] == '1.1')
+        schrank = next(e for e in eintraege if e['articleNo'] == '2.2')
+        self.assertTrue(tisch['outdoor'])
+        self.assertNotIn('outdoor', schrank)
+        self.assertEqual((schrank['model'], schrank['mount']), ('kitchenWall', 'wall'))
