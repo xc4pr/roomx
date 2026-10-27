@@ -12,6 +12,10 @@ const BENCH_WIDTH = 0.6;
 const BENCH_HEIGHT = 0.45;
 const TILE_ROW = 0.2;
 const TILE_INSET = 0.004;
+const MANTEL_DEPTH = 0.03;
+const MANTEL_HEIGHT = 0.05;
+// Doors, glass and grilles stand this far out of the front.
+const RELIEF = 0.006;
 
 interface Frame {
 	a: number;
@@ -29,22 +33,32 @@ function cuboid(draw: Draw, material: MaterialSpec, frame: Frame): void {
 	draw.box(material, [frame.a, frame.bottom, -frame.depth], [frame.b, frame.top, 0]);
 }
 
+// Details touch the body instead of lying in its faces: faces in one plane flicker (z-fighting).
+// The fire chamber is a recess with a dark back, the mantel stands out of the front.
 function fireplace(draw: Draw, element: FreeElement, frame: Frame): void {
 	const stone = spec(PALETTE.brick, element.status, { roughness: 0.95 });
 	const dark = spec(PALETTE.stoveBlack, element.status, { roughness: 0.9 });
 	const width = frame.b - frame.a;
 	const height = frame.top - frame.bottom;
-	cuboid(draw, stone, frame);
-	const open = Math.min(0.62, height * 0.58);
-	draw.box(
-		dark,
-		[frame.a + width * 0.2, frame.bottom + 0.12, -frame.depth],
-		[frame.b - width * 0.2, frame.bottom + 0.12 + open, -frame.depth + 0.004]
-	);
+	if (frame.depth < 0.1 || height < 0.3) {
+		cuboid(draw, stone, frame);
+		return;
+	}
+	const front = -frame.depth + MANTEL_DEPTH;
+	const left = frame.a + width * 0.2;
+	const right = frame.b - width * 0.2;
+	const hearth = frame.bottom + Math.min(0.12, height * 0.15);
+	const lintel = Math.min(hearth + Math.min(0.62, height * 0.58), frame.top - MANTEL_HEIGHT);
+	const back = front + Math.min(0.3, (frame.depth - MANTEL_DEPTH) * 0.6);
+	draw.box(stone, [frame.a, frame.bottom, front], [left, frame.top, 0]);
+	draw.box(stone, [right, frame.bottom, front], [frame.b, frame.top, 0]);
+	draw.box(stone, [left, frame.bottom, front], [right, hearth, 0]);
+	draw.box(stone, [left, lintel, front], [right, frame.top, 0]);
+	draw.box(dark, [left, hearth, back], [right, lintel, 0]);
 	draw.box(
 		spec(PALETTE.obstacle, element.status),
-		[frame.a + width * 0.17, frame.bottom + 0.12 + open, -frame.depth + 0.004],
-		[frame.b - width * 0.17, frame.bottom + 0.12 + open + 0.05, -frame.depth + 0.004]
+		[frame.a + width * 0.17, lintel, -frame.depth],
+		[frame.b - width * 0.17, lintel + MANTEL_HEIGHT, front]
 	);
 }
 
@@ -63,31 +77,28 @@ function stove(draw: Draw, element: FreeElement, room: Room, frame: Frame): void
 			);
 		}
 	}
-	draw.box(black, [frame.a, frame.bottom + legs, -frame.depth], [frame.b, frame.top, 0]);
+	const front = -frame.depth + 2 * RELIEF;
+	draw.box(black, [frame.a, frame.bottom + legs, front], [frame.b, frame.top, 0]);
 	draw.box(
 		glass,
 		[
 			frame.a + width * 0.15,
 			frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.2,
-			-frame.depth
+			front - RELIEF
 		],
-		[
-			frame.b - width * 0.15,
-			frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.7,
-			-frame.depth + 0.003
-		]
+		[frame.b - width * 0.15, frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.7, front]
 	);
 	draw.box(
 		spec(PALETTE.chrome, element.status, { metalness: 0.6, roughness: 0.3 }),
 		[
-			frame.b - width * 0.15 - 0.02,
+			frame.b - width * 0.15 + 0.01,
 			frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.45,
 			-frame.depth
 		],
 		[
-			frame.b - width * 0.15,
+			frame.b - width * 0.15 + 0.03,
 			frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.5,
-			-frame.depth + 0.02
+			front
 		]
 	);
 	const ceiling = ceilingHeightAt(room, { x: element.x, y: element.y }) * MM;
@@ -104,20 +115,22 @@ function tiledStove(draw: Draw, element: FreeElement, frame: Frame): void {
 	const start = wide ? frame.a + BENCH_WIDTH : frame.a;
 	if (wide) {
 		const bench = Math.min(BENCH_HEIGHT, frame.top - frame.bottom);
-		draw.box(tile, [frame.a, frame.bottom, -frame.depth], [start, frame.bottom + bench, 0]);
+		const seat = Math.min(0.03, bench / 2);
+		draw.box(tile, [frame.a, frame.bottom, -frame.depth], [start, frame.bottom + bench - seat, 0]);
 		draw.box(
 			spec('#8d6b4a', element.status),
-			[frame.a, frame.bottom + bench - 0.03, -frame.depth],
+			[frame.a, frame.bottom + bench - seat, -frame.depth],
 			[start, frame.bottom + bench, 0]
 		);
 	}
+	const front = -frame.depth + RELIEF;
 	const rows = Math.max(1, Math.round((frame.top - frame.bottom) / TILE_ROW));
 	const row = (frame.top - frame.bottom) / rows;
 	for (let i = 0; i < rows; i++) {
 		const inset = i % 2 === 0 ? 0 : TILE_INSET;
 		draw.box(
 			tile,
-			[start + inset, frame.bottom + i * row, -frame.depth + inset],
+			[start + inset, frame.bottom + i * row, front + inset],
 			[frame.b - inset, frame.bottom + (i + 1) * row, -inset]
 		);
 	}
@@ -126,27 +139,28 @@ function tiledStove(draw: Draw, element: FreeElement, frame: Frame): void {
 	draw.box(
 		dark,
 		[start + width * 0.3, frame.bottom + row, -frame.depth],
-		[frame.b - width * 0.3, frame.bottom + row + door, -frame.depth + 0.004]
+		[frame.b - width * 0.3, frame.bottom + row + door, front]
 	);
 }
 
 function acFloor(draw: Draw, element: FreeElement, frame: Frame): void {
 	const white = spec(PALETTE.radiator, element.status, { roughness: 0.5 });
 	const dark = spec(PALETTE.appliance, element.status, { roughness: 0.5 });
-	cuboid(draw, white, frame);
+	const front = -frame.depth + RELIEF;
+	draw.box(white, [frame.a, frame.bottom, front], [frame.b, frame.top, 0]);
 	const width = frame.b - frame.a;
 	const height = frame.top - frame.bottom;
 	draw.box(
 		dark,
 		[frame.a + width * 0.1, frame.top - height * 0.2, -frame.depth],
-		[frame.b - width * 0.1, frame.top - height * 0.08, -frame.depth + 0.004]
+		[frame.b - width * 0.1, frame.top - height * 0.08, front]
 	);
 	for (let i = 0; i < 4; i++) {
 		const y = frame.bottom + height * (0.1 + i * 0.1);
 		draw.box(
 			dark,
 			[frame.a + width * 0.15, y, -frame.depth],
-			[frame.b - width * 0.15, y + height * 0.02, -frame.depth + 0.004]
+			[frame.b - width * 0.15, y + height * 0.02, front]
 		);
 	}
 }

@@ -47,17 +47,17 @@ export function addSocket(ctx: WallContext, element: Socket): void {
 		parts.cylinder(white, [u, cy, -PLATE - 0.0025], 0.027, 0.002, 'z', 16);
 		parts.box(
 			dark,
-			[u - 0.0175, cy - 0.006, -PLATE - 0.0035],
+			[u - 0.0175, cy - 0.006, -PLATE - 0.0045],
 			[u - 0.0115, cy + 0.006, -PLATE - 0.0025]
 		);
 		parts.box(
 			dark,
-			[u + 0.0115, cy - 0.006, -PLATE - 0.0035],
+			[u + 0.0115, cy - 0.006, -PLATE - 0.0045],
 			[u + 0.0175, cy + 0.006, -PLATE - 0.0025]
 		);
 		parts.box(
 			dark,
-			[u - 0.004, cy + 0.016, -PLATE - 0.0035],
+			[u - 0.004, cy + 0.016, -PLATE - 0.0045],
 			[u + 0.004, cy + 0.023, -PLATE - 0.0025]
 		);
 		if (element.usb) {
@@ -100,7 +100,7 @@ export function addDataPort(ctx: WallContext, element: DataPort): void {
 		parts.box(dark, [u - 0.014, cy - 0.011, -PLATE - 0.0025], [u + 0.014, cy + 0.011, -PLATE]);
 		parts.box(
 			metal,
-			[u - 0.01, cy - 0.006, -PLATE - 0.0035],
+			[u - 0.01, cy - 0.006, -PLATE - 0.0045],
 			[u + 0.01, cy + 0.006, -PLATE - 0.0025]
 		);
 	};

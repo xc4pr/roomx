@@ -79,6 +79,8 @@ const FLOOR_MARK_HEIGHT = 0.004;
 const GHOST_OPACITY = 0.36;
 const EDGE_COLOR = '#80796b';
 const BASE_DEPTH = 0.06;
+// The glass roof lies on the frame of the glass walls, not in the plane of its top faces.
+const PANE_LIFT = 0.003;
 
 export function applyWallHeight(wall: Object3D, factor: number): void {
 	const clamped = Math.max(0, Math.min(1, factor));
@@ -407,13 +409,17 @@ function addRoof(
 	const sloped = roofGeometry(surface.sloped, cheeks);
 	if (!sloped) return;
 	const color = room.wallColor ?? PALETTE.wall;
-	const solid = new Mesh(sloped, materials.get({ color, roughness: 0.95, side: 'back' }));
+	// Pushed back in depth: doors and windows under a cut end exactly at the slope and would flicker.
+	const solid = new Mesh(
+		sloped,
+		materials.get({ color, roughness: 0.95, side: 'back', push: true })
+	);
 	solid.userData.part = 'slope';
 	solid.visible = ceilingShown;
 	overhead.add(solid);
 	const ghost = new Mesh(
 		sloped,
-		materials.get({ color, roughness: 0.95, opacity: GHOST_OPACITY, side: 'double' })
+		materials.get({ color, roughness: 0.95, opacity: GHOST_OPACITY, side: 'double', push: true })
 	);
 	ghost.userData.part = 'slopeGhost';
 	ghost.renderOrder = 1;
@@ -439,7 +445,7 @@ function addGlassRoof(
 	const pane = materials.get({ ...GLASS, side: 'double' });
 	if (!model) {
 		const roofPane = new Mesh(flat, pane);
-		roofPane.position.y = room.height * MM;
+		roofPane.position.y = room.height * MM + PANE_LIFT;
 		roofPane.userData.part = 'glassRoof';
 		overhead.add(roofPane);
 		return;
@@ -447,6 +453,7 @@ function addGlassRoof(
 	const geometry = roofGeometry([...model.surface.flat, ...model.surface.sloped], model.cheeks);
 	if (geometry) {
 		const roofPane = new Mesh(geometry, pane);
+		roofPane.position.y = PANE_LIFT;
 		roofPane.userData.part = 'glassRoof';
 		roofPane.renderOrder = 1;
 		overhead.add(roofPane);
@@ -501,17 +508,19 @@ export const buildRoom: RoomBuilder = (room: Room, options: RoomBuildOptions) =>
 		const runs = options.railing ?? [];
 		if (room.railing && runs.length > 0) root.add(buildRailing(room, runs, materials));
 	} else {
-		const outerShape = polygonShape(frames.map((frame) => frame.outerStart));
-		const baseGeometry = new ExtrudeGeometry(outerShape, {
-			depth: BASE_DEPTH,
-			bevelEnabled: false
-		});
-		baseGeometry.rotateX(-Math.PI / 2);
-		baseGeometry.translate(0, -BASE_DEPTH - 0.002, 0);
-		const base = new Mesh(baseGeometry, materials.get({ color: PALETTE.base, roughness: 0.95 }));
-		base.name = 'base';
-		base.receiveShadow = true;
-		root.add(base);
+		if (!options.onSlab) {
+			const outerShape = polygonShape(frames.map((frame) => frame.outerStart));
+			const baseGeometry = new ExtrudeGeometry(outerShape, {
+				depth: BASE_DEPTH,
+				bevelEnabled: false
+			});
+			baseGeometry.rotateX(-Math.PI / 2);
+			baseGeometry.translate(0, -BASE_DEPTH - 0.002, 0);
+			const base = new Mesh(baseGeometry, materials.get({ color: PALETTE.base, roughness: 0.95 }));
+			base.name = 'base';
+			base.receiveShadow = true;
+			root.add(base);
+		}
 		root.add(buildDoorMarks(room, materials, options.shared?.silent));
 	}
 

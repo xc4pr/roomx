@@ -36,7 +36,7 @@ function panel(
 		FRONT,
 		(x0 + x1) / 2,
 		y0 + GAP / 2,
-		frontZ(d) + FRONT / 2
+		frontZ(d) - FRONT / 2
 	);
 }
 
@@ -50,8 +50,10 @@ function bar(
 	length: number
 ): void {
 	const material = metalMat(p.metal);
-	if (vertical) box(g, material, 0.014, length, LIP, x, y - length / 2, -d / 2 + LIP / 2);
-	else box(g, material, length, 0.014, LIP, x, y - 0.007, -d / 2 + LIP / 2);
+	// The handle lies on the front, in the last millimetres of the depth.
+	const depth = LIP - FRONT;
+	if (vertical) box(g, material, 0.014, length, depth, x, y - length / 2, -d / 2 + depth / 2);
+	else box(g, material, length, 0.014, depth, x, y - 0.007, -d / 2 + depth / 2);
 }
 
 function doors(g: Group, p: Palette, w: number, d: number, y0: number, y1: number): void {

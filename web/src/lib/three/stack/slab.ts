@@ -1,8 +1,8 @@
 import { BufferGeometry, ExtrudeGeometry, Group, Mesh, Path, Shape } from 'three';
 import { WALL_THICKNESS } from '#lib/core/defaults.ts';
-import { floorRooms } from '#lib/core/floors.ts';
+import { floorRooms, roomFloorId } from '#lib/core/floors.ts';
 import { distance, roomToBoard, type Vec } from '#lib/core/geometry.ts';
-import { isOpenAir } from '#lib/core/schema.ts';
+import { isOpenAir, type Project, type Room } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
 import { PALETTE, type MaterialSet } from '../room/materials.ts';
 import type { SceneContent } from '../types.ts';
@@ -13,6 +13,14 @@ const EDGE_TOLERANCE = 2;
 const SLAB_GAP = 3;
 
 const SLAB_SPEC = { color: PALETTE.slab, roughness: 0.95 };
+
+// A room on an upper storey stands on the slab of the storey below; open-air areas keep their own.
+export function onSlab(project: Project, room: Room): boolean {
+	if (isOpenAir(room)) return false;
+	const floors = project.floors ?? [];
+	const index = floors.findIndex((floor) => floor.id === roomFloorId(project, room));
+	return index > 0 && floors[index - 1].slabThickness - 2 * SLAB_GAP > 0;
+}
 
 function sameVec(a: Vec, b: Vec): boolean {
 	return distance(a, b) < EDGE_TOLERANCE;
@@ -156,7 +164,7 @@ export function buildSlabs(
 		const thickness = below.slabThickness - 2 * SLAB_GAP;
 		if (thickness <= 0) return;
 		for (const room of floorRooms(project, floor.id)) {
-			if (!shown.has(room.id) || isOpenAir(room)) continue;
+			if (!shown.has(room.id) || !onSlab(project, room)) continue;
 			const outline = growOutline(
 				room.polygon.map((p) => roomToBoard(room, p)),
 				WALL_THICKNESS

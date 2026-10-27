@@ -132,6 +132,8 @@ export interface RoomBuildOptions extends SceneOptions {
 		ceiling: readonly Vec[][];
 		ceilingParts?: readonly Vec[][];
 	};
+	// The room stands on the slab of the storey below and needs no base of its own.
+	onSlab?: boolean;
 }
 
 export type RoomBuilder = (room: Room, options: RoomBuildOptions) => Object3D;

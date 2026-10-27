@@ -17,6 +17,8 @@ const NEWEL: MaterialSpec = { color: PALETTE.alu, roughness: 0.5, metalness: 0.3
 
 const TREAD_PLATE = 30;
 const SPIRAL_PLATE = 60;
+// The newel ends just below the upper floor, whose surface it would otherwise share.
+const NEWEL_GAP = 3;
 const HANDRAIL = 900;
 const GUARD = 1000;
 const POST_HALF = 0.015;
@@ -96,7 +98,7 @@ function buildSpiral(soup: Soup, context: StairContext, level: number): void {
 		ground(centre),
 		(SPIRAL_NEWEL - 20) * MM,
 		level * MM,
-		(level + context.height) * MM,
+		(level + context.height - NEWEL_GAP) * MM,
 		16
 	);
 	for (const tread of layout.treads) {

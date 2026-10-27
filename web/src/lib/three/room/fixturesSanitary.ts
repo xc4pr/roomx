@@ -120,7 +120,8 @@ export function addShower(draw: Draw, element: Shower, wallLength: number): void
 	const endCorner = element.offset + element.width >= wallLength - CORNER_TOLERANCE;
 	const glassTop = Math.min(top, bottom + 2.0);
 	const base = bottom + tray;
-	draw.box(style.glass, [a, base, -depth], [b, glassTop, -depth + pane]);
+	// The pane sits between the profiles: overlapping faces would flicker.
+	draw.box(style.glass, [a, base + 0.02, -depth], [b, glassTop - 0.02, -depth + pane]);
 	draw.box(style.chrome, [a, base, -depth], [b, base + 0.02, -depth + pane]);
 	draw.box(style.chrome, [a, glassTop - 0.02, -depth], [b, glassTop, -depth + pane]);
 	if (!startCorner) draw.box(style.glass, [a, base, -depth + pane], [a + pane, glassTop, 0]);

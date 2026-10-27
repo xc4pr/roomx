@@ -7,6 +7,7 @@ import { railingRuns } from '#lib/core/outdoor.ts';
 import { buildRoom } from './room/index.ts';
 import { roomHoles } from './stack/openings.ts';
 import { buildStack } from './stack/index.ts';
+import { onSlab } from './stack/slab.ts';
 import type { RoomInfo } from './room/index.ts';
 import {
 	furnitureSpec,
@@ -101,7 +102,8 @@ export function buildScene(
 			shared: shared.get(room.id),
 			sections: sections.get(room.id),
 			railing: railingRuns(content.project.rooms, room),
-			stairwell: stacked ? roomHoles(content.project, room) : undefined
+			stairwell: stacked ? roomHoles(content.project, room) : undefined,
+			onSlab: stacked && onSlab(content.project, room)
 		};
 		const roomObject = buildRoom(room, roomOptions);
 		group.add(roomObject);
