@@ -12,3 +12,5 @@ export * from './planResolve.ts';
 export * from './checks.ts';
 export * from './export.ts';
 export * from './adjacency.ts';
+export * from './elements.ts';
+export * from './floors.ts';

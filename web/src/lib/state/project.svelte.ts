@@ -1,10 +1,14 @@
-import { createRoom } from '#lib/core/defaults.ts';
+import { openingsForNeighbours } from '#lib/core/adjacency.ts';
+import { createRoom, SLAB_THICKNESS } from '#lib/core/defaults.ts';
+import { canDisableFloors, roomFloorId } from '#lib/core/floors.ts';
 import { boundingBox, normalizeDegrees, rotate, roomToBoard } from '#lib/core/geometry.ts';
 import { newId } from '#lib/core/ids.ts';
 import { grownLimit, overflowOf } from '#lib/core/limits.ts';
 import {
+	isOpenAir,
 	type BoardPos,
 	type Brief,
+	type Floor,
 	type Item,
 	type Photo,
 	type Point,
@@ -13,6 +17,7 @@ import {
 	type RoomElement,
 	type RoomType,
 	type Slope,
+	type Stair,
 	type Variant
 } from '#lib/core/schema.ts';
 import { LIMITS } from '#lib/security/limits.ts';
@@ -39,8 +44,23 @@ export interface MutateOptions {
 }
 
 export type RoomPatch = Partial<
-	Pick<Room, 'name' | 'type' | 'height' | 'notes' | 'floorColor' | 'wallColor' | 'separate'>
+	Pick<
+		Room,
+		| 'name'
+		| 'type'
+		| 'height'
+		| 'notes'
+		| 'floorColor'
+		| 'wallColor'
+		| 'separate'
+		| 'railing'
+		| 'cover'
+		| 'kitchen'
+		| 'floorId'
+	>
 >;
+export type FloorPatch = Partial<Omit<Floor, 'id'>>;
+export type StairPatch = Partial<Omit<Stair, 'id'>>;
 export type ItemPatch = Partial<Omit<Item, 'id'>>;
 
 interface Snapshot {
@@ -364,17 +384,136 @@ export class ProjectStore {
 		});
 	}
 
-	addRoom(name: string, type: RoomType = 'other'): string | undefined {
+	// With floors the room goes onto floorId (default: the first floor), next to the rooms there.
+	addRoom(name: string, type: RoomType = 'other', floorId?: string): string | undefined {
 		const id = newId();
 		const applied = this.mutate((project) => {
-			const corners = project.rooms.flatMap((room) =>
+			const floor = project.floors?.length
+				? (project.floors.find((candidate) => candidate.id === floorId) ?? project.floors[0])
+				: undefined;
+			const neighbours = floor
+				? project.rooms.filter((room) => roomFloorId(project, room) === floor.id)
+				: project.rooms;
+			const corners = neighbours.flatMap((room) =>
 				room.polygon.map((corner) => roomToBoard(room, corner))
 			);
 			const x = corners.length > 0 ? Math.round(boundingBox(corners).maxX) + ROOM_GAP : 0;
 			const y = corners.length > 0 ? Math.round(boundingBox(corners).minY) : 0;
-			project.rooms.push(createRoom(id, name, type, { x, y, rot: 0 }));
+			const room = createRoom(id, name, type, { x, y, rot: 0 });
+			if (floor) room.floorId = floor.id;
+			project.rooms.push(room);
 		});
 		return applied ? id : undefined;
+	}
+
+	// Changes the room type and keeps every element. A room that becomes an open-air area has no
+	// walls any more: its doors and windows in walls shared with indoor rooms move into those walls.
+	changeRoomType(roomId: string, type: RoomType): void {
+		this.mutate((project) => {
+			const room = project.rooms.find((candidate) => candidate.id === roomId);
+			if (!room || room.type === type) return;
+			const becomesOpen = isOpenAir({ type }) && !isOpenAir(room);
+			const moves = becomesOpen ? openingsForNeighbours(project.rooms, roomId) : [];
+			room.type = type;
+			const moved = new Set(moves.map((move) => move.element.id));
+			room.elements = room.elements.filter((element) => !moved.has(element.id));
+			for (const move of moves) {
+				project.rooms.find((candidate) => candidate.id === move.roomId)?.elements.push(move.element);
+			}
+		});
+	}
+
+	// Switches floors on: one floor per name (default EG), every room on the first one.
+	enableFloors(names: readonly string[] = ['EG']): void {
+		this.mutate((project) => {
+			if (project.floors?.length) return;
+			const floors = (names.length > 0 ? names : ['EG']).map((name) => ({
+				id: newId(),
+				name,
+				slabThickness: SLAB_THICKNESS
+			}));
+			project.floors = floors;
+			for (const room of project.rooms) room.floorId = floors[0].id;
+		});
+	}
+
+	// Switches floors off again, only while canDisableFloors allows it (nothing gets lost).
+	disableFloors(): boolean {
+		const project = this.project;
+		if (!project || !canDisableFloors(project)) return false;
+		return this.mutate((draft) => {
+			delete draft.floors;
+			delete draft.stairs;
+			for (const room of draft.rooms) delete room.floorId;
+		});
+	}
+
+	addFloor(name: string, index?: number): string | undefined {
+		const id = newId();
+		const applied = this.mutate((project) => {
+			if (!project.floors) return;
+			const floor = { id, name, slabThickness: SLAB_THICKNESS };
+			const at = index === undefined ? project.floors.length : Math.max(0, Math.min(index, project.floors.length));
+			project.floors.splice(at, 0, floor);
+		});
+		return applied && this.project?.floors?.some((floor) => floor.id === id) ? id : undefined;
+	}
+
+	updateFloor(floorId: string, patch: FloorPatch, options?: MutateOptions): void {
+		this.mutate((project) => {
+			const floor = project.floors?.find((candidate) => candidate.id === floorId);
+			if (floor) Object.assign(floor, patch);
+		}, options);
+	}
+
+	moveFloor(floorId: string, index: number): void {
+		this.mutate((project) => {
+			const floors = project.floors;
+			const from = floors?.findIndex((floor) => floor.id === floorId) ?? -1;
+			if (!floors || from < 0) return;
+			const [floor] = floors.splice(from, 1);
+			floors.splice(Math.max(0, Math.min(index, floors.length)), 0, floor);
+		});
+	}
+
+	// Only an empty floor can be removed (no rooms, no stair starting or arriving there), and never
+	// the last one.
+	removeFloor(floorId: string): boolean {
+		const project = this.project;
+		if (!project?.floors || project.floors.length < 2) return false;
+		const index = project.floors.findIndex((floor) => floor.id === floorId);
+		if (index < 0) return false;
+		if (project.rooms.some((room) => roomFloorId(project, room) === floorId)) return false;
+		const below = index > 0 ? project.floors[index - 1].id : undefined;
+		if ((project.stairs ?? []).some((stair) => stair.fromFloorId === floorId || stair.fromFloorId === below)) {
+			return false;
+		}
+		return this.mutate((draft) => {
+			draft.floors = draft.floors?.filter((floor) => floor.id !== floorId);
+		});
+	}
+
+	addStair(stair: Omit<Stair, 'id'>): string | undefined {
+		const id = newId();
+		const applied = this.mutate((project) => {
+			if (!project.floors?.length) return;
+			project.stairs = [...(project.stairs ?? []), { ...stair, id }];
+		});
+		return applied && this.project?.stairs?.some((candidate) => candidate.id === id) ? id : undefined;
+	}
+
+	updateStair(stairId: string, patch: StairPatch, options?: MutateOptions): void {
+		this.mutate((project) => {
+			const stair = project.stairs?.find((candidate) => candidate.id === stairId);
+			if (stair) Object.assign(stair, patch);
+		}, options);
+	}
+
+	removeStair(stairId: string): void {
+		this.mutate((project) => {
+			project.stairs = project.stairs?.filter((stair) => stair.id !== stairId);
+			if (project.stairs?.length === 0) delete project.stairs;
+		});
 	}
 
 	updateRoom(roomId: string, patch: RoomPatch, options?: MutateOptions): void {

@@ -1,5 +1,6 @@
 import { SOCKET_WARN_DISTANCE } from './defaults.ts';
 import { clearanceZone, elementFitsRoom, elementVolumes, freeElementShape } from './elements.ts';
+import type { StairZone } from './floors.ts';
 import {
 	ceilingHeightAt,
 	convexInsidePolygon,
@@ -54,6 +55,8 @@ export type ItemIssueCode =
 	| 'radiatorBlocked'
 	| 'fireZone'
 	| 'airflowBlocked'
+	| 'onStair'
+	| 'inStairwell'
 	| 'socketFar';
 
 export interface ItemIssue {
@@ -213,10 +216,12 @@ export function socketDistance(
 	return best === undefined ? undefined : Math.round(best);
 }
 
+// stairZones: stairs and stairwells in this room (stairZonesForRoom), in projects with floors.
 export function checkRoomItems(
 	room: Room,
 	allItems: readonly Item[],
-	suggested: readonly RoomElement[] = []
+	suggested: readonly RoomElement[] = [],
+	stairZones: readonly StairZone[] = []
 ): ItemIssue[] {
 	const issues: ItemIssue[] = [];
 	const items = allItems.filter((item) => item.roomId === room.id);
@@ -234,6 +239,16 @@ export function checkRoomItems(
 		} else if (top(item) > Math.min(...shape.map((corner) => ceilingHeightAt(room, corner))) + 1) {
 			issues.push({ code: 'underSlope', severity: 'error', roomId: room.id, itemIds: [item.id] });
 		}
+		const stairZone = stairZones.find((candidate) => convexOverlap(shape, candidate.shape, 2));
+		if (stairZone) {
+			issues.push({
+				code: stairZone.kind === 'stair' ? 'onStair' : 'inStairwell',
+				severity: 'error',
+				roomId: room.id,
+				itemIds: [item.id]
+			});
+		}
+
 		if (!solid(item)) continue;
 
 		for (const element of room.elements) {

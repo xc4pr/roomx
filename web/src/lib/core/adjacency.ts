@@ -1,5 +1,5 @@
 import { cross, dot, roomToBoard, sub, wall, walls, type Vec, type Wall } from './geometry.ts';
-import type { Door, Room, Window } from './schema.ts';
+import { isOpenAir, type Door, type Room, type Window } from './schema.ts';
 
 export const LINK_TOLERANCE = 30;
 export const MIN_WALL_THICKNESS = 80;
@@ -67,12 +67,14 @@ function linkBetween(
 	return { from: Math.round(from), to: Math.round(to), thickness: Math.round(gap) };
 }
 
+// Only rooms on the same floor share walls (without floors every room has no floorId).
 export function wallLinks(rooms: readonly Room[]): WallLink[] {
 	const prepared = rooms.map((room) => ({ room, walls: boardWalls(room) }));
 	const links: WallLink[] = [];
 	for (const a of prepared) {
 		for (const b of prepared) {
 			if (a.room.id === b.room.id) continue;
+			if ((a.room.floorId ?? '') !== (b.room.floorId ?? '')) continue;
 			for (const wa of a.walls) {
 				for (const wb of b.walls) {
 					const span = linkBetween(wa, wb);
@@ -125,6 +127,18 @@ export function mirroredOpenings(rooms: readonly Room[]): MirroredOpening[] {
 		}
 	}
 	return result;
+}
+
+// Doors and windows of a room in walls it shares with an indoor room, as they would sit in that
+// room's wall. When a room becomes an open-air area (no walls), they move there with their id.
+export function openingsForNeighbours(rooms: readonly Room[], roomId: string): MirroredOpening[] {
+	const indoor = new Set(rooms.filter((room) => !isOpenAir(room)).map((room) => room.id));
+	return mirroredOpenings(rooms)
+		.filter((entry) => entry.sourceRoomId === roomId && indoor.has(entry.roomId))
+		.map((entry) => ({
+			...entry,
+			element: { ...entry.element, id: entry.element.id.slice(0, entry.element.id.lastIndexOf('@')) }
+		}));
 }
 
 export function roomNeighbours(rooms: readonly Room[], roomId: string): WallLink[] {

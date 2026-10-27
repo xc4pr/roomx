@@ -629,7 +629,8 @@ export const STAIR_SHAPES = ['straight', 'l', 'u', 'spiral'] as const;
 
 // A stair leads from fromFloorId to the next floor up. x, y, rotation are board coordinates of
 // the foot of the stair (middle of the front edge of the first step, rotation 0 = walking towards
-// +y, like furniture). turn: side to which an L, U or spiral stair turns.
+// +y, like furniture); for a spiral stair x, y is its centre. turn: side to which an L, U or
+// spiral stair turns. width = clear width of the flight.
 export const StairSchema = z.object({
 	id: IdSchema,
 	fromFloorId: IdSchema,
