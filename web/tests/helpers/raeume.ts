@@ -181,7 +181,7 @@ export async function roomBox(page: Page, roomId: string) {
 	return box;
 }
 
-/** A point in the room's box where the room itself is on top, not the panel or a neighbour. */
+/** A point in the room's box where its floor is on top, not the panel, a neighbour or something in the room. */
 async function openPoint(page: Page, roomId: string): Promise<{ x: number; y: number } | null> {
 	const box = await roomBox(page, roomId);
 	return page.evaluate(
@@ -191,8 +191,10 @@ async function openPoint(page: Page, roomId: string): Promise<{ x: number; y: nu
 				for (const fx of steps) {
 					const x = box.x + fx * box.width;
 					const y = box.y + fy * box.height;
-					const hit = document.elementFromPoint(x, y)?.closest('[data-room-id]');
-					if (hit?.getAttribute('data-room-id') === roomId) return { x, y };
+					const hit = document.elementFromPoint(x, y);
+					if (hit?.closest('[data-element], [data-item], [data-handle], [data-stair]')) continue;
+					if (hit?.closest('[data-room-id]')?.getAttribute('data-room-id') === roomId)
+						return { x, y };
 				}
 			return null;
 		},
@@ -217,7 +219,7 @@ export async function selectRoomById(page: Page, roomId: string): Promise<void> 
 			throw new Error(`room ${roomId} is covered`);
 		}
 		await tapAt(page, point.x, point.y);
-		await page.getByTestId('tab-dims').click();
+		await page.getByTestId('tab-dims').click({ timeout: 3000 });
 		await expect(page.getByTestId('room-name')).toBeVisible({ timeout: 2000 });
 		if (name !== undefined)
 			await expect(page.getByTestId('room-name')).toHaveValue(name, { timeout: 2000 });

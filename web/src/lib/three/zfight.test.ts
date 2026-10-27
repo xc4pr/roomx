@@ -1,6 +1,6 @@
 import type { Object3D } from 'three';
 import { describe, expect, it } from 'vitest';
-import { createElement, createRoom } from '#lib/core/defaults.ts';
+import { createElement, createRoom, DEFAULT_ROOM } from '#lib/core/defaults.ts';
 import { rectangleRoom } from '#lib/core/fixtures.ts';
 import type {
 	ElementKind,
@@ -214,9 +214,11 @@ describe('no coplanar faces outdoors', () => {
 			const balcony = createRoom('b', 'B', 'balcony');
 			const railing = { height: 1000 };
 			expectClean(scene(pair('balcony', gap, { railing })));
-			expectClean(
-				scene(pair('balcony', gap, { railing, cover: { polygon: balcony.polygon, height: 2400 } }))
-			);
+			// Below the house walls, with its top and with its underside at their top.
+			for (const height of [2400, DEFAULT_ROOM.height - 60, DEFAULT_ROOM.height])
+				expectClean(
+					scene(pair('balcony', gap, { railing, cover: { polygon: balcony.polygon, height } }))
+				);
 			expectClean(scene(pair('balcony', gap, { railing, cover: strip })));
 		});
 
@@ -236,6 +238,18 @@ describe('no coplanar faces outdoors', () => {
 			);
 		});
 	}
+
+	it('column and obstacle up to the cover', () => {
+		const balcony = createRoom('b', 'B', 'balcony');
+		const column = freeElement('column');
+		const obstacle = freeElement('freeObstacle', {
+			x: 1000,
+			toCeiling: true
+		} as Partial<FreeElement>);
+		const cover = { polygon: balcony.polygon, height: 2400 };
+		for (const root of roomsWithCeiling({ ...balcony, elements: [column, obstacle], cover }))
+			expectClean(root);
+	});
 });
 
 describe('no coplanar faces on floors and stairs', () => {

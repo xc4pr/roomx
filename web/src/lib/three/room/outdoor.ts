@@ -159,7 +159,11 @@ export function buildCover(room: Room, materials: MaterialSet): CoverModel | und
 	});
 	geometry.rotateX(-Math.PI / 2);
 	geometry.translate(0, cover.height * MM, 0);
-	const solid = new Mesh(geometry, materials.get({ color: PALETTE.cover, roughness: 0.95 }));
+	// Pushed back: a column up to the cover or a house wall as high as the cover ends in its plane.
+	const solid = new Mesh(
+		geometry,
+		materials.get({ color: PALETTE.cover, roughness: 0.95, push: true })
+	);
 	solid.userData.part = 'slope';
 	solid.castShadow = true;
 	const ghost = new Mesh(
@@ -168,7 +172,8 @@ export function buildCover(room: Room, materials: MaterialSet): CoverModel | und
 			color: PALETTE.cover,
 			roughness: 0.95,
 			opacity: GHOST_OPACITY,
-			side: 'double'
+			side: 'double',
+			push: true
 		})
 	);
 	ghost.userData.part = 'slopeGhost';
