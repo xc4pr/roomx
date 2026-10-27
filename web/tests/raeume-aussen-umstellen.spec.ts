@@ -43,7 +43,7 @@ test('Raum auf Terrasse umstellen: Tür wandert in die Küchenwand, Fenster unpa
 	expect(moved.wall).toBe(2);
 
 	const toast = page.getByTestId('toast').filter({ hasText: 'Raumtyp' });
-	await expect(toast).toContainText('Türen und Fenster sind in die Wand von Küche gewandert');
+	await expect(toast).toContainText('1 Tür oder Fenster ist in die Wand von Küche gewandert');
 	await expect(toast).toContainText('Nicht passend zum Raumtyp und markiert: 1');
 
 	await page.getByTestId('tab-elements').click();
