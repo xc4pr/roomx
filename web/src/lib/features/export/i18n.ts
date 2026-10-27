@@ -149,7 +149,7 @@ export const messages = defineMessages({
 		wallsSubtitle: 'Blick von innen auf die Wand, die Startecke liegt rechts. Masse in mm.',
 		wallTitle: 'Wand {n} ({from} bis {to}) · {length} × {height} mm',
 		wallFree:
-			'Freie Wandstücke (ohne Tür, Fenster, Einbau, Hindernis, Heizkörper), Abstand ab Startecke: {spans}',
+			'Freie Wandstücke (ohne Tür, Fenster, Einbau, Sanitär, Küchenzeile, Hindernis, Heizkörper), Abstand ab Startecke: {spans}',
 		elementOffsets: 'Abstand ab {a}: {from} · ab {b}: {to}',
 		elementSize: 'Breite {w} · Höhe {h}',
 		elementHeights: 'Brüstung {sill} · OK {top}',
@@ -386,7 +386,7 @@ export const messages = defineMessages({
 		wallsSubtitle: 'View of the wall from inside, the start corner is on the right. Lengths in mm.',
 		wallTitle: 'Wall {n} ({from} to {to}) · {length} × {height} mm',
 		wallFree:
-			'Free wall spans (without door, window, built-in, obstacle, radiator), offset from start corner: {spans}',
+			'Free wall spans (without door, window, built-in, sanitary, kitchen run, obstacle, radiator), offset from start corner: {spans}',
 		elementOffsets: 'Offset from {a}: {from} · from {b}: {to}',
 		elementSize: 'Width {w} · height {h}',
 		elementHeights: 'Sill {sill} · top {top}',

@@ -23,6 +23,7 @@ export interface CompactCatalogEntry {
 	priceChf?: number;
 	verified: boolean;
 	discontinued?: true;
+	outdoor?: true;
 }
 
 export function compactEntry(entry: CatalogEntry, language: Language): CompactCatalogEntry {
@@ -39,7 +40,8 @@ export function compactEntry(entry: CatalogEntry, language: Language): CompactCa
 		clearance: entry.clearance,
 		...(entry.priceChf !== undefined ? { priceChf: entry.priceChf } : {}),
 		verified: entry.verified,
-		...(entry.discontinued ? { discontinued: true as const } : {})
+		...(entry.discontinued ? { discontinued: true as const } : {}),
+		...(entry.outdoor ? { outdoor: true as const } : {})
 	};
 }
 

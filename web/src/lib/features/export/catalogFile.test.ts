@@ -70,6 +70,12 @@ describe('compact catalog', () => {
 		expect(compactEntry({ ...entry, discontinued: true }, 'de').discontinued).toBe(true);
 		expect('discontinued' in compactEntry(entry, 'de')).toBe(false);
 	});
+
+	it('marks garden furniture for outdoor areas and leaves the field out otherwise', () => {
+		const [entry] = syntheticCatalog(1);
+		expect(compactEntry({ ...entry, outdoor: true }, 'en').outdoor).toBe(true);
+		expect('outdoor' in compactEntry(entry, 'en')).toBe(false);
+	});
 });
 
 describe('catalogJson', () => {

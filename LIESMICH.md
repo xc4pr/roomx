@@ -53,7 +53,7 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/plan-panel.webp" alt="Grundriss mit drei Räumen und dem Panel für die Masse" width="100%"><br>
       <b>Räume erfassen</b><br>
-      Rechteck, Vorlagen (L, U, T, Erker, Nische), freie Formen mit Wänden und Winkeln, Dachschrägen. Räume rasten wie ein Magnet aneinander ein.
+      Rechteck, Vorlagen (L, U, T, Erker, Nische), freie Formen mit Wänden und Winkeln, Dachschrägen. Dazu Stockwerke mit Treppen sowie Balkon, Terrasse, Garten und Wintergarten. Räume rasten wie ein Magnet aneinander ein.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/wall-view.webp" alt="Wandansicht mit Fenstern, Steckdosen und der Palette für Elemente" width="100%"><br>
@@ -75,7 +75,7 @@ Die App läuft im Browser auf Computer, Laptop, Tablet und Smartphone und lässt
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/furnish-hints.webp" alt="Ein Möbel in Rot mit dem Hinweis, dass es den Türbereich blockiert" width="100%"><br>
       <b>Prüfungen</b><br>
-      Rot markiert, was nicht passt: Kollisionen, Türbereich, Dachschräge, zu weite Wege zur Steckdose.
+      Rot markiert, was nicht passt: Kollisionen, Türbereich, Dachschräge, zu weite Wege zur Steckdose. Dazu Sperrzonen vor Feuerstellen und Klimageräten sowie Treppe und Treppenauge.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/de/export.webp" alt="Seite Export und Import mit dem KI-Paket" width="100%"><br>
@@ -184,7 +184,7 @@ Unter **Masse** gibt es drei Arten, die Form festzulegen:
   <img src=".github/assets/screenshots/de/sloped-ceiling.webp" alt="3D-Ansicht eines Dachzimmers mit Teil-Schräge, Gaube mit Fenster und Dachfenster" width="860">
 </p>
 
-**Dachschrägen.** Pro Wand kannst du eine Schräge einstellen. Gib die **Kniestockhöhe** (Deckenhöhe direkt an der Wand) an und die Schräge als **Neigung** oder als **Tiefe** (Abstand von der Wand bis zur vollen Raumhöhe). RoomX zeigt beide Werte. Beispiel: Raumhöhe 2,50 m, Kniestock 0,50 m und Tiefe 2 m ergeben 45°. RoomX rechnet aus, ab welchem Abstand die volle Raumhöhe erreicht ist und wo die Stehhöhe von 2 m beginnt. Schrägen erscheinen schraffiert im Plan und in 3D, und Möbel, die nicht darunter passen, werden markiert.
+**Dachschrägen.** Je Wand kannst du eine oder mehrere Schrägen einstellen. Gib den **Kniestock** (Deckenhöhe direkt an der Wand) an und die Schräge als **Neigung** oder als **Tiefe** (Abstand von der Wand bis zur vollen Raumhöhe). RoomX zeigt beide Werte. Beispiel: Raumhöhe 2,50 m, Kniestock 0,50 m und Tiefe 2 m ergeben 45°. RoomX rechnet aus, ab welchem Abstand die volle Raumhöhe erreicht ist und wo die Stehhöhe von 2 m beginnt. Schrägen erscheinen schraffiert im Plan und in 3D, und Möbel, die nicht darunter passen, werden markiert.
 
 - **Abschnitte:** Eine Schräge kann nur einen Teil der Wand belegen. Trage **Von** und **Bis** ab der Ecke am Wandanfang ein. Je Wand sind mehrere Abschnitte möglich. Ausserhalb ist die Wand normal hoch; an den Enden entstehen senkrechte Wangen, im Plan und in 3D.
 - **Gauben:** In einem Abschnitt gibst du **Von**, **Bis** und die **Höhe** an. Dort ist die Decke mindestens so hoch. Der Knopf **Fenster in die Gaube** setzt ein Fenster in die Gaubenfront. Eine Gaube, die so hoch ist wie der Raum, unterbricht die Schräge.
@@ -274,7 +274,7 @@ Die Palette zeigt nur, was zum Raumtyp passt: Sanitär nur im Bad, Küche nur in
   <img src=".github/assets/screenshots/de/wall-view.webp" alt="Plan mit gewähltem Raum, rechts die Palette und die Wandansicht der Wand 1 mit zwei Fenstern und einem Heizkörper" width="860">
 </p>
 
-**Platzieren.** Wähle ein Element in der Palette und tippe auf eine Wand (bei der Deckenlampe in den Raum). Zieh es danach an die richtige Stelle. «Platzieren abbrechen» oder die Taste `Esc` bricht ab.
+**Platzieren.** Wähle ein Element in der Palette und tippe auf eine Wand. Deckenlampe, Stütze, freies Hindernis, Klimagerät Standgerät und Feuerstellen setzt du auch frei in den Raum, das Dachfenster auf eine Schrägwand. Zieh es danach an die richtige Stelle. «Platzieren abbrechen» oder die Taste `Esc` bricht ab.
 
 **Eigenschaften.** Wähle ein Element in der Liste oder im Plan. Je nach Art stellst du ein:
 

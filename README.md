@@ -53,7 +53,7 @@ The app runs in the browser on a computer, laptop, tablet or smartphone, and you
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/plan-panel.webp" alt="Floor plan with three rooms and the panel for the dimensions" width="100%"><br>
       <b>Capture rooms</b><br>
-      Rectangles, templates (L, U, T, bay, recess), free shapes with walls and angles, sloped ceilings. Rooms snap together like magnets.
+      Rectangles, templates (L, U, T, bay, recess), free shapes with walls and angles, sloped ceilings. Also floors with stairs, plus balcony, terrace, garden and conservatory. Rooms snap together like magnets.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/wall-view.webp" alt="Wall view with windows, sockets and the palette of elements" width="100%"><br>
@@ -75,7 +75,7 @@ The app runs in the browser on a computer, laptop, tablet or smartphone, and you
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/furnish-hints.webp" alt="A piece of furniture in red with the hint that it blocks the door area" width="100%"><br>
       <b>Checks</b><br>
-      Red shows what does not fit: collisions, door area, sloped ceiling, sockets that are too far away.
+      Red shows what does not fit: collisions, door area, sloped ceiling, sockets that are too far away. Also keep-clear zones in front of fireplaces and air conditioners, and the stair and stairwell.
     </td>
     <td width="33%" valign="top">
       <img src=".github/assets/screenshots/en/export.webp" alt="Export and Import page with the AI package" width="100%"><br>
@@ -184,7 +184,7 @@ Under **Dimensions** there are three ways to set the shape:
   <img src=".github/assets/screenshots/en/sloped-ceiling.webp" alt="3D view of an attic room with a partial slope, a dormer with a window and a roof window" width="860">
 </p>
 
-**Sloped ceilings.** For each wall you can set a slope. Enter the **knee wall** height (ceiling height right at the wall), and the slope as an **angle** or as a **depth** (the distance from the wall to the full room height). RoomX shows both values. Example: room height 2.50 m, knee wall 0.50 m and depth 2 m give 45°. RoomX works out the distance from the wall at which the full room height is reached and where 2 m of headroom begins. Slopes appear hatched in the plan and in 3D, and furniture that does not fit underneath is flagged.
+**Sloped ceilings.** Each wall can have one or more slopes. Enter the **knee wall** height (ceiling height right at the wall), and the slope as an **angle** or as a **depth** (the distance from the wall to the full room height). RoomX shows both values. Example: room height 2.50 m, knee wall 0.50 m and depth 2 m give 45°. RoomX works out the distance from the wall at which the full room height is reached and where 2 m of headroom begins. Slopes appear hatched in the plan and in 3D, and furniture that does not fit underneath is flagged.
 
 - **Sections:** A slope can cover only part of a wall. Enter **From** and **To**, counted from the corner at the start of the wall. A wall can have several sections. Outside them the wall is normal height; at the ends, vertical cheeks form, in the plan and in 3D.
 - **Dormers:** In a section, enter **From**, **To** and the **Height**. The ceiling there is at least as high as the dormer. The button **Window in the dormer** puts a window in the dormer front. A dormer as high as the room interrupts the slope.
@@ -274,7 +274,7 @@ The palette shows only what fits the room type: sanitary items only in a bathroo
   <img src=".github/assets/screenshots/en/wall-view.webp" alt="Plan with a selected room, the palette on the right and the wall view of wall 1 with two windows and a radiator" width="860">
 </p>
 
-**Place.** Choose an element in the palette and tap a wall (for the ceiling lamp, tap inside the room). Then drag it to the right spot. “Cancel placing” or the `Esc` key cancels.
+**Place.** Choose an element in the palette and tap a wall. Ceiling lamp, column, free obstacle, floor air conditioner and fireplaces can also be placed freely in the room, the roof window on a sloped wall. Then drag it to the right spot. “Cancel placing” or the `Esc` key cancels.
 
 **Properties.** Choose an element in the list or on the plan. Depending on its type you can set:
 

@@ -67,7 +67,7 @@ export const messages = defineMessages({
 		errorEncode: '«{name}» konnte nicht verarbeitet werden. Versuche es mit einem kleineren Bild.',
 		errorStorage: 'Das Foto konnte nicht gespeichert werden. Ist der Speicher voll?',
 		errorReadOnly: 'Das Projekt ist hier nur lesbar. Das Foto wurde nicht gespeichert.',
-		errorLimit: 'Pro Raum sind höchstens {max} Fotos möglich. Das Foto wurde nicht gespeichert.'
+		errorLimit: 'Je Raum sind höchstens {max} Fotos möglich. Das Foto wurde nicht gespeichert.'
 	},
 	en: {
 		title: 'Photo tour',
