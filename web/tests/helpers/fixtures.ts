@@ -19,8 +19,12 @@ async function seed(context: BrowserContext): Promise<void> {
 	}, SEED);
 }
 
-// WebKit logs this when an image load is cancelled by navigation; nothing is broken.
-const BENIGN_ERRORS = [/due to access control checks/];
+// WebKit logs the first when an image load is cancelled by navigation, the second when a resize
+// observer changes the layout and its next notification waits a frame; nothing is broken.
+export const BENIGN_ERRORS = [
+	/due to access control checks/,
+	/ResizeObserver loop completed with undelivered notifications/
+];
 
 export const test = base.extend<{ errors: string[]; launchContext: LaunchContext }>({
 	// Playwright's WebKit uses an ephemeral store in which IndexedDB cannot hold Blobs,

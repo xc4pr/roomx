@@ -20,6 +20,7 @@ import {
 	waitForProject,
 	type StoredProject
 } from '../helpers/app.ts';
+import { BENIGN_ERRORS } from '../helpers/fixtures.ts';
 
 export { expect, jpegUpload, makeJpeg, readProject, waitForProject };
 
@@ -210,7 +211,9 @@ export const test = base.extend<{ world: World }>({
 
 		await use(world);
 		// Errors while the contexts close below (a channel torn down mid-send) do not count.
-		const uncaught = errors.filter((message) => !/due to access control checks/.test(message));
+		const uncaught = errors.filter(
+			(message) => !BENIGN_ERRORS.some((pattern) => pattern.test(message))
+		);
 		if (testInfo.status !== testInfo.expectedStatus || uncaught.length > 0) {
 			const stats = await fetch(`${RELAY_HTTP}/stats`)
 				.then((response) => response.text())
