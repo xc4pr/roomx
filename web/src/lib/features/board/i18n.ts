@@ -48,6 +48,7 @@ export const messages = defineMessages({
 		warnOverlap: '{room}: {a} und {b} überlappen sich an Wand {wall}.',
 		warnPhotos: '{room}: {done} von {total} Pflichtfotos sind aufgenommen.',
 		standingMark: '2 m',
+		coverLabel: 'Überdachung · {height}',
 		unknownElement: 'Ein Element'
 	},
 	en: {
@@ -96,6 +97,7 @@ export const messages = defineMessages({
 		warnOverlap: '{room}: {a} and {b} overlap on wall {wall}.',
 		warnPhotos: '{room}: {done} of {total} required photos taken.',
 		standingMark: '2 m',
+		coverLabel: 'Cover · {height}',
 		unknownElement: 'An element'
 	}
 });

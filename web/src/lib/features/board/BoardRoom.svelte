@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { areaMm2, boundingBox, centroid, cornerLabel, walls } from '#lib/core/geometry.ts';
-	import { isWallElement, type Room } from '#lib/core/schema.ts';
+	import { isOpenAir, isWallElement, type Room } from '#lib/core/schema.ts';
 	import { formatArea, formatLength } from '#lib/core/units.ts';
 	import ElementsLayer from '#lib/features/elements/ElementsLayer.svelte';
 	import FurnishLayer from '#lib/features/furnish/FurnishLayer.svelte';
 	import { floorTint } from '#lib/features/room/colors.ts';
 	import { fresh } from '#lib/features/room/fresh.svelte.ts';
-	import { locale } from '#lib/i18n/index.svelte.ts';
+	import { locale, t } from '#lib/i18n/index.svelte.ts';
+	import { store } from '#lib/state/project.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
 	import CornerHandles from './CornerHandles.svelte';
 	import SlopeLayer from './SlopeLayer.svelte';
 	import { pickLabelAlong, type Span } from './labelSlots.ts';
 	import { connections } from './connections.svelte.ts';
+	import { messages } from './i18n.ts';
+	import { coverMark, railingLines } from './outdoor.ts';
 	import { cornerLabelPosition, pathOf, wallNormal } from './shape.ts';
 	import { bandPaths, thicknessAt, wallBadgePlacement } from './wallBands.ts';
 
@@ -59,6 +62,25 @@
 	const band = $derived(paths.band);
 	const outline = $derived(paths.outline);
 	const middle = $derived(centroid(room.polygon));
+	const openAir = $derived(isOpenAir(room));
+	const glass = $derived(room.type === 'winterGarden');
+	const railing = $derived(
+		openAir && room.railing ? railingLines(store.project?.rooms ?? [], room) : []
+	);
+	const cover = $derived(room.cover && openAir ? pathOf(room.cover.polygon) : undefined);
+	const coverAt = $derived(coverMark(room));
+	const coverText = $derived(
+		room.cover
+			? t(messages, 'coverLabel', {
+					height: formatLength(room.cover.height, settings.unit, locale.language)
+				})
+			: ''
+	);
+	const bandFill = $derived(
+		glass
+			? 'color-mix(in srgb, var(--color-window) 55%, var(--color-bg))'
+			: 'color-mix(in srgb, var(--color-text) 84%, var(--color-bg))'
+	);
 	const sides = $derived(walls(room.polygon));
 	const area = $derived(formatArea(areaMm2(room.polygon), locale.language));
 	function labelGap(inward: { x: number; y: number }, w: number, h: number): number {
@@ -121,15 +143,52 @@
 		{#if selected}
 			<path d={floor} class="fill-accent/7" pointer-events="none" />
 		{/if}
-		<path
-			d={band}
-			fill-rule="evenodd"
-			style="fill: color-mix(in srgb, var(--color-text) 84%, var(--color-bg))"
-			pointer-events="none"
-		/>
+		{#if openAir}
+			<path
+				d={floor}
+				class="fill-none stroke-muted"
+				stroke-width="2"
+				stroke-dasharray="7 5"
+				stroke-linejoin="round"
+				vector-effect="non-scaling-stroke"
+				pointer-events="none"
+				data-testid="open-air-outline"
+			/>
+		{:else}
+			<path
+				d={band}
+				fill-rule="evenodd"
+				style="fill: {bandFill}"
+				pointer-events="none"
+				data-testid={glass ? 'glass-band' : 'wall-band'}
+			/>
+		{/if}
+		{#if cover}
+			<path
+				d={cover}
+				class="fill-accent/6 stroke-accent"
+				stroke-width="1.5"
+				stroke-dasharray="2 5"
+				stroke-linecap="round"
+				vector-effect="non-scaling-stroke"
+				pointer-events="none"
+				data-testid="cover-outline"
+			/>
+		{/if}
+		{#each railing as line, i (i)}
+			<path
+				d="M{line.a.x} {line.a.y} L{line.b.x} {line.b.y}"
+				class="stroke-text"
+				stroke-width="4"
+				stroke-linecap="butt"
+				vector-effect="non-scaling-stroke"
+				pointer-events="none"
+				data-testid="railing-line"
+			/>
+		{/each}
 		{#if selected}
 			<path
-				d={outline}
+				d={openAir ? floor : outline}
 				class="fill-none stroke-accent"
 				stroke-width={lifted ? 5 : 3}
 				stroke-linejoin="round"
@@ -170,6 +229,25 @@
 					stroke-linejoin="round"
 				>
 					{area}
+				</text>
+			</g>
+		{/if}
+
+		{#if coverAt && showName}
+			<g
+				transform="translate({coverAt.label.x} {coverAt.label.y}) rotate({-rot}) scale(1 -1)"
+				pointer-events="none"
+			>
+				<text
+					text-anchor="middle"
+					y={coverAt.whole ? u * 32 : u * 4}
+					font-size={11 * u}
+					font-weight="600"
+					class="fill-accent-strong stroke-surface [paint-order:stroke]"
+					stroke-width={4 * u}
+					stroke-linejoin="round"
+				>
+					{coverText}
 				</text>
 			</g>
 		{/if}

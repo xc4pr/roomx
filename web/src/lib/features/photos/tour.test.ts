@@ -186,3 +186,33 @@ describe('generateTour with fixtures', () => {
 		expect(steps.some((step) => step.key === `element:${room.elements[2].id}`)).toBe(false);
 	});
 });
+
+describe('generateTour outdoors', () => {
+	const base = rectangleRoom('out', 4000, 3000);
+
+	it('has only a floor overview for open-air areas, without wall or corner steps', () => {
+		for (const type of ['balcony', 'terrace', 'garden'] as const) {
+			const room: Room = { ...base, type };
+			expect(generateTour(room).map((s) => s.key)).toEqual(['floor']);
+			expect(required(room).map((s) => s.key)).toEqual(['floor']);
+		}
+	});
+
+	it('keeps free elements but skips wall elements outdoors', () => {
+		const ids = sequentialIds('o');
+		const room: Room = {
+			...base,
+			type: 'terrace',
+			elements: [
+				createElement('window', base, 1, 1000, ids),
+				createElement('fireplace', base, 1, 1000, ids)
+			]
+		};
+		expect(generateTour(room).map((s) => s.perspective.kind)).toEqual(['floor', 'element']);
+	});
+
+	it('treats a conservatory like a room', () => {
+		const room: Room = { ...base, type: 'winterGarden' };
+		expect(required(room).map((s) => s.key)).toEqual(required(base).map((s) => s.key));
+	});
+});

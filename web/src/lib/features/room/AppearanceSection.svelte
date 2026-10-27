@@ -3,7 +3,7 @@
 	import Palette from '@lucide/svelte/icons/palette';
 	import Pipette from '@lucide/svelte/icons/pipette';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
-	import type { Room } from '#lib/core/schema.ts';
+	import { isOpenAir, type Room } from '#lib/core/schema.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import { store } from '#lib/state/project.svelte.ts';
 	import {
@@ -19,20 +19,22 @@
 
 	let { room }: { room: Room } = $props();
 
-	const rows = $derived([
-		{
-			target: 'floorColor' as const,
-			label: t(messages, 'floor'),
-			presets: FLOOR_PRESETS as readonly ColorPreset[],
-			prefix: 'floor'
-		},
-		{
-			target: 'wallColor' as const,
-			label: t(messages, 'walls'),
-			presets: WALL_PRESETS as readonly ColorPreset[],
-			prefix: 'wall'
-		}
-	]);
+	const rows = $derived(
+		[
+			{
+				target: 'floorColor' as const,
+				label: t(messages, 'floor'),
+				presets: FLOOR_PRESETS as readonly ColorPreset[],
+				prefix: 'floor'
+			},
+			{
+				target: 'wallColor' as const,
+				label: t(messages, 'walls'),
+				presets: WALL_PRESETS as readonly ColorPreset[],
+				prefix: 'wall'
+			}
+		].filter((row) => row.target === 'floorColor' || !isOpenAir(room))
+	);
 
 	function current(target: Target): string | undefined {
 		return room[target];

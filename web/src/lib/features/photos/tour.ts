@@ -20,6 +20,7 @@ import {
 import {
 	isElectrical,
 	isFreeElement,
+	isOpenAir,
 	isWallElement,
 	type FreeElementKind,
 	type Perspective,
@@ -244,6 +245,20 @@ function wallSteps(room: Room, wallList: Wall[]): TourStep[] {
 function surfaceSteps(room: Room, first: Wall | undefined): TourStep[] {
 	const position = insidePoint(room.polygon);
 	const direction = first ? first.inward : { x: 0, y: 1 };
+	const floor: TourStep = {
+		key: 'floor',
+		optional: false,
+		position,
+		direction,
+		perspective: {
+			kind: 'floor',
+			stepKey: 'floor',
+			caption: isOpenAir(room)
+				? { de: 'Boden und Überblick', en: 'Floor and overview' }
+				: { de: 'Boden', en: 'Floor' }
+		}
+	};
+	if (isOpenAir(room)) return [floor];
 	return [
 		{
 			key: 'ceiling',
@@ -256,17 +271,7 @@ function surfaceSteps(room: Room, first: Wall | undefined): TourStep[] {
 				caption: { de: 'Decke mit Lampenauslässen', en: 'Ceiling with light outlets' }
 			}
 		},
-		{
-			key: 'floor',
-			optional: false,
-			position,
-			direction,
-			perspective: {
-				kind: 'floor',
-				stepKey: 'floor',
-				caption: { de: 'Boden', en: 'Floor' }
-			}
-		}
+		floor
 	];
 }
 
@@ -292,7 +297,7 @@ function detailStep(
 
 function elementSteps(room: Room, wallList: Wall[]): TourStep[] {
 	const steps: TourStep[] = [];
-	for (const target of wallList) {
+	for (const target of isOpenAir(room) ? [] : wallList) {
 		const onWall = room.elements
 			.filter(isWallElement)
 			.filter((element) => element.wall === target.number)
@@ -368,9 +373,10 @@ function elementSteps(room: Room, wallList: Wall[]): TourStep[] {
 export function generateTour(room: Room): TourStep[] {
 	if (room.polygon.length < 3) return [];
 	const wallList = walls(room.polygon);
+	const bare = isOpenAir(room);
 	return [
-		...cornerSteps(room, wallList),
-		...wallSteps(room, wallList),
+		...(bare ? [] : cornerSteps(room, wallList)),
+		...(bare ? [] : wallSteps(room, wallList)),
 		...surfaceSteps(room, wallList[0]),
 		...elementSteps(room, wallList)
 	];

@@ -3,7 +3,7 @@
 	import PanelTopClose from '@lucide/svelte/icons/panel-top-close';
 	import { walls } from '#lib/core/geometry.ts';
 	import { connections, originalId } from '#lib/features/board/connections.svelte.ts';
-	import { elementFitsRoom } from '#lib/core/elements.ts';
+	import { elementFitsRoom, hasWalls } from '#lib/core/elements.ts';
 	import {
 		isFreeElement,
 		isRoofWindow,
@@ -151,28 +151,30 @@
 
 		<Suggestions {roomId} />
 
-		<section class="flex flex-col gap-3" data-testid="wall-view-section">
-			<div class="flex items-end gap-2">
-				<Select
-					class="min-w-0 flex-1"
-					label={t(messages, 'wallView')}
-					options={wallOptions}
-					value={String(viewWall ?? (selected && isWallElement(selected) ? selected.wall : 1))}
-					onchange={(value) => (ui.wallViewWall = Number(value))}
-				/>
-				<Button
-					variant={viewWall === null ? 'secondary' : 'primary'}
-					icon={viewWall === null ? PanelTopOpen : PanelTopClose}
-					onclick={toggleWallView}
-					data-testid="wall-view-toggle"
-				>
-					{viewWall === null ? t(messages, 'wallViewOpen') : t(messages, 'wallViewClose')}
-				</Button>
-			</div>
-			{#if viewWall !== null}
-				<WallElevation {roomId} wall={viewWall} />
-			{/if}
-		</section>
+		{#if hasWalls(room)}
+			<section class="flex flex-col gap-3" data-testid="wall-view-section">
+				<div class="flex items-end gap-2">
+					<Select
+						class="min-w-0 flex-1"
+						label={t(messages, 'wallView')}
+						options={wallOptions}
+						value={String(viewWall ?? (selected && isWallElement(selected) ? selected.wall : 1))}
+						onchange={(value) => (ui.wallViewWall = Number(value))}
+					/>
+					<Button
+						variant={viewWall === null ? 'secondary' : 'primary'}
+						icon={viewWall === null ? PanelTopOpen : PanelTopClose}
+						onclick={toggleWallView}
+						data-testid="wall-view-toggle"
+					>
+						{viewWall === null ? t(messages, 'wallViewOpen') : t(messages, 'wallViewClose')}
+					</Button>
+				</div>
+				{#if viewWall !== null}
+					<WallElevation {roomId} wall={viewWall} />
+				{/if}
+			</section>
+		{/if}
 
 		<section class="flex flex-col gap-3" data-testid="element-list">
 			<h3 class="text-sm font-bold">{t(messages, 'listTitle', { n: total })}</h3>

@@ -3,7 +3,14 @@
 	import Copy from '@lucide/svelte/icons/copy';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { areaMm2, perimeter } from '#lib/core/geometry.ts';
-	import type { Point, Room, RoomElement } from '#lib/core/schema.ts';
+	import { areaSummary } from '#lib/core/outdoor.ts';
+	import {
+		isOpenAir,
+		isOutdoor,
+		type Point,
+		type Room,
+		type RoomElement
+	} from '#lib/core/schema.ts';
 	import { formatArea, formatLength } from '#lib/core/units.ts';
 	import { locale, t } from '#lib/i18n/index.svelte.ts';
 	import { settings } from '#lib/state/settings.svelte.ts';
@@ -19,6 +26,8 @@
 	import FreeForm from './FreeForm.svelte';
 	import { messages } from './i18n.ts';
 	import NeighboursSection from './NeighboursSection.svelte';
+	import OutdoorSection from './OutdoorSection.svelte';
+	import { refitCover } from './cover.ts';
 	import RectForm from './RectForm.svelte';
 	import SlopeSection from './SlopeSection.svelte';
 	import TemplateForm from './TemplateForm.svelte';
@@ -56,10 +65,19 @@
 
 	const area = $derived(areaMm2(room.polygon));
 	const around = $derived(perimeter(room.polygon));
+	const openAir = $derived(isOpenAir(room));
+	const summary = $derived(
+		store.project?.rooms.some(isOutdoor)
+			? areaSummary({ rooms: store.project.rooms, floors: store.project.floors })
+			: undefined
+	);
 
 	function apply(polygon: Point[]): void {
 		lastKey = polygonKey(polygon);
-		store.setPolygon(room.id, polygon, { coalesce: `dims-${room.id}` });
+		const key = { coalesce: `dims-${room.id}` };
+		const cover = room.cover ? refitCover(room, polygon) : undefined;
+		store.setPolygon(room.id, polygon, key);
+		if (cover) store.updateRoom(room.id, { cover }, key);
 	}
 
 	function restructure(polygon: Point[], elements: RoomElement[]): void {
@@ -67,6 +85,7 @@
 		store.mutate((project) => {
 			const target = project.rooms.find((candidate) => candidate.id === room.id);
 			if (!target) return;
+			target.cover = target.cover ? refitCover(target, polygon) : undefined;
 			target.polygon = polygon;
 			target.elements = elements;
 		});
@@ -138,23 +157,51 @@
 
 	<p class="px-1 text-sm text-muted">{t(messages, 'cornersHint')}</p>
 
-	<NumberField
-		label={t(messages, 'height')}
-		value={room.height}
-		min={1000}
-		max={10000}
-		decreaseLabel={t(messages, 'less')}
-		increaseLabel={t(messages, 'more')}
-		oninput={(mm) => store.updateRoom(room.id, { height: mm }, { coalesce: `height-${room.id}` })}
-		onchange={seal}
-		data-testid="room-height"
-	/>
+	{#if summary}
+		<div class="rounded-lg bg-surface-2 px-4 py-3" data-testid="area-summary">
+			<dl class="flex flex-wrap justify-between gap-x-6 gap-y-1 text-sm">
+				<div class="flex gap-2">
+					<dt class="font-semibold text-muted">{t(messages, 'areaLiving')}</dt>
+					<dd class="font-bold tabular-nums" data-testid="area-living">
+						{formatArea(summary.living * 1_000_000, locale.language)}
+					</dd>
+				</div>
+				<div class="flex gap-2">
+					<dt class="font-semibold text-muted">{t(messages, 'areaOutdoor')}</dt>
+					<dd class="font-bold tabular-nums" data-testid="area-outdoor">
+						{formatArea(summary.outdoor * 1_000_000, locale.language)}
+					</dd>
+				</div>
+			</dl>
+			<p class="mt-1 text-sm text-muted">{t(messages, 'areaSplit')}</p>
+		</div>
+	{/if}
+
+	{#if !openAir}
+		<NumberField
+			label={t(messages, 'height')}
+			value={room.height}
+			min={1000}
+			max={10000}
+			decreaseLabel={t(messages, 'less')}
+			increaseLabel={t(messages, 'more')}
+			oninput={(mm) => store.updateRoom(room.id, { height: mm }, { coalesce: `height-${room.id}` })}
+			onchange={seal}
+			data-testid="room-height"
+		/>
+	{/if}
+
+	{#if openAir}
+		<OutdoorSection {room} />
+	{/if}
 
 	<NeighboursSection {room} />
 
-	{#key room.id}
-		<SlopeSection {room} />
-	{/key}
+	{#if !openAir}
+		{#key room.id}
+			<SlopeSection {room} />
+		{/key}
+	{/if}
 
 	<AppearanceSection {room} />
 
