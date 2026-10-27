@@ -80,6 +80,11 @@ function roomsWithCeiling(room: Room): Object3D[] {
 	return [false, true].map((ceiling) => buildRoom(room, { ...OPTIONS, ceiling }));
 }
 
+describe('no coplanar faces at doors and windows', () => {
+	it('door, window and electrical of a plain room', () =>
+		roomsWithCeiling(rectangleRoom()).forEach(expectClean));
+});
+
 describe('no coplanar faces in bathroom, kitchen and climate elements', () => {
 	for (const kind of ['washbasin', 'toilet', 'bathtub', 'acWall'] as const) {
 		it(kind, () => expectClean(buildRoom(roomWith(wallElement(kind)), OPTIONS)));
@@ -245,8 +250,9 @@ describe('no coplanar faces on floors and stairs', () => {
 			id: 'st',
 			fromFloorId: 'eg',
 			shape,
-			x: 600,
-			y: 600,
+			// A spiral stair turns around its centre: far enough from the walls to stay in the room.
+			x: shape === 'spiral' ? 2000 : 600,
+			y: shape === 'spiral' ? 2000 : 600,
 			rotation: 0,
 			width: 900,
 			turn: 'left'
@@ -263,6 +269,15 @@ describe('no coplanar faces on floors and stairs', () => {
 	for (const shape of ['straight', 'l', 'u', 'spiral'] as const) {
 		it(`${shape} stair with its stairwell`, () => expectClean(scene(house(shape))));
 	}
+
+	it('winter garden under a room of the floor above', () => {
+		const content = house('straight');
+		const garden: Room = { ...createRoom('w', 'w', 'winterGarden'), floorId: 'eg' };
+		const above: Room = { ...createRoom('o', 'o', 'living'), floorId: 'og' };
+		content.rooms.push({ ...garden, boardPos: { x: 8000, y: 0, rot: 0 } });
+		content.rooms.push({ ...above, boardPos: { x: 8000, y: 0, rot: 0 } });
+		expectClean(scene(content));
+	});
 });
 
 describe('no coplanar faces in kitchen cabinets from the catalogue', () => {

@@ -64,14 +64,20 @@ export function buildRoofWindows(
 				up
 			);
 		}
-		builder.quad(
-			BUCKET_GLASS,
-			spot(corners, ...inner[0]),
-			spot(corners, ...inner[1]),
-			spot(corners, ...inner[2]),
-			spot(corners, ...inner[3]),
-			up
-		);
+		// Two panes beside the mullion: glass under it would share its plane and flicker.
+		for (const [from, to] of [
+			[bu, 0.5 - bu / 4],
+			[0.5 + bu / 4, 1 - bu]
+		]) {
+			builder.quad(
+				BUCKET_GLASS,
+				spot(corners, from, bv),
+				spot(corners, to, bv),
+				spot(corners, to, 1 - bv),
+				spot(corners, from, 1 - bv),
+				up
+			);
+		}
 		builder.quad(
 			BUCKET_FRAME,
 			spot(corners, 0.5 - bu / 4, bv),

@@ -13,7 +13,8 @@ export const GLASS: MaterialSpec = {
 	roughness: 0.1
 };
 
-const BAR: MaterialSpec = { color: PALETTE.alu, roughness: 0.5, metalness: 0.3 };
+// Pushed back in depth: where the frame ends in the wall of the house next door, the wall wins.
+const BAR: MaterialSpec = { color: PALETTE.alu, roughness: 0.5, metalness: 0.3, push: true };
 const POST_SPACING = 1400;
 const BAR_WIDTH = 0.05;
 const BAR_DEPTH = 0.07;

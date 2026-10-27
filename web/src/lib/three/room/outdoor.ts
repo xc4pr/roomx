@@ -94,8 +94,14 @@ export function buildPavingJoints(room: Room): LineSegments | undefined {
 }
 
 const POST_SPACING = 1100;
-const RAIL: MaterialSpec = { color: PALETTE.railing, roughness: 0.5, metalness: 0.4 };
-const PANE: MaterialSpec = { color: PALETTE.railingGlass, opacity: 0.3, roughness: 0.1 };
+// Railing and cover end in the wall of the house next door; pushed back in depth, the wall wins there.
+const RAIL: MaterialSpec = { color: PALETTE.railing, roughness: 0.5, metalness: 0.4, push: true };
+const PANE: MaterialSpec = {
+	color: PALETTE.railingGlass,
+	opacity: 0.3,
+	roughness: 0.1,
+	push: true
+};
 
 // Posts, handrail, base rail and a glass infill along the free edges.
 export function buildRailing(
@@ -145,12 +151,21 @@ export function buildCover(room: Room, materials: MaterialSet): CoverModel | und
 	});
 	geometry.rotateX(-Math.PI / 2);
 	geometry.translate(0, cover.height * MM, 0);
-	const solid = new Mesh(geometry, materials.get({ color: PALETTE.cover, roughness: 0.95 }));
+	const solid = new Mesh(
+		geometry,
+		materials.get({ color: PALETTE.cover, roughness: 0.95, push: true })
+	);
 	solid.userData.part = 'slope';
 	solid.castShadow = true;
 	const ghost = new Mesh(
 		geometry,
-		materials.get({ color: PALETTE.cover, roughness: 0.95, opacity: GHOST_OPACITY, side: 'double' })
+		materials.get({
+			color: PALETTE.cover,
+			roughness: 0.95,
+			opacity: GHOST_OPACITY,
+			side: 'double',
+			push: true
+		})
 	);
 	ghost.userData.part = 'slopeGhost';
 	ghost.renderOrder = 1;

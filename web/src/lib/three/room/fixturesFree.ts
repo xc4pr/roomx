@@ -88,18 +88,11 @@ function stove(draw: Draw, element: FreeElement, room: Room, frame: Frame): void
 		],
 		[frame.b - width * 0.15, frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.7, front]
 	);
+	const handle = Math.min(frame.b - width * 0.15 + 0.01, frame.b - 0.025);
 	draw.box(
 		spec(PALETTE.chrome, element.status, { metalness: 0.6, roughness: 0.3 }),
-		[
-			frame.b - width * 0.15 + 0.01,
-			frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.45,
-			-frame.depth
-		],
-		[
-			frame.b - width * 0.15 + 0.03,
-			frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.5,
-			front
-		]
+		[handle, frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.45, -frame.depth],
+		[handle + 0.02, frame.bottom + legs + (frame.top - frame.bottom - legs) * 0.5, front]
 	);
 	const ceiling = ceilingHeightAt(room, { x: element.x, y: element.y }) * MM;
 	const pipe = Math.max(0, ceiling - frame.top);

@@ -79,8 +79,10 @@ const FLOOR_MARK_HEIGHT = 0.004;
 const GHOST_OPACITY = 0.36;
 const EDGE_COLOR = '#80796b';
 const BASE_DEPTH = 0.06;
-// The glass roof lies on the frame of the glass walls, not in the plane of its top faces.
-const PANE_LIFT = 0.003;
+// The glass roof lies on the frame of the glass walls, not in the plane of its top faces, and
+// stays below the slab of a storey above (3 mm gap).
+const PANE_LIFT = 0.0015;
+const GLASS_TOP_GAP = 2;
 
 export function applyWallHeight(wall: Object3D, factor: number): void {
 	const clamped = Math.max(0, Math.min(1, factor));
@@ -164,8 +166,12 @@ function buildWall(
 	const wallTop = profileMax(profile);
 	const wallColor = room.wallColor ?? PALETTE.wall;
 	const glassMaterial = materials.get(GLASS);
+	// Glass ends inside the top rail of its frame instead of in the plane of its top.
+	const bodyProfile = glass
+		? profile.map((point) => ({ ...point, h: point.h - GLASS_TOP_GAP }))
+		: profile;
 	const body = new Mesh(
-		buildWallGeometry(frame, openings, profile),
+		buildWallGeometry(frame, openings, bodyProfile),
 		glass
 			? [glassMaterial, glassMaterial, glassMaterial, glassMaterial, glassMaterial]
 			: [
@@ -318,9 +324,16 @@ function buildDoorMarks(
 			-(swing.hinge.y + (point.y - swing.hinge.y) * scale) * MM
 		];
 		const arc = outline.slice(1);
+		const innerScale = Math.max(0, 1 - 0.025 / (swing.radius * MM));
 		for (let i = 0; i < arc.length - 1; i++) {
-			parts.triangle(0, at(swing.hinge), at(arc[i]), at(arc[i + 1]), [0, 1, 0]);
-			const innerScale = Math.max(0, 1 - 0.025 / (swing.radius * MM));
+			// The fill stops where the band along the arc starts: overlapping they would flicker.
+			parts.triangle(
+				0,
+				at(swing.hinge),
+				at(arc[i], innerScale),
+				at(arc[i + 1], innerScale),
+				[0, 1, 0]
+			);
 			parts.quad(
 				1,
 				at(arc[i], innerScale),

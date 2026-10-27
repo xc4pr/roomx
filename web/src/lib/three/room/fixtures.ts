@@ -164,7 +164,8 @@ export function addWindow(ctx: WallContext, window: Window): void {
 		const roomLength = ctx.length * MM;
 		const su0 = Math.max(0, a - 0.04);
 		const su1 = Math.min(roomLength, b + 0.04);
-		parts.box(frame, [su0, bottom - 0.025, -0.05], [su1, bottom, zc + 0.04]);
+		// The sill lies on the reveal up to the frame, not in its plane.
+		parts.box(frame, [su0, bottom - 0.025, -0.05], [su1, bottom + 0.002, zc - 0.04]);
 		parts.box(frame, [su0, bottom - 0.02, T], [su1, bottom, T + 0.04]);
 	}
 }

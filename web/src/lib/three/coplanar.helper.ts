@@ -1,12 +1,26 @@
-import { BackSide, DoubleSide, Mesh, Vector3, type Material, type Object3D } from 'three';
+import {
+	BackSide,
+	DoubleSide,
+	Mesh,
+	Vector3,
+	type BufferGeometry,
+	type Material,
+	type Object3D
+} from 'three';
 
 // Faces closer than this count as one plane: the depth buffer cannot tell them apart and they flicker (z-fighting).
 const PLANE_TOLERANCE = 0.0005;
 const NORMAL_TOLERANCE = 1e-4;
 const MIN_AREA = 1e-5;
 
+// One material of one mesh: a mesh with a material array has one surface per geometry group.
+interface Surface {
+	material: Material;
+	label: string;
+}
+
 interface Face {
-	mesh: number;
+	surface: number;
 	normal: Vector3;
 	offset: number;
 	points: Vector3[];
@@ -20,23 +34,27 @@ export interface Clash {
 	at: [number, number, number];
 }
 
-function label(mesh: Mesh): string {
+function label(mesh: Mesh, material: Material): string {
 	const names: string[] = [];
 	for (let node: Object3D | null = mesh; node; node = node.parent) {
 		const name = node.userData.part ?? node.name;
 		if (name) names.unshift(String(name));
 	}
-	const material = mesh.material as Material & { color?: { getHexString(): string } };
-	return `${names.join('/')}#${material.color?.getHexString() ?? material.type}`;
+	const color = (material as Material & { color?: { getHexString(): string } }).color;
+	return `${names.join('/')}#${color?.getHexString() ?? material.type}`;
 }
 
-function facesOf(mesh: Mesh, index: number): Face[] {
+function facesOf(
+	mesh: Mesh,
+	surface: number,
+	from: number,
+	to: number,
+	material: Material
+): Face[] {
 	const position = mesh.geometry.getAttribute('position');
 	const order = mesh.geometry.index;
-	const count = order ? order.count : position.count;
-	const material = mesh.material as Material;
 	const faces: Face[] = [];
-	for (let i = 0; i < count; i += 3) {
+	for (let i = from; i + 2 < to; i += 3) {
 		const points = [0, 1, 2].map((k) =>
 			new Vector3()
 				.fromBufferAttribute(position, order ? order.getX(i + k) : i + k)
@@ -51,7 +69,7 @@ function facesOf(mesh: Mesh, index: number): Face[] {
 		for (const sign of sides) {
 			const facing = normal.clone().multiplyScalar(sign);
 			faces.push({
-				mesh: index,
+				surface,
 				normal: facing,
 				offset: facing.dot(points[0]),
 				points: sign > 0 ? points : [...points].reverse()
@@ -59,6 +77,29 @@ function facesOf(mesh: Mesh, index: number): Face[] {
 		}
 	}
 	return faces;
+}
+
+function collect(root: Object3D): { surfaces: Surface[]; faces: Face[] } {
+	const surfaces: Surface[] = [];
+	const faces: Face[] = [];
+	root.traverse((node) => {
+		if (!(node instanceof Mesh) || !node.visible) return;
+		const geometry: BufferGeometry = node.geometry;
+		const count = geometry.index ? geometry.index.count : geometry.getAttribute('position').count;
+		const parts = Array.isArray(node.material)
+			? geometry.groups.map((group) => ({
+					material: (node.material as Material[])[group.materialIndex ?? 0],
+					from: group.start,
+					to: Math.min(count, group.start + group.count)
+				}))
+			: [{ material: node.material as Material, from: 0, to: count }];
+		for (const part of parts) {
+			if (!part.material) continue;
+			surfaces.push({ material: part.material, label: label(node, part.material) });
+			faces.push(...facesOf(node, surfaces.length - 1, part.from, part.to, part.material));
+		}
+	});
+	return { surfaces, faces };
 }
 
 // Drops the axis the normal points along most; keeps the winding counter-clockwise.
@@ -115,47 +156,41 @@ function clip(subject: [number, number][], clipper: [number, number][]): [number
 
 /**
  * Visible faces of different materials that lie in one plane, face the same way and overlap.
- * These flicker with the viewing angle (z-fighting). Pairs are summed per mesh pair.
+ * These flicker with the viewing angle (z-fighting). Overlaps are summed per pair of surfaces and
+ * plane; pairs below MIN_AREA in total are left out.
  */
 export function coplanarClashes(root: Object3D): Clash[] {
 	root.updateMatrixWorld(true);
-	const meshes: Mesh[] = [];
-	root.traverse((node) => {
-		if (node instanceof Mesh && node.visible && !Array.isArray(node.material)) meshes.push(node);
-	});
-	const faces = meshes.flatMap((mesh, index) => facesOf(mesh, index));
+	const { surfaces, faces } = collect(root);
 	faces.sort((p, q) => p.offset - q.offset);
+	const round = (n: number) => Math.round(n * 1000) / 1000;
 	const found = new Map<string, Clash>();
 	for (let i = 0; i < faces.length; i++) {
 		const a = faces[i];
 		for (let k = i + 1; k < faces.length && faces[k].offset - a.offset < PLANE_TOLERANCE; k++) {
 			const b = faces[k];
-			const [first, second] = [
-				meshes[a.mesh].material as Material,
-				meshes[b.mesh].material as Material
-			];
-			if (a.mesh === b.mesh || first === second) continue;
+			const [first, second] = [surfaces[a.surface], surfaces[b.surface]];
+			if (a.surface === b.surface || first.material === second.material) continue;
 			// A polygon offset on one of them settles which face wins.
-			if (first.polygonOffset !== second.polygonOffset) continue;
+			if (first.material.polygonOffset !== second.material.polygonOffset) continue;
 			if (a.normal.dot(b.normal) < 1 - NORMAL_TOLERANCE) continue;
 			const overlap = Math.abs(area(clip(flat(a), flat(b))));
-			if (overlap < MIN_AREA) continue;
-			const [labelA, labelB] = [label(meshes[a.mesh]), label(meshes[b.mesh])].sort();
-			const key = `${labelA}|${labelB}`;
+			if (overlap < 1e-9) continue;
+			const [labelA, labelB] = [first.label, second.label].sort();
+			const [p, n] = [a.points[0], a.normal];
+			const normal: Clash['normal'] = [round(n.x), round(n.y), round(n.z)];
+			const key = `${labelA}|${labelB}|${normal.join()}|${Math.round(a.offset * 1000)}`;
 			const entry = found.get(key);
 			if (entry) entry.area += overlap;
-			else {
-				const round = (n: number) => Math.round(n * 1000) / 1000;
-				const [p, n] = [a.points[0], a.normal];
+			else
 				found.set(key, {
 					a: labelA,
 					b: labelB,
 					area: overlap,
-					normal: [round(n.x), round(n.y), round(n.z)],
+					normal,
 					at: [round(p.x), round(p.y), round(p.z)]
 				});
-			}
 		}
 	}
-	return [...found.values()];
+	return [...found.values()].filter((clash) => clash.area >= MIN_AREA);
 }

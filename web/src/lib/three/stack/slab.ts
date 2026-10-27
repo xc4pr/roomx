@@ -1,9 +1,9 @@
 import { BufferGeometry, ExtrudeGeometry, Group, Mesh, Path, Shape } from 'three';
-import { WALL_THICKNESS } from '#lib/core/defaults.ts';
 import { floorRooms, roomFloorId } from '#lib/core/floors.ts';
 import { distance, roomToBoard, type Vec } from '#lib/core/geometry.ts';
 import { isOpenAir, type Project, type Room } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
+import { wallFrames } from '../room/frames.ts';
 import { PALETTE, type MaterialSet } from '../room/materials.ts';
 import type { SceneContent } from '../types.ts';
 import { holeToBoard, roomHoles } from './openings.ts';
@@ -73,35 +73,6 @@ function simplify(loop: Vec[]): Vec[] {
 	});
 }
 
-// Moves every corner of the outline outwards by `by` along the corner bisector.
-export function growOutline(polygon: readonly Vec[], by: number): Vec[] {
-	const n = polygon.length;
-	const area = polygon.reduce((sum, p, i) => {
-		const q = polygon[(i + 1) % n];
-		return sum + (p.x * q.y - q.x * p.y);
-	}, 0);
-	const sign = area >= 0 ? 1 : -1;
-	return polygon.map((point, i) => {
-		const before = polygon[(i + n - 1) % n];
-		const after = polygon[(i + 1) % n];
-		const normal = (a: Vec, b: Vec): Vec => {
-			const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-			return { x: ((b.y - a.y) / length) * sign, y: (-(b.x - a.x) / length) * sign };
-		};
-		const n1 = normal(before, point);
-		const n2 = normal(point, after);
-		const sum = { x: n1.x + n2.x, y: n1.y + n2.y };
-		const length = Math.hypot(sum.x, sum.y);
-		if (length < 1e-6) return point;
-		const along = (sum.x * n1.x + sum.y * n1.y) / length;
-		const miter = Math.min(2, 1 / Math.max(along, 0.5));
-		return {
-			x: point.x + (sum.x / length) * by * miter,
-			y: point.y + (sum.y / length) * by * miter
-		};
-	});
-}
-
 function shapeOf(points: readonly Vec[]): Shape {
 	const shape = new Shape();
 	points.forEach((p, i) => {
@@ -165,10 +136,8 @@ export function buildSlabs(
 		if (thickness <= 0) return;
 		for (const room of floorRooms(project, floor.id)) {
 			if (!shown.has(room.id) || !onSlab(project, room)) continue;
-			const outline = growOutline(
-				room.polygon.map((p) => roomToBoard(room, p)),
-				WALL_THICKNESS
-			);
+			// Along the outer faces of the walls, like the base it replaces, also at sharp corners.
+			const outline = wallFrames(room.polygon).map((frame) => roomToBoard(room, frame.outerStart));
 			const holes = roomHoles(project, room).floor.map((hole) => holeToBoard(room, hole));
 			const mesh = new Mesh(slabGeometry(outline, holes, thickness), material);
 			mesh.position.y = (level - below.slabThickness + SLAB_GAP) * MM;

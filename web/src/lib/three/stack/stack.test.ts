@@ -14,6 +14,7 @@ import { floorLevels, stairContext } from '#lib/core/floors.ts';
 import { pointInPolygon } from '#lib/core/geometry.ts';
 import type { Project, Room, Stair, StairShape } from '#lib/core/schema.ts';
 import { MM } from '../coords.ts';
+import { wallFrames } from '../room/frames.ts';
 import { buildScene } from '../scene.ts';
 import { DEFAULT_SCENE_OPTIONS } from '../types.ts';
 import { loweredWalls } from '../viewer/cutaway.ts';
@@ -130,6 +131,26 @@ describe('floor stack in 3D', () => {
 		};
 		expect(dropHits(slabs, centre.x * MM, 5, -centre.y * MM)).toHaveLength(0);
 		expect(dropHits(slabs, 6.5, 5, -4.5)).toHaveLength(2);
+	});
+
+	it('carries the upper room on its slab only, out to the outer wall corners', () => {
+		const p = project([]);
+		p.rooms[1].polygon = [
+			{ x: 0, y: 0 },
+			{ x: 7000, y: 0 },
+			{ x: 0, y: 1500 }
+		];
+		const scene = build(p);
+		expect(scene.root.getObjectByName('room-b')!.getObjectByName('base')).toBeUndefined();
+		expect(scene.root.getObjectByName('room-a')!.getObjectByName('base')).toBeDefined();
+		const slab = new Box3().setFromObject(parts(scene.root, 'slab')[0]);
+		for (const { outerStart } of wallFrames(p.rooms[1].polygon)) {
+			expect(slab.min.x).toBeLessThanOrEqual(outerStart.x * MM + 0.001);
+			expect(slab.max.x).toBeGreaterThanOrEqual(outerStart.x * MM - 0.001);
+			expect(slab.min.z).toBeLessThanOrEqual(-outerStart.y * MM + 0.001);
+			expect(slab.max.z).toBeGreaterThanOrEqual(-outerStart.y * MM - 0.001);
+		}
+		expect(slab.max.x).toBeGreaterThan(7.2);
 	});
 
 	it('has no hole where no stair arrives and no slab under the lowest floor', () => {
