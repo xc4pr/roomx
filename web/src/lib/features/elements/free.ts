@@ -29,6 +29,7 @@ import {
 	type KitchenGrid,
 	type KitchenModule,
 	type KitchenModuleKind,
+	type KitchenRun,
 	type Point,
 	type Room,
 	type RoomElement,
@@ -269,4 +270,15 @@ export function regrid(
 
 export function modulesTotal(modules: readonly KitchenModule[]): number {
 	return modules.reduce((sum, module) => sum + module.width, 0);
+}
+
+// A new module goes to the end of the run; the run grows with it as far as the wall allows.
+export function appendModule(
+	run: Pick<KitchenRun, 'modules' | 'width' | 'offset'>,
+	wallLength: number,
+	module: KitchenModule
+): { modules: KitchenModule[]; width: number } {
+	const modules = [...run.modules, module];
+	const room = Math.max(run.width, Math.round(wallLength) - run.offset);
+	return { modules, width: Math.max(run.width, Math.min(room, modulesTotal(modules))) };
 }

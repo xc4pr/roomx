@@ -4,6 +4,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import Trash from '@lucide/svelte/icons/trash';
 	import { KITCHEN_UPPER, kitchenGridWidth } from '#lib/core/defaults.ts';
+	import { wall } from '#lib/core/geometry.ts';
 	import { newId } from '#lib/core/ids.ts';
 	import {
 		KITCHEN_MODULE_KINDS,
@@ -26,6 +27,7 @@
 	import {
 		MODULE_APPLIANCES,
 		changeModuleKind,
+		appendModule,
 		modulesTotal,
 		moduleWidthChoices,
 		moveModule,
@@ -255,7 +257,10 @@
 			<Button
 				variant="secondary"
 				icon={Plus}
-				onclick={() => setModules([...run.modules, newModule('base', run.grid, newId)])}
+				onclick={() => {
+					const target = wall(store.room(roomId)?.polygon ?? [], run.wall);
+					patch(appendModule(run, target?.length ?? run.width, newModule('base', run.grid, newId)));
+				}}
 				data-testid="module-add"
 			>
 				{t(messages, 'moduleAdd')}

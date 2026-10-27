@@ -9,6 +9,7 @@ import {
 	dockToWall,
 	dragFree,
 	hasDepth,
+	appendModule,
 	moduleWidthChoices,
 	modulesTotal,
 	moveModule,
@@ -215,5 +216,15 @@ describe('kitchen modules', () => {
 		];
 		expect(regrid(sms, 'sms', 'euro').map((m) => m.width)).toEqual([600, 1200, 700]);
 		expect(modulesTotal(modules)).toBe(1500);
+	});
+});
+
+describe('appendModule', () => {
+	const module = (id: string, width = 550) => ({ id, kind: 'base' as const, width });
+	it('grows a full run as far as the wall allows', () => {
+		const run = { modules: [module('a'), module('b')], width: 1100, offset: 500 };
+		expect(appendModule(run, 4000, module('c')).width).toBe(1650);
+		expect(appendModule(run, 2000, module('c')).width).toBe(1500);
+		expect(appendModule({ ...run, width: 2000 }, 4000, module('c')).width).toBe(2000);
 	});
 });
