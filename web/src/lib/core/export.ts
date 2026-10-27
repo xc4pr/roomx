@@ -2,6 +2,13 @@ import { z } from 'zod';
 import { wallLinks, withMirroredOpenings, type WallLink } from './adjacency.ts';
 import { areaM2 } from './defaults.ts';
 import {
+	clearanceZone,
+	elementVolumes,
+	freeElementShape,
+	freeElementTop,
+	kitchenModuleSpans
+} from './elements.ts';
+import {
 	cornerLabel,
 	doorSwing,
 	freeWallSpans,
@@ -26,6 +33,12 @@ import {
 	ShoppingEntrySchema,
 	SuggestionSchema,
 	ELEMENT_KINDS,
+	FREE_ELEMENT_KINDS,
+	KITCHEN_APPLIANCES,
+	KITCHEN_GRIDS,
+	KITCHEN_MODULE_KINDS,
+	isFreeElement,
+	type FreeElement,
 	type Project,
 	type Room,
 	type WallElement
@@ -43,6 +56,9 @@ export const FORMAT_GUIDE = [
 	'"doorSwings" and "windowZones" are floor areas that must stay clear.',
 	'Furniture items give "x","y" (centre of the footprint), "rotation" (degrees counter-clockwise, 0 = front faces +y), "dims" (w = width of the front, d = depth, h = height), "elevation" and the four "footprint" corners.',
 	'Walls may list "neighbours": the room on the other side of that wall, the shared stretch "from"-"to" along this wall and the "thickness" of the shared wall. Rooms with "separate": true are deliberately not connected to others (cellar, garage). A door or window in a shared wall appears in both rooms; in the neighbour it carries "sharedFrom" with the id of the original element.',
+	'Fixed built-ins are locked like doors and windows: never move or remove them and never place anything inside them. Wall built-ins (washbasin, toilet, shower, bathtub, kitchenRun, acWall) are wall elements with "depth". A kitchenRun lists "modules" with "from"/"to" measured from the start of the run, "grid", "tallHeight" and optional "upper" cabinets. Free elements (column, freeObstacle, fireplace, stove, tiledStove, acFloor) are listed in "freeElements" with centre "x","y", "rotation" (0 = front faces +y), "width", "depth", "height", "elevation", "top" and the "footprint" corners; "clearance" is the zone kept free in front of them.',
+	'"keepClear" lists where nothing may stand: "fixtures" are the bodies of all fixed built-ins (never overlap them), "zones" are clear areas in front of them, kind "fire" (in front of a fireplace, stove or tiled stove: mandatory, an item there is an error) or "airflow" (in front of an air conditioner: keep free, an item there is a warning). Each has a "polygon" in room coordinates and a height range "bottom" to "top".',
+	'A room "kitchen" setting tells whether the kitchen is "open" (part of a living or dining room) and its "mode": "builtin" means the kitchen is fixed and must not be planned, "catalog" means kitchen furniture (category kitchen) may be planned.',
 	'Element status is "existing" (built), "planned" (decided by the user) or "suggested" (proposal, not yet accepted).',
 	'Rooms under a roof may list "slopes": the ceiling starts on that wall at "kneeHeight" and rises into the room at "angleDeg" until it meets the flat ceiling at "fullHeightAt" mm from the wall; "standingHeightAt" is the distance from the wall where 2000 mm clear height is reached. Furniture must fit under the slope.',
 	'A furnishing plan is returned in the "roomx-plan" format and refers to rooms by "id"; items with "locked": true must not be moved or removed.'
@@ -61,6 +77,23 @@ export const ExportWallElementSchema = z.object({
 	elevation: Mm,
 	top: Mm,
 	depth: Mm.optional(),
+	screen: z.boolean().optional(),
+	clearance: Mm.optional(),
+	grid: z.enum(KITCHEN_GRIDS).optional(),
+	tallHeight: Mm.optional(),
+	upper: z.object({ depth: Mm, height: Mm, elevation: Mm }).optional(),
+	modules: z
+		.array(
+			z.object({
+				id: z.string(),
+				kind: z.enum(KITCHEN_MODULE_KINDS),
+				width: Mm,
+				from: Mm,
+				to: Mm,
+				appliances: z.array(z.enum(KITCHEN_APPLIANCES)).optional()
+			})
+		)
+		.optional(),
 	hinge: z.enum(['start', 'end']).optional(),
 	swing: z.enum(['in', 'out', 'sliding']).optional(),
 	windowType: z.enum(['tiltTurn', 'sliding', 'fixed', 'balconyDoor']).optional(),
@@ -93,6 +126,32 @@ export const ExportWallSchema = z.object({
 			})
 		)
 		.optional()
+});
+
+const VolumeSchema = z.object({ polygon: z.array(PointSchema), bottom: Mm, top: Mm });
+
+export const ExportFreeElementSchema = z.object({
+	id: z.string(),
+	kind: z.enum(FREE_ELEMENT_KINDS),
+	status: ElementStatusSchema,
+	x: Mm,
+	y: Mm,
+	rotation: z.number(),
+	width: Mm,
+	depth: Mm,
+	height: Mm,
+	elevation: Mm,
+	top: Mm,
+	footprint: z.array(PointSchema),
+	shape: z.enum(['round', 'square']).optional(),
+	clearance: Mm.optional(),
+	toCeiling: z.boolean().optional(),
+	note: z.string().optional()
+});
+
+export const ExportKeepClearSchema = z.object({
+	fixtures: z.array(VolumeSchema.extend({ elementId: z.string() })),
+	zones: z.array(VolumeSchema.extend({ elementId: z.string(), kind: z.enum(['fire', 'airflow']) }))
 });
 
 export const ExportPhotoSchema = z.object({
@@ -151,6 +210,11 @@ export const ExportRoomSchema = z.object({
 			})
 		)
 		.optional(),
+	freeElements: z.array(ExportFreeElementSchema).optional(),
+	keepClear: ExportKeepClearSchema.optional(),
+	kitchen: z
+		.object({ open: z.boolean().optional(), mode: z.enum(['builtin', 'catalog']).optional() })
+		.optional(),
 	separate: z.boolean().optional(),
 	floorColor: z.string().optional(),
 	wallColor: z.string().optional(),
@@ -196,15 +260,70 @@ export const WINDOW_ZONE_DEPTH = 600;
 export const STANDING_HEIGHT = 2000;
 
 function exportWallElement(element: WallElement, wallLength: number): ExportWallElement {
-	const { wall: _wall, offset, reason: _reason, ...rest } = element;
+	const { offset } = element;
 	const shared = element.id.indexOf('@');
-	return {
-		...rest,
+	const common = {
 		...(shared > 0 ? { sharedFrom: element.id.slice(0, shared) } : {}),
 		offsetFromStart: offset,
 		offsetFromEnd: wallLength - offset - element.width,
 		top: element.elevation + element.height
 	};
+	if (element.kind === 'kitchenRun') {
+		const { modules: _modules, wall: _w, offset: _o, reason: _r, ...run } = element;
+		return {
+			...run,
+			modules: kitchenModuleSpans(element).map((span) => ({
+				...span.module,
+				from: span.from,
+				to: span.to
+			})),
+			...common
+		};
+	}
+	const { wall: _wall, offset: _offset, reason: _reason, ...rest } = element;
+	return { ...rest, ...common };
+}
+
+function round(value: number): number {
+	return Math.round(value);
+}
+
+function exportFreeElement(
+	room: Room,
+	element: FreeElement
+): z.infer<typeof ExportFreeElementSchema> {
+	const { reason: _reason, ...rest } = element;
+	return {
+		...rest,
+		top: round(freeElementTop(room, element)),
+		footprint: freeElementShape(element).map(roundPoint)
+	};
+}
+
+function exportKeepClear(room: Room): z.infer<typeof ExportKeepClearSchema> | undefined {
+	const fixtures = room.elements.flatMap((element) =>
+		elementVolumes(room, element).map((volume) => ({
+			elementId: element.id,
+			polygon: volume.shape.map(roundPoint),
+			bottom: round(volume.bottom),
+			top: round(volume.top)
+		}))
+	);
+	const zones = room.elements.flatMap((element) => {
+		const zone = clearanceZone(room, element);
+		return zone
+			? [
+					{
+						elementId: element.id,
+						kind: zone.kind,
+						polygon: zone.shape.map(roundPoint),
+						bottom: round(zone.bottom),
+						top: round(zone.top)
+					}
+				]
+			: [];
+	});
+	return fixtures.length > 0 || zones.length > 0 ? { fixtures, zones } : undefined;
 }
 
 export function exportRoom(
@@ -214,6 +333,8 @@ export function exportRoom(
 	names: ReadonlyMap<string, string> = new Map()
 ): ExportRoom {
 	const roomWalls = walls(room.polygon);
+	const freeElements = room.elements.filter(isFreeElement).map((e) => exportFreeElement(room, e));
+	const keepClear = exportKeepClear(room);
 	return {
 		id: room.id,
 		name: room.name,
@@ -307,6 +428,9 @@ export function exportRoom(
 					})
 				}
 			: {}),
+		...(freeElements.length > 0 ? { freeElements } : {}),
+		...(keepClear ? { keepClear } : {}),
+		...(room.kitchen ? { kitchen: room.kitchen } : {}),
 		...(room.separate ? { separate: true } : {}),
 		...(room.floorColor ? { floorColor: room.floorColor } : {}),
 		...(room.wallColor ? { wallColor: room.wallColor } : {}),

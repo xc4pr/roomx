@@ -289,3 +289,27 @@ describe('prettyJson', () => {
 		);
 	});
 });
+
+describe('fixed built-ins in the instructions', () => {
+	it.each(LANGUAGES)('state the rules for built-ins and keep-clear zones (%s)', (language) => {
+		const { text } = instructionsFor(language);
+		for (const word of [
+			'keepClear',
+			'freeElements',
+			'fixtures',
+			'fire',
+			'airflow',
+			'kitchen.mode',
+			'catalog',
+			'builtin'
+		]) {
+			expect(text).toContain(word);
+		}
+	});
+
+	it.each(LANGUAGES)('name no vendor for built-ins (%s)', (language) => {
+		const { text } = instructionsFor(language);
+		const lower = text.toLowerCase();
+		for (const word of FORBIDDEN) expect(lower).not.toContain(word);
+	});
+});

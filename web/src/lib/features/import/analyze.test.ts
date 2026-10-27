@@ -297,3 +297,47 @@ describe('analyzePlanText on messy answers', () => {
 		});
 	});
 });
+
+describe('fixed built-ins in the preview', () => {
+	it('reports collisions with built-ins and fire zones', () => {
+		const withBuiltIns = options();
+		const room = withBuiltIns.project.rooms[0]!;
+		room.elements.push(
+			{
+				id: 'pillar',
+				kind: 'column',
+				status: 'existing',
+				shape: 'square',
+				x: 1000,
+				y: 1500,
+				rotation: 0,
+				width: 3000,
+				depth: 3000,
+				height: 2500,
+				elevation: 0
+			},
+			{
+				id: 'oven',
+				kind: 'stove',
+				status: 'existing',
+				x: 2400,
+				y: 1400,
+				rotation: 270,
+				width: 500,
+				depth: 450,
+				height: 1100,
+				elevation: 0,
+				clearance: 1500
+			}
+		);
+		const result = analyzePlanText(planJson(), withBuiltIns);
+		if (result.status !== 'ready') throw new Error(result.status);
+		const errors = result.preview[0]!.rooms[0]!.errors;
+		const codes = errors.map((conflict) => conflict.code);
+		expect(codes).toContain('elementCollision');
+		expect(codes).toContain('fireZone');
+		expect(errors.find((conflict) => conflict.code === 'elementCollision')!.text).toMatch(
+			/kollidiert/
+		);
+	});
+});
