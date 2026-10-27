@@ -168,7 +168,7 @@ function buildWall(
 	const glassMaterial = materials.get(GLASS);
 	// Glass ends inside the top rail of its frame instead of in the plane of its top.
 	const bodyProfile = glass
-		? profile.map((point) => ({ ...point, h: point.h - GLASS_TOP_GAP }))
+		? profile.map((point) => ({ ...point, h: Math.max(point.h - GLASS_TOP_GAP, point.h / 2) }))
 		: profile;
 	const body = new Mesh(
 		buildWallGeometry(frame, openings, bodyProfile),

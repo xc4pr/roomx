@@ -298,6 +298,18 @@ function span(triangles: readonly (readonly { x: number; y: number }[])[]): [num
 	return [Math.min(...xs), Math.max(...xs)];
 }
 
+describe('slopes from the floor', () => {
+	it('builds a room whose slope starts at knee height 0, also with glass walls', () => {
+		const slopes: Slope[] = [{ id: 's1', wall: 1, kneeHeight: 0, angle: 45 }];
+		expect(() => buildRoom(sloped(rectangleRoom(), slopes), OPTIONS)).not.toThrow();
+		const garden: Room = { ...rectangleRoom(), type: 'winterGarden', elements: [] };
+		for (const kneeHeight of [0, 1, 2]) {
+			const low: Slope[] = [{ id: 's1', wall: 1, kneeHeight, angle: 45 }];
+			expect(() => buildRoom({ ...garden, slopes: low }, OPTIONS)).not.toThrow();
+		}
+	});
+});
+
 describe('partial slopes, dormers and cuts', () => {
 	const partial: Slope[] = [
 		{ id: 'p', wall: 1, kneeHeight: 1000, angle: 45, from: 1000, to: 3000 }

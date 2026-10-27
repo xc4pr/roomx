@@ -20,6 +20,9 @@ import { Parts } from './parts.ts';
 
 const SLAB_DEPTH: Record<string, number> = { balcony: 0.14, terrace: 0.05, garden: 0.1 };
 const COVER_THICKNESS = 0.06;
+// The cover stays this far (mm) inside its outline: where it ends at the wall of the house next
+// door, its edge would otherwise lie in the face of that wall.
+const COVER_INSET = 2;
 const GHOST_OPACITY = 0.3;
 const PAVING_STEP = 600;
 const JOINT_HEIGHT = 0.003;
@@ -94,7 +97,7 @@ export function buildPavingJoints(room: Room): LineSegments | undefined {
 }
 
 const POST_SPACING = 1100;
-// Railing and cover end in the wall of the house next door; pushed back in depth, the wall wins there.
+// The railing ends in the wall of the house next door; pushed back in depth, the wall wins there.
 const RAIL: MaterialSpec = { color: PALETTE.railing, roughness: 0.5, metalness: 0.4, push: true };
 const PANE: MaterialSpec = {
 	color: PALETTE.railingGlass,
@@ -145,16 +148,18 @@ export interface CoverModel {
 export function buildCover(room: Room, materials: MaterialSet): CoverModel | undefined {
 	const cover = room.cover;
 	if (!cover || cover.polygon.length < 3) return undefined;
-	const geometry = new ExtrudeGeometry(shapeOf(cover.polygon), {
+	// Mirrored at its corner, the outer corner of a wall of COVER_INSET gives the inner corner.
+	const outline = wallFrames(cover.polygon, COVER_INSET).map((frame) => ({
+		x: 2 * frame.start.x - frame.outerStart.x,
+		y: 2 * frame.start.y - frame.outerStart.y
+	}));
+	const geometry = new ExtrudeGeometry(shapeOf(outline), {
 		depth: COVER_THICKNESS,
 		bevelEnabled: false
 	});
 	geometry.rotateX(-Math.PI / 2);
 	geometry.translate(0, cover.height * MM, 0);
-	const solid = new Mesh(
-		geometry,
-		materials.get({ color: PALETTE.cover, roughness: 0.95, push: true })
-	);
+	const solid = new Mesh(geometry, materials.get({ color: PALETTE.cover, roughness: 0.95 }));
 	solid.userData.part = 'slope';
 	solid.castShadow = true;
 	const ghost = new Mesh(
@@ -163,8 +168,7 @@ export function buildCover(room: Room, materials: MaterialSet): CoverModel | und
 			color: PALETTE.cover,
 			roughness: 0.95,
 			opacity: GHOST_OPACITY,
-			side: 'double',
-			push: true
+			side: 'double'
 		})
 	);
 	ghost.userData.part = 'slopeGhost';

@@ -1,4 +1,4 @@
-import type { BufferGeometry } from 'three';
+import { BufferGeometry, Float32BufferAttribute } from 'three';
 import { MM } from '../coords.ts';
 import { GeometryBuilder, type V3 } from './builder.ts';
 import { thicknessAt, type WallFrame, type WallOpening } from './frames.ts';
@@ -314,7 +314,10 @@ export function buildWallGeometry(
 		}
 	}
 
+	// A wall can be empty, e.g. under a slope that starts at the floor (knee height 0).
 	const geometry = builder.build();
-	if (!geometry) throw new Error('empty wall');
-	return geometry;
+	if (geometry) return geometry;
+	const empty = new BufferGeometry();
+	empty.setAttribute('position', new Float32BufferAttribute([], 3));
+	return empty;
 }

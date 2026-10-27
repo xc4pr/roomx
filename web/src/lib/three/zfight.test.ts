@@ -192,9 +192,11 @@ describe('no coplanar faces under sloped ceilings', () => {
 });
 
 describe('no coplanar faces outdoors', () => {
-	function pair(type: RoomType, patch: Partial<Room> = {}): Project {
+	// Docked at the wall thickness (the usual case) and right on the inner face of the house wall.
+	const GAPS = [150, 0];
+	function pair(type: RoomType, gap: number, patch: Partial<Room> = {}): Project {
 		const house = createRoom('a', 'A', 'living', { x: 0, y: 0, rot: 0 });
-		const outdoor = { ...createRoom('b', 'B', type, { x: 4000, y: 0, rot: 0 }), ...patch };
+		const outdoor = { ...createRoom('b', 'B', type, { x: 4000 + gap, y: 0, rot: 0 }), ...patch };
 		return project([house, outdoor]);
 	}
 	const strip = {
@@ -207,31 +209,33 @@ describe('no coplanar faces outdoors', () => {
 		height: 2400
 	};
 
-	it('balcony with railing, cover over all and as a strip', () => {
-		const balcony = createRoom('b', 'B', 'balcony', { x: 4000, y: 0, rot: 0 });
-		expectClean(scene(pair('balcony', { railing: { height: 1000 } })));
-		expectClean(
-			scene(
-				pair('balcony', {
-					railing: { height: 1000 },
-					cover: { polygon: balcony.polygon, height: 2400 }
-				})
-			)
-		);
-		expectClean(scene(pair('balcony', { railing: { height: 1000 }, cover: strip })));
-	});
+	for (const gap of GAPS) {
+		it(`balcony with railing, cover over all and as a strip, gap ${gap}`, () => {
+			const balcony = createRoom('b', 'B', 'balcony');
+			const railing = { height: 1000 };
+			expectClean(scene(pair('balcony', gap, { railing })));
+			expectClean(
+				scene(pair('balcony', gap, { railing, cover: { polygon: balcony.polygon, height: 2400 } }))
+			);
+			expectClean(scene(pair('balcony', gap, { railing, cover: strip })));
+		});
 
-	it('terrace and garden', () => {
-		expectClean(scene(pair('terrace', { cover: strip })));
-		expectClean(scene(pair('garden')));
-	});
+		it(`terrace and garden, gap ${gap}`, () => {
+			expectClean(scene(pair('terrace', gap, { cover: strip })));
+			expectClean(scene(pair('garden', gap)));
+		});
 
-	it('winter garden, also with a lean-to roof', () => {
-		expectClean(scene(pair('winterGarden')));
-		expectClean(
-			scene(pair('winterGarden', { slopes: [{ id: 's', wall: 2, kneeHeight: 2000, angle: 20 }] }))
-		);
-	});
+		it(`winter garden, also with a lean-to roof, gap ${gap}`, () => {
+			expectClean(scene(pair('winterGarden', gap)));
+			expectClean(
+				scene(
+					pair('winterGarden', gap, {
+						slopes: [{ id: 's', wall: 2, kneeHeight: 2000, angle: 20 }]
+					})
+				)
+			);
+		});
+	}
 });
 
 describe('no coplanar faces on floors and stairs', () => {

@@ -129,7 +129,8 @@ describe('open-air areas', () => {
 		const box = new Box3().setFromObject(slab[0]);
 		expect(box.min.y).toBeCloseTo(2.6, 3);
 		expect(box.max.y - box.min.y).toBeLessThan(0.1);
-		expect(box.max.x - box.min.x).toBeCloseTo(2, 3);
+		// 2 mm inside the outline on each side.
+		expect(box.max.x - box.min.x).toBeCloseTo(1.996, 3);
 		expect(meshes(room, 'slopeGhost')[0].visible).toBe(true);
 	});
 
