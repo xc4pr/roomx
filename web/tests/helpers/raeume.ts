@@ -94,3 +94,36 @@ export async function reloadProject(page: Page): Promise<void> {
 	await page.reload();
 	await expect(page.getByTestId('board')).toBeVisible();
 }
+
+export interface SlopeFields {
+	id: string;
+	wall: number;
+	kneeHeight: number;
+	angle: number;
+	from?: number;
+	to?: number;
+	dormers?: { id: string; from: number; to: number; height: number }[];
+}
+
+export const slopesOf = (project: StoredProject): SlopeFields[] =>
+	(project.rooms[0] as unknown as { slopes?: SlopeFields[] }).slopes ?? [];
+
+export async function openSlopes(page: Page): Promise<void> {
+	await page.getByTestId('tab-dims').click();
+	const toggle = page.getByTestId('slopes-toggle');
+	await expect(toggle).toBeVisible();
+	if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+	await expect(page.getByTestId('slopes-section')).toBeVisible();
+}
+
+export async function slopeWall(page: Page, wall: number): Promise<void> {
+	await openSlopes(page);
+	await page.getByTestId(`slope-wall-${wall}`).getByRole('switch').click();
+	await expect(page.getByTestId(`slope-section-${wall}-0`)).toBeVisible();
+}
+
+export async function setRoomHeight(page: Page, id: string, mm: number): Promise<void> {
+	await page.getByTestId('tab-dims').click();
+	await fillNumber(page.getByTestId('room-height'), String(mm / 10));
+	await waitForProject(page, id, (p) => p.rooms[0].height === mm, `Raumhöhe ${mm}`);
+}
