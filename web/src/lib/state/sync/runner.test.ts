@@ -177,6 +177,19 @@ describe('runSync', () => {
 		expect(server.projects.get(conflict.copyId)?.name).toBe(conflict.name);
 	});
 
+	it('takes no copy when the server already holds the same content (lost answer to a push)', async () => {
+		const { server, ctx } = setup();
+		await saveProject(project('a'));
+		await runSync(ctx);
+		await saveProject({ ...(await loadProject('a'))!, name: 'Lokal', updatedAt: '2026-10-05' });
+		server.seed({ ...(await loadProject('a'))!, updatedAt: '2026-10-06' }, 2);
+		const result = await runSync(ctx);
+		expect(result.conflicts).toEqual([]);
+		expect((await loadProject('a'))?.name).toBe('Lokal');
+		expect(await db.sync.get('a')).toMatchObject({ baseRev: 2, dirty: false });
+		expect(await db.projects.count()).toBe(1);
+	});
+
 	it('handles a 409 that appears after the list was read', async () => {
 		const { server, ctx } = setup();
 		await saveProject(project('a'));

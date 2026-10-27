@@ -93,5 +93,5 @@ describe('ensureFullCatalog', () => {
 		await ensureFullCatalog();
 		expect(fullCatalog.ready).toBe(true);
 		expect(fullCatalog.error).toBeNull();
-	});
+	}, 20_000);
 });

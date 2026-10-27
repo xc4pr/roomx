@@ -130,6 +130,13 @@ async function keptLocalEdit(
 	return true;
 }
 
+// The same project apart from revision and save time: a push whose answer got lost, e.g. when the
+// page was reloaded during a run. Taking the server version then loses nothing.
+function sameContent(a: Project, b: Project): boolean {
+	const content = ({ rev: _rev, updatedAt: _updatedAt, ...rest }: Project) => JSON.stringify(rest);
+	return content(a) === content(b);
+}
+
 async function resolveConflict(
 	ctx: RunContext,
 	id: string,
@@ -144,7 +151,7 @@ async function resolveConflict(
 		const record = await db.sync.get(id);
 		const local = await db.projects.get(id);
 		const syncedAt = ctx.now().toISOString();
-		if (local && record?.dirty && !local.deleted) {
+		if (local && record?.dirty && !local.deleted && !sameContent(migrateProject(local), server)) {
 			const copyId = ctx.newId();
 			const date = ctx.now().toISOString().slice(0, 10);
 			const name = ctx.conflictName(local.name, date);
