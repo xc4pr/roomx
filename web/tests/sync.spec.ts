@@ -17,6 +17,18 @@ async function connect(page: Page, token = TOKEN): Promise<void> {
 	const field = page.getByTestId('server-token');
 	await field.fill(token);
 	await field.press('Tab');
+	await field.blur();
+	// The token is saved on change; the next page load must find it.
+	await expect
+		.poll(
+			() =>
+				page.evaluate(
+					() =>
+						(JSON.parse(localStorage.getItem('roomx.settings') ?? '{}') as { token?: string }).token
+				),
+			{ message: 'Token gespeichert' }
+		)
+		.toBe(token);
 }
 
 async function syncNow(page: Page): Promise<void> {
