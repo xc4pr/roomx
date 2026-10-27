@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { rectanglePolygon } from '#lib/core/defaults.ts';
+import type { Slope } from '#lib/core/schema.ts';
 import { areaMm2 } from '#lib/core/geometry.ts';
 import { clipSegmentToPolygon, clipToHalfPlane, longestSegment, slopeShapes } from './slopes.ts';
 
-const room = (slopes: { id: string; wall: number; kneeHeight: number; angle: number }[]) => ({
+const room = (slopes: Slope[]) => ({
 	polygon: rectanglePolygon(4000, 3000),
 	height: 2500,
 	slopes
@@ -77,5 +78,70 @@ describe('slopes', () => {
 		]);
 		expect(long?.[1].x).toBe(40);
 		expect(longestSegment([])).toBeUndefined();
+	});
+
+	it('limits the zone to a section and draws the cheeks', () => {
+		const [shape] = slopeShapes(
+			room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45, from: 1000, to: 3000 }])
+		);
+		expect(areaMm2(shape.zone)).toBeCloseTo(2000 * 1500);
+		expect(shape.cheeks).toHaveLength(2);
+		expect(shape.cheeks[0][0].x).toBeCloseTo(1000);
+		expect(shape.cheeks[1][1].y).toBeCloseTo(1500);
+		expect(shape.standing[0][0].x).toBeCloseTo(1000);
+		expect(shape.standing[0][1].x).toBeCloseTo(3000);
+	});
+
+	it('draws no cheeks for a slope on the whole wall', () => {
+		const [shape] = slopeShapes(room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]));
+		expect(shape.cheeks).toHaveLength(0);
+		expect(shape.dormers).toHaveLength(0);
+		expect(shape.pieces).toHaveLength(1);
+	});
+
+	it('leaves a gap in the hatching for a dormer and breaks the contour', () => {
+		const [shape] = slopeShapes(
+			room([
+				{
+					id: 's1',
+					wall: 1,
+					kneeHeight: 1000,
+					angle: 45,
+					dormers: [{ id: 'd1', from: 1000, to: 2000, height: 2100 }]
+				}
+			])
+		);
+		expect(shape.dormers).toHaveLength(1);
+		expect(shape.dormers[0].cut).toBe(false);
+		expect(shape.dormers[0].depth).toBeCloseTo(1100);
+		const hatched = shape.pieces.reduce((sum, piece) => sum + areaMm2(piece), 0);
+		expect(hatched).toBeCloseTo(4000 * 1500 - 1000 * 1100);
+		expect(shape.standing).toHaveLength(2);
+		expect(shape.full).toHaveLength(1);
+	});
+
+	it('cuts the hatching above a door that reaches above the knee wall', () => {
+		const withDoor = {
+			...room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]),
+			elements: [
+				{
+					id: 'e1',
+					kind: 'door' as const,
+					status: 'existing' as const,
+					wall: 1,
+					offset: 500,
+					width: 900,
+					height: 2000,
+					elevation: 0,
+					hinge: 'start' as const,
+					swing: 'in' as const
+				}
+			]
+		};
+		const [shape] = slopeShapes(withDoor);
+		expect(shape.dormers).toHaveLength(1);
+		expect(shape.dormers[0].cut).toBe(true);
+		const hatched = shape.pieces.reduce((sum, piece) => sum + areaMm2(piece), 0);
+		expect(hatched).toBeCloseTo(4000 * 1500 - 900 * 1000);
 	});
 });

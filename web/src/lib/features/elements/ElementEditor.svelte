@@ -14,10 +14,12 @@
 	import { newId } from '#lib/core/ids.ts';
 	import {
 		isFreeElement,
+		isRoofWindow,
 		isWallElement,
 		type AcWall,
 		type CeilingLamp,
 		type DataPort,
+		type RoofWindow,
 		type Door,
 		type Shower,
 		type RoomElement,
@@ -40,6 +42,7 @@
 	import FreeFields from './FreeFields.svelte';
 	import { cornerOffset, hasDepth, isCornerKind } from './free.ts';
 	import { messages } from './i18n.ts';
+	import { clampRoofOffset, slopedWalls } from './roof.ts';
 	import KitchenFields from './KitchenFields.svelte';
 	import { KIND_ICONS, kindColor } from './kinds.ts';
 	import {
@@ -64,7 +67,9 @@
 	const element = $derived(room?.elements.find((candidate) => candidate.id === elementId));
 	const wallList = $derived(room ? walls(room.polygon) : []);
 	const target = $derived(
-		element && isWallElement(element) ? wallList[element.wall - 1] : undefined
+		element && (isWallElement(element) || isRoofWindow(element))
+			? wallList[element.wall - 1]
+			: undefined
 	);
 	const wallLength = $derived(Math.round(target?.length ?? 0));
 	const startLabel = $derived(
@@ -83,6 +88,7 @@
 		for (const issue of validateRoom(room)) {
 			if (!issue.elementIds.includes(element.id)) continue;
 			if (issue.code === 'elementOutsideWall') found.push(t(messages, 'issueOutside'));
+			else if (issue.code === 'roofWindowOffSlope') found.push(t(messages, 'issueRoofOff'));
 			else if (issue.code === 'elementTooHigh') found.push(t(messages, 'issueTooHigh'));
 			else if (issue.code === 'elementOverlap') {
 				const otherId = issue.elementIds.find((id) => id !== element.id);
@@ -125,6 +131,33 @@
 		setWall({ wall: number, offset: clampOffset(element.offset, element.width, nextWall.length) });
 	}
 
+	function setRoof(patch: Partial<Omit<RoofWindow, 'id' | 'kind'>>, name?: string): void {
+		store.updateElement<RoofWindow>(roomId, elementId, patch, name ? key(name) : undefined);
+	}
+
+	function roofWallItems() {
+		return slopedWalls(room!).map((entry) => ({
+			value: String(entry.number),
+			label: t(messages, 'wallOption', {
+				n: entry.number,
+				corners: wallCorners(room!.polygon, entry.number)
+			})
+		}));
+	}
+
+	function changeRoofWall(next: string): void {
+		if (!element || !isRoofWindow(element)) return;
+		const number = Number(next);
+		const nextWall = wallList[number - 1];
+		if (!nextWall) return;
+		const width = Math.min(element.width, Math.round(nextWall.length));
+		setRoof({
+			wall: number,
+			width,
+			offset: clampRoofOffset(room!, number, (nextWall.length - width) / 2, width)
+		});
+	}
+
 	function changeGang(delta: number): void {
 		if (!element || element.kind !== 'socket') return;
 		const gang = Math.max(1, Math.min(8, element.gang + delta));
@@ -164,7 +197,14 @@
 			copy.modules = copy.modules.map((module) => ({ ...module, id: newId() }));
 		}
 		if (isWallElement(copy)) copy.offset = duplicateOffset(copy, wallLength);
-		else if (isFreeElement(copy)) {
+		else if (copy.kind === 'roofWindow') {
+			copy.offset = clampRoofOffset(
+				room!,
+				copy.wall,
+				duplicateOffset(copy, wallLength),
+				copy.width
+			);
+		} else if (isFreeElement(copy)) {
 			copy.x += 400;
 			copy.y += 400;
 		} else if (copy.kind === 'ceilingLamp') {
@@ -319,6 +359,72 @@
 						onchange={seal}
 					/>
 				{/if}
+			</div>
+		{:else if isRoofWindow(element)}
+			{@const roof = element}
+			<Select
+				label={t(messages, 'wall')}
+				options={roofWallItems()}
+				value={String(roof.wall)}
+				onchange={changeRoofWall}
+			/>
+			<div class="flex flex-col gap-3">
+				<NumberField
+					label={t(messages, 'fromCorner', { corner: startLabel })}
+					value={roof.offset}
+					step={10}
+					oninput={(mm) =>
+						setRoof({ offset: clampRoofOffset(room, roof.wall, mm, roof.width) }, 'offset')}
+					onchange={seal}
+				/>
+				<NumberField
+					label={t(messages, 'fromCorner', { corner: endLabel })}
+					value={distanceFromEnd(roof.offset, roof.width, wallLength)}
+					step={10}
+					oninput={(mm) =>
+						setRoof(
+							{
+								offset: clampRoofOffset(
+									room,
+									roof.wall,
+									offsetFromEndDistance(mm, roof.width, wallLength),
+									roof.width
+								)
+							},
+							'offset'
+						)}
+					onchange={seal}
+				/>
+			</div>
+			<div class="grid grid-cols-2 gap-3">
+				<NumberField
+					stepper={false}
+					label={t(messages, 'width')}
+					value={roof.width}
+					min={MIN_WIDTH}
+					max={wallLength}
+					step={10}
+					oninput={(mm) => setRoof({ width: mm }, 'width')}
+					onchange={seal}
+				/>
+				<NumberField
+					stepper={false}
+					label={t(messages, 'roofLength')}
+					value={roof.length}
+					min={MIN_WIDTH}
+					step={10}
+					oninput={(mm) => setRoof({ length: mm }, 'length')}
+					onchange={seal}
+				/>
+				<NumberField
+					stepper={false}
+					label={t(messages, 'roofLowerEdge')}
+					value={roof.elevation}
+					min={0}
+					step={10}
+					oninput={(mm) => setRoof({ elevation: mm }, 'elevation')}
+					onchange={seal}
+				/>
 			</div>
 		{:else if isFreeElement(element)}
 			<FreeFields {roomId} {element} polygon={room.polygon} />

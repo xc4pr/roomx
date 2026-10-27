@@ -17,9 +17,11 @@
 	import {
 		isElectrical,
 		isFreeElement,
+		isRoofWindow,
 		isWallElement,
 		type CeilingLamp,
 		type FreeElement,
+		type RoofWindow,
 		type RoomElement,
 		type WallElement
 	} from '#lib/core/schema.ts';
@@ -43,6 +45,7 @@
 		nudgeDelta,
 		pickWall,
 		placementAt,
+		roundStep,
 		snapCeilingPoint,
 		snapOffset,
 		thresholdMm
@@ -50,6 +53,7 @@
 	import { dragFree } from './free.ts';
 	import PlanShape from './PlanShape.svelte';
 	import { clampToProfile } from './profile.ts';
+	import { clampRoofOffset, roofWindowOutline } from './roof.ts';
 	import { session } from './session.svelte.ts';
 	import { thicknessAt } from '#lib/features/board/wallBands.ts';
 	import { freeBounds, hitBounds, lateralMeasure, localBounds, symbolMetrics } from './shape.ts';
@@ -259,7 +263,7 @@
 		let startWall = 0;
 		let startOffset = 0;
 		let startWidth = 0;
-		if (isWallElement(element)) {
+		if (isWallElement(element) || isRoofWindow(element)) {
 			const target = wallList[element.wall - 1];
 			if (target) along = dot(sub(point, target.start), target.direction);
 			startWall = element.wall;
@@ -322,6 +326,17 @@
 			);
 			if (next && (next.x !== element.x || next.y !== element.y)) {
 				store.updateElement<FreeElement>(room.id, element.id, next, options);
+			}
+			return;
+		}
+		if (isRoofWindow(element)) {
+			const target = wallList[element.wall - 1];
+			if (!target) return;
+			const along = dot(sub(point, target.start), target.direction);
+			const raw = current.startOffset + (along - current.startAlong);
+			const offset = clampRoofOffset(room, element.wall, roundStep(raw), element.width);
+			if (offset !== element.offset) {
+				store.updateElement<RoofWindow>(room.id, element.id, { offset }, options);
 			}
 			return;
 		}
@@ -513,6 +528,15 @@
 			const next = { x: element.x + dx, y: element.y + dy };
 			if (pointInPolygon(next, room.polygon, 1))
 				store.updateElement<CeilingLamp | FreeElement>(room.id, element.id, next, options);
+		} else if (isRoofWindow(element)) {
+			store.updateElement<RoofWindow>(
+				room.id,
+				element.id,
+				{
+					offset: clampRoofOffset(room, element.wall, element.offset + delta.along, element.width)
+				},
+				options
+			);
 		} else if (isWallElement(element)) {
 			const target = wallList[element.wall - 1];
 			if (!target) return;
@@ -597,6 +621,7 @@
 				thickness={thicknessOf(entry.element)}
 				zone={clearanceZone(room, entry.element)}
 				unfit={!entry.suggestion && !entry.source && !elementFitsRoom(room, entry.element)}
+				roof={isRoofWindow(entry.element) ? roofWindowOutline(room, entry.element) : undefined}
 			/>
 		</g>
 	{/each}
@@ -620,6 +645,7 @@
 				look="suggested"
 				selected
 				thickness={thicknessOf(ghost)}
+				roof={isRoofWindow(ghost) ? roofWindowOutline(room, ghost) : undefined}
 			/>
 		</g>
 	{/if}
@@ -685,6 +711,25 @@
 						{...handlers(element, 'move', editable)}
 					/>
 				</g>
+			{:else if isRoofWindow(element)}
+				{@const outline = roofWindowOutline(room, element)}
+				{#if outline}
+					<polygon
+						points={outline.corners.map((p) => `${p.x},${p.y}`).join(' ')}
+						fill="transparent"
+						stroke="transparent"
+						stroke-width={px(30)}
+						stroke-linejoin="round"
+						style="cursor: {dragging ? 'grabbing' : 'grab'}; touch-action: none"
+						data-hit={element.id}
+						{...entry.source
+							? {
+									onpointerdown: (event: PointerEvent) => pickSource(event, entry),
+									onclick: swallow
+								}
+							: handlers(element, 'move', editable)}
+					/>
+				{/if}
 			{:else if element.kind === 'ceilingLamp'}
 				{@const lamp = symbolMetrics(element, pxPerMm)}
 				<circle

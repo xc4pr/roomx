@@ -20,6 +20,7 @@
 
 	function hint(kind: ElementKind): string {
 		if (kind === 'ceilingLamp') return t(messages, 'placeHintCeiling');
+		if (kind === 'roofWindow') return t(messages, 'placeHintSlope');
 		return FREE_ELEMENT_KINDS.includes(kind as (typeof FREE_ELEMENT_KINDS)[number])
 			? t(messages, 'placeHintFree')
 			: t(messages, 'placeHint');

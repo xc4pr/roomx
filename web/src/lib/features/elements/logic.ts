@@ -22,6 +22,7 @@ import {
 	type RoomElement,
 	type WallElement
 } from '#lib/core/schema.ts';
+import { clampRoofOffset, pickSlopeWall } from './roof.ts';
 
 export const SNAP_STEP = 10;
 export const MIN_WIDTH = 20;
@@ -258,7 +259,7 @@ export function switchAboveWorktop(height: number, center = SWITCH_WORKTOP_CENTE
 
 export function placementAt(
 	kind: RoomElement['kind'],
-	room: Pick<Room, 'polygon' | 'height' | 'elements'>,
+	room: Pick<Room, 'polygon' | 'height' | 'elements'> & Partial<Pick<Room, 'slopes'>>,
 	point: Vec,
 	newId: IdFactory,
 	threshold: number
@@ -269,6 +270,16 @@ export function placementAt(
 			return { ...base, x: roundStep(point.x), y: roundStep(point.y) };
 		}
 		return base;
+	}
+	if (kind === 'roofWindow') {
+		const hit = pickSlopeWall(room, point);
+		if (!hit) return undefined;
+		const created = createElement(kind, room, hit.wall, hit.along, newId);
+		if (created.kind !== 'roofWindow') return created;
+		return {
+			...created,
+			offset: clampRoofOffset(room, hit.wall, created.offset, created.width)
+		};
 	}
 	const hit = pickWall(room.polygon, point);
 	if (!hit) return undefined;

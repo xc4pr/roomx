@@ -65,9 +65,10 @@ describe('paletteSections', () => {
 		expect(kinds(room('kitchen', { kitchen: { mode: 'catalog' } }))).not.toContain('kitchenRun');
 	});
 
-	it('never offers the roof window in this package', () => {
+	it('offers the roof window only in rooms with a slope', () => {
 		const sloped = room('office', { slopes: [{ id: 's', wall: 1, kneeHeight: 1000, angle: 30 }] });
-		expect(kinds(sloped)).not.toContain('roofWindow');
+		expect(kinds(sloped)).toContain('roofWindow');
+		expect(kinds(room('office'))).not.toContain('roofWindow');
 	});
 
 	it('keeps the group of an element that no longer fits', () => {

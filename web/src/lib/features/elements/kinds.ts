@@ -11,6 +11,7 @@ import Flame from '@lucide/svelte/icons/flame';
 import Heater from '@lucide/svelte/icons/heater';
 import LampCeiling from '@lucide/svelte/icons/lamp-ceiling';
 import LampWallUp from '@lucide/svelte/icons/lamp-wall-up';
+import PanelTop from '@lucide/svelte/icons/panel-top';
 import Network from '@lucide/svelte/icons/network';
 import Plug from '@lucide/svelte/icons/plug';
 import ShowerHead from '@lucide/svelte/icons/shower-head';
@@ -31,7 +32,7 @@ export const KIND_ICONS: Record<ElementKind, Component<{ class?: string }>> = {
 	wallLamp: LampWallUp,
 	dataPort: Network,
 	ceilingLamp: LampCeiling,
-	roofWindow: AppWindow,
+	roofWindow: PanelTop,
 	acWall: AirVent,
 	acFloor: AirVent,
 	fireplace: Flame,
@@ -49,6 +50,7 @@ export const KIND_ICONS: Record<ElementKind, Component<{ class?: string }>> = {
 export function kindColor(kind: ElementKind): string {
 	switch (kind) {
 		case 'window':
+		case 'roofWindow':
 			return 'var(--color-window)';
 		case 'door':
 			return 'var(--color-door)';

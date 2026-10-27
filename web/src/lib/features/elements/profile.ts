@@ -1,7 +1,9 @@
 import {
 	dot,
+	slopeDormers,
 	slopeHeightAt,
 	slopeRun,
+	slopeSpan,
 	wall,
 	wallHeightAt,
 	wallPoint,
@@ -9,7 +11,7 @@ import {
 } from '#lib/core/geometry.ts';
 import type { Room, Slope } from '#lib/core/schema.ts';
 
-type SlopedRoom = Pick<Room, 'polygon' | 'height' | 'slopes'>;
+type SlopedRoom = Pick<Room, 'polygon' | 'height' | 'slopes'> & { elements?: Room['elements'] };
 
 export interface ProfilePoint {
 	along: number;
@@ -43,6 +45,19 @@ function kinks(room: SlopedRoom, target: Wall): number[] {
 	return found;
 }
 
+// Places on the wall itself where the ceiling height jumps: ends of a slope section and the
+// sides of dormers and cuts above openings.
+function jumps(room: SlopedRoom, target: Wall): number[] {
+	const found: number[] = [];
+	for (const slope of room.slopes ?? []) {
+		if (slope.wall !== target.number) continue;
+		const span = slopeSpan(room, slope);
+		if (span) found.push(span.from, span.to);
+		for (const dormer of slopeDormers(room, slope)) found.push(dormer.from, dormer.to);
+	}
+	return found.filter((along) => along > EPS && along < target.length - EPS);
+}
+
 function crossings(room: SlopedRoom, target: Wall, from: number, to: number): number[] {
 	const slopes = room.slopes ?? [];
 	const at = (slope: Slope, along: number) => slopeHeightAt(room, slope, wallPoint(target, along));
@@ -67,17 +82,28 @@ export function wallProfile(room: SlopedRoom, wallNumber: number): ProfilePoint[
 			{ along: length, height: room.height }
 		];
 	}
-	const base = [0, length, ...kinks(room, target).filter((a) => a > EPS && a < length - EPS)].sort(
-		(a, b) => a - b
-	);
+	const edges = jumps(room, target);
+	const base = [
+		0,
+		length,
+		...kinks(room, target).filter((a) => a > EPS && a < length - EPS),
+		...edges
+	].sort((a, b) => a - b);
 	const stops = [...base];
 	for (let i = 0; i + 1 < base.length; i++)
 		stops.push(...crossings(room, target, base[i], base[i + 1]));
 	stops.sort((a, b) => a - b);
+	const isEdge = (along: number) => edges.some((edge) => Math.abs(edge - along) < 0.5);
 	const points: ProfilePoint[] = [];
 	for (const along of stops) {
-		if (points.length > 0 && along - points[points.length - 1].along < 0.5) continue;
-		points.push({ along, height: wallHeightAt(room, wallNumber, along) });
+		const last = points[points.length - 1];
+		if (last && along - last.along < 0.5) continue;
+		if (isEdge(along)) {
+			points.push(
+				{ along, height: wallHeightAt(room, wallNumber, along - 0.5) },
+				{ along, height: wallHeightAt(room, wallNumber, along + 0.5) }
+			);
+		} else points.push({ along, height: wallHeightAt(room, wallNumber, along) });
 	}
 	points[points.length - 1] = { along: length, height: wallHeightAt(room, wallNumber, length) };
 	const simplified: ProfilePoint[] = [points[0]];

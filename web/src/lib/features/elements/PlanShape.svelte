@@ -11,6 +11,7 @@
 	import { elementKindNames } from '#lib/i18n/common.ts';
 	import { t } from '#lib/i18n/index.svelte.ts';
 	import FixtureSymbol from './FixtureSymbol.svelte';
+	import type { RoofOutline } from './roof.ts';
 	import { kindColor } from './kinds.ts';
 	import { freeBounds, localBounds, symbolMetrics, type Bounds } from './shape.ts';
 
@@ -28,6 +29,7 @@
 		thickness?: number;
 		zone?: ClearanceZone;
 		unfit?: boolean;
+		roof?: RoofOutline;
 	}
 
 	let {
@@ -41,7 +43,8 @@
 		shared = false,
 		thickness = WALL_THICKNESS,
 		zone,
-		unfit = false
+		unfit = false,
+		roof
 	}: Props = $props();
 
 	const T = $derived(thickness);
@@ -163,6 +166,35 @@
 			<line x1={-radius * 0.72} y1={-radius * 0.72} x2={radius * 0.72} y2={radius * 0.72} />
 			<line x1={-radius * 0.72} y1={radius * 0.72} x2={radius * 0.72} y2={-radius * 0.72} />
 		</g>
+	{:else if element.kind === 'roofWindow'}
+		{#if roof && roof.corners.length === 4}
+			{@const points = roof.corners.map((p) => `${p.x},${p.y}`).join(' ')}
+			{@const [c0, c1, c2, c3] = roof.corners}
+			{#if selected}
+				<polygon
+					{points}
+					style="fill: none; stroke: {warn || !roof.onSlope
+						? 'var(--color-danger)'
+						: 'var(--color-accent)'}; stroke-width: 7; stroke-opacity: 0.35; stroke-dasharray: none"
+				/>
+			{/if}
+			<polygon {points} style="fill: {color}; fill-opacity: {fillOpacity + 0.12}" />
+			<line x1={c0.x} y1={c0.y} x2={c2.x} y2={c2.y} />
+			<line x1={c1.x} y1={c1.y} x2={c3.x} y2={c3.y} />
+			{#if warn || !roof.onSlope}
+				<polygon
+					{points}
+					style="fill: none; stroke: var(--color-danger); stroke-width: 2; stroke-dasharray: 3 3"
+				/>
+			{/if}
+			{#if unfit}
+				<polygon
+					{points}
+					style="fill: none; stroke: var(--color-warning); stroke-width: 2; stroke-dasharray: 5 3"
+					data-unfit
+				/>
+			{/if}
+		{/if}
 	{:else if isFreeElement(element)}
 		<g transform="translate({element.x} {element.y}) rotate({element.rotation})">
 			{#if selected && bounds}

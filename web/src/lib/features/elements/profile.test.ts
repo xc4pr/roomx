@@ -68,4 +68,57 @@ describe('wall profile', () => {
 		expect(clampToProfile(sloped, 2, 2000, 500, 900, 800)).toBe(900);
 		expect(clampToProfile(sloped, 2, 0, 500, 900, 1800)).toBe(0);
 	});
+
+	it('steps up at the ends of a slope section and at a dormer', () => {
+		const sectioned = {
+			...room([]),
+			slopes: [
+				{
+					id: 's1',
+					wall: 1,
+					kneeHeight: 1000,
+					angle: 45,
+					from: 500,
+					to: 3500,
+					dormers: [{ id: 'd1', from: 1500, to: 2500, height: 2100 }]
+				}
+			]
+		};
+		const points = wallProfile(sectioned, 1);
+		expect(points).toEqual([
+			{ along: 0, height: 2500 },
+			{ along: 500, height: 2500 },
+			{ along: 500, height: 1000 },
+			{ along: 1500, height: 1000 },
+			{ along: 1500, height: 2100 },
+			{ along: 2500, height: 2100 },
+			{ along: 2500, height: 1000 },
+			{ along: 3500, height: 1000 },
+			{ along: 3500, height: 2500 },
+			{ along: 4000, height: 2500 }
+		]);
+	});
+
+	it('cuts the profile above a tall door', () => {
+		const withDoor = {
+			...room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]),
+			elements: [
+				{
+					id: 'e1',
+					kind: 'door' as const,
+					status: 'existing' as const,
+					wall: 1,
+					offset: 1000,
+					width: 900,
+					height: 2000,
+					elevation: 0,
+					hinge: 'start' as const,
+					swing: 'in' as const
+				}
+			]
+		};
+		const points = wallProfile(withDoor, 1);
+		expect(points.some((p) => p.along === 1000 && p.height === 2000)).toBe(true);
+		expect(points.some((p) => p.along === 1900 && p.height === 2000)).toBe(true);
+	});
 });

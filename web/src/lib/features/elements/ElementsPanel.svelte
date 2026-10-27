@@ -6,7 +6,9 @@
 	import { elementFitsRoom } from '#lib/core/elements.ts';
 	import {
 		isFreeElement,
+		isRoofWindow,
 		isWallElement,
+		type RoofWindow,
 		type RoomElement,
 		type WallElement
 	} from '#lib/core/schema.ts';
@@ -39,12 +41,12 @@
 	const total = $derived((room?.elements.length ?? 0) + mirrored.length);
 	const groups = $derived.by(() => {
 		if (!room) return [];
-		const byWall = new Map<number, WallElement[]>();
+		const byWall = new Map<number, (WallElement | RoofWindow)[]>();
 		const ceiling: RoomElement[] = [];
 		const free: RoomElement[] = [];
 		for (const element of [...room.elements, ...mirrored.map((entry) => entry.element)]) {
 			if (isFreeElement(element)) free.push(element);
-			else if (!isWallElement(element)) ceiling.push(element);
+			else if (!isWallElement(element) && !isRoofWindow(element)) ceiling.push(element);
 			else byWall.set(element.wall, [...(byWall.get(element.wall) ?? []), element]);
 		}
 		const result = [...byWall.entries()]
@@ -89,6 +91,14 @@
 		if (isFreeElement(element)) {
 			return t(messages, 'freeInfo', {
 				size: `${format(element.width)} × ${format(element.depth)} × ${format(element.height)}`
+			});
+		}
+		if (isRoofWindow(element)) {
+			const origin = room ? wallCorners(room.polygon, element.wall).split('–')[0] : '';
+			return t(messages, 'rowInfo', {
+				size: `${format(element.width)} × ${format(element.length)}`,
+				distance: format(element.offset),
+				corner: origin
 			});
 		}
 		if (!isWallElement(element)) return '';

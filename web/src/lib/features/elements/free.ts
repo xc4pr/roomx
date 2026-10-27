@@ -43,6 +43,7 @@ type PaletteRoom = Pick<Room, 'type' | 'polygon' | 'height' | 'slopes' | 'kitche
 const PALETTE_ORDER: readonly ElementKind[] = [
 	'door',
 	'window',
+	'roofWindow',
 	'socket',
 	'switch',
 	'wallLamp',
@@ -71,7 +72,7 @@ export interface PaletteSection {
 }
 
 // Palette content per room: only the groups the room type offers (or still holds elements of),
-// and in them only the kinds that can be placed. The roof window waits for the slope package.
+// and in them only the kinds that can be placed.
 export function paletteSections(room: PaletteRoom): PaletteSection[] {
 	const shown = new Set(groupsForRoom(room));
 	return ELEMENT_GROUPS.filter((group) => shown.has(group))

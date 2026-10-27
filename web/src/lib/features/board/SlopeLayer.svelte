@@ -54,13 +54,37 @@
 				/>
 			</pattern>
 		</defs>
-		{#each shapes as shape (shape.slope.wall)}
+		{#each shapes as shape (shape.slope.id)}
 			{@const d = { x: shape.edge[1].x - shape.edge[0].x, y: shape.edge[1].y - shape.edge[0].y }}
 			{@const len = Math.hypot(d.x, d.y) || 1}
 			{@const inward = { x: -d.y / len, y: d.x / len }}
 			{@const at = labelAt(shape.standing, inward)}
-			<path d={zonePath(shape.zone)} class="fill-muted" opacity="0.1" />
-			<path d={zonePath(shape.zone)} fill="url(#slope-hatch-{uid})" />
+			{#each shape.pieces as piece, index (index)}
+				<path d={zonePath(piece)} class="fill-muted" opacity="0.1" />
+				<path d={zonePath(piece)} fill="url(#slope-hatch-{uid})" />
+			{/each}
+			{#if shape.cheeks.length > 0}
+				<path
+					d={segmentPath(shape.cheeks)}
+					class="fill-none stroke-muted"
+					stroke-width="1.8"
+					vector-effect="non-scaling-stroke"
+					data-testid="slope-cheek"
+				/>
+			{/if}
+			{#each shape.dormers as dormer (dormer.id)}
+				{#if dormer.outline.length > 0}
+					<path
+						d={segmentPath(dormer.outline)}
+						class="fill-none stroke-text"
+						stroke-width={dormer.cut ? 1 : 1.6}
+						stroke-dasharray={dormer.cut ? '3 3' : undefined}
+						opacity={dormer.cut ? 0.55 : 0.8}
+						vector-effect="non-scaling-stroke"
+						data-testid={dormer.cut ? 'slope-cut' : 'slope-dormer'}
+					/>
+				{/if}
+			{/each}
 			{#if shape.full.length > 0}
 				<path
 					d={segmentPath(shape.full)}
