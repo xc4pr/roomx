@@ -6,7 +6,7 @@ import { sequentialIds } from './ids.ts';
 import { migrateProject, UnsupportedVersionError } from './migrations.ts';
 import { planJsonSchema, PlanSchema } from './plan.ts';
 import { resolvePlan } from './planResolve.ts';
-import { ProjectSchema, type Item } from './schema.ts';
+import { ProjectSchema, SCHEMA_VERSION, type Item } from './schema.ts';
 import { formatArea, formatChf, formatLength, parseLength } from './units.ts';
 
 function resolveSample() {
@@ -197,7 +197,7 @@ describe('migrations and units', () => {
 		expect(migrateProject(project)).toEqual(ProjectSchema.parse(project));
 		const { schemaVersion: _version, createdAt: _created, variants: _variants, ...old } = project;
 		const migrated = migrateProject(old);
-		expect(migrated.schemaVersion).toBe(1);
+		expect(migrated.schemaVersion).toBe(SCHEMA_VERSION);
 		expect(migrated.variants).toEqual([]);
 		expect(() => migrateProject({ ...project, schemaVersion: 99 })).toThrow(
 			UnsupportedVersionError
@@ -220,7 +220,10 @@ describe('migrations and units', () => {
 describe('roof slopes in checks and export', () => {
 	it('flags furniture that does not fit under a slope', () => {
 		const { project, items } = resolveSample();
-		const room = { ...project.rooms[0], slopes: [{ wall: 2, kneeHeight: 600, angle: 30 }] };
+		const room = {
+			...project.rooms[0],
+			slopes: [{ id: 's2', wall: 2, kneeHeight: 600, angle: 30 }]
+		};
 		const codes = checkRoomItems(room, items).map((issue) => issue.code);
 		expect(codes).toContain('underSlope');
 		expect(validateRoom(room).map((issue) => issue.code)).toContain('elementTooHigh');
@@ -228,7 +231,7 @@ describe('roof slopes in checks and export', () => {
 
 	it('exports slopes with derived distances', () => {
 		const project = sampleProject();
-		project.rooms[0].slopes = [{ wall: 1, kneeHeight: 1000, angle: 45 }];
+		project.rooms[0].slopes = [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }];
 		const doc = buildExport(project);
 		expect(ExportSchema.safeParse(doc).success).toBe(true);
 		expect(doc.rooms[0].slopes).toEqual([

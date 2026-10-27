@@ -542,6 +542,86 @@ const kidsBeds = [
 	})
 ];
 
+const KITCHEN_COLORS = [C.white, C.lightGrey, C.oak, C.darkGrey];
+
+// Kitchen furniture and appliances to plan a kitchen freely ("from the catalogue"). Built-in
+// kitchens are drawn as kitchen elements instead.
+const kitchen = [
+	...[55, 60].map((w) =>
+		generic({
+			id: `generic-kitchen-base-${w}x60x90`,
+			de: `Küchen-Unterschrank ${w}`,
+			en: `Kitchen base cabinet ${w}`,
+			category: 'kitchen',
+			model: 'kitchenBase',
+			dims: cm(w, 60, 90),
+			colors: KITCHEN_COLORS,
+			front: 1000
+		})
+	),
+	generic({
+		id: 'generic-kitchen-sink-80x60x90',
+		de: 'Spülenschrank 80',
+		en: 'Sink cabinet 80',
+		category: 'kitchen',
+		model: 'kitchenSink',
+		dims: cm(80, 60, 90),
+		colors: KITCHEN_COLORS,
+		front: 1000
+	}),
+	generic({
+		id: 'generic-kitchen-wall-60x35x70',
+		de: 'Küchen-Oberschrank 60',
+		en: 'Kitchen wall cabinet 60',
+		category: 'kitchen',
+		model: 'kitchenWall',
+		dims: cm(60, 35, 70),
+		colors: KITCHEN_COLORS,
+		mount: 'wall'
+	}),
+	generic({
+		id: 'generic-kitchen-tall-60x60x210',
+		de: 'Küchen-Hochschrank 60',
+		en: 'Kitchen tall cabinet 60',
+		category: 'kitchen',
+		model: 'kitchenTall',
+		dims: cm(60, 60, 210),
+		colors: KITCHEN_COLORS,
+		front: 1000
+	}),
+	generic({
+		id: 'generic-hob-60x52',
+		de: 'Kochfeld 60',
+		en: 'Hob 60',
+		category: 'kitchen',
+		model: 'hob',
+		dims: cm(60, 52, 5),
+		colors: [C.black],
+		mount: 'on-top'
+	}),
+	generic({
+		id: 'generic-oven-60x55x60',
+		de: 'Einbau-Backofen 60',
+		en: 'Built-in oven 60',
+		category: 'kitchen',
+		model: 'oven',
+		dims: cm(60, 55, 60),
+		colors: [C.black, C.white],
+		front: 1000
+	}),
+	generic({
+		id: 'generic-fridge-60x65x185',
+		de: 'Kühlschrank 60',
+		en: 'Fridge 60',
+		category: 'kitchen',
+		model: 'fridge',
+		dims: cm(60, 65, 185),
+		colors: [C.white, C.lightGrey, C.black],
+		power: 150,
+		front: 1000
+	})
+];
+
 export const genericFurniture: CatalogEntry[] = [
 	...sofas,
 	...tables,
@@ -554,5 +634,6 @@ export const genericFurniture: CatalogEntry[] = [
 	cornerDesk,
 	...officeChairs,
 	...beds,
-	...kidsBeds
+	...kidsBeds,
+	...kitchen
 ];

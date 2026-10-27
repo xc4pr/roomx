@@ -44,7 +44,7 @@ function project(rooms: Room[]): Project {
 	return {
 		id: 'p1',
 		name: 'Wohnung Müller',
-		schemaVersion: 1,
+		schemaVersion: 2,
 		rev: 0,
 		createdAt: '',
 		updatedAt: '',

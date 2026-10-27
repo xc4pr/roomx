@@ -307,9 +307,7 @@
 							"id": "m-1",
 							"kind": "tall",
 							"width": 550,
-							"appliances": [
-								"fridge"
-							]
+							"appliances": ["fridge"]
 						},
 						{
 							"id": "m-2",
@@ -330,18 +328,13 @@
 							"id": "m-5",
 							"kind": "hob",
 							"width": 550,
-							"appliances": [
-								"oven"
-							]
+							"appliances": ["oven"]
 						},
 						{
 							"id": "m-6",
 							"kind": "tall",
 							"width": 550,
-							"appliances": [
-								"steamer",
-								"microwave"
-							]
+							"appliances": ["steamer", "microwave"]
 						}
 					]
 				},
@@ -841,21 +834,15 @@
 		"persons": {
 			"adults": 2,
 			"children": 1,
-			"childAges": [
-				4
-			]
+			"childAges": [4]
 		},
-		"bedSizes": [
-			"160x200"
-		],
+		"bedSizes": ["160x200"],
 		"workstations": [
 			{
 				"monitors": 2,
 				"monitorInch": 27,
 				"computer": "laptop",
-				"devices": [
-					"Dock"
-				]
+				"devices": ["Dock"]
 			}
 		],
 		"style": "ruhig, hell",

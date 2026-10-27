@@ -33,10 +33,10 @@ function meshes(root: Object3D, part: string): Mesh[] {
 	return found;
 }
 
-const SINGLE: Slope[] = [{ wall: 1, kneeHeight: 1000, angle: 45 }];
+const SINGLE: Slope[] = [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }];
 const GABLE: Slope[] = [
-	{ wall: 1, kneeHeight: 1000, angle: 45 },
-	{ wall: 3, kneeHeight: 1000, angle: 45 }
+	{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 },
+	{ id: 's3', wall: 3, kneeHeight: 1000, angle: 45 }
 ];
 
 describe('wall profile', () => {
@@ -98,9 +98,9 @@ describe('wall profile', () => {
 
 	it('matches the ceiling height along every wall of an L room', () => {
 		const slopes: Slope[] = [
-			{ wall: 1, kneeHeight: 900, angle: 40 },
-			{ wall: 5, kneeHeight: 1200, angle: 30 },
-			{ wall: 6, kneeHeight: 1000, angle: 50 }
+			{ id: 's1', wall: 1, kneeHeight: 900, angle: 40 },
+			{ id: 's5', wall: 5, kneeHeight: 1200, angle: 30 },
+			{ id: 's6', wall: 6, kneeHeight: 1000, angle: 50 }
 		];
 		const room = sloped(lRoom(), slopes);
 		for (const frame of wallFrames(room.polygon)) {
@@ -198,8 +198,8 @@ describe('sloped room geometry', () => {
 		[
 			'L room',
 			[
-				{ wall: 1, kneeHeight: 900, angle: 40 },
-				{ wall: 5, kneeHeight: 1200, angle: 30 }
+				{ id: 's1', wall: 1, kneeHeight: 900, angle: 40 },
+				{ id: 's5', wall: 5, kneeHeight: 1200, angle: 30 }
 			],
 			'l'
 		]

@@ -56,7 +56,11 @@ describe('floors', () => {
 	it('puts rooms without a known floor on the first floor and stacks the levels', () => {
 		const p = project({
 			floors,
-			rooms: [room('a', undefined, { height: 2500 }), room('b', 'og', { height: 2400 }), room('c', 'gone')]
+			rooms: [
+				room('a', undefined, { height: 2500 }),
+				room('b', 'og', { height: 2400 }),
+				room('c', 'gone')
+			]
 		});
 		expect(roomFloorId(p, p.rooms[0])).toBe('eg');
 		expect(roomFloorId(p, p.rooms[2])).toBe('eg');
@@ -71,9 +75,15 @@ describe('floors', () => {
 	});
 
 	it('switches off only while at most one floor holds rooms and no stair exists', () => {
-		expect(canDisableFloors(project({ floors, rooms: [room('a', 'eg'), room('b', 'eg')] }))).toBe(true);
-		expect(canDisableFloors(project({ floors, rooms: [room('a', 'eg'), room('b', 'og')] }))).toBe(false);
-		expect(canDisableFloors(project({ floors, rooms: [room('a', 'eg')], stairs: [stair()] }))).toBe(false);
+		expect(canDisableFloors(project({ floors, rooms: [room('a', 'eg'), room('b', 'eg')] }))).toBe(
+			true
+		);
+		expect(canDisableFloors(project({ floors, rooms: [room('a', 'eg'), room('b', 'og')] }))).toBe(
+			false
+		);
+		expect(canDisableFloors(project({ floors, rooms: [room('a', 'eg')], stairs: [stair()] }))).toBe(
+			false
+		);
 		expect(suggestFloorName(project({ floors }))).toBe('UG');
 	});
 });
@@ -118,7 +128,20 @@ describe('stairs', () => {
 	});
 
 	it('opens the slab above treads without 2 m headroom and rails it except at the arrival', () => {
-		const p = project({ floors, rooms: [room('a', 'eg', { polygon: [{ x: 0, y: 0 }, { x: 6000, y: 0 }, { x: 6000, y: 6000 }, { x: 0, y: 6000 }] })], stairs: [stair()] });
+		const p = project({
+			floors,
+			rooms: [
+				room('a', 'eg', {
+					polygon: [
+						{ x: 0, y: 0 },
+						{ x: 6000, y: 0 },
+						{ x: 6000, y: 6000 },
+						{ x: 0, y: 6000 }
+					]
+				})
+			],
+			stairs: [stair()]
+		});
 		const context = stairContext(p, p.stairs![0])!;
 		expect(context.opening.every((tread) => tread.height > 500)).toBe(true);
 		expect(context.opening).toHaveLength(13);
@@ -128,13 +151,22 @@ describe('stairs', () => {
 	});
 
 	it('finds too little headroom under a slope of the upper floor', () => {
-		const square = [{ x: 0, y: 0 }, { x: 6000, y: 0 }, { x: 6000, y: 6000 }, { x: 0, y: 6000 }];
+		const square = [
+			{ x: 0, y: 0 },
+			{ x: 6000, y: 0 },
+			{ x: 6000, y: 6000 },
+			{ x: 0, y: 6000 }
+		];
 		const attic = room('dg', 'og', {
 			polygon: square,
 			height: 2400,
 			slopes: [{ id: 's', wall: 3, kneeHeight: 300, angle: 30 }]
 		});
-		const p = project({ floors, rooms: [room('a', 'eg', { polygon: square }), attic], stairs: [stair()] });
+		const p = project({
+			floors,
+			rooms: [room('a', 'eg', { polygon: square }), attic],
+			stairs: [stair()]
+		});
 		const issues = checkStairs(p);
 		expect(issues.map((issue) => issue.code)).toEqual(['stairHeadroom']);
 		expect(issues[0].headroom).toBeLessThan(2000);
@@ -143,7 +175,11 @@ describe('stairs', () => {
 	});
 
 	it('reports a stair on the top floor and treads outside every room', () => {
-		const p = project({ floors, rooms: [room('a', 'eg')], stairs: [stair({ fromFloorId: 'og' }), stair({ id: 'x', x: 9000 })] });
+		const p = project({
+			floors,
+			rooms: [room('a', 'eg')],
+			stairs: [stair({ fromFloorId: 'og' }), stair({ id: 'x', x: 9000 })]
+		});
 		expect(checkStairs(p).map((issue) => [issue.code, issue.stairId])).toEqual([
 			['stairNoUpperFloor', 'st'],
 			['stairOutsideRooms', 'x']
@@ -151,7 +187,12 @@ describe('stairs', () => {
 	});
 
 	it('gives the stair to the lower room and the stairwell to the upper room as zones', () => {
-		const square = [{ x: 0, y: 0 }, { x: 6000, y: 0 }, { x: 6000, y: 6000 }, { x: 0, y: 6000 }];
+		const square = [
+			{ x: 0, y: 0 },
+			{ x: 6000, y: 0 },
+			{ x: 6000, y: 6000 },
+			{ x: 0, y: 6000 }
+		];
 		const lower = room('a', 'eg', { polygon: square, boardPos: { x: 0, y: 0, rot: 0 } });
 		const upper = room('b', 'og', { polygon: square, boardPos: { x: 500, y: 0, rot: 0 } });
 		const p = project({ floors, rooms: [lower, upper], stairs: [stair()] });

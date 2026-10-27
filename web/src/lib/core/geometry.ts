@@ -461,7 +461,8 @@ export function nearestWall(
 // Wall elements: middle of their span on the wall line; free elements and the ceiling lamp: their
 // centre; roof windows: the point on the wall line below their middle (see roofWindowPlacement).
 export function elementPosition(polygon: readonly Point[], element: RoomElement): Vec | undefined {
-	if (element.kind === 'ceilingLamp' || isFreeElement(element)) return { x: element.x, y: element.y };
+	if (element.kind === 'ceilingLamp' || isFreeElement(element))
+		return { x: element.x, y: element.y };
 	const target = wall(polygon, element.wall);
 	return target ? wallPoint(target, element.offset + element.width / 2) : undefined;
 }
@@ -497,7 +498,10 @@ function tanDeg(degrees: number): number {
 }
 
 // A slope starts at its wall at knee height and rises into the room until it meets the flat ceiling.
-export function slopeRun(room: Pick<Room, 'height'>, slope: Pick<Slope, 'kneeHeight' | 'angle'>): number {
+export function slopeRun(
+	room: Pick<Room, 'height'>,
+	slope: Pick<Slope, 'kneeHeight' | 'angle'>
+): number {
 	const rise = Math.max(0, room.height - slope.kneeHeight);
 	return rise / tanDeg(slope.angle);
 }
@@ -631,12 +635,18 @@ export function slopeContours(
 	let cursor = span.from;
 	for (const gap of gaps) {
 		if (gap.from > cursor) {
-			pieces.push({ from: wallPoint(target, cursor, distance), to: wallPoint(target, gap.from, distance) });
+			pieces.push({
+				from: wallPoint(target, cursor, distance),
+				to: wallPoint(target, gap.from, distance)
+			});
 		}
 		cursor = Math.max(cursor, gap.to);
 	}
 	if (span.to > cursor) {
-		pieces.push({ from: wallPoint(target, cursor, distance), to: wallPoint(target, span.to, distance) });
+		pieces.push({
+			from: wallPoint(target, cursor, distance),
+			to: wallPoint(target, span.to, distance)
+		});
 	}
 	return pieces;
 }

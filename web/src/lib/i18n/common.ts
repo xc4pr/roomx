@@ -60,7 +60,11 @@ export const roomTypeNames = defineMessages({
 		hall: 'Flur',
 		dining: 'Esszimmer',
 		storage: 'Abstellraum',
-		other: 'Andere'
+		other: 'Andere',
+		balcony: 'Balkon',
+		terrace: 'Terrasse',
+		garden: 'Garten',
+		winterGarden: 'Wintergarten'
 	},
 	en: {
 		living: 'Living room',
@@ -72,7 +76,11 @@ export const roomTypeNames = defineMessages({
 		hall: 'Hallway',
 		dining: 'Dining room',
 		storage: 'Storage room',
-		other: 'Other'
+		other: 'Other',
+		balcony: 'Balcony',
+		terrace: 'Terrace',
+		garden: 'Garden',
+		winterGarden: 'Conservatory'
 	}
 });
 
@@ -87,7 +95,20 @@ export const elementKindNames = defineMessages({
 		wallLamp: 'Wandlampe',
 		dataPort: 'Netzwerk / TV',
 		radiator: 'Heizkörper',
-		ceilingLamp: 'Deckenlampe'
+		ceilingLamp: 'Deckenlampe',
+		washbasin: 'Waschtisch',
+		toilet: 'WC',
+		shower: 'Dusche',
+		bathtub: 'Badewanne',
+		kitchenRun: 'Küchenzeile',
+		acWall: 'Klimagerät Wand',
+		acFloor: 'Klimagerät Standgerät',
+		column: 'Stütze',
+		freeObstacle: 'Freies Hindernis',
+		fireplace: 'Cheminée',
+		stove: 'Kaminofen',
+		tiledStove: 'Kachelofen',
+		roofWindow: 'Dachfenster'
 	},
 	en: {
 		door: 'Door',
@@ -99,7 +120,20 @@ export const elementKindNames = defineMessages({
 		wallLamp: 'Wall lamp',
 		dataPort: 'Network / TV',
 		radiator: 'Radiator',
-		ceilingLamp: 'Ceiling lamp'
+		ceilingLamp: 'Ceiling lamp',
+		washbasin: 'Washbasin',
+		toilet: 'Toilet',
+		shower: 'Shower',
+		bathtub: 'Bathtub',
+		kitchenRun: 'Kitchen run',
+		acWall: 'Wall air conditioner',
+		acFloor: 'Floor air conditioner',
+		column: 'Column',
+		freeObstacle: 'Free obstacle',
+		fireplace: 'Fireplace',
+		stove: 'Wood stove',
+		tiledStove: 'Tiled stove',
+		roofWindow: 'Roof window'
 	}
 });
 
@@ -127,7 +161,8 @@ export const categoryNames = defineMessages({
 		textile: 'Textilien',
 		decor: 'Deko',
 		electronics: 'Geräte',
-		other: 'Anderes'
+		other: 'Anderes',
+		kitchen: 'Küche'
 	},
 	en: {
 		bed: 'Beds',
@@ -152,6 +187,7 @@ export const categoryNames = defineMessages({
 		textile: 'Textiles',
 		decor: 'Decor',
 		electronics: 'Devices',
-		other: 'Other'
+		other: 'Other',
+		kitchen: 'Kitchen'
 	}
 });

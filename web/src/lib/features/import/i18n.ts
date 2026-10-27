@@ -135,6 +135,10 @@ export const messages = defineMessages({
 		conflictDoorBlocked: '«{a}» versperrt die Tür oder ihren Schwenkbereich',
 		conflictWindowBlocked: '«{a}» verstellt das Fenster',
 		conflictRadiatorBlocked: '«{a}» steht zu nah am Heizkörper',
+		conflictFireZone: '«{a}» steht in der Sperrzone vor der Feuerstelle',
+		conflictAirflowBlocked: '«{a}» versperrt den Luftauslass des Klimageräts',
+		conflictOnStair: '«{a}» steht auf der Treppe',
+		conflictInStairwell: '«{a}» steht im Treppenauge',
 		conflictSocketFar: '«{a}» braucht Strom, die nächste Steckdose ist {distance} entfernt',
 		conflictSocketNone: '«{a}» braucht Strom, aber der Raum hat keine Steckdose',
 		unknownItem: 'Möbel'
@@ -269,6 +273,10 @@ export const messages = defineMessages({
 		conflictDoorBlocked: '“{a}” blocks the door or its swing area',
 		conflictWindowBlocked: '“{a}” blocks the window',
 		conflictRadiatorBlocked: '“{a}” is too close to the radiator',
+		conflictFireZone: '“{a}” stands in the clear zone in front of the fireplace',
+		conflictAirflowBlocked: '“{a}” blocks the air outlet of the air conditioner',
+		conflictOnStair: '“{a}” stands on the stair',
+		conflictInStairwell: '“{a}” stands in the stairwell',
 		conflictSocketFar: '“{a}” needs power, the nearest socket is {distance} away',
 		conflictSocketNone: '“{a}” needs power, but the room has no socket',
 		unknownItem: 'Furniture'

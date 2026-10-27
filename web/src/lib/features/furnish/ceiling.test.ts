@@ -5,7 +5,7 @@ import { ceilingClearance } from './ceiling.ts';
 const room = {
 	polygon: rectanglePolygon(4000, 3000),
 	height: 2500,
-	slopes: [{ wall: 1, kneeHeight: 1000, angle: 45 }]
+	slopes: [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]
 };
 const item = (y: number, h: number) => ({
 	x: 2000,

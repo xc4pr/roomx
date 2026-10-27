@@ -29,8 +29,8 @@ describe('buildPdf', () => {
 		const flat = await buildPdf({ project, roomIds: ['room-rect'], language: 'de', fonts });
 		const room = project.rooms.find((candidate) => candidate.id === 'room-rect')!;
 		room.slopes = [
-			{ wall: 1, kneeHeight: 1000, angle: 45 },
-			{ wall: 3, kneeHeight: 800, angle: 30 }
+			{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 },
+			{ id: 's3', wall: 3, kneeHeight: 800, angle: 30 }
 		];
 		for (const language of ['de', 'en'] as const) {
 			const sloped = await buildPdf({ project, roomIds: ['room-rect'], language, fonts });

@@ -89,6 +89,14 @@
 				return t(messages, 'hint_windowBlocked');
 			case 'radiatorBlocked':
 				return t(messages, 'hint_radiatorBlocked');
+			case 'fireZone':
+				return t(messages, 'hint_fireZone');
+			case 'airflowBlocked':
+				return t(messages, 'hint_airflowBlocked');
+			case 'onStair':
+				return t(messages, 'hint_onStair');
+			case 'inStairwell':
+				return t(messages, 'hint_inStairwell');
 			case 'socketFar':
 				return issue.distance === undefined
 					? t(messages, 'hint_noSocket')

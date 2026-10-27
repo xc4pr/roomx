@@ -34,7 +34,20 @@ export const KIND_ICONS: Record<ElementKind, Component<{ class?: string }>> = {
 	switch: ToggleRight,
 	wallLamp: LampWallUp,
 	dataPort: Network,
-	ceilingLamp: LampCeiling
+	ceilingLamp: LampCeiling,
+	roofWindow: AppWindow,
+	acWall: Heater,
+	acFloor: Heater,
+	fireplace: Heater,
+	stove: Heater,
+	tiledStove: Heater,
+	washbasin: Archive,
+	toilet: Archive,
+	shower: Archive,
+	bathtub: Archive,
+	kitchenRun: Archive,
+	column: SquareDashed,
+	freeObstacle: SquareDashed
 };
 
 export function kindColor(kind: ElementKind): string {

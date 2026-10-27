@@ -108,7 +108,7 @@ describe('layout', () => {
 	const project = {
 		id: 'p',
 		name: 'p',
-		schemaVersion: 1 as const,
+		schemaVersion: 2 as const,
 		rev: 0,
 		createdAt: '',
 		updatedAt: '',
@@ -246,7 +246,7 @@ function lProject() {
 	return {
 		id: 'p',
 		name: 'p',
-		schemaVersion: 1 as const,
+		schemaVersion: 2 as const,
 		rev: 0,
 		createdAt: '',
 		updatedAt: '',
@@ -365,7 +365,7 @@ describe('clamped floor picking', () => {
 	const project = {
 		id: 'p',
 		name: 'p',
-		schemaVersion: 1 as const,
+		schemaVersion: 2 as const,
 		rev: 0,
 		createdAt: '',
 		updatedAt: '',
@@ -455,7 +455,7 @@ describe('walk map from room frames', () => {
 		return {
 			id: 'p',
 			name: 'p',
-			schemaVersion: 1 as const,
+			schemaVersion: 2 as const,
 			rev: 0,
 			createdAt: '',
 			updatedAt: '',
@@ -496,7 +496,7 @@ describe('shared openings', () => {
 		return {
 			id: 'p',
 			name: 'p',
-			schemaVersion: 1 as const,
+			schemaVersion: 2 as const,
 			rev: 0,
 			createdAt: '',
 			updatedAt: '',

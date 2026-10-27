@@ -264,7 +264,7 @@ export function placementAt(
 ): RoomElement | undefined {
 	if (kind === 'ceilingLamp') {
 		const base = createElement(kind, room, 1, 0, newId);
-		if (!isWallElement(base) && pointInPolygon(point, room.polygon, 1)) {
+		if (base.kind === 'ceilingLamp' && pointInPolygon(point, room.polygon, 1)) {
 			return { ...base, x: roundStep(point.x), y: roundStep(point.y) };
 		}
 		return base;

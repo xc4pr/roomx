@@ -12,7 +12,11 @@ const names = {
 		hall: 'Flur',
 		dining: 'Esszimmer',
 		storage: 'Abstellraum',
-		other: 'Andere'
+		other: 'Andere',
+		balcony: 'Balkon',
+		terrace: 'Terrasse',
+		garden: 'Garten',
+		winterGarden: 'Wintergarten'
 	},
 	en: {
 		living: 'Living room',
@@ -24,7 +28,11 @@ const names = {
 		hall: 'Hallway',
 		dining: 'Dining room',
 		storage: 'Storage room',
-		other: 'Other'
+		other: 'Other',
+		balcony: 'Balcony',
+		terrace: 'Terrace',
+		garden: 'Garden',
+		winterGarden: 'Conservatory'
 	}
 };
 

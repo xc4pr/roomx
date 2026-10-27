@@ -119,7 +119,9 @@ export interface KitchenModuleSpan {
 }
 
 // Modules sit side by side from the start of the run; whatever does not fit is cut off.
-export function kitchenModuleSpans(run: Pick<KitchenRun, 'modules' | 'width'>): KitchenModuleSpan[] {
+export function kitchenModuleSpans(
+	run: Pick<KitchenRun, 'modules' | 'width'>
+): KitchenModuleSpan[] {
 	const spans: KitchenModuleSpan[] = [];
 	let cursor = 0;
 	for (const module of run.modules) {
@@ -152,7 +154,10 @@ export function freeElementShape(element: FreeElement): Vec[] {
 		const ry = element.depth / 2;
 		return Array.from({ length: ROUND_SEGMENTS }, (_, i) => {
 			const angle = (2 * Math.PI * i) / ROUND_SEGMENTS;
-			return add(center, rotate({ x: rx * Math.cos(angle), y: ry * Math.sin(angle) }, element.rotation));
+			return add(
+				center,
+				rotate({ x: rx * Math.cos(angle), y: ry * Math.sin(angle) }, element.rotation)
+			);
 		});
 	}
 	return footprint({
@@ -170,7 +175,8 @@ function openAirTop(room: Pick<Room, 'cover' | 'height'>): number {
 // Upper end of a free element: the ceiling above its centre (the cover outdoors) for elements
 // that reach the ceiling, its own height otherwise.
 export function freeElementTop(room: RoomLike, element: FreeElement): number {
-	const reaches = (element.kind === 'column' || element.kind === 'freeObstacle') && element.toCeiling;
+	const reaches =
+		(element.kind === 'column' || element.kind === 'freeObstacle') && element.toCeiling;
 	if (!reaches) return element.elevation + element.height;
 	if (isOpenAir(room)) return openAirTop(room);
 	return Math.round(ceilingHeightAt(room, { x: element.x, y: element.y }));
@@ -259,7 +265,11 @@ export function elementVolumes(room: RoomLike, element: RoomElement): Volume[] {
 	}
 	if (isFreeElement(element)) {
 		return [
-			{ shape: freeElementShape(element), bottom: element.elevation, top: freeElementTop(room, element) }
+			{
+				shape: freeElementShape(element),
+				bottom: element.elevation,
+				top: freeElementTop(room, element)
+			}
 		];
 	}
 	return [];

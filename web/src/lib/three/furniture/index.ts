@@ -28,7 +28,14 @@ const builders: Record<ModelType, Build> = {
 	...storage,
 	...devices,
 	...decor,
-	...lighting
+	...lighting,
+	kitchenBase: storage.sideboard,
+	kitchenWall: storage.sideboard,
+	kitchenTall: storage.wardrobe,
+	kitchenSink: storage.sideboard,
+	hob: plainBox,
+	oven: plainBox,
+	fridge: storage.wardrobe
 };
 
 const FLAT: ReadonlySet<string> = new Set(['rug', 'roundRug', 'throw', 'ledStrip']);

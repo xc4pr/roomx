@@ -53,7 +53,10 @@ export function createRoom(
 	};
 }
 
-const KITCHEN_DEFAULT: readonly { kind: KitchenModuleKind; appliances?: KitchenModule['appliances'] }[] = [
+const KITCHEN_DEFAULT: readonly {
+	kind: KitchenModuleKind;
+	appliances?: KitchenModule['appliances'];
+}[] = [
 	{ kind: 'sink' },
 	{ kind: 'dishwasher' },
 	{ kind: 'base' },
@@ -66,7 +69,11 @@ export function kitchenGridWidth(grid: KitchenGrid): number {
 
 // A run as long as the wall allows (four modules at most): sink, dishwasher, base cabinet, hob
 // with oven, in the width of the chosen grid.
-export function defaultKitchenModules(length: number, grid: KitchenGrid, newId: IdFactory): KitchenModule[] {
+export function defaultKitchenModules(
+	length: number,
+	grid: KitchenGrid,
+	newId: IdFactory
+): KitchenModule[] {
 	const width = kitchenGridWidth(grid);
 	const count = Math.max(1, Math.min(KITCHEN_DEFAULT.length, Math.floor(length / width)));
 	return KITCHEN_DEFAULT.slice(0, count).map((module) => ({ id: newId(), width, ...module }));
@@ -173,11 +180,22 @@ export function createElement(
 			const width = ROOF_WINDOW.width;
 			const length = Math.max(width, wallLength);
 			const offset = Math.max(0, Math.min(length - width, Math.round(centerAlong - width / 2)));
-			const slope = room.slopes ? slopeAt({ polygon: room.polygon, slopes: room.slopes }, wallNumber, centerAlong) : undefined;
+			const slope = room.slopes
+				? slopeAt({ polygon: room.polygon, slopes: room.slopes }, wallNumber, centerAlong)
+				: undefined;
 			const rise = slope ? ROOF_WINDOW.length * Math.sin((slope.angle * Math.PI) / 180) : 0;
 			const knee = slope?.kneeHeight ?? 0;
 			const elevation = Math.round(Math.max(knee, Math.min(1000, room.height - rise)));
-			return { id, status, kind, wall: wallNumber, offset, width, length: ROOF_WINDOW.length, elevation };
+			return {
+				id,
+				status,
+				kind,
+				wall: wallNumber,
+				offset,
+				width,
+				length: ROOF_WINDOW.length,
+				elevation
+			};
 		}
 	}
 }

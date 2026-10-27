@@ -80,6 +80,10 @@ const CONFLICT_KEYS = {
 	doorBlocked: 'conflictDoorBlocked',
 	windowBlocked: 'conflictWindowBlocked',
 	radiatorBlocked: 'conflictRadiatorBlocked',
+	fireZone: 'conflictFireZone',
+	airflowBlocked: 'conflictAirflowBlocked',
+	onStair: 'conflictOnStair',
+	inStairwell: 'conflictInStairwell',
 	socketFar: 'conflictSocketFar'
 } as const satisfies Record<ItemIssue['code'], ImportKey>;
 

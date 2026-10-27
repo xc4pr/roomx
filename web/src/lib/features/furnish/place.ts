@@ -24,6 +24,7 @@ export const CATEGORY_MODEL: Record<ItemCategory, ModelType> = {
 	textile: 'throw',
 	decor: 'vase',
 	electronics: 'smallDevice',
+	kitchen: 'kitchenBase',
 	other: 'box'
 };
 
@@ -50,6 +51,7 @@ export const CATEGORY_MOUNT: Record<ItemCategory, Mount> = {
 	textile: 'on-top',
 	decor: 'on-top',
 	electronics: 'on-top',
+	kitchen: 'floor',
 	other: 'floor'
 };
 

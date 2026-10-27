@@ -418,7 +418,9 @@ export class ProjectStore {
 			const moved = new Set(moves.map((move) => move.element.id));
 			room.elements = room.elements.filter((element) => !moved.has(element.id));
 			for (const move of moves) {
-				project.rooms.find((candidate) => candidate.id === move.roomId)?.elements.push(move.element);
+				project.rooms
+					.find((candidate) => candidate.id === move.roomId)
+					?.elements.push(move.element);
 			}
 		});
 	}
@@ -453,7 +455,10 @@ export class ProjectStore {
 		const applied = this.mutate((project) => {
 			if (!project.floors) return;
 			const floor = { id, name, slabThickness: SLAB_THICKNESS };
-			const at = index === undefined ? project.floors.length : Math.max(0, Math.min(index, project.floors.length));
+			const at =
+				index === undefined
+					? project.floors.length
+					: Math.max(0, Math.min(index, project.floors.length));
 			project.floors.splice(at, 0, floor);
 		});
 		return applied && this.project?.floors?.some((floor) => floor.id === id) ? id : undefined;
@@ -485,7 +490,11 @@ export class ProjectStore {
 		if (index < 0) return false;
 		if (project.rooms.some((room) => roomFloorId(project, room) === floorId)) return false;
 		const below = index > 0 ? project.floors[index - 1].id : undefined;
-		if ((project.stairs ?? []).some((stair) => stair.fromFloorId === floorId || stair.fromFloorId === below)) {
+		if (
+			(project.stairs ?? []).some(
+				(stair) => stair.fromFloorId === floorId || stair.fromFloorId === below
+			)
+		) {
 			return false;
 		}
 		return this.mutate((draft) => {
@@ -499,7 +508,9 @@ export class ProjectStore {
 			if (!project.floors?.length) return;
 			project.stairs = [...(project.stairs ?? []), { ...stair, id }];
 		});
-		return applied && this.project?.stairs?.some((candidate) => candidate.id === id) ? id : undefined;
+		return applied && this.project?.stairs?.some((candidate) => candidate.id === id)
+			? id
+			: undefined;
 	}
 
 	updateStair(stairId: string, patch: StairPatch, options?: MutateOptions): void {

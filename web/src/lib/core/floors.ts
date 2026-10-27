@@ -27,7 +27,10 @@ export function floorsEnabled(project: Pick<Project, 'floors'>): boolean {
 }
 
 // The floor a room belongs to; a room without a (known) floor counts to the first floor.
-export function roomFloorId(project: Pick<Project, 'floors'>, room: Pick<Room, 'floorId'>): string | undefined {
+export function roomFloorId(
+	project: Pick<Project, 'floors'>,
+	room: Pick<Room, 'floorId'>
+): string | undefined {
 	const floors = project.floors ?? [];
 	if (floors.length === 0) return undefined;
 	return floors.some((floor) => floor.id === room.floorId) ? room.floorId : floors[0].id;
@@ -154,7 +157,13 @@ function localTreads(stair: Stair, risers: Risers): { treads: LocalTread[]; arri
 	if (stair.shape === 'straight') {
 		for (let i = 0; i < treadCount; i++) push(rect(-w / 2, w / 2, i * t, (i + 1) * t));
 		const end = treadCount * t;
-		return { treads, arrival: [{ x: -w / 2, y: end }, { x: w / 2, y: end }] };
+		return {
+			treads,
+			arrival: [
+				{ x: -w / 2, y: end },
+				{ x: w / 2, y: end }
+			]
+		};
 	}
 
 	if (stair.shape === 'l') {
@@ -168,7 +177,13 @@ function localTreads(stair: Stair, risers: Risers): { treads: LocalTread[]; arri
 			push(rect(inner, inner + side * t, y0, y0 + w));
 		}
 		const x = side * (w / 2 + second * t);
-		return { treads, arrival: [{ x, y: y0 }, { x, y: y0 + w }] };
+		return {
+			treads,
+			arrival: [
+				{ x, y: y0 },
+				{ x, y: y0 + w }
+			]
+		};
 	}
 
 	if (stair.shape === 'u') {
@@ -182,9 +197,16 @@ function localTreads(stair: Stair, risers: Risers): { treads: LocalTread[]; arri
 		push(rect(-w / 2, w / 2, y0, y0 + w), true);
 		push(rect(side * (w / 2), side * (w / 2 + U_EYE), y0, y0 + w), true);
 		push(rect(back - w / 2, back + w / 2, y0, y0 + w), true);
-		for (let j = 0; j < second; j++) push(rect(back - w / 2, back + w / 2, y0 - (j + 1) * t, y0 - j * t));
+		for (let j = 0; j < second; j++)
+			push(rect(back - w / 2, back + w / 2, y0 - (j + 1) * t, y0 - j * t));
 		const y = y0 - second * t;
-		return { treads, arrival: [{ x: back - w / 2, y }, { x: back + w / 2, y }] };
+		return {
+			treads,
+			arrival: [
+				{ x: back - w / 2, y },
+				{ x: back + w / 2, y }
+			]
+		};
 	}
 
 	// Spiral: sectors around the centre, the tread measured on the walking line.
@@ -345,7 +367,10 @@ export interface StairZone {
 
 // Areas of a room that furniture must keep free: the treads of a stair starting on its floor and
 // the opening of a stair arriving on it.
-export function stairZonesForRoom(project: Floored & Pick<Project, 'stairs'>, room: Room): StairZone[] {
+export function stairZonesForRoom(
+	project: Floored & Pick<Project, 'stairs'>,
+	room: Room
+): StairZone[] {
 	const floorId = roomFloorId(project, room);
 	if (!floorId) return [];
 	const zones: StairZone[] = [];
@@ -358,7 +383,8 @@ export function stairZonesForRoom(project: Floored & Pick<Project, 'stairs'>, ro
 		if (!context) continue;
 		if (context.from.id === floorId) {
 			for (const tread of context.layout.treads) {
-				if (touches(tread.polygon)) zones.push({ kind: 'stair', stairId: stair.id, shape: local(tread.polygon) });
+				if (touches(tread.polygon))
+					zones.push({ kind: 'stair', stairId: stair.id, shape: local(tread.polygon) });
 			}
 		}
 		if (context.to.id === floorId) {

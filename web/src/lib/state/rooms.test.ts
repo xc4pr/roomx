@@ -54,7 +54,9 @@ describe('room type', () => {
 		expect(moved).toHaveLength(1);
 		expect(moved[0]).toMatchObject({ id: door.id, kind: 'door', wall: 3, offset: 2600 });
 		await store.flush();
-		expect((await loadProject(id))!.rooms.find((room) => room.id === kitchen)!.elements).toHaveLength(1);
+		expect(
+			(await loadProject(id))!.rooms.find((room) => room.id === kitchen)!.elements
+		).toHaveLength(1);
 		store.undo();
 		expect(store.room(terrace)!.elements).toHaveLength(2);
 		expect(store.room(kitchen)!.elements).toHaveLength(0);

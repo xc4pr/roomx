@@ -310,9 +310,10 @@ function suggestionLines(
 	return suggestions.map((element) => {
 		const reason = element.reason ? ` · ${element.reason}` : '';
 		const name = elementKindNames[ctx.language][element.kind];
-		if (!isWallElement(element)) {
+		if (element.kind === 'ceilingLamp') {
 			return ctx.tr('suggestionCeiling', { name, x: element.x, y: element.y, reason });
 		}
+		if (!isWallElement(element)) return name;
 		const target = findWall(room.polygon, element.wall);
 		return ctx.tr('suggestionWall', {
 			name,

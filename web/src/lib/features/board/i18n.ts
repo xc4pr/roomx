@@ -43,6 +43,8 @@ export const messages = defineMessages({
 		warnTooHigh: '{room}: {element} an Wand {wall} ist höher als der Raum.',
 		warnTooHighSlope:
 			'{room}: {element} an Wand {wall} ist höher als die Wand an dieser Stelle (Dachschräge).',
+		warnRoofWindowOffSlope: '{room}: Das Dachfenster liegt nicht in einer Schräge.',
+		warnElementNotForRoomType: '{room}: {element}: Passt nicht zum Raumtyp.',
 		warnOverlap: '{room}: {a} und {b} überlappen sich an Wand {wall}.',
 		warnPhotos: '{room}: {done} von {total} Pflichtfotos sind aufgenommen.',
 		standingMark: '2 m',
@@ -89,6 +91,8 @@ export const messages = defineMessages({
 		warnTooHigh: '{room}: {element} on wall {wall} is taller than the room.',
 		warnTooHighSlope:
 			'{room}: {element} on wall {wall} is taller than the wall at that spot (sloped ceiling).',
+		warnRoofWindowOffSlope: '{room}: The roof window does not lie in a slope.',
+		warnElementNotForRoomType: '{room}: {element}: Does not fit the room type.',
 		warnOverlap: '{room}: {a} and {b} overlap on wall {wall}.',
 		warnPhotos: '{room}: {done} of {total} required photos taken.',
 		standingMark: '2 m',

@@ -56,9 +56,9 @@ describe('palette groups by room type', () => {
 		expect(groupsForRoom(room({ type: 'kitchen' }))).toContain('kitchen');
 		expect(groupsForRoom(room({ type: 'living' }))).not.toContain('kitchen');
 		expect(groupsForRoom(room({ type: 'living', kitchen: { open: true } }))).toContain('kitchen');
-		expect(
-			groupsForRoom(room({ type: 'kitchen', kitchen: { mode: 'catalog' } }))
-		).not.toContain('kitchen');
+		expect(groupsForRoom(room({ type: 'kitchen', kitchen: { mode: 'catalog' } }))).not.toContain(
+			'kitchen'
+		);
 		expect(groupsForRoom(room({ type: 'bedroom', kitchen: { open: true } }))).not.toContain(
 			'kitchen'
 		);
@@ -80,7 +80,10 @@ describe('palette groups by room type', () => {
 	it('offers a roof window only in a room with a slope', () => {
 		expect(kindAvailable(room(), 'roofWindow')).toBe(false);
 		expect(
-			kindAvailable(room({ slopes: [{ id: 's', wall: 1, kneeHeight: 800, angle: 40 }] }), 'roofWindow')
+			kindAvailable(
+				room({ slopes: [{ id: 's', wall: 1, kneeHeight: 800, angle: 40 }] }),
+				'roofWindow'
+			)
 		).toBe(true);
 	});
 
@@ -170,9 +173,21 @@ describe('fixtures and furniture', () => {
 		const run = createElement('kitchenRun', kitchen, 1, 2000, newId) as KitchenRun;
 		run.upper = { depth: 350, height: 700, elevation: 1450 };
 		kitchen.elements = [run];
-		const onWorktop = item({ id: 'a', x: 1000, y: 300, elevation: 900, dims: { w: 400, d: 300, h: 300 } });
+		const onWorktop = item({
+			id: 'a',
+			x: 1000,
+			y: 300,
+			elevation: 900,
+			dims: { w: 400, d: 300, h: 300 }
+		});
 		const inBase = item({ id: 'b', x: 1000, y: 300, dims: { w: 400, d: 300, h: 300 } });
-		const intoUpper = item({ id: 'c', x: 1000, y: 200, elevation: 900, dims: { w: 400, d: 300, h: 700 } });
+		const intoUpper = item({
+			id: 'c',
+			x: 1000,
+			y: 200,
+			elevation: 900,
+			dims: { w: 400, d: 300, h: 700 }
+		});
 		const codes = checkRoomItems(kitchen, [onWorktop, inBase, intoUpper]).map((issue) => [
 			issue.code,
 			issue.itemIds[0]
@@ -273,12 +288,25 @@ describe('roof slopes', () => {
 
 	it('equals a partial slope when the dormer is as high as the room', () => {
 		const withDormer = room({
-			slopes: [{ id: 's', wall: 1, kneeHeight: 500, angle: 45, dormers: [{ id: 'd', from: 0, to: 1000, height: 2500 }] }]
+			slopes: [
+				{
+					id: 's',
+					wall: 1,
+					kneeHeight: 500,
+					angle: 45,
+					dormers: [{ id: 'd', from: 0, to: 1000, height: 2500 }]
+				}
+			]
 		});
-		const partial = room({ slopes: [{ id: 's', wall: 1, kneeHeight: 500, angle: 45, from: 1000, to: 4000 }] });
+		const partial = room({
+			slopes: [{ id: 's', wall: 1, kneeHeight: 500, angle: 45, from: 1000, to: 4000 }]
+		});
 		for (const x of [200, 999, 1001, 2500, 3900]) {
 			for (const y of [0, 600, 1500]) {
-				expect(ceilingHeightAt(withDormer, { x, y })).toBeCloseTo(ceilingHeightAt(partial, { x, y }), 6);
+				expect(ceilingHeightAt(withDormer, { x, y })).toBeCloseTo(
+					ceilingHeightAt(partial, { x, y }),
+					6
+				);
 			}
 		}
 	});

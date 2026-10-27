@@ -8,7 +8,7 @@ import {
 	wallProfile
 } from './profile.ts';
 
-const room = (slopes: { wall: number; kneeHeight: number; angle: number }[]) => ({
+const room = (slopes: { id: string; wall: number; kneeHeight: number; angle: number }[]) => ({
 	polygon: rectanglePolygon(4000, 3000),
 	height: 2500,
 	slopes
@@ -25,13 +25,13 @@ describe('wall profile', () => {
 	});
 
 	it('shows the knee wall as a low flat wall', () => {
-		const points = wallProfile(room([{ wall: 1, kneeHeight: 1000, angle: 45 }]), 1);
+		const points = wallProfile(room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]), 1);
 		expect(points).toHaveLength(2);
 		expect(points.every((p) => p.height === 1000)).toBe(true);
 	});
 
 	it('shows a gable wall with a slanted edge', () => {
-		const sloped = room([{ wall: 1, kneeHeight: 1000, angle: 45 }]);
+		const sloped = room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]);
 		const points = wallProfile(sloped, 2);
 		expect(points).toHaveLength(3);
 		expect(points[0].height).toBeCloseTo(1000);
@@ -46,8 +46,8 @@ describe('wall profile', () => {
 	it('builds a peak from two opposite slopes', () => {
 		const points = wallProfile(
 			room([
-				{ wall: 1, kneeHeight: 1000, angle: 30 },
-				{ wall: 3, kneeHeight: 1000, angle: 30 }
+				{ id: 's1', wall: 1, kneeHeight: 1000, angle: 30 },
+				{ id: 's3', wall: 3, kneeHeight: 1000, angle: 30 }
 			]),
 			2
 		);
@@ -61,7 +61,7 @@ describe('wall profile', () => {
 	});
 
 	it('limits element height to the lower end of its span', () => {
-		const sloped = room([{ wall: 1, kneeHeight: 1000, angle: 45 }]);
+		const sloped = room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]);
 		expect(spanLimit(sloped, 2, 0, 500)).toBeCloseTo(1000);
 		expect(spanLimit(sloped, 2, 2000, 500)).toBe(2500);
 		expect(clampToProfile(sloped, 2, 0, 500, 900, 800)).toBe(200);

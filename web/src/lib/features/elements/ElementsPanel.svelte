@@ -72,9 +72,10 @@
 	}
 
 	function describe(element: RoomElement): string {
-		if (!isWallElement(element)) {
+		if (element.kind === 'ceilingLamp') {
 			return t(messages, 'ceilingLampAt', { x: format(element.x), y: format(element.y) });
 		}
+		if (!isWallElement(element)) return '';
 		const start = room ? wallCorners(room.polygon, element.wall).split('–')[0] : '';
 		return t(messages, 'rowInfo', {
 			size: `${format(element.width)} × ${format(element.height)}`,

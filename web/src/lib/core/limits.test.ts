@@ -30,7 +30,7 @@ describe('overflowOf', () => {
 
 	it('counts slopes under polygonPoints and brief lists under their limits', () => {
 		const project = emptyBriefProject();
-		const slope = { wall: 1, kneeHeight: 0, angle: 30 };
+		const slope = { id: 's1', wall: 1, kneeHeight: 0, angle: 30 };
 		project.rooms[0].slopes = filled(LIMITS.polygonPoints + 1, () => slope);
 		const brief = project.brief!;
 		brief.bedSizes = filled(LIMITS.briefList + 3, () => '90x200');

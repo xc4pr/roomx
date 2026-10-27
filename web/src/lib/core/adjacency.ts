@@ -137,7 +137,10 @@ export function openingsForNeighbours(rooms: readonly Room[], roomId: string): M
 		.filter((entry) => entry.sourceRoomId === roomId && indoor.has(entry.roomId))
 		.map((entry) => ({
 			...entry,
-			element: { ...entry.element, id: entry.element.id.slice(0, entry.element.id.lastIndexOf('@')) }
+			element: {
+				...entry.element,
+				id: entry.element.id.slice(0, entry.element.id.lastIndexOf('@'))
+			}
 		}));
 }
 

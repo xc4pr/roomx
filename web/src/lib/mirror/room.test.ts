@@ -29,7 +29,7 @@ async function mirrorRoomOf(
 	const project = {
 		id: 'p',
 		name: 'P',
-		schemaVersion: 1,
+		schemaVersion: 2,
 		rev: 0,
 		createdAt: '',
 		updatedAt: '',

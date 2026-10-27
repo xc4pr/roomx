@@ -24,7 +24,7 @@ function project(): Project {
 	return {
 		id: 'p1',
 		name: 'Wohnung',
-		schemaVersion: 1,
+		schemaVersion: 2,
 		rev: 0,
 		createdAt: '',
 		updatedAt: '',

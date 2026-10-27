@@ -149,6 +149,7 @@ function drawOpening(
 		strokeLine(page, inner(start), inner(end), { width: 0.8, color: stroke });
 		return;
 	}
+	if (!isWallElement(element)) return;
 	if (element.kind !== 'door') return;
 	if (element.swing === 'sliding') {
 		const inner = (p: Point2): Point2 => ({ x: p.x + inward.x * 3.2, y: p.y + inward.y * 3.2 });
@@ -174,12 +175,13 @@ function drawElectrical(
 	const dash = dashFor(element);
 	const filled = element.status !== 'suggested';
 	const radius = 4.2;
-	if (!isWallElement(element)) {
+	if (element.kind === 'ceilingLamp') {
 		const center = toPage(fit, element);
 		circle(page, center, 7, { color: stroke, width: 0.9, dash: [2.5, 2] });
 		circle(page, center, 2.6, { fill: stroke, color: stroke, width: 0.6 });
 		return;
 	}
+	if (!isWallElement(element)) return;
 	const target = walls(room.polygon).find((candidate) => candidate.number === element.wall);
 	if (!target) return;
 	const along = element.offset + element.width / 2;

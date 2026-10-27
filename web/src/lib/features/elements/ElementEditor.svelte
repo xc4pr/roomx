@@ -152,7 +152,7 @@
 		if (!element) return;
 		const copy = { ...($state.snapshot(element) as RoomElement), id: newId() } as RoomElement;
 		if (isWallElement(copy)) copy.offset = duplicateOffset(copy, wallLength);
-		else {
+		else if (copy.kind === 'ceilingLamp') {
 			copy.x += 400;
 			copy.y += 400;
 		}
@@ -305,7 +305,7 @@
 					/>
 				{/if}
 			</div>
-		{:else}
+		{:else if element.kind === 'ceilingLamp'}
 			{@const lamp = element}
 			<div class="flex flex-col gap-3">
 				<NumberField

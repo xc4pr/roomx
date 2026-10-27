@@ -81,6 +81,10 @@
 						wall: issue.wall ?? 0
 					}
 				);
+			case 'roofWindowOffSlope':
+				return t(messages, 'warnRoofWindowOffSlope', { room: room.name });
+			case 'elementNotForRoomType':
+				return t(messages, 'warnElementNotForRoomType', { room: room.name, element: first });
 			case 'elementOverlap':
 				return t(messages, 'warnOverlap', {
 					room: room.name,

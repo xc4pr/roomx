@@ -110,7 +110,7 @@
 	style="stroke: {color}; stroke-width: {strokeWidth}; stroke-dasharray: {dash}; fill: none"
 	opacity={look === 'planned' ? 0.9 : 1}
 >
-	{#if !isWallElement(element)}
+	{#if element.kind === 'ceilingLamp'}
 		<g transform="translate({element.x} {element.y})">
 			{#if selected}
 				<circle

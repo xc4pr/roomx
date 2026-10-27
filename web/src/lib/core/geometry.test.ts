@@ -177,7 +177,11 @@ describe('walls and openings', () => {
 });
 
 describe('roof slopes', () => {
-	const attic = { polygon: rect, height: 2400, slopes: [{ wall: 1, kneeHeight: 1000, angle: 45 }] };
+	const attic = {
+		polygon: rect,
+		height: 2400,
+		slopes: [{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]
+	};
 
 	it('computes ceiling height under a slope', async () => {
 		const { ceilingHeightAt, slopeContour, slopeRun, wallHeightAt } = await import('./geometry.ts');

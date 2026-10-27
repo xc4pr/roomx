@@ -327,21 +327,15 @@
 		"persons": {
 			"adults": 2,
 			"children": 1,
-			"childAges": [
-				4
-			]
+			"childAges": [4]
 		},
-		"bedSizes": [
-			"160x200"
-		],
+		"bedSizes": ["160x200"],
 		"workstations": [
 			{
 				"monitors": 2,
 				"monitorInch": 27,
 				"computer": "laptop",
-				"devices": [
-					"Dock"
-				]
+				"devices": ["Dock"]
 			}
 		],
 		"style": "ruhig, hell",

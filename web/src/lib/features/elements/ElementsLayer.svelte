@@ -270,8 +270,8 @@
 			startAlong: along,
 			grab,
 			lastWall: startWall,
-			grabX: isWallElement(element) ? 0 : point.x - element.x,
-			grabY: isWallElement(element) ? 0 : point.y - element.y
+			grabX: element.kind === 'ceilingLamp' ? point.x - element.x : 0,
+			grabY: element.kind === 'ceilingLamp' ? point.y - element.y : 0
 		};
 	}
 
@@ -290,7 +290,7 @@
 		const threshold = thresholdMm(pxPerMm);
 		const options = { coalesce: `drag-${element.id}` };
 
-		if (!isWallElement(element)) {
+		if (element.kind === 'ceilingLamp') {
 			const next = snapCeilingPoint(
 				{ x: point.x - current.grabX, y: point.y - current.grabY },
 				centroid(room.polygon),
@@ -302,6 +302,7 @@
 			}
 			return;
 		}
+		if (!isWallElement(element)) return;
 
 		if (current.mode === 'move') {
 			const hit = pickWall(room.polygon, point, current.lastWall, px(36));
@@ -482,14 +483,14 @@
 		if (!delta) return;
 		event.preventDefault();
 		const options = { coalesce: `nudge-${element.id}` };
-		if (!isWallElement(element)) {
+		if (element.kind === 'ceilingLamp') {
 			const step = event.shiftKey ? 100 : 10;
 			const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0;
 			const dy = event.key === 'ArrowUp' ? step : event.key === 'ArrowDown' ? -step : 0;
 			const next = { x: element.x + dx, y: element.y + dy };
 			if (pointInPolygon(next, room.polygon, 1))
 				store.updateElement<CeilingLamp>(room.id, element.id, next, options);
-		} else {
+		} else if (isWallElement(element)) {
 			const target = wallList[element.wall - 1];
 			if (!target) return;
 			store.updateElement<WallElement>(
@@ -630,7 +631,7 @@
 							: handlers(element, 'move', editable)}
 					/>
 				</g>
-			{:else}
+			{:else if element.kind === 'ceilingLamp'}
 				{@const lamp = symbolMetrics(element, pxPerMm)}
 				<circle
 					cx={element.x}

@@ -3,7 +3,7 @@ import { rectanglePolygon } from '#lib/core/defaults.ts';
 import { areaMm2 } from '#lib/core/geometry.ts';
 import { clipSegmentToPolygon, clipToHalfPlane, longestSegment, slopeShapes } from './slopes.ts';
 
-const room = (slopes: { wall: number; kneeHeight: number; angle: number }[]) => ({
+const room = (slopes: { id: string; wall: number; kneeHeight: number; angle: number }[]) => ({
 	polygon: rectanglePolygon(4000, 3000),
 	height: 2500,
 	slopes
@@ -21,7 +21,7 @@ describe('slopes', () => {
 	});
 
 	it('builds the slope zone clipped to the room', () => {
-		const [shape] = slopeShapes(room([{ wall: 1, kneeHeight: 1000, angle: 45 }]));
+		const [shape] = slopeShapes(room([{ id: 's1', wall: 1, kneeHeight: 1000, angle: 45 }]));
 		expect(shape.run).toBeCloseTo(1500);
 		expect(areaMm2(shape.zone)).toBeCloseTo(4000 * 1500);
 		expect(shape.standing).toHaveLength(1);
@@ -30,19 +30,19 @@ describe('slopes', () => {
 	});
 
 	it('limits the zone to the room when the run exceeds it', () => {
-		const [shape] = slopeShapes(room([{ wall: 1, kneeHeight: 0, angle: 20 }]));
+		const [shape] = slopeShapes(room([{ id: 's1', wall: 1, kneeHeight: 0, angle: 20 }]));
 		expect(areaMm2(shape.zone)).toBeCloseTo(4000 * 3000);
 		expect(shape.full).toHaveLength(0);
 	});
 
 	it('skips walls without effect and unknown walls', () => {
-		expect(slopeShapes(room([{ wall: 9, kneeHeight: 1000, angle: 45 }]))).toHaveLength(0);
-		expect(slopeShapes(room([{ wall: 1, kneeHeight: 2500, angle: 45 }]))).toHaveLength(0);
+		expect(slopeShapes(room([{ id: 's9', wall: 9, kneeHeight: 1000, angle: 45 }]))).toHaveLength(0);
+		expect(slopeShapes(room([{ id: 's1', wall: 1, kneeHeight: 2500, angle: 45 }]))).toHaveLength(0);
 		expect(slopeShapes(room([]))).toHaveLength(0);
 	});
 
 	it('omits the standing line when knee height reaches 2 m', () => {
-		const [shape] = slopeShapes(room([{ wall: 1, kneeHeight: 2000, angle: 45 }]));
+		const [shape] = slopeShapes(room([{ id: 's1', wall: 1, kneeHeight: 2000, angle: 45 }]));
 		expect(shape.standing).toHaveLength(0);
 		expect(shape.full).toHaveLength(1);
 	});
