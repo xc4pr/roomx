@@ -17,7 +17,7 @@ import { mergeEntries, type MergeResult } from './merge.ts';
 
 export { catalogAliases };
 
-export const CATALOG_PRICES_AS_OF = '2026-10';
+export const CATALOG_PRICES_AS_OF = '2026-11';
 
 export const catalog: readonly CatalogEntry[] = withLooks(
 	withPrices([
